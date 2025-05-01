@@ -1,0 +1,37 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import directus from "../../../lib/directus";
+import { readItems } from "@directus/sdk";
+
+const posts = await directus.request(
+  readItems("articles", {
+    fields: [
+      "slug",
+      "title",
+      "published_date",
+      { author: ["name"] },
+    ],
+    sort: ["-published_date"],
+  })
+);
+---
+
+<Layout title="News">
+  <main>
+    <h1>News</h1>
+   <ul>
+  {
+    posts.map((article) => (
+      <li>
+        <a href={`/news/${article.slug}`}>
+          <h2>{article.title}</h2>
+        </a>
+        <span>
+          {article.published_date} &bull; {article.author.name}
+        </span>
+      </li>
+    ))
+  }
+ </ul>
+  </main>
+</Layout>

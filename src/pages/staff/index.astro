@@ -1,0 +1,182 @@
+---
+// src/pages/staff/index.astro
+import StaffLayout from '../../layouts/StaffLayout.astro';
+import StaffList from '../../components/StaffList.astro';
+import { fetchStaffByDepartment, fetchAllDepartments } from '../../lib/api_staff';
+
+// Fetch all staff grouped by department
+const staffByDepartment = await fetchStaffByDepartment();
+// Get all departments for the filter dropdown
+const allDepartments = await fetchAllDepartments();
+
+---
+
+<StaffLayout>
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-blue-900">KGS Staff Directory</h1>
+    <p class="text-gray-600">Contact information for Kentucky Geological Survey staff members.</p>
+  </div>
+
+  <!-- Search and Filter Controls -->
+  <div class="bg-white p-4 rounded-lg shadow mb-8">
+    <div class="md:flex md:space-x-4 space-y-3 md:space-y-0">
+      <!-- Search Input -->
+      <div class="flex-grow">
+        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Staff</label>
+        <input 
+          type="text" 
+          id="search" 
+          placeholder="Search by name or expertise..." 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      
+      <!-- Department Filter -->
+      <div class="md:w-1/4">
+        <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Filter by Department</label>
+        <select 
+          id="department" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">All Departments</option>
+          {Object.keys(staffByDepartment).map((dept) => (
+            <option value={dept}>{dept}</option>
+          ))}
+        </select>
+      </div>
+      
+      <!-- Sort Direction -->
+      <div class="md:w-1/4">
+        <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+        <select 
+          id="sort" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="name">Name (A-Z)</option>
+          <option value="name-desc">Name (Z-A)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Sections -->
+  <div id="staff-container" class="space-y-12">
+    {Object.entries(staffByDepartment).map(([department, staff]) => (
+      <div class="department-section" data-department={department}>
+        <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
+        <StaffList staff={staff} />
+      </div>
+    ))}
+  </div>
+
+  <!-- No Results Message (hidden by default) -->
+  <div id="no-results" class="hidden py-8 text-center">
+    <h3 class="text-xl font-medium text-gray-700">No staff members found</h3>
+    <p class="text-gray-500 mt-2">Try adjusting your search criteria</p>
+  </div>
+</StaffLayout>
+
+<script>
+  // Client-side search and filtering functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search');
+    const departmentSelect = document.getElementById('department');
+    const sortSelect = document.getElementById('sort');
+    const staffContainer = document.getElementById('staff-container');
+    const noResults = document.getElementById('no-results');
+    const departmentSections = document.querySelectorAll('.department-section');
+    
+    // Function to filter staff members
+    function filterStaff() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedDepartment = departmentSelect.value;
+      let hasVisibleStaff = false;
+      
+      // Loop through all department sections
+      departmentSections.forEach(section => {
+        const department = section.getAttribute('data-department');
+        const staffCards = section.querySelectorAll('.staff-card-container');
+        let visibleCardsInDepartment = 0;
+        
+        // Show/hide department section based on filter
+        if (selectedDepartment && selectedDepartment !== department) {
+          section.classList.add('hidden');
+        } else {
+          section.classList.remove('hidden');
+          
+          // Filter individual staff cards by search term
+          staffCards.forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            const title = card.getAttribute('data-title').toLowerCase();
+            const expertise = card.getAttribute('data-expertise')?.toLowerCase() || '';
+            
+            if (searchTerm === '' || 
+                name.includes(searchTerm) || 
+                title.includes(searchTerm) || 
+                expertise.includes(searchTerm)) {
+              card.classList.remove('hidden');
+              visibleCardsInDepartment++;
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+          
+          // Hide department if no visible staff after search filter
+          if (visibleCardsInDepartment === 0) {
+            section.classList.add('hidden');
+          } else {
+            hasVisibleStaff = true;
+          }
+        }
+      });
+      
+      // Toggle no results message
+      if (hasVisibleStaff) {
+        noResults.classList.add('hidden');
+        staffContainer.classList.remove('hidden');
+      } else {
+        noResults.classList.remove('hidden');
+        staffContainer.classList.add('hidden');
+      }
+    }
+    
+    // Function to sort staff members
+    function sortStaff() {
+      const sortBy = sortSelect.value;
+      
+      departmentSections.forEach(section => {
+        const staffList = section.querySelector('.staff-list');
+        const staffCards = Array.from(staffList.children);
+        
+        staffCards.sort((a, b) => {
+          const aName = a.getAttribute('data-name');
+          const bName = b.getAttribute('data-name');
+          const aTitle = a.getAttribute('data-title');
+          const bTitle = b.getAttribute('data-title');
+          
+          if (sortBy === 'name') {
+            return aName.localeCompare(bName);
+          } else if (sortBy === 'name-desc') {
+            return bName.localeCompare(aName);
+          } else if (sortBy === 'title') {
+            return aTitle.localeCompare(bTitle);
+          }
+        });
+        
+        // Remove all current cards
+        staffCards.forEach(card => card.remove());
+        
+        // Append sorted cards
+        staffCards.forEach(card => staffList.appendChild(card));
+      });
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterStaff);
+    departmentSelect.addEventListener('change', filterStaff);
+    sortSelect.addEventListener('change', sortStaff);
+    
+    // Initialize first time
+    filterStaff();
+  });
+</script>

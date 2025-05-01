@@ -1,0 +1,48 @@
+---
+// src/pages/staff/[slug].astro
+import StaffLayout from '../../layouts/StaffLayout.astro';
+import StaffDetail from '../../components/StaffDetail.astro';
+import { fetchAllStaffSlugs, fetchStaffBySlug, fetchRelatedStaff } from '../../lib/api_staff';
+
+// Generate static paths for all staff members
+export async function getStaticPaths() {
+  const slugs = await fetchAllStaffSlugs();
+  
+  return slugs.map(slug => ({
+    params: {
+      slug
+    }
+  }));
+}
+
+// Get the staff member for this page
+const { slug } = Astro.params;
+const member = await fetchStaffBySlug(slug);
+
+// Get related staff in the same department
+let relatedStaff = [];
+if (member && member.department_id?.id) {
+  relatedStaff = await fetchRelatedStaff(member.department_id.id, member.id, 4);
+}
+
+// Handle 404 if staff member not found
+if (!member) {
+  return Astro.redirect('/404');
+}
+---
+
+<StaffLayout>
+  <!-- Add breadcrumb element for the staff detail page -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <span class="text-gray-800">{member.first_name} {member.last_name}</span>
+  </Fragment>
+  
+  <div class="max-w-5xl mx-auto">
+    <!-- Page Title -->
+    <h1 class="sr-only">Staff Profile: {member.first_name} {member.last_name}</h1>
+    
+    <!-- Staff Detail Component -->
+    <StaffDetail member={member} relatedStaff={relatedStaff} />
+  </div>
+</StaffLayout>
