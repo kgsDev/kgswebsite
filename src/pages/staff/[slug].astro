@@ -24,6 +24,30 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const member = await fetchStaffBySlug(slug);
 
+// Try to fix undefined properties now
+if (member && member.team) {
+  // Add a debug badge if teams are present but properties are undefined
+  if (member.team.length > 0 && !member.team[0].name && !member.team[0].description) {
+    member.team = member.team.map(team => ({
+      ...team,
+      debug: true, // Add a flag to indicate this was fixed
+      name: team.name || `Team ID: ${team.id || 'Unknown'}`,
+      description: team.description || `Team ID: ${team.id || 'Unknown'}`
+    }));
+  }
+}
+
+// Same for locations
+if (member && member.location) {
+  if (member.location.length > 0 && !member.location[0].name) {
+    member.location = member.location.map(location => ({
+      ...location,
+      debug: true, // Add a flag to indicate this was fixed
+      name: location.name || `Location ID: ${location.id || 'Unknown'}`
+    }));
+  }
+}
+
 // Get related staff in the same department
 let relatedStaff = [];
 if (member && member.department_id?.id) {
@@ -45,7 +69,7 @@ if (!member) {
   
   <div class="max-w-5xl mx-auto">
     <!-- Page Title -->
-    <h1 class="sr-only">Staff Profile: {member.first_name} {member.last_name}</h1>
+    <h1 class="sr-only">Employee Profile: {member.first_name} {member.last_name}</h1>
     
     <!-- Staff Detail Component -->
     <StaffDetail member={member} relatedStaff={relatedStaff} />

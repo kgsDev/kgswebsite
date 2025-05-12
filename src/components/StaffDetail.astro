@@ -11,116 +11,137 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 <div class="max-w-5xl mx-auto">
   <!-- Staff Member Header - More compact design -->
   <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
-    <div class="md:flex">
-      <!-- Photo Section - Fixed height -->
-      <div class="md:w-1/3 relative">
-        {typeof member.photo === 'string' && member.photo ? (
-          <div class="relative h-full">
-            <img 
-              src={`${directusUrl}assets/${member.photo}?quality=100&fit=cover`} 
-              alt={`${member.first_name} ${member.last_name}`}
-              class="w-full object-cover"
-              style="height: 350px;"
-            />
-            <!-- Department color indicator -->
-            <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
-          </div>
-        ) : (
-          <div class="bg-gray-200 flex items-center justify-center" style="height: 350px;">
-            <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
-              <span class="text-4xl font-semibold text-blue-800">
-                {member.first_name.charAt(0)}{member.last_name.charAt(0)}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <!-- Info Section - Essential info only -->
-      <div class="md:w-2/3 p-6 md:p-8">
-        <div class="mb-6">
-          <h1 class="text-3xl font-bold text-blue-800 mb-2">
-            {member.first_name} {member.last_name}
-          </h1>
-          <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
-          <p class="text-gray-500 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            {member.department}
-          </p>
+  <div class="md:flex">
+    <!-- Photo Section - Better height handling -->
+    <div class="md:w-1/3 relative">
+      {typeof member.photo === 'string' && member.photo ? (
+        <div class="relative h-full md:min-h-full">
+          <img 
+            src={`${directusUrl}assets/${member.photo}?quality=90&height=650&fit=cover`} 
+            alt={`${member.first_name} ${member.last_name}`}
+            class="w-full h-full object-cover md:absolute md:inset-0"
+            style="object-position: top center; min-height: 350px;"
+          />
+          <!-- Department color indicator -->
+          <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
         </div>
-      
-        <div class="space-y-4">
-          {/* Essential Contact Information in main card */}
-          <div class="flex flex-wrap gap-4">
-            {member.email && (
-              <a href={`mailto:${member.email}`} class="inline-flex items-center text-blue-600 hover:underline">
-                <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
-                </div>
-                {member.email}
-              </a>
-            )}
-            
-            {member.phone && (
-              <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center text-blue-600 hover:underline">
-                <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
-                </div>
-                {member.phone}
-              </a>
-            )}
+      ) : (
+        <div class="bg-gray-200 flex items-center justify-center" style="min-height: 350px;">
+          <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
+            <span class="text-4xl font-semibold text-blue-800">
+              {member.first_name.charAt(0)}{member.last_name.charAt(0)}
+            </span>
           </div>
+        </div>
+      )}
+    </div>
+    
+    <!-- Info Section - Essential info only -->
+    <div class="md:w-2/3 p-6 md:p-8">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-blue-800 mb-2">
+          {member.first_name} {member.last_name}
+        </h1>
+        <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
+        <p class="text-gray-500 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          {member.department}
+        </p>
+      </div>
+    
+      <div class="space-y-4">
+        {/* Essential Contact Information in main card */}
+        <div class="flex flex-wrap gap-4">
+          {member.email && (
+            <a href={`mailto:${member.email}`} class="inline-flex items-center text-blue-600 hover:underline">
+              <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </div>
+              {member.email}
+            </a>
+          )}
           
-          {/* Teams and locations in main card, side by side */}
-          <div class="grid md:grid-cols-2 gap-3 mt-4">
-            {member.team && member.team.length > 0 && (
-              <div class="bg-blue-50 p-3 rounded-lg">
-                <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Teams
-                </h3>
-                <div class="flex flex-wrap gap-1">
-                  {member.team.map((team) => (
+          {member.phone && (
+            <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center text-blue-600 hover:underline">
+              <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+              </div>
+              {member.phone}
+            </a>
+          )}
+        </div>
+        
+        {/* Teams and locations in main card, side by side */}
+        <div class="grid md:grid-cols-2 gap-3 mt-4">
+          {/* Teams Section */}
+          {member.team && member.team.length > 0 && (
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Teams
+              </h3>
+              <div class="flex flex-wrap gap-1">
+                {member.team.map((team) => {
+                  // Try to find the best property to display
+                  const displayName = team.name || team.description || ``;
+                  
+                  return (
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {team.name || `Team #${team.id}`}
+                      {displayName}
                     </span>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            )}
-            
-            {member.location && member.location.length > 0 && (
-              <div class="bg-blue-50 p-3 rounded-lg">
-                <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Locations
-                </h3>
-                <div class="flex flex-wrap gap-1">
-                  {member.location.map((location) => (
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {location.name || `Location #${location.id}`}
-                    </span>
-                  ))}
-                </div>
+            </div>
+          )}
+
+          {/* Locations Section */}
+          {member.location && member.location.length > 0 && (
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Locations
+              </h3>
+
+              <div class="flex flex-wrap gap-2">
+                {member.location.map((location) => {
+                  // Try to find the best property to display
+                  const displayName = location.name || `Location #${location.id || '?'}`;
+                  
+                  // Check if we should add city/state
+                  const hasDetails = location.city && location.state;
+                  
+                  return (
+                    <div class="flex flex-col px-3 py-2 rounded-lg text-xs bg-green-100 text-green-800">
+                      <span class="font-medium">{displayName}</span>
+                      {hasDetails && (
+                        <span class="text-green-700 text-xs mt-1">
+                          {location.city}, {location.state}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   </div>
+</div>
   
   {/* Information Sections in a 2-column grid */}
   <div class="grid md:grid-cols-2 gap-6 mb-8">
