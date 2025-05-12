@@ -158,7 +158,7 @@ export async function fetchStaffBySlug(slug) {
     const member = staff[0];
     member.department = member.department_id?.name || 'Other';
     
-    // After getting the basic staff member, fetch teams and locations separately
+    // After getting the basic staff member, fetch teams and locations and labs separately
     try {
       // Fetch teams for this staff member
       const teams = await apiRequest('/items/staff_team', {
@@ -187,6 +187,21 @@ export async function fetchStaffBySlug(slug) {
       if (locations && locations.length > 0) {
         member.location = locations.map(l => l.locations_id);
       }
+
+      // Fetch labs for this staff member
+      const labs = await apiRequest('/items/lab_staff', {
+        fields: ['lab_id.*'],
+        filter: JSON.stringify({
+          staff_id: {
+            _eq: member.id
+          }
+        })
+      });
+      
+      if (labs && labs.length > 0) {
+        member.labs = labs.map(l => l.lab_id);
+      }
+
     } catch (error) {
       console.error('Error fetching teams or locations:', error);
       // Don't fail the whole request if just teams/locations fail

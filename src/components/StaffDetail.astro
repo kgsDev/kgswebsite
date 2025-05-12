@@ -104,7 +104,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             </div>
           )}
 
-          {/* Locations Section */}
+          {/* Locations Section - With Interactive Links */}
           {member.location && member.location.length > 0 && (
             <div class="bg-blue-50 p-3 rounded-lg">
               <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
@@ -115,21 +115,73 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                 Locations
               </h3>
 
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-col gap-2">
                 {member.location.map((location) => {
                   // Try to find the best property to display
                   const displayName = location.name || `Location #${location.id || '?'}`;
+                  const slug = location.slug || `location-${location.id}`;
                   
-                  // Check if we should add city/state
+                  // Format address components for map link
                   const hasDetails = location.city && location.state;
+                  const addressParts = [];
+                  if (location.address) addressParts.push(location.address);
+                  if (location.city) addressParts.push(location.city);
+                  if (location.state) addressParts.push(location.state);
+                  if (location.zip) addressParts.push(location.zip);
+                  if (location.country) addressParts.push(location.country);
+                  
+                  const formattedAddress = addressParts.join(', ');
+                  const mapUrl = formattedAddress ? 
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}` : 
+                    null;
                   
                   return (
-                    <div class="flex flex-col px-3 py-2 rounded-lg text-xs bg-green-100 text-green-800">
-                      <span class="font-medium">{displayName}</span>
-                      {hasDetails && (
-                        <span class="text-green-700 text-xs mt-1">
-                          {location.city}, {location.state}
-                        </span>
+                    <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
+                      {/* Location Name and Basic Info */}
+                      <div class="p-3">
+                        <div class="font-medium text-green-800">
+                          {location.slug ? (
+                            <a href={`/locations/${slug}/`} class="hover:text-green-600 hover:underline">
+                              {displayName}
+                            </a>
+                          ) : (
+                            <span>{displayName}</span>
+                          )}
+                        </div>
+                        
+                        {hasDetails && (
+                          <div class="text-gray-600 text-sm mt-1">
+                            {location.city}, {location.state}
+                            {location.zip && <span> {location.zip}</span>}
+                          </div>
+                        )}
+                        
+                        {location.description && (
+                          <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
+                        )}
+                      </div>
+                      
+                      {/* Action Links */}
+                      {(location.slug || mapUrl) && (
+                        <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                          {location.slug && (
+                            <a href={`/locations/${slug}/`} class="text-xs text-blue-600 hover:underline flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Details
+                            </a>
+                          )}
+                          
+                          {mapUrl && (
+                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 hover:underline flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                              </svg>
+                              Map
+                            </a>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
@@ -137,7 +189,67 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
               </div>
             </div>
           )}
-        </div>
+                  </div>
+
+        {/* Lab affiliations */}
+        {member.labs && member.labs.length > 0 && (
+          <div class="bg-blue-50 p-3 rounded-lg">
+            <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              Lab Affiliations
+            </h3>
+
+            <div class="flex flex-col gap-2">
+              {member.labs.map((lab) => {
+                // Find the best property to display
+                const displayName = lab.name || `Lab #${lab.id || '?'}`;
+                const shortName = lab.short_name || lab.shortname || null;
+                const logo = lab.logo || null;
+                const slug = lab.slug || `lab-${lab.id}`;
+                
+                return (
+                  <a 
+                    href={`/labs/${slug}/`} 
+                    class="flex items-center p-2 rounded-lg bg-white border border-green-200 hover:bg-green-50 transition duration-200"
+                  >
+                    {logo && (
+                      <div class="flex-shrink-0 mr-3">
+                        <img 
+                          src={`${directusUrl}assets/${logo}?width=48&height=48&quality=90&fit=cover`} 
+                          alt={`${displayName} logo`}
+                          class="w-10 h-10 object-contain"
+                        />
+                      </div>
+                    )}
+                    <div class="flex-grow">
+                      <span class="font-medium text-green-800 group-hover:text-green-700">
+                        {displayName}
+                        {shortName && (
+                          <span class="font-normal text-green-700 ml-1">
+                            ({shortName})
+                          </span>
+                        )}
+                      </span>
+                      {lab.description && (
+                        <p class="text-xs text-gray-600 mt-1 line-clamp-2">{lab.description}</p>
+                      )}
+                    </div>
+                    <div class="flex-shrink-0 ml-2 text-green-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+    </div>
+  </div>
+
       </div>
     </div>
   </div>
