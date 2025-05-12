@@ -3,7 +3,11 @@
 export const prerender = false; // Enable SSR for this page
 import StaffLayout from '../../layouts/StaffLayout.astro';
 import StaffDetail from '../../components/StaffDetail.astro';
-import { fetchAllStaffSlugs, fetchStaffBySlug, fetchRelatedStaff } from '../../lib/api_staff';
+import { 
+  fetchAllStaffSlugs, 
+  fetchStaffBySlug, 
+  fetchRelatedStaff
+} from '../../lib/api_staff';
 
 // Generate static paths for all staff members
 export async function getStaticPaths() {
