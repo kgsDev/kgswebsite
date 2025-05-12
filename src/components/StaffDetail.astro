@@ -143,9 +143,11 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   </div>
 </div>
   
-  {/* Information Sections in a 2-column grid */}
-  <div class="grid md:grid-cols-2 gap-6 mb-8">
-      {/* Other Contact Info Card */}
+  
+{/* Information Sections in a 2-column grid */}
+<div class="grid md:grid-cols-2 gap-6 mb-8">
+  {/* Other Contact Info Card - Only shown when profiles are available */}
+  {(member.linkedin_url || member.researchgate_url || member.googlescholar_url || (typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h2 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
         <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,24 +220,23 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         )}
       </div>
     </div>
-  
-    {/* Research Interests Card */}
-    
-    {/* Expertise Card */}
-    {member.expertise && (
-      <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
-        <h2 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          Areas of Expertise
-        </h2>
-        <div class="text-gray-700">
-          {member.expertise}
-        </div>
+  )}
+
+  {/* Expertise Card */}
+  {member.expertise && (
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+      <h2 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        Areas of Expertise
+      </h2>
+      <div class="text-gray-700">
+        {member.expertise}
       </div>
-    )}
-  </div>
+    </div>
+  )}
+</div>
   
   {/* Biography Section - Full width, below other info */}
   {member.bio_writeup && (
@@ -256,7 +257,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {relatedStaff && relatedStaff.length > 0 && (
     <div class="mt-8 mb-8">
       <h2 class="text-xl font-bold mb-4 text-blue-800">
-        Other Staff in {member.department}
+        Other Employees in {member.department}
       </h2>
       
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -307,7 +308,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
-      Back to Staff Directory
+      Back to Employee Directory
     </a>
   </div>
 </div>

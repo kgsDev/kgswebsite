@@ -1,3 +1,4 @@
+
 .inter-h1  {
     font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
@@ -305,16 +306,16 @@ svg {
     padding-bottom: 50px;
 }
 .tile.community {
-    background-image: url('../src/kgs-community.webp');
+    background-image: url('../src/assets/index/kgs-community.webp');
 }
 .tile.openings {
-    background-image: url('../src/kgs-openings.webp');
+    background-image: url('../src/assets/index/kgs-openings.webp');
 }
 .tile.research {
-    background-image: url('../src/kgs-research.webp');
+    background-image: url('../src/assets/index/kgs-research.webp');
 }
 .tile.service {
-    background-image: url('../src/kgs-service.webp');
+    background-image: url('../src/assets/index/kgs-service.webp');
     background-position: left;
 }
 .section-tile .tile.service .inter-h2 {
