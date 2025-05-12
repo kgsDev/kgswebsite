@@ -1,5 +1,6 @@
 ---
 // src/pages/staff/index.astro
+export const prerender = false; // Enable SSR for this page
 import StaffLayout from '../../layouts/StaffLayout.astro';
 import StaffList from '../../components/StaffList.astro';
 import { fetchStaffByDepartment, fetchAllDepartments } from '../../lib/api_staff';

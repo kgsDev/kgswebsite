@@ -1,7 +1,10 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import node from '@astrojs/node';
 
+// No need for a Tailwind plugin yet, we'll use the PostCSS config
 export default defineConfig({
-  integrations: [tailwind()],
+  output: 'server',
+  adapter: node({
+    mode: 'standalone',
+  }),
 });

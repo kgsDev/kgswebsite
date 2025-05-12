@@ -9,9 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/node": "^9.2.1",
     "@directus/sdk": "^19.1.0",
-    "astro": "^5.4.2",
-    "axios": "^1.8.4",
+    "astro": "^5.7.10",
+    "axios": "^1.9.0",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
     "slugify": "^1.6.6"
@@ -33,10 +35,9 @@
   },
   "homepage": "https://github.com/kgsDev/kgswebsite#readme",
   "devDependencies": {
-    "@astrojs/tailwind": "^6.0.2",
-    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/postcss": "^4.1.5",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^4.1.5"
   }
 }
