@@ -17,7 +17,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {typeof member.photo === 'string' && member.photo ? (
           <div class="relative h-full">
             <img 
-              src={`${directusUrl}assets/${member.photo}?quality=90&fit=cover`} 
+              src={`${directusUrl}assets/${member.photo}?quality=100&fit=cover`} 
               alt={`${member.first_name} ${member.last_name}`}
               class="w-full object-cover"
               style="height: 350px;"
