@@ -1,0 +1,76 @@
+/* /src/styles/uk-colors.css */
+/* University of Kentucky brand colors as CSS variables */
+:root {
+  /* Primary palette */
+  --wildcat-blue: #0033A0;
+  --wildcat-blue-uncoated: #0033A0; /* Same HEX, different CMYK values */
+  
+  /* Secondary palette */
+  --bluegrass: #1E8AFF;
+  --sky: #B1C9E8;
+  --midnight: #1B365D;
+  --goldenrod: #FFDC00;
+  --sunset: #FFA360;
+  --river-green: #4CBCC0;
+  
+  /* Neutral palette */
+  --cool-neutral: #DCDDDE;
+  --warm-neutral: #D6D2C4;
+  --warm-neutral-60: #E6E3DB;
+  --warm-neutral-20: #F5F4F0;
+  
+  /* Gradient definitions that can be used with the background-image property */
+  --gradient-wildcat-bluegrass: linear-gradient(to bottom, #0033A0, #1E8AFF);
+  --gradient-wildcat-midnight: linear-gradient(to bottom, #0033A0, #1B365D);
+  --gradient-midnight-bluegrass: linear-gradient(to bottom, #1B365D, #1E8AFF);
+  --gradient-wildcat-header: linear-gradient(to right, #0033A0, #1B365D);
+}
+
+/* UK branded component styles */
+.uk-button-primary {
+  background-color: var(--wildcat-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.uk-button-primary:hover {
+  background-color: var(--midnight);
+}
+
+.uk-button-secondary {
+  background-color: var(--bluegrass);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.uk-button-secondary:hover {
+  background-color: var(--wildcat-blue);
+}
+
+.uk-card {
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: white;
+  transition: all 0.2s;
+}
+
+.uk-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.uk-accent {
+  border-left: 4px solid var(--wildcat-blue);
+  padding-left: 1rem;
+}
+
+.uk-gradient-header {
+  background-image: var(--gradient-wildcat-header);
+  color: white;
+}
