@@ -1,0 +1,119 @@
+---
+// src/components/NewsCard.astro
+const { article, size = "medium" } = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Format date for display
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Determine card size classes
+let containerClass = "";
+let imageClass = "";
+let imageStyle = "";
+
+if (size === "large") {
+  containerClass = "lg:flex-row";
+  imageClass = "lg:w-1/3";
+  imageStyle = "lg:max-h-none lg:h-full";
+} else if (size === "small") {
+  containerClass = "flex-col";
+  imageClass = "w-full";
+  imageStyle = "h-48";
+} else {
+  // Medium (default)
+  containerClass = "flex-col md:flex-row";
+  imageClass = "w-full md:w-2/5";
+  imageStyle = "h-56 md:h-full";
+}
+---
+
+<div class={`bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 flex ${containerClass}`}>
+  <!-- Image Section -->
+  {article.main_image ? (
+    <div class={`relative ${imageClass}`}>
+      <a href={`/news/${article.slug}`} class="block h-full">
+        <img 
+          src={ `${directusUrl}assets/${article.main_image}?width=600&height=400&quality=80&fit=cover`} 
+          alt={article.title}
+          class={`w-full object-cover ${imageStyle}`}
+          loading="lazy"
+        />
+      </a>
+    </div>
+  ) : (
+    <div class={`bg-gray-200 flex items-center justify-center ${imageClass} ${imageStyle}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 3rem; height: 3rem;" class="text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </div>
+  )}
+  
+  <!-- Content Section -->
+  <div class="p-5 flex-1 flex flex-col">
+    <!-- Date and Category (if applicable) -->
+    <div class="mb-2 flex items-center text-gray-600 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <time datetime={article.published_date}>{formatDate(article.published_date)}</time>
+    </div>
+    
+    <!-- Article Title -->
+    <h3 class="text-xl font-bold text-blue-900 mb-2 line-clamp-2">
+      <a href={`/news/${article.slug}`} class="hover:text-blue-700">
+        {article.title}
+      </a>
+    </h3>
+    
+    <!-- Article Summary -->
+    {article.excerpt && (
+      <p class="text-gray-600 mb-4 line-clamp-3">
+        {article.excerpt}
+      </p>
+    )}
+    
+    <!-- Author (if available) -->
+    {article.author && (
+      <div class="mt-auto pt-3 flex items-center text-sm text-gray-600">
+        <span>By: </span>
+        <a href={`/staff/${article.author.slug}`} class="ml-1 text-blue-600 hover:underline">
+          {article.author.first_name} {article.author.last_name}
+        </a>
+      </div>
+    )}
+    
+    <!-- Read More Link -->
+    <div class="mt-3 pt-3 border-t border-gray-100">
+      <a href={`/news/${article.slug}`} class="inline-flex items-center text-blue-600 hover:text-blue-800">
+        Read more
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Truncate text using line clamp */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

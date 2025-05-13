@@ -1,0 +1,53 @@
+---
+// News-specific layout that extends the BaseLayout
+import BaseLayout from './BaseLayout.astro';
+
+// Define props with defaults specific to news pages
+const { 
+  title = 'News & Events',
+  description = 'Latest news, updates, and events from the Kentucky Geological Survey.',
+  showBreadcrumb = true
+} = Astro.props;
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="news"
+  showBreadcrumb={showBreadcrumb}
+>
+  <!-- Pass breadcrumb content if needed -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <a href="/news" class="hover:text-[#0033A0] transition">News & Events</a>
+    <slot name="breadcrumb" />
+  </Fragment>
+  
+  <!-- Pass head content if needed -->
+  <Fragment slot="head">
+    <slot name="head" />
+  </Fragment>
+  
+  <!-- Main news content -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Sidebar for news categories, archives, etc. -->
+    <aside class="md:col-span-1 order-2 md:order-1">
+      <slot name="sidebar">
+        <!-- Default sidebar content if none provided -->
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="text-xl font-bold mb-4 text-blue-800">News Categories</h2>
+          <ul class="space-y-2">
+            <li><a href="/news/press-releases" class="text-blue-600 hover:underline">Press Releases</a></li>
+            <li><a href="/news/research" class="text-blue-600 hover:underline">Research Updates</a></li>
+            <li><a href="/news/events" class="text-blue-600 hover:underline">Upcoming Events</a></li>
+          </ul>
+        </div>
+      </slot>
+    </aside>
+    
+    <!-- Main news content area -->
+    <div class="md:col-span-2 order-1 md:order-2">
+      <slot />
+    </div>
+  </div>
+</BaseLayout>

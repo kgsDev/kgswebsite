@@ -1,0 +1,126 @@
+---
+// src/components/Pagination.astro
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+// Function to generate page range with ellipsis for many pages
+function generatePageRange(currentPage, totalPages) {
+  // Always show first and last page
+  // Show 2 pages before and after current page
+  // Use ellipsis for gaps
+  
+  const pages = [];
+  
+  if (totalPages <= 7) {
+    // If 7 or fewer pages, show all
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    // Always show first page
+    pages.push(1);
+    
+    // Calculate range around current page
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(totalPages - 1, currentPage + 1);
+    
+    // Add ellipsis if there's a gap after page 1
+    if (startPage > 2) {
+      pages.push('...');
+    }
+    
+    // Add pages around current page
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    // Add ellipsis if there's a gap before last page
+    if (endPage < totalPages - 1) {
+      pages.push('...');
+    }
+    
+    // Always show last page
+    pages.push(totalPages);
+  }
+  
+  return pages;
+}
+
+// Generate the page range
+const pages = generatePageRange(currentPage, totalPages);
+
+// Helper to generate page URL
+function getPageUrl(page) {
+  if (baseUrl.includes('?')) {
+    return `${baseUrl}&page=${page}`;
+  } else {
+    return `${baseUrl}?page=${page}`;
+  }
+}
+---
+
+{totalPages > 1 && (
+  <nav aria-label="Pagination" class="flex justify-center my-8">
+    <ul class="inline-flex items-center space-x-1 rounded-md">
+      <!-- Previous Button -->
+      <li>
+        <a 
+          href={currentPage > 1 ? getPageUrl(currentPage - 1) : '#'} 
+          class={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+                  ${currentPage > 1 
+                    ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' 
+                    : 'text-gray-400 bg-gray-100 cursor-not-allowed border border-gray-200'}`}
+          aria-label="Previous page"
+          aria-disabled={currentPage === 1}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+      </li>
+      
+      <!-- Page Numbers -->
+      {pages.map((page, index) => (
+        page === '...' 
+          ? (
+              <li key={`ellipsis-${index}`}>
+                <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300">
+                  ...
+                </span>
+              </li>
+            ) 
+          : (
+              <li key={`page-${page}`}>
+                <a
+                  href={page === currentPage ? '#' : getPageUrl(page)}
+                  class={`relative inline-flex items-center px-4 py-2 text-sm font-medium border ${
+                    page === currentPage
+                      ? 'z-10 bg-blue-600 text-white border-blue-600'
+                      : 'text-gray-700 bg-white hover:bg-gray-50 border-gray-300'
+                  }`}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                >
+                  {page}
+                </a>
+              </li>
+            )
+      ))}
+      
+      <!-- Next Button -->
+      <li>
+        <a 
+          href={currentPage < totalPages ? getPageUrl(currentPage + 1) : '#'} 
+          class={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
+                  ${currentPage < totalPages 
+                    ? 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300' 
+                    : 'text-gray-400 bg-gray-100 cursor-not-allowed border border-gray-200'}`}
+          aria-label="Next page"
+          aria-disabled={currentPage === totalPages}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </nav>
+)}

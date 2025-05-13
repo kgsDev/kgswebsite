@@ -1,0 +1,60 @@
+---
+// Base layout with common structure and styling
+import '../styles/global.css';
+import StyleSystem from '../components/common/StyleSystem.astro';
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import BackToTop from '../components/common/BackToTop.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  activePage?: string;
+  showBreadcrumb?: boolean;
+}
+
+const { 
+  title = 'Kentucky Geological Survey',
+  description = 'Kentucky Geological Survey at the University of Kentucky',
+  activePage = '',
+  showBreadcrumb = true
+} = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} - Kentucky Geological Survey</title>
+    <StyleSystem />
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen flex flex-col bg-gray-50">
+    <!-- Header -->
+    <Header activePage={activePage} />
+    
+    <!-- Breadcrumb bar (optional) -->
+    {showBreadcrumb && (
+      <div class="uk-bg-sky-20 border-b uk-border-sky-30">
+        <div class="container mx-auto py-4 px-4">
+          <div class="flex items-center text-sm text-gray-600">
+            <a href="/" class="hover:text-[#0033A0] transition">Home</a>
+            <slot name="breadcrumb" />
+          </div>
+        </div>
+      </div>
+    )}
+    
+    <!-- Main Content -->
+    <main class="container mx-auto my-8 px-4 flex-grow">
+      <slot />
+    </main>
+    
+    <!-- Footer -->
+    <Footer />
+    
+    <!-- Back to Top Button -->
+    <BackToTop />
+  </body>
+</html>

@@ -1,0 +1,59 @@
+---
+// src/components/NewsImageGallery.astro
+const { images, layout = "default" } = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Ensure images is an array
+const imageArray = Array.isArray(images) ? images : [];
+
+// Determine layout
+let galleryClass = "";
+let imageClass = "";
+
+if (layout === "side-by-side" && imageArray.length === 2) {
+  galleryClass = "flex flex-col md:flex-row gap-4 my-6";
+  imageClass = "w-full md:w-1/2";
+} else if (layout === "grid" && imageArray.length > 2) {
+  galleryClass = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-6";
+  imageClass = "w-full";
+} else {
+  // Default layout - images stacked vertically
+  galleryClass = "space-y-6 my-6";
+  imageClass = "w-full";
+}
+---
+
+{imageArray.length > 0 && (
+  <div class={galleryClass}>
+    {imageArray.map((image) => (
+      <figure class={imageClass}>
+        <div class="overflow-hidden rounded-lg shadow-md">
+          <a href={`${directusUrl}assets/${image.image}?quality=90`} target="_blank" rel="noopener noreferrer">
+            <img 
+              src={`${directusUrl}assets/${image.image}?width=1200&quality=80`} 
+              alt={image.alt_text || ''} 
+              class="w-full h-auto" 
+              loading="lazy"
+            />
+          </a>
+        </div>
+        {image.caption && (
+          <figcaption class="mt-2 text-sm text-gray-600 italic">
+            {image.caption}
+          </figcaption>
+        )}
+      </figure>
+    ))}
+  </div>
+)}
+
+<style>
+  /* Optional hover effect on images */
+  figure a img {
+    transition: transform 0.3s ease;
+  }
+  
+  figure a:hover img {
+    transform: scale(1.02);
+  }
+</style>

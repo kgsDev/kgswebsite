@@ -1,0 +1,56 @@
+
+---
+// src/components/NewsGrid.astro
+import NewsCard from './NewsCard.astro';
+
+const { articles, layout = "grid" } = Astro.props;
+
+// Determine layout classes
+let containerClass = "";
+let itemClass = "";
+
+if (layout === "list") {
+  containerClass = "space-y-6";
+  itemClass = "w-full";
+} else if (layout === "featured") {
+  // Featured layout has one large card followed by grid
+  containerClass = "space-y-8";
+  itemClass = "";
+} else {
+  // Default grid layout
+  containerClass = "grid gap-6";
+  itemClass = ""; // Grid item classes applied below
+}
+---
+
+{layout === "featured" && articles.length > 0 ? (
+  <div class={containerClass}>
+    <!-- Featured Article -->
+    <div class="featured-article">
+      <NewsCard article={articles[0]} size="large" />
+    </div>
+    
+    <!-- Remaining Articles in Grid -->
+    {articles.length > 1 && (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.slice(1).map(article => (
+          <NewsCard article={article} size="small" />
+        ))}
+      </div>
+    )}
+  </div>
+) : layout === "list" ? (
+  <div class={containerClass}>
+    {articles.map(article => (
+      <div class={itemClass}>
+        <NewsCard article={article} size="medium" />
+      </div>
+    ))}
+  </div>
+) : (
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {articles.map(article => (
+      <NewsCard article={article} size="small" />
+    ))}
+  </div>
+)}
