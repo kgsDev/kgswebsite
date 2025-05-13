@@ -62,11 +62,87 @@ export async function fetchStaffByDepartment() {
 
     // Group staff into departments
     if (Array.isArray(staff)) {
+      // Fetch teams for all staff members
+      const allStaffIds = staff.map(member => member.id);
+      
+      // Get all staff-team relationships first
+      const allTeamRelations = await apiRequest('/items/staff_team', {
+        fields: ['staff_id', 'team_id'],
+        filter: JSON.stringify({
+          staff_id: {
+            _in: allStaffIds
+          }
+        })
+      });
+      
+      // Extract all unique team IDs we need to fetch
+      const teamIds = [];
+      if (allTeamRelations && allTeamRelations.length > 0) {
+        allTeamRelations.forEach(relation => {
+          if (relation.team_id && !teamIds.includes(relation.team_id)) {
+            teamIds.push(relation.team_id);
+          }
+        });
+      }
+      
+      // Now fetch all team data at once
+      let teamData = [];
+      if (teamIds.length > 0) {
+        teamData = await apiRequest('/items/team', {
+          fields: ['*'],
+          filter: JSON.stringify({
+            id: {
+              _in: teamIds
+            }
+          })
+        });
+        
+        console.log(`Fetched ${teamData.length} teams for ${teamIds.length} team IDs`);
+      }
+      
+      // Create a map of team ID to team data for quick lookup
+      const teamMap = {};
+      teamData.forEach(team => {
+        teamMap[team.id] = team;
+      });
+      
+      // Create a map of staff ID to teams
+      const staffTeamsMap = {};
+      if (allTeamRelations && allTeamRelations.length > 0) {
+        allTeamRelations.forEach(relation => {
+          const staffId = relation.staff_id;
+          const teamId = relation.team_id;
+          
+          if (!staffTeamsMap[staffId]) {
+            staffTeamsMap[staffId] = [];
+          }
+          
+          // Only add the team if we have data for it
+          if (teamMap[teamId]) {
+            staffTeamsMap[staffId].push(teamMap[teamId]);
+          }
+        });
+      }
+      
+      // Process staff members
       staff.forEach(member => {
         const departmentName = member.department_id?.name || 'Other';
         
         // Ensure the member has the department name directly as a property
         member.department = departmentName;
+        
+        // Add team data from the lookup map
+        member.team = staffTeamsMap[member.id] || [];
+        
+        // Generate team names string for filtering
+        if (member.team.length > 0) {
+          member.teamNames = member.team
+            .map(team => team.name || team.description || team.title || '')
+            .filter(Boolean)
+            .join('|');
+        } else {
+          member.teamNames = '';
+        }
         
         // Add to the appropriate department
         if (!staffByDepartment[departmentName]) {

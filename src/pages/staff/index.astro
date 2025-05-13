@@ -7,9 +7,39 @@ import { fetchStaffByDepartment, fetchAllDepartments } from '../../lib/api_staff
 
 // Fetch all staff grouped by department
 const staffByDepartment = await fetchStaffByDepartment();
-// Get all departments for the filter dropdown
-const allDepartments = await fetchAllDepartments();
 
+// Extract unique teams from all staff members for the team filter
+const allTeams = new Set();
+
+// Process staff and extract team information
+Object.values(staffByDepartment).flat().forEach(member => {
+  if (member.team && Array.isArray(member.team)) {
+    member.team.forEach(team => {
+      // Look for all possible name properties based on your API response
+      const teamName = team.name || team.team_name || team.description || team.title;
+      if (teamName) {
+        allTeams.add(teamName);
+      }
+    });
+    
+    // Create a teamNames string for filtering - try all possible name properties
+    member.teamNames = member.team
+      .map(t => t.name || t.team_name || t.description || t.title || '')
+      .filter(Boolean)
+      .join('|');
+      
+    // Debug team names
+    if (member.team.length > 0 && !member.teamNames) {
+      console.log(`Warning: ${member.first_name} ${member.last_name} has teams but no team names. Team object keys:`, 
+        member.team.map(t => Object.keys(t)));
+    }
+  } else {
+    member.teamNames = '';
+  }
+});
+
+const uniqueTeams = Array.from(allTeams).sort();
+console.log(`Found ${uniqueTeams.length} unique teams`);
 ---
 
 <StaffLayout>
@@ -20,9 +50,9 @@ const allDepartments = await fetchAllDepartments();
 
   <!-- Search and Filter Controls -->
   <div class="bg-white p-4 rounded-lg shadow mb-8">
-    <div class="md:flex md:space-x-4 space-y-3 md:space-y-0">
+    <div class="grid md:grid-cols-4 gap-4">
       <!-- Search Input -->
-      <div class="flex-grow">
+      <div class="md:col-span-2">
         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Employees</label>
         <input 
           type="text" 
@@ -33,7 +63,7 @@ const allDepartments = await fetchAllDepartments();
       </div>
       
       <!-- Department Filter -->
-      <div class="md:w-1/4">
+      <div>
         <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Filter by Department</label>
         <select 
           id="department" 
@@ -46,8 +76,28 @@ const allDepartments = await fetchAllDepartments();
         </select>
       </div>
       
+      <!-- Team Filter - New -->
+      <div>
+        <label for="team" class="block text-sm font-medium text-gray-700 mb-1">Filter by Team</label>
+        <select 
+          id="team" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">All Teams</option>
+          {uniqueTeams.length > 0 ? (
+            uniqueTeams.map((team) => (
+              <option value={team}>{team}</option>
+            ))
+          ) : (
+            <option disabled>No teams available</option>
+          )}
+        </select>
+      </div>
+    </div>
+    
+    <div class="mt-4 grid md:grid-cols-4 gap-4">
       <!-- Sort Direction -->
-      <div class="md:w-1/4">
+      <div>
         <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
         <select 
           id="sort" 
@@ -56,6 +106,13 @@ const allDepartments = await fetchAllDepartments();
           <option value="name">Name (A-Z)</option>
           <option value="name-desc">Name (Z-A)</option>
         </select>
+      </div>
+      
+      <!-- Active Filters Display -->
+      <div class="md:col-span-3 flex items-end">
+        <div id="active-filters" class="flex flex-wrap gap-2">
+          <!-- Active filters will be added here by JavaScript -->
+        </div>
       </div>
     </div>
   </div>
@@ -82,16 +139,91 @@ const allDepartments = await fetchAllDepartments();
   document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search');
     const departmentSelect = document.getElementById('department');
+    const teamSelect = document.getElementById('team');
     const sortSelect = document.getElementById('sort');
     const staffContainer = document.getElementById('staff-container');
     const noResults = document.getElementById('no-results');
     const departmentSections = document.querySelectorAll('.department-section');
+    const activeFilters = document.getElementById('active-filters');
+    
+    // Function to update active filter pills
+    function updateActiveFilters() {
+      // Clear existing filters
+      activeFilters.innerHTML = '';
+      
+      // Add department filter if selected
+      if (departmentSelect.value) {
+        const pill = document.createElement('div');
+        pill.className = 'px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs flex items-center';
+        pill.innerHTML = `
+          <span>Department: ${departmentSelect.value}</span>
+          <button class="ml-1 text-blue-500 hover:text-blue-700" data-filter="department">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        `;
+        activeFilters.appendChild(pill);
+        
+        // Add click handler to remove filter
+        pill.querySelector('button').addEventListener('click', () => {
+          departmentSelect.value = '';
+          filterStaff();
+        });
+      }
+      
+      // Add team filter if selected
+      if (teamSelect.value) {
+        const pill = document.createElement('div');
+        pill.className = 'px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs flex items-center';
+        pill.innerHTML = `
+          <span>Team: ${teamSelect.value}</span>
+          <button class="ml-1 text-green-500 hover:text-green-700" data-filter="team">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        `;
+        activeFilters.appendChild(pill);
+        
+        // Add click handler to remove filter
+        pill.querySelector('button').addEventListener('click', () => {
+          teamSelect.value = '';
+          filterStaff();
+        });
+      }
+      
+      // Add search filter if entered
+      if (searchInput.value) {
+        const pill = document.createElement('div');
+        pill.className = 'px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs flex items-center';
+        pill.innerHTML = `
+          <span>Search: ${searchInput.value}</span>
+          <button class="ml-1 text-gray-500 hover:text-gray-700" data-filter="search">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        `;
+        activeFilters.appendChild(pill);
+        
+        // Add click handler to remove filter
+        pill.querySelector('button').addEventListener('click', () => {
+          searchInput.value = '';
+          filterStaff();
+        });
+      }
+    }
     
     // Function to filter staff members
     function filterStaff() {
       const searchTerm = searchInput.value.toLowerCase();
       const selectedDepartment = departmentSelect.value;
+      const selectedTeam = teamSelect.value;
       let hasVisibleStaff = false;
+      
+      // Update active filters display
+      updateActiveFilters();
       
       // Loop through all department sections
       departmentSections.forEach(section => {
@@ -99,22 +231,33 @@ const allDepartments = await fetchAllDepartments();
         const staffCards = section.querySelectorAll('.staff-card-container');
         let visibleCardsInDepartment = 0;
         
-        // Show/hide department section based on filter
+        // Show/hide department section based on department filter
         if (selectedDepartment && selectedDepartment !== department) {
           section.classList.add('hidden');
         } else {
           section.classList.remove('hidden');
           
-          // Filter individual staff cards by search term
+          // Filter individual staff cards by search term and team
           staffCards.forEach(card => {
             const name = card.getAttribute('data-name').toLowerCase();
             const title = card.getAttribute('data-title').toLowerCase();
             const expertise = card.getAttribute('data-expertise')?.toLowerCase() || '';
+            const teams = card.getAttribute('data-teams')?.split('|') || [];
             
-            if (searchTerm === '' || 
-                name.includes(searchTerm) || 
-                title.includes(searchTerm) || 
-                expertise.includes(searchTerm)) {
+            // Check if card matches search term
+            const matchesSearch = 
+              searchTerm === '' || 
+              name.includes(searchTerm) || 
+              title.includes(searchTerm) || 
+              expertise.includes(searchTerm);
+            
+            // Check if card matches team filter
+            const matchesTeam = 
+              selectedTeam === '' || 
+              teams.some(t => t.toLowerCase() === selectedTeam.toLowerCase());
+            
+            // Show card only if it matches both filters
+            if (matchesSearch && matchesTeam) {
               card.classList.remove('hidden');
               visibleCardsInDepartment++;
             } else {
@@ -122,7 +265,7 @@ const allDepartments = await fetchAllDepartments();
             }
           });
           
-          // Hide department if no visible staff after search filter
+          // Hide department if no visible staff after filtering
           if (visibleCardsInDepartment === 0) {
             section.classList.add('hidden');
           } else {
@@ -175,6 +318,7 @@ const allDepartments = await fetchAllDepartments();
     // Add event listeners
     searchInput.addEventListener('input', filterStaff);
     departmentSelect.addEventListener('change', filterStaff);
+    teamSelect.addEventListener('change', filterStaff);
     sortSelect.addEventListener('change', sortStaff);
     
     // Initialize first time

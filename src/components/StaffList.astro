@@ -14,6 +14,7 @@ const { staff } = Astro.props;
       data-name={`${member.first_name} ${member.last_name}`}
       data-title={member.working_title || ''}
       data-expertise={member.expertise || ''}
+      data-teams={member.teamNames || ''}
     >
       <div class="staff-card bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 h-full flex flex-col">
         {/* Image Container - Reduced height with fixed aspect ratio */}
@@ -53,6 +54,25 @@ const { staff } = Astro.props;
               <p class="text-xs text-gray-500 line-clamp-2">
                 <span class="font-medium">Expertise:</span> {member.expertise}
               </p>
+            </div>
+          )}
+
+          {member.team && member.team.length > 0 && (
+            <div class="mt-2 flex flex-wrap gap-1">
+              {member.team.map((team, index) => {
+                // Try multiple potential property names for maximum compatibility
+                const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                return index < 2 ? (
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal bg-blue-100 text-blue-800">
+                    {displayName}
+                  </span>
+                ) : null;
+              })}
+              {member.team.length > 2 && (
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal bg-gray-100 text-gray-600">
+                  +{member.team.length - 2} more
+                </span>
+              )}
             </div>
           )}
         </div>
