@@ -1,5 +1,6 @@
 ---
 // Base layout with common structure and styling
+import SEOHead from '../components/SEOHead.astro';
 import '../styles/global.css';
 import StyleSystem from '../components/common/StyleSystem.astro';
 import Header from '../components/common/Header.astro';
@@ -17,7 +18,15 @@ const {
   title = 'Kentucky Geological Survey',
   description = 'Kentucky Geological Survey at the University of Kentucky',
   activePage = '',
-  showBreadcrumb = true
+  showBreadcrumb = true,
+  image,
+  imageAlt,
+  type = "website",
+  publishedDate,
+  modifiedDate,
+  authors,
+  keywords,
+  canonicalUrl
 } = Astro.props;
 ---
 
@@ -28,6 +37,21 @@ const {
     <meta name="description" content={description} />
     <title>{title} - Kentucky Geological Survey</title>
     <StyleSystem />
+
+    <!-- Include the SEO component with the provided props -->
+    <SEOHead
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+      type={type}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
+      authors={authors}
+      keywords={keywords}
+      canonicalUrl={canonicalUrl}
+    />
+
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col bg-gray-50">

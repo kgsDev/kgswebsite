@@ -2,7 +2,7 @@
 // src/pages/news/index.astro
 export const prerender = false; // Enable SSR for this page
 import NewsLayout from '../../layouts/NewsLayout.astro';
-import NewsGrid from '../../components/NewsGrid.astro';
+import NewsGrid from '../../components/news/NewsGrid.astro';
 import Pagination from '../../components/Pagination.astro';
 import { fetchRecentNews } from '../../lib/api_news';
 

@@ -84,7 +84,7 @@ export async function fetchNewsBySlug(slug) {
           }
         })
       });
-      
+
       if (staffRelations && staffRelations.length > 0) {
         article.related_staff = staffRelations.map(relation => relation.staff_id);
       } else {
@@ -93,43 +93,26 @@ export async function fetchNewsBySlug(slug) {
       
       // Get lab relations
       const labRelations = await apiRequest('/items/articles_lab', {
-        fields: ['lab_id.id', 'lab_id.name', 'lab_id.slug', 'lab_id.logo', 'lab_id.short_name'],
+        fields: ['lab_id.id', 'lab_id.name', 'lab_id.slug', 'lab_id.logo', 'lab_id.shortname'],
         filter: JSON.stringify({
           articles_id: {
             _eq: article.id
           }
         })
       });
-      
+
       if (labRelations && labRelations.length > 0) {
         article.related_labs = labRelations.map(relation => relation.lab_id);
       } else {
         article.related_labs = [];
       }
       
-      // Get article images
-      const images = await apiRequest('/items/news_images', {
-        fields: ['id', 'image', 'caption', 'alt_text', 'sort'],
-        filter: JSON.stringify({
-          articles_id: {
-            _eq: article.id
-          }
-        }),
-        sort: 'sort'
-      });
-      
-      if (images && images.length > 0) {
-        article.images = images;
-      } else {
-        article.images = [];
-      }
-      
+            
     } catch (error) {
       console.error('Error fetching related items:', error);
       // Don't fail the whole request if just relations fail
       article.related_staff = [];
       article.related_labs = [];
-      article.images = [];
     }
     
     return article;

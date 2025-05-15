@@ -1,0 +1,44 @@
+---
+// src/components/labs/LabCard.astro
+// A reusable card component for displaying lab information
+const { lab, directusUrl } = Astro.props;
+
+// Find the best property to display
+const displayName = lab.name || `Lab #${lab.id || '?'}`;
+const shortName = lab.short_name || lab.shortname || null;
+const logo = lab.logo || null;
+const slug = lab.slug || `lab-${lab.id}`;
+---
+
+<a 
+  href={`/labs/${slug}/`} 
+  class="flex items-center p-2 rounded-lg bg-white border border-green-200 hover:bg-green-50 transition duration-200"
+>
+  {logo && (
+    <div class="flex-shrink-0 mr-3">
+      <img 
+        src={`${directusUrl}assets/${logo}?width=48&height=48&quality=90&fit=cover`} 
+        alt={`${displayName} logo`}
+        class="w-10 h-10 object-contain"
+      />
+    </div>
+  )}
+  <div class="flex-grow">
+    <span class="font-medium text-green-800 group-hover:text-green-700">
+      {displayName}
+      {shortName && (
+        <span class="font-normal text-green-700 ml-1">
+          ({shortName})
+        </span>
+      )}
+    </span>
+    {lab.description && (
+      <p class="text-xs text-gray-600 mt-1 line-clamp-2">{lab.description}</p>
+    )}
+  </div>
+  <div class="flex-shrink-0 ml-2 text-green-600">
+    <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </div>
+</a>
