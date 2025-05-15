@@ -97,7 +97,6 @@ export async function fetchStaffByDepartment() {
           })
         });
         
-        console.log(`Fetched ${teamData.length} teams for ${teamIds.length} team IDs`);
       }
       
       // Create a map of team ID to team data for quick lookup

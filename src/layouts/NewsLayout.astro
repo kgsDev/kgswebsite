@@ -1,6 +1,13 @@
 ---
-// News-specific layout that extends the BaseLayout
+// src/layouts/NewsLayout.astro
 import BaseLayout from './BaseLayout.astro';
+import { fetchNewsYears } from '../lib/api_news';
+
+// Get list of available years for archive links
+const years = await fetchNewsYears();
+
+// Get current path for active link highlighting
+const pathname = Astro.url.pathname;
 
 // Define props with defaults specific to news pages
 const { 
@@ -25,7 +32,7 @@ const {
   
   <!-- Pass head content if needed -->
   <Fragment slot="head">
-    <slot name="head" />
+    <slot name="head-meta" />
   </Fragment>
   
   <!-- Main news content -->
@@ -33,15 +40,62 @@ const {
     <!-- Sidebar for news categories, archives, etc. -->
     <aside class="md:col-span-1 order-2 md:order-1">
       <slot name="sidebar">
-        <!-- Default sidebar content if none provided -->
-        <div class="bg-white p-4 rounded-lg shadow">
+        <!-- Default sidebar content -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
           <h2 class="text-xl font-bold mb-4 text-blue-800">News Categories</h2>
           <ul class="space-y-2">
-            <li><a href="/news/press-releases" class="text-blue-600 hover:underline">Press Releases</a></li>
-            <li><a href="/news/research" class="text-blue-600 hover:underline">Research Updates</a></li>
-            <li><a href="/news/events" class="text-blue-600 hover:underline">Upcoming Events</a></li>
+            <li>
+              <a 
+                href="/news" 
+                class={`text-blue-600 ${pathname === '/news/' || pathname === '/news' ? 'font-bold' : 'hover:underline'}`}
+              >
+                All News
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/news/press-releases" 
+                class={`text-blue-600 ${pathname.includes('/news/press-releases') ? 'font-bold' : 'hover:underline'}`}
+              >
+                Press Releases
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/news/research" 
+                class={`text-blue-600 ${pathname.includes('/news/research') ? 'font-bold' : 'hover:underline'}`}
+              >
+                Research Updates
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/news/events" 
+                class={`text-blue-600 ${pathname.includes('/news/events') ? 'font-bold' : 'hover:underline'}`}
+              >
+                Upcoming Events
+              </a>
+            </li>
           </ul>
         </div>
+        
+        {years.length > 0 && (
+          <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-4 text-blue-800">Archives</h2>
+            <ul class="space-y-2">
+              {years.map(year => (
+                <li>
+                  <a 
+                    href={`/news/archive/${year}`} 
+                    class={`text-blue-600 ${pathname.includes(`/news/archive/${year}`) ? 'font-bold' : 'hover:underline'}`}
+                  >
+                    {year}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </slot>
     </aside>
     

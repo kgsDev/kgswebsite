@@ -25,24 +25,25 @@
                     <svg><image href="./src/assets/index/hamburger-button.svg" x="0" y="0" width="100%" height="100%"/></svg>Menu
                 </button> 
             </div>
-            <ul class="nav-menu">
-                <li class="nav-sub-menu-trigger"><a>Information Services</a>
-                <ul class="nav-sub-menu">
-                    <li><a href="#">Energy</a></li>
-                    <li><a href="#">Water</a></li>    
-                    <li><a href="#">Hazards</a></li>
-                    <li><a href="#">Maps</a></li>
-                    <li><a href="#">Community</a><li>                        
-                </ul>
-                </li>
-                <li><a>Kentucky Geology</a></li>
-                <li><a>About Us</a></li>
-                <li><a>Online Maps</a></li>
-                <li><a>Publications</a></li>
-                <li><a>Education</a></li>
-            </ul>
-            <input type="search" placeholder="Search..." class="search-bar">
-        </nav>
+            <div class="nav-menu">
+                <details>
+                    <summary>Information Services</summary>
+                    <ul class="nav-sub-menu">
+                        <li><a href="#">Energy</a></li>
+                        <li><a href="#">Water</a></li>    
+                        <li><a href="#">Hazards</a></li>
+                        <li><a href="#">Maps</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul> 
+                </details>
+                <a href="#">Kentucky Geology</a>
+                <a href="#">About Us</a>
+                <a href="#">Online Maps</a>
+                <a href="#">Publications</a>
+                <a href="#">Education</a>
+                <input type="search" placeholder="Search..." class="search-bar">
+            </div>
+		</nav>
     </header>
     <main>
         <!-- Video Background -->
@@ -277,17 +278,67 @@
                 </div>
             </section>
     </main>
-            <footer>
-                <img src="./src/assets/index/uk-kgs-logo-white.png">
-                <div class="footer-address inter-footer">310 Columbia Avenue<br/>University of Kentucky <br/>Lexington, KY 40506-0107</div>
-                <!-- <div class="footer-social-container">
-                    <a href="#" class="social"><svg><image href="./src/assets/index/svg-fb.svg" x="0" y="0" width="100%" height="100%"/></svg></a>
-                    <a href="#" class="social"><svg><image href="./src/assets/index/svg-yt.svg" x="0" y="0" width="100%" height="100%"/></svg></a>
-            <a href="#" class="social"><svg><image href="./src/assets/index/svg-ig.svg" x="0" y="0" width="100%" height="100%"/></svg></a>
-            <a href="#" class="social"><svg><image href="./src/assets/index/svg-tw.svg" x="0" y="0" width="100%" height="100%"/></svg></a>
-            <a href="#" class="social"><svg><image href="./src/assets/index/svg-li.svg" x="0" y="0" width="100%" height="100%"/></svg></a>
-        </div> -->
-    </footer>
+    <footer>
+		<div class="footer-container">
+            <div class="footer-logo">
+                <img src="./src/uk-kgs-logo-white.png">
+                <address class="footer-address inter-footer">
+                    Kentucky Geological Survey<br/>
+                    University of Kentucky<br/>
+                    310 Columbia Avenue<br/>
+                    Lexington, KY 40506-0107<br/> 
+                    Telephone: <a href="tel:8592575500">(859) 257-5500</a>
+                </address>
+            </div>
+            <details class="source-sans-3-footer-details">
+                <summary>Key Information</summary>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Kentucky Geology</a></li>
+                    <li><a href="#">Publications</a></li>
+                    <li><a href="#">Online Maps</a></li>
+                    <li><a href="#">Education</a></li>
+                    <li><a href="#">Job Opportunities</a></li>
+                    <li><a href="#">Data Information Portal</a></li>
+                </ul>
+            </details>                 
+            <details class="source-sans-3-footer-details">
+                <summary>Connect with KGS</summary>
+                <ul>
+                    <li><a href="#"><img src="./src/icon-ig-svg.svg"> Follow on Instagram</a></li>
+                    <li><a href="#"><img src="./src/icon-fb-svg.svg"> Find on Facebook</a></li>
+                    <li><a href="#"><img src="./src/icon-x-svg.svg"> Follow on X</a></li>
+                    <li><a href="#"><img src="./src/icon-li-svg.svg"> Follow on LinkedIn</a></li>
+                    <li><a href="#"><img src="./src/icon-yt-svg.svg"> Watch on YouTube</a></li>
+                </ul>
+            </details>
+            <details class="source-sans-3-footer-details">
+                <summary>Get Help</summary>
+                <ul>
+                    <li><a href="#">Help & FAQs</a></li>
+                    <li><a href="#">Contacts & Hours</a></li>
+                    <li><a href="#">Directory</a></li>
+                    <li><a href="#">Sitemap</a></li>
+                    <li><a href="#">Request Information</a></li>
+                </ul>
+            </details>
+        </div>
+        <div class="footer-nav source-sans-3-footer-misc">
+            Copyright &copy; University of Kentucky | 
+            <a href="#">Privacy</a> | 
+            <a href="#">Consumer Information</a> | 
+            <a href="#">EOP/ADA/Title IX</a> | 
+            <a href="#">Jobs at KGS</a> | 
+            <a href="#">Human Resources</a> | 
+            <a href="#">Site Feedback</a> | 
+            <a href="#">Accreditation</a> 
+        </div>
+        <div class="footer-blurb source-sans-3-footer-misc">
+            <p>University of Kentucky is an equal access/equal opportunity institution which does not discriminate on the basis of sex, race, color, marital status, age, religion, national origin, disability, veteran’s status, ethnicity, pregnancy, sexual orientation or genetic information. To obtain more information about University of Kentucky’s equal access and equal opportunity policies, procedures and practices, please contact the University’s Equity Officer.
+                <a href="mailto:EquityOffice@uk.edu">EquityOffice@uk.edu</a>
+            </p>
+        </div>
+	</footer>
     <script src="./js/script.js"></script>
 </body>
 </html>

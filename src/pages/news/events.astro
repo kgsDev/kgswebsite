@@ -1,0 +1,140 @@
+---
+// src/pages/news/events.astro
+export const prerender = false; // Enable SSR for this page
+import NewsLayout from '../../layouts/NewsLayout.astro';
+import NewsGrid from '../../components/news/NewsGrid.astro';
+import Pagination from '../../components/Pagination.astro';
+import { fetchEvents } from '../../lib/api_news';
+
+// Get current page and section from URL params
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const section = Astro.url.searchParams.get('section') || 'upcoming'; // 'upcoming' or 'past'
+const limit = 9; // Number of event items per page
+
+// Fetch events with pagination
+const isUpcoming = section === 'upcoming';
+const { articles, totalCount, totalPages } = await fetchEvents(limit, page, isUpcoming);
+
+// Meta information
+const title = isUpcoming ? "Upcoming Events" : "Past Events";
+const description = isUpcoming 
+  ? "Conferences, workshops, field trips, and other upcoming events from the Kentucky Geological Survey."
+  : "Browse past events from the Kentucky Geological Survey.";
+---
+
+<NewsLayout title={title} description={description}>
+  <!-- Head Metadata -->
+  <Fragment slot="head-meta">
+    <title>{title} | Kentucky Geological Survey</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </Fragment>
+
+  <!-- Breadcrumb Addition -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <span class="text-gray-800">{isUpcoming ? "Upcoming Events" : "Past Events"}</span>
+  </Fragment>
+  
+  <!-- Custom Sidebar -->
+  <Fragment slot="sidebar">
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-bold mb-4 text-blue-800">News Categories</h2>
+      <ul class="space-y-2">
+        <li><a href="/news" class="text-blue-600 hover:underline">All News</a></li>
+        <li><a href="/news/press-releases" class="text-blue-600 hover:underline">Press Releases</a></li>
+        <li><a href="/news/research" class="text-blue-600 hover:underline">Research Updates</a></li>
+        <li><a href="/news/events" class="text-blue-600 font-bold">Events</a></li>
+      </ul>
+    </div>
+    
+    <!-- Event Type Navigation -->
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-bold mb-4 text-blue-800">Event Timeline</h2>
+      <ul class="space-y-2">
+        <li>
+          <a 
+            href="/news/events?section=upcoming" 
+            class={`text-blue-600 ${isUpcoming ? 'font-bold' : 'hover:underline'}`}
+          >
+            Upcoming Events
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/news/events?section=past" 
+            class={`text-blue-600 ${!isUpcoming ? 'font-bold' : 'hover:underline'}`}
+          >
+            Past Events
+          </a>
+        </li>
+      </ul>
+    </div>
+  </Fragment>
+  
+  <!-- Page Content -->
+  <div>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-blue-900">{isUpcoming ? "Upcoming Events" : "Past Events"}</h1>
+      
+      <!-- Event timeline toggle -->
+      <div class="inline-flex rounded-md shadow-sm">
+        <a
+          href="/news/events?section=upcoming"
+          class={`px-4 py-2 text-sm font-medium rounded-l-lg ${
+            isUpcoming
+              ? 'bg-blue-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          } border border-gray-300`}
+        >
+          Upcoming
+        </a>
+        <a
+          href="/news/events?section=past"
+          class={`px-4 py-2 text-sm font-medium rounded-r-lg ${
+            !isUpcoming
+              ? 'bg-blue-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          } border border-l-0 border-gray-300`}
+        >
+          Past
+        </a>
+      </div>
+    </div>
+    
+    <p class="text-gray-600 mb-8">{description}</p>
+    
+    {articles.length > 0 ? (
+      <>
+        <!-- Display News Grid with List Layout -->
+        <NewsGrid articles={articles} layout="list" />
+        
+        <!-- Pagination -->
+        <Pagination 
+          currentPage={page} 
+          totalPages={totalPages} 
+          baseUrl={`/news/events?section=${section}`} 
+        />
+      </>
+    ) : (
+      <div class="bg-white p-8 rounded-lg shadow-md text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 4rem; height: 4rem;" class="mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">
+          {isUpcoming ? "No Upcoming Events" : "No Past Events Found"}
+        </h2>
+        <p class="text-gray-600">
+          {isUpcoming 
+            ? "Check back soon for upcoming events from the Kentucky Geological Survey."
+            : "There are no past events in our records yet."}
+        </p>
+      </div>
+    )}
+  </div>
+</NewsLayout>

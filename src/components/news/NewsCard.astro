@@ -1,16 +1,60 @@
 ---
-// src/components/NewsCard.astro
+// src/components/news/NewsCard.astro
 const { article, size = "medium" } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Format date for display
 const formatDate = (dateString) => {
+  if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
+};
+
+/// Format date range for events
+const formatDateRange = (startDate, endDate) => {
+  if (!startDate) return '';
+  
+  const start = new Date(startDate);
+  const startMonth = start.toLocaleDateString('en-US', { month: 'long' });
+  const startDay = start.getDate();
+  const startYear = start.getFullYear();
+  
+  // If no end date or same as start date, or same day, return just the start date
+  if (!endDate || startDate === endDate || 
+      (new Date(endDate)).toDateString() === start.toDateString()) {
+    return `${startMonth} ${startDay}, ${startYear}`;
+  }
+  
+  const end = new Date(endDate);
+  const endMonth = end.toLocaleDateString('en-US', { month: 'long' });
+  const endDay = end.getDate();
+  const endYear = end.getFullYear();
+  
+  // If same month and year, display as "Month Day–Day, Year"
+  if (startMonth === endMonth && startYear === endYear) {
+    return `${startMonth} ${startDay}–${endDay}, ${startYear}`;
+  }
+  
+  // If same year but different months, display as "Month Day – Month Day, Year"
+  if (startYear === endYear) {
+    return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${startYear}`;
+  }
+  
+  // If different years, display full dates
+  return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`;
+};
+
+// Check if event is past
+const isEventPast = (endDate) => {
+  if (!endDate) return false;
+  const end = new Date(endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to beginning of day
+  return end < today;
 };
 
 // Determine card size classes
@@ -32,6 +76,29 @@ if (size === "large") {
   imageClass = "w-full md:w-2/5";
   imageStyle = "h-56 md:h-full";
 }
+
+// Get category label and color
+let categoryLabel = "";
+let categoryColor = "";
+let categoryHref = "";
+
+if (article.category === "press") {
+  categoryLabel = "Press Release";
+  categoryColor = "bg-blue-100 text-blue-800";
+  categoryHref = "/news/press-releases";
+} else if (article.category === "research") {
+  categoryLabel = "Research";
+  categoryColor = "bg-green-100 text-green-800";
+  categoryHref = "/news/research";
+} else if (article.category === "event") {
+  categoryLabel = "Event";
+  categoryColor = isEventPast(article.event_end) ? "bg-gray-100 text-gray-700" : "bg-purple-100 text-purple-800";
+  categoryHref = "/news/events";
+} else {
+  categoryLabel = "News";
+  categoryColor = "bg-gray-100 text-gray-800";
+  categoryHref = "/news";
+}
 ---
 
 <div class={`bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 flex ${containerClass}`}>
@@ -40,37 +107,69 @@ if (size === "large") {
     <div class={`relative ${imageClass}`}>
       <a href={`/news/${article.slug}`} class="block h-full">
         <img 
-          src={ `${directusUrl}assets/${article.main_image}?width=600&height=400&quality=80&fit=cover`} 
+          src={`${directusUrl}assets/${article.main_image}?width=600&height=400&quality=80&fit=cover`} 
           alt={article.title}
           class={`w-full object-cover ${imageStyle}`}
           loading="lazy"
         />
       </a>
+      
+      {/* Badge for past events */}
+      {article.category === "event" && isEventPast(article.event_end) && (
+        <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs font-bold px-2 py-1">
+          PAST EVENT
+        </div>
+      )}
     </div>
   ) : (
-    <div class={`bg-gray-200 flex items-center justify-center ${imageClass} ${imageStyle}`}>
+    <div class={`bg-gray-200 flex items-center justify-center relative ${imageClass} ${imageStyle}`}>
       <svg xmlns="http://www.w3.org/2000/svg" style="width: 3rem; height: 3rem;" class="text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
+      
+      {/* Badge for past events */}
+      {article.category === "event" && isEventPast(article.event_end) && (
+        <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs font-bold px-2 py-1">
+          PAST EVENT
+        </div>
+      )}
     </div>
   )}
   
   <!-- Content Section -->
   <div class="p-5 flex-1 flex flex-col">
-    <!-- Date and Category (if applicable) -->
-    <div class="mb-2 flex items-center text-gray-600 text-sm">
-      <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      <time datetime={article.published_date}>{formatDate(article.published_date)}</time>
+    <!-- Date and Category -->
+    <div class="mb-2 flex items-center gap-2 flex-wrap">
+      {/* For events, show event date range */}
+      {article.category === "event" && (article.event_date || article.event_end) ? (
+        <div class="text-gray-600 text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>{formatDateRange(article.event_date, article.event_end)}</span>
+        </div>
+      ) : (
+        <div class="text-gray-600 text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <time datetime={article.published_date}>{formatDate(article.published_date)}</time>
+        </div>
+      )}
+      
+      {article.category && (
+        <a href={categoryHref} class={`text-xs px-2 py-1 rounded-full ${categoryColor}`}>
+          {categoryLabel}
+        </a>
+      )}
     </div>
     
     <!-- Article Title -->
-    <h3 class="text-xl font-bold text-blue-900 mb-2 line-clamp-2">
+    <h4 class="text-xl font-bold text-blue-900 mb-2 line-clamp-2">
       <a href={`/news/${article.slug}`} class="hover:text-blue-700">
         {article.title}
       </a>
-    </h3>
+    </h4>
     
     <!-- Article Summary -->
     {article.excerpt && (

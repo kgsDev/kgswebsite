@@ -1,0 +1,78 @@
+
+---
+// src/pages/news/research.astro
+export const prerender = false; // Enable SSR for this page
+import NewsLayout from '../../layouts/NewsLayout.astro';
+import NewsGrid from '../../components/news/NewsGrid.astro';
+import Pagination from '../../components/Pagination.astro';
+import { fetchRecentNews } from '../../lib/api_news';
+
+// Get current page from URL params
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const limit = 9; // Number of news items per page
+const category = 'research'; // Category filter for research updates
+
+// Fetch research articles with pagination
+const { articles, totalCount, totalPages } = await fetchRecentNews(limit, page, category);
+
+// Meta information
+const title = "Research Updates";
+const description = "Latest research findings and updates from the Kentucky Geological Survey.";
+---
+
+<NewsLayout title={title} description={description}>
+  <!-- Head Metadata -->
+  <Fragment slot="head-meta">
+    <title>{title} | Kentucky Geological Survey</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </Fragment>
+
+  <!-- Breadcrumb Addition -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <span class="text-gray-800">Research Updates</span>
+  </Fragment>
+  
+  <!-- Custom Sidebar -->
+  <Fragment slot="sidebar">
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-bold mb-4 text-blue-800">News Categories</h2>
+      <ul class="space-y-2">
+        <li><a href="/news" class="text-blue-600 hover:underline">All News</a></li>
+        <li><a href="/news/press-releases" class="text-blue-600 hover:underline">Press Releases</a></li>
+        <li><a href="/news/research" class="text-blue-600 font-bold">Research Updates</a></li>
+        <li><a href="/news/events" class="text-blue-600 hover:underline">Upcoming Events</a></li>
+      </ul>
+    </div>
+  </Fragment>
+  
+  <!-- Page Content -->
+  <div>
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">Research Updates</h1>
+    <p class="text-gray-600 mb-8">Stay informed about the latest geological research and findings from our teams.</p>
+    
+    {articles.length > 0 ? (
+      <>
+        <!-- Display News Grid with Grid Layout -->
+        <NewsGrid articles={articles} layout="grid" />
+        
+        <!-- Pagination -->
+        <Pagination currentPage={page} totalPages={totalPages} baseUrl="/news/research" />
+      </>
+    ) : (
+      <div class="bg-white p-8 rounded-lg shadow-md text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 4rem; height: 4rem;" class="mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">No Research Updates Yet</h2>
+        <p class="text-gray-600">Check back soon for research updates from the Kentucky Geological Survey.</p>
+      </div>
+    )}
+  </div>
+</NewsLayout>

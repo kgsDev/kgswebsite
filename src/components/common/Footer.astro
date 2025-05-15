@@ -1,14 +1,15 @@
 ---
+import '../../styles/footer.css';
 // Footer component with contact info and links
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="bg-[#1B365D] text-white py-8 mt-12">
+<footer class="py-8 mt-12">
   <div class="container mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Contact Info -->
       <div>
-        <h3 class="text-lg font-bold mb-4">Contact Us</h3>
+        <h3 class="text-lg font-bold mb-4" style=color:#fff;>Contact Us</h3>
         <address class="not-italic">
           <p>Kentucky Geological Survey</p>
           <p>University of Kentucky</p>
@@ -21,7 +22,7 @@ const currentYear = new Date().getFullYear();
       
       <!-- Quick Links -->
       <div>
-        <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+        <h3 class="text-lg font-bold mb-4" style=color:#fff;>Quick Links</h3>
         <ul class="space-y-2">
           <li><a href="/staff" class="text-[#B1C9E8] hover:underline">Staff Directory</a></li>
           <li><a href="/publications" class="text-[#B1C9E8] hover:underline">Publications</a></li>
@@ -33,7 +34,7 @@ const currentYear = new Date().getFullYear();
       
       <!-- Social & Legal -->
       <div>
-        <h3 class="text-lg font-bold mb-4">Connect With Us</h3>
+        <h3 class="text-lg font-bold mb-4" style=color:#fff;>Connect With Us</h3>
         <div class="flex space-x-4 mb-6">
           <a href="#" class="text-white hover:text-[#1E8AFF] transition">
             <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" fill="currentColor" viewBox="0 0 24 24">
