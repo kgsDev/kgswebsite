@@ -6,7 +6,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 const { staff } = Astro.props;
 ---
 
-<div class="staff-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
   {staff.map((member) => (
     <a 
       href={`/staff/${member.slug}`} 
@@ -16,12 +16,12 @@ const { staff } = Astro.props;
       data-expertise={member.expertise || ''}
       data-teams={member.teamNames || ''}
     >
-      <div class="staff-card bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 h-full flex flex-col">
-        {/* Image Container - Reduced height with fixed aspect ratio */}
-        <div class="staff-photo-container relative overflow-hidden bg-gray-100" style="padding-top: 100%;">
+      <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 h-full flex flex-col">
+        {/* Image Container - Reduced size with proper aspect ratio */}
+        <div class="relative overflow-hidden bg-gray-100" style="padding-top: 66.67%;">
           {typeof member.photo === 'string' && member.photo ? (
             <img 
-              src={`${directusUrl}assets/${member.photo}?width=300&height=300&quality=90&fit=cover`} 
+              src={`${directusUrl}assets/${member.photo}?width=200&height=133&quality=90&fit=cover`} 
               alt={`${member.first_name} ${member.last_name}`}
               class="absolute inset-0 w-full h-full object-cover transition duration-500"
               style="transform: scale(1); transition: transform 0.5s;"
@@ -31,8 +31,8 @@ const { staff } = Astro.props;
             />
           ) : (
             <div class="absolute inset-0 flex items-center justify-center bg-gray-200">
-              <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center">
-                <span class="text-2xl font-semibold text-blue-800">
+              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <span class="text-base font-semibold text-blue-800">
                   {member.first_name.charAt(0)}{member.last_name.charAt(0)}
                 </span>
               </div>
@@ -43,14 +43,14 @@ const { staff } = Astro.props;
           <div class={`absolute top-0 left-0 h-full w-1 border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
         </div>
         
-        <div class="p-4 flex-grow">
-          <h3 class="text-lg font-semibold text-blue-800 transition duration-300">
+        <div class="p-3 flex-grow">
+          <h4>
             {member.first_name} {member.last_name}
-          </h3>
+          </h4>
           <p class="text-gray-600 font-medium line-clamp-2 text-sm">{member.working_title}</p>
           
           {member.expertise && (
-            <div class="mt-2">
+            <div class="mt-1">
               <p class="text-xs text-gray-500 line-clamp-2">
                 <span class="font-medium">Expertise:</span> {member.expertise}
               </p>
@@ -58,7 +58,7 @@ const { staff } = Astro.props;
           )}
 
           {member.team && member.team.length > 0 && (
-            <div class="mt-2 flex flex-wrap gap-1">
+            <div class="mt-1 flex flex-wrap gap-1">
               {member.team.map((team, index) => {
                 // Try multiple potential property names for maximum compatibility
                 const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
@@ -77,7 +77,7 @@ const { staff } = Astro.props;
           )}
         </div>
         
-        <div class="px-4 pb-4 mt-auto">
+        <div class="px-3 pb-3 mt-auto">
           <div class="border-t pt-2 flex flex-col gap-1">
             {member.email && (
               <div class="flex items-center text-gray-600 text-xs">

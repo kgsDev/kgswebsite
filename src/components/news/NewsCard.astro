@@ -63,9 +63,12 @@ let imageClass = "";
 let imageStyle = "";
 
 if (size === "large") {
-  containerClass = "lg:flex-row";
-  imageClass = "lg:w-1/3";
-  imageStyle = "lg:max-h-none lg:h-full";
+  //containerClass = "lg:flex-row";
+  //imageClass = "lg:w-1/3";
+  //imageStyle = "lg:max-h-none lg:h-full";
+  containerClass = "flex-col md:flex-row";
+  imageClass = "w-full md:w-1/2";
+  imageStyle = "h-56 md:h-full";
 } else if (size === "small") {
   containerClass = "flex-col";
   imageClass = "w-full";
@@ -73,7 +76,7 @@ if (size === "large") {
 } else {
   // Medium (default)
   containerClass = "flex-col md:flex-row";
-  imageClass = "w-full md:w-2/5";
+  imageClass = "w-full md:w-1/2";
   imageStyle = "h-56 md:h-full";
 }
 
@@ -99,19 +102,24 @@ if (article.category === "press") {
   categoryColor = "bg-gray-100 text-gray-800";
   categoryHref = "/news";
 }
+
+// Use tile_image if available, otherwise fall back to main_image
+const displayImage = article.tile_image || article.main_image;
 ---
 
 <div class={`bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 flex ${containerClass}`}>
   <!-- Image Section -->
-  {article.main_image ? (
+  {displayImage ? (
     <div class={`relative ${imageClass}`}>
       <a href={`/news/${article.slug}`} class="block h-full">
-        <img 
-          src={`${directusUrl}assets/${article.main_image}?width=600&height=400&quality=80&fit=cover`} 
-          alt={article.title}
-          class={`w-full object-cover ${imageStyle}`}
-          loading="lazy"
-        />
+        <div class="aspect-[3/2] w-full h-full">
+          <img 
+            src={`${directusUrl}assets/${displayImage}?width=600&height=400&quality=80&fit=cover`} 
+            alt={article.title}
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
       </a>
       
       {/* Badge for past events */}
@@ -122,10 +130,12 @@ if (article.category === "press") {
       )}
     </div>
   ) : (
-    <div class={`bg-gray-200 flex items-center justify-center relative ${imageClass} ${imageStyle}`}>
-      <svg xmlns="http://www.w3.org/2000/svg" style="width: 3rem; height: 3rem;" class="text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
+    <div class={`bg-gray-200 flex items-center justify-center relative ${imageClass}`}>
+      <div class="aspect-[3/2] w-full h-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 3rem; height: 3rem;" class="text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
       
       {/* Badge for past events */}
       {article.category === "event" && isEventPast(article.event_end) && (
@@ -191,6 +201,11 @@ if (article.category === "press") {
 </div>
 
 <style>
+  /* Aspect ratio container */
+  .aspect-\[3\/2\] {
+    aspect-ratio: 3/2;
+  }
+  
   /* Truncate text using line clamp */
   .line-clamp-2 {
     display: -webkit-box;

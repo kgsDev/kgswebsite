@@ -158,9 +158,9 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   <article class="bg-white rounded-lg shadow-md overflow-hidden">
     <!-- Featured Image (if available) -->
     {article.main_image && (
-      <div class="relative w-full" style="max-height: 300px; overflow: hidden;">
+      <div class="relative w-full" style="max-height: 675px; overflow:hidden;">
         <img 
-          src={`${directusUrl}assets/${article.main_image}?width=1200&height=600&quality=90&fit=cover`}
+          src={`${directusUrl}assets/${article.main_image}?width=1200&height=675&quality=90&fit=cover`}
           alt={article.title}
           class="w-full h-full"
         />
@@ -186,7 +186,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       )}
       
       <!-- Title -->
-      <h1 class="text-3xl font-bold text-blue-900 mb-4">{article.title}</h1>
+      <h2 class="text-3xl font-bold text-blue-900 mb-4">{article.title}</h2>
       
       <!-- Date and Author -->
       <div class="flex flex-wrap items-center gap-3 text-gray-600 mb-3">
