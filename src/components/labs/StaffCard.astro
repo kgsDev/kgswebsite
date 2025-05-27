@@ -1,0 +1,102 @@
+
+---
+// src/components/staff/StaffCard.astro
+// This component displays a staff member card with photo, name, and role for use on non-staff pages (e.g., lab pages).
+
+const { 
+  member, 
+  featured = false,
+  isCollaborator = false
+} = Astro.props;
+
+// Get the directus URL for asset loading
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Determine the profile URL
+const profileUrl = isCollaborator ? member.external_url || '/staff' : `/staff/${member.slug}`;
+const isExternal = isCollaborator && member.external_url;
+---
+
+<div class={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group ${featured ? 'border-2 lab-secondary-border' : ''}`}>
+  <!-- Staff Photo with hover effect -->
+  <div class="relative aspect-square overflow-hidden max-h-64 sm:max-h-72">
+    {typeof member.photo === 'string' && member.photo ? (
+      <img 
+        src={`${directusUrl}assets/${member.photo}?width=300&height=300&fit=cover&quality=100`} 
+        alt={`${member.first_name} ${member.last_name}`}
+        class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+      />
+    ) : (
+      <div class="bg-gray-200 w-full h-full flex items-center justify-center transition-all duration-300 group-hover:bg-gray-300">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center lab-accent-bg transition-transform duration-300 group-hover:scale-110">
+          <span class="text-xl sm:text-2xl font-semibold text-white">
+            {member.first_name?.charAt(0) || ''}
+            {member.last_name?.charAt(0) || ''}
+          </span>
+        </div>
+      </div>
+    )}
+    
+    <!-- External collaborator badge -->
+    {isExternal && (
+      <div class="absolute top-2 right-2">
+        <div class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          External
+        </div>
+      </div>
+    )}
+  </div>
+  
+  <!-- Staff Info -->
+  <div class="p-4 relative">
+    <h4 class="font-bold text-md transition-colors duration-300 group-hover:lab-secondary-text">
+      {member.first_name} {member.last_name}
+    </h4>
+    
+    {member.working_title && (
+      <p class="text-sm text-gray-600 mt-1">
+        {member.working_title}
+      </p>
+    )}
+    
+    {member.organization && isCollaborator && (
+      <p class="text-sm text-gray-600 mt-1">
+        {member.organization}
+      </p>
+    )}
+    
+    <!-- Email with icon -->
+    {member.email && (
+      <div class="flex items-center mt-2 text-xs text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <a href={`mailto:${member.email}`} class="hover:lab-secondary-text transition-colors duration-300 truncate">
+          {member.email}
+        </a>
+      </div>
+    )}
+    
+    <!-- View Profile Link - Bottom Right -->
+    <div class="flex justify-end mt-4">
+      <a 
+        href={profileUrl}
+        target={isExternal ? "_blank" : null}
+        class="inline-flex items-center text-sm font-medium lab-secondary-text hover:lab-primary-text transition-all duration-300 group-hover:translate-x-1"
+      >
+        View Profile
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        {isExternal && (
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        )}
+      </a>
+    </div>
+  </div>
+</div>

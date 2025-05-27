@@ -164,6 +164,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                       {/* Action Links */}
                       {(location.slug || mapUrl) && (
                         <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                          <!--
                           {location.slug && (
                             <a href={`/locations/${slug}/`} class="text-xs text-blue-600 hover:underline flex items-center">
                               <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,7 +173,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                               Details
                             </a>
                           )}
-                          
+                           -->
                           {mapUrl && (
                             <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 hover:underline flex items-center">
                               <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,6 +219,20 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       
       <div class="space-y-4">
         {/* Professional Profiles */}
+
+        {member.other_url && (
+          <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" d="M12 2L2 10h2v10h16V10h2L12 2zM10 20v-6h4v6h-4zm8 0V9.157l-6-5.25-6 5.25V20h3v-7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7h3z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-blue-600 font-medium">Website</p>
+            </div>
+          </a>
+        )}
+
         {member.linkedin_url && (
           <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">

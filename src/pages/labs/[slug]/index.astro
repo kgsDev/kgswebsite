@@ -1,0 +1,160 @@
+---
+// src/pages/labs/[slug]/index.astro
+export const prerender = false; // Enable SSR for this page
+
+import LabLayout from '../../../layouts/LabLayout.astro';
+import DraftBanner from '../../../components/DraftBanner.astro';
+import NewsCard from '../../../components/news/NewsCard.astro';
+import ProjectCard from '../../../components/labs/ProjectCard.astro';
+import { 
+  fetchLabBySlug, 
+  fetchLabProjects,
+  fetchLabNews 
+} from '../../../lib/api_labs';
+
+import { isDraftMode } from '../../../utils/preview';
+
+// Get the lab for this page
+const { slug } = Astro.params;
+const lab = await fetchLabBySlug(slug, Astro.request);
+
+// Handle 404 if lab not found
+if (!lab) {
+  return Astro.redirect('/404');
+}
+
+// Get featured projects for this lab
+const featuredProjects = await fetchLabProjects(lab.id, { featured: true, limit: 3 });
+
+// Get recent news related to this lab
+const recentNews = await fetchLabNews(lab.id, { limit: 3 });
+
+// Check if this is draft content or preview mode
+const isDraft = lab.status === 'draft';
+const isPreviewMode = isDraftMode(Astro.request);
+---
+
+<LabLayout lab={lab} activePage="home">
+
+    <!-- Draft/Preview Banner -->
+  <DraftBanner 
+    isDraft={isDraft || isPreviewMode} 
+    type="lab" 
+    currentUrl={Astro.url.href}
+  />
+
+  <!-- Main Lab Overview -->
+  <div class="content-block">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-4 lab-primary-text">About the {lab.short_name} Lab</h2>
+      
+      {lab.description && (
+        <div class="prose max-w-none mb-6" set:html={lab.description} />
+      )}
+      
+      <!-- Lab Mission -->
+      {lab.mission && (
+        <div class="mt-8">
+          <h3 class="text-xl font-bold mb-3 lab-primary-text">Our Mission</h3>
+          <div class="prose max-w-none mb-6" set:html={lab.mission} />
+        </div>
+      )}
+      
+      <!-- Lab Contact Information -->
+      {(lab.location?.name || lab.email || lab.phone) && (
+        <div class="mt-8 bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Contact Information</h3>
+          
+          <div class="flex flex-col space-y-2">
+            {lab.location && lab.location.name && (
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 lab-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <div>
+                  <div set:html={lab.location.name.replace(/\n/g, '<br>')} />
+                </div>
+              </div>
+            )}
+            
+            {lab.email && (
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 lab-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <a href={`mailto:${lab.email}`} class="hover:underline">{lab.email}</a>
+              </div>
+            )}
+            
+            {lab.phone && (
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 lab-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <a href={`tel:${lab.phone.replace(/[^0-9]/g, '')}`} class="hover:underline">{lab.phone}</a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+  
+  <!-- Featured Projects Section -->
+  {featuredProjects.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold lab-primary-text">Projects</h2>
+          <a href={`/labs/projects`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
+            View All Projects
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+          {featuredProjects.map(project => (
+            <ProjectCard project={project} lab={lab} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+  
+  <!-- Latest News Section -->
+  {recentNews.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold lab-primary-text">Latest {lab.short_name} News</h2>
+          <a href={`/news?lab=${lab.slug}`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
+            View All News
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        
+        <div class="space-y-6">
+          {recentNews.map(newsItem => (
+            <NewsCard article={newsItem} lab={lab} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Preview Mode Footer (only visible in preview) -->
+  {isPreviewMode && (
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <p>
+        <strong>Preview Mode:</strong> 
+        Share this link to let others preview: 
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+      </p>
+    </div>
+  )}
+</LabLayout>

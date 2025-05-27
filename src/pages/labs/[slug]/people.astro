@@ -1,0 +1,146 @@
+---
+// src/pages/labs/[slug]/people.astro
+export const prerender = false; // Enable SSR for this page
+
+import LabLayout from '../../../layouts/LabLayout.astro';
+import StaffCard from '../../../components/labs/StaffCard.astro';
+import { 
+  fetchLabBySlug, 
+  fetchLabStaff 
+} from '../../../lib/api_labs';
+
+// Get the lab for this page
+const { slug } = Astro.params;
+const lab = await fetchLabBySlug(slug);
+
+// Handle 404 if lab not found
+if (!lab) {
+  return Astro.redirect('/404');
+}
+
+// Get staff members for this lab grouped by role
+const staffMembers = await fetchLabStaff(lab.id);
+
+// Group staff by roles
+const laborDirectors = staffMembers.filter(member => 
+  member.lab_role === 'director' || member.lab_role === 'co-director'
+);
+
+const researchers = staffMembers.filter(member => 
+  member.lab_role === 'researcher' || member.lab_role === 'research scientist'
+);
+
+const students = staffMembers.filter(member => 
+  member.lab_role === 'student' || member.lab_role === 'graduate student' || 
+  member.lab_role === 'undergraduate student'
+);
+
+const staff = staffMembers.filter(member => 
+  member.lab_role === 'staff' || member.lab_role === 'technician' || 
+  member.lab_role === 'lab manager' || member.lab_role === 'administrator'
+);
+
+const collaborators = staffMembers.filter(member => 
+  member.lab_role === 'collaborator' || member.lab_role === 'affiliate'
+);
+
+// Other staff members that don't fit in the above categories
+const otherStaff = staffMembers.filter(member => 
+  !laborDirectors.includes(member) && 
+  !researchers.includes(member) && 
+  !students.includes(member) &&
+  !staff.includes(member) &&
+  !collaborators.includes(member)
+);
+---
+
+<LabLayout lab={lab} activePage="people" pageTitle="People">
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h1 class="text-2xl font-bold mb-6  lab-primary-text">Our Team</h1>
+    
+    <div class="space-y-10">
+      <!-- Lab Directors -->
+      {laborDirectors.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">Laboratory Lead{laborDirectors.length > 1 ? 's' : ''}</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {laborDirectors.map(member => (
+              <StaffCard member={member} lab={lab} featured={true} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Researchers -->
+      {researchers.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">KGS Research Scientists</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {researchers.map(member => (
+              <StaffCard member={member} lab={lab} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Staff -->
+      {staff.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">Staff</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {staff.map(member => (
+              <StaffCard member={member} lab={lab} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Students -->
+      {students.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">Students</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {students.map(member => (
+              <StaffCard member={member} lab={lab} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Collaborators -->
+      {collaborators.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">Collaborators & Affiliates</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {collaborators.map(member => (
+              <StaffCard member={member} lab={lab} isCollaborator={true} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- Other Staff -->
+      {otherStaff.length > 0 && (
+        <div>
+          <h3 class="mb-4 pb-2 border-b-2">Other Team Members</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {otherStaff.map(member => (
+              <StaffCard member={member} lab={lab} />
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <!-- No staff members message -->
+      {staffMembers.length === 0 && (
+        <div class="text-center py-10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No team members found</h3>
+          <p class="mt-1 text-sm text-gray-500">Team members will appear here once they are added to the lab.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</LabLayout>

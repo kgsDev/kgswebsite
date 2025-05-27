@@ -1,0 +1,53 @@
+---
+// src/components/labs/SideNav.astro
+// This component handles the side navigation for lab pages
+
+const { lab, activePage = 'home' } = Astro.props;
+const labSlug = lab?.slug || 'lab';
+
+// Navigation structure
+const navItems = [
+  { id: 'home', label: 'Overview', url: `/labs/${labSlug}` },
+  { id: 'people', label: 'People', url: `/labs/${labSlug}/people` },
+  //{ id: 'projects', label: 'Projects', url: `/labs/projects` },
+  { id: 'presentations', label: 'Presentations', url: `/labs/${labSlug}/presentations` },
+  { id: 'publications', label: 'Publications', url: `/labs/${labSlug}/publications` },
+  { id: 'funding', label: 'Funding', url: `/labs/${labSlug}/funding` },
+];
+---
+
+<nav class="lab-sidenav">
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <ul class="divide-y divide-gray-100">
+      {navItems.map(item => (
+        <li>
+          <a 
+            href={item.url}
+            class={`lab-sidenav-item ${activePage === item.id ? 'active' : ''}`}
+            aria-current={activePage === item.id ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<style>
+  /* Basic styles that don't depend on CSS variables */
+  .lab-sidenav {
+    font-size: 0.95rem;
+  }
+  
+  .lab-sidenav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .lab-sidenav li {
+    margin: 0;
+    padding: 0;
+  }
+</style>

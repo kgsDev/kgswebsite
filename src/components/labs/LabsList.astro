@@ -21,7 +21,7 @@ if (!labs || labs.length === 0) return null;
 
   <div class="flex flex-col gap-2">
     {labs.map((lab) => (
-      <LabCard lab={lab} directusUrl={directusUrl} />
+      <LabCard labs={lab} directusUrl={directusUrl} />
     ))}
   </div>
 </div>

@@ -168,7 +168,7 @@ export async function fetchEvents(limit = 10, page = 1, upcoming = true) {
         'excerpt',
         'main_image',
         'tile_image',
-        'published_date',
+        'publication_date',
         'category',
         'event_date',
         'event_end',
@@ -278,7 +278,7 @@ export async function fetchRecentNews(limit = 10, page = 1, category = null) {
         'excerpt',
         'main_image',
         'tile_image',
-        'published_date',
+        'publication_date',
         'category',
         'event_date',
         'event_end',
@@ -289,7 +289,7 @@ export async function fetchRecentNews(limit = 10, page = 1, category = null) {
         'author.slug'
       ],
       filter: JSON.stringify(filter),
-      sort: '-published_date',
+      sort: '-publication_date',
       limit: limit,
       page: page
     });
@@ -339,7 +339,7 @@ export async function fetchNewsByMonth(year = null) {
       status: {
         _eq: 'published'
       },
-      published_date: {
+      publication_date: {
         _gte: `${year}-01-01`,
         _lt: `${year+1}-01-01`
       }
@@ -353,7 +353,7 @@ export async function fetchNewsByMonth(year = null) {
         'slug',
         'excerpt',
         'main_image',
-        'published_date',
+        'publication_date',
         'category',
         'event_date',
         'event_end',
@@ -362,7 +362,7 @@ export async function fetchNewsByMonth(year = null) {
         'author.slug'
       ],
       filter: JSON.stringify(filter),
-      sort: '-published_date'
+      sort: '-publication_date'
     });
     
     // Group articles by month
@@ -371,7 +371,7 @@ export async function fetchNewsByMonth(year = null) {
                     'July', 'August', 'September', 'October', 'November', 'December'];
     
     articles.forEach(article => {
-      const date = new Date(article.published_date);
+      const date = new Date(article.publication_date);
       const month = date.getMonth(); // 0-11
       const monthName = months[month];
       
@@ -446,7 +446,7 @@ export async function fetchNewsByStaffId(staffId, limit = 3) {
         'slug',
         'excerpt',
         'main_image',
-        'published_date'
+        'publication_date'
       ],
       filter: JSON.stringify({
         id: {
@@ -456,7 +456,7 @@ export async function fetchNewsByStaffId(staffId, limit = 3) {
           _eq: 'published'
         }
       }),
-      sort: '-published_date',
+      sort: '-publication_date',
       limit: limit
     });
     
@@ -497,7 +497,7 @@ export async function fetchNewsByLabId(labId, limit = 3) {
         'slug',
         'excerpt',
         'main_image',
-        'published_date',
+        'publication_date',
         'author.first_name',
         'author.last_name',
         'author.slug'
@@ -510,7 +510,7 @@ export async function fetchNewsByLabId(labId, limit = 3) {
           _eq: 'published'
         }
       }),
-      sort: '-published_date',
+      sort: '-publication_date',
       limit: limit
     });
     
@@ -530,8 +530,8 @@ export async function fetchNewsYears() {
     const response = await api.get('/items/articles', {
       params: {
         aggregate: {
-          min: 'published_date',
-          max: 'published_date'
+          min: 'publication_date',
+          max: 'publication_date'
         },
         filter: JSON.stringify({
           status: {
@@ -545,8 +545,8 @@ export async function fetchNewsYears() {
       return [new Date().getFullYear()];
     }
     
-    const minDate = response.data.data[0].min.published_date;
-    const maxDate = response.data.data[0].max.published_date;
+    const minDate = response.data.data[0].min.publication_date;
+    const maxDate = response.data.data[0].max.publication_date;
     
     if (!minDate || !maxDate) {
       return [new Date().getFullYear()];

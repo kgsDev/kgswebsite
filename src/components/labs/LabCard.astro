@@ -1,13 +1,12 @@
 ---
 // src/components/labs/LabCard.astro
 // A reusable card component for displaying lab information
-const { lab, directusUrl } = Astro.props;
-
+const { labs, directusUrl } = Astro.props;
 // Find the best property to display
-const displayName = lab.name || `Lab #${lab.id || '?'}`;
-const shortName = lab.short_name || lab.shortname || null;
-const logo = lab.logo || null;
-const slug = lab.slug || `lab-${lab.id}`;
+const displayName = labs.name || `Lab #${labs.id || '?'}`;
+const shortName = labs.short_name || labs.shortname || null;
+const logo = labs.logo || null;
+const slug = labs.slug || `lab-${labs.id}`;
 ---
 
 <a 
@@ -32,8 +31,8 @@ const slug = lab.slug || `lab-${lab.id}`;
         </span>
       )}
     </span>
-    {lab.description && (
-      <p class="text-xs text-gray-600 mt-1 line-clamp-2">{lab.description}</p>
+    {labs.description && (
+      <p class="text-xs text-gray-600 mt-1 line-clamp-2">{labs.short_description}</p>
     )}
   </div>
   <div class="flex-shrink-0 ml-2 text-green-600">

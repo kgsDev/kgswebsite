@@ -1,0 +1,224 @@
+---
+// src/pages/labs/[slug]/projects/[slug].astro
+export const prerender = false; // Enable SSR for this page
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { 
+  fetchProjectBySlug,
+  fetchProjectLabs
+} from '../../../lib/api_projects';
+
+// Get the project for this page
+const { slug } = Astro.params;
+const project = await fetchProjectBySlug(slug);
+
+// Handle 404 if project not found
+if (!project) {
+  return Astro.redirect('/404');
+}
+
+// Get associated labs for this project
+const associatedLabs = await fetchProjectLabs(project.id);
+
+// Get the directus URL for asset loading
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Helper function to format dates
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Calculate project duration
+const getDuration = () => {
+  if (!project.start_date) return null;
+  
+  const start = new Date(project.start_date);
+  const end = project.end_date ? new Date(project.end_date) : new Date();
+  
+  const diffTime = Math.abs(end - start);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffMonths = Math.round(diffDays / 30);
+  const diffYears = Math.round(diffDays / 365);
+  
+  if (diffYears >= 1) {
+    return `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+  } else if (diffMonths >= 1) {
+    return `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+  } else {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+  }
+};
+
+// Generate page title and description
+const pageTitle = `${project.title} | Kentucky Geological Survey`;
+const pageDescription = project.description 
+  ? project.description.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+  : `Research project: ${project.title}`;
+---
+
+<BaseLayout 
+  title={pageTitle}
+  description={pageDescription}
+  activePage="projects"
+>
+  <!-- Custom breadcrumb -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <a href="/labs" class="hover:text-[#0033A0] transition">Labs</a>
+    <span class="mx-2">›</span>
+    <a href="/labs/projects" class="hover:text-[#0033A0] transition">Lab Research Projects</a>
+    <span class="mx-2">›</span>
+    <span class="text-gray-800">{project.title}</span>
+  </Fragment>
+
+  <div class="max-w-4xl mx-auto">
+    <!-- Project Header -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+      {project.image && (
+        <div class="relative h-64 md:h-80">
+          <img 
+            src={`${directusUrl}assets/${project.image}?width=1200&height=600&fit=cover&quality=90`}
+            alt={project.title}
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          
+          <!-- Project Status Badge -->
+          <div class="absolute top-4 right-4">
+            <span class={`px-3 py-1 rounded-full text-sm font-medium ${
+              project.project_status === 'active' 
+                ? 'bg-green-100 text-green-800' 
+                : project.project_status === 'completed'
+                ? 'bg-gray-100 text-gray-800'
+                : 'bg-blue-100 text-blue-800'
+            }`}>
+              {project.project_status === 'active' ? 'Active' : 
+               project.project_status === 'completed' ? 'Completed' : 
+               project.project_status === 'planned' ? 'Planned' : 
+               project.project_status}
+            </span>
+          </div>
+          
+          <!-- Featured Badge -->
+          {project.featured && (
+            <div class="absolute top-4 left-4">
+              <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                Featured
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div class="p-6 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-900 mb-4">{project.title}</h1>
+        
+        <!-- Project Metadata Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mb-6">
+          {project.start_date && (
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <div>
+                <div class="text-sm text-gray-500">Start Date</div>
+                <div class="font-medium">{formatDate(project.start_date)}</div>
+              </div>
+            </div>
+          )}
+          
+          {project.end_date && (
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <div>
+                <div class="text-sm text-gray-500">End Date</div>
+                <div class="font-medium">{formatDate(project.end_date)}</div>
+              </div>
+            </div>
+          )}
+          
+          {getDuration() && (
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <div class="text-sm text-gray-500">Duration</div>
+                <div class="font-medium">{getDuration()}</div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <!-- Associated Labs -->
+        {associatedLabs.length > 0 && (
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Associated Laboratories</h3>
+            <div class="flex flex-wrap gap-2">
+              {associatedLabs.map(lab => (
+                <a 
+                  href={`/labs/${lab.slug}`}
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-300"
+                >
+                  {lab.logo && (
+                    <img 
+                      src={`${directusUrl}assets/${lab.logo}?width=200&quality=100`}
+                      alt={`${lab.name} logo`}
+                      class="w-16 mr-2"
+                    />
+                  )}
+                  {lab.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <!-- External Project Link -->
+        {project.url && (
+          <div class="mb-6">
+            <a 
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Visit Project Website
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+    
+    <!-- Project Description -->
+    {project.description && (
+      <div class="bg-white rounded-lg shadow-md p-6 md:p-8 mb-8">
+        <h2 class="text-2xl font-bold text-blue-900 mb-4">Project Description</h2>
+        <div class="prose prose-lg max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:mb-1 prose-headings:text-blue-900" set:html={project.description}></div>
+      </div>
+    )}
+    
+    <!-- Navigation -->
+    <div class="flex justify-between items-center mb-8">
+      <a 
+        href="/labs/projects" 
+        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-300"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        All Lab Research Projects
+      </a>
+    </div>
+  </div>
+</BaseLayout>
