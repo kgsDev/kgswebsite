@@ -7,7 +7,8 @@ import DraftBanner from '../../../components/DraftBanner.astro';
 import { 
   fetchAllProjects, 
   getProjectsCount,
-  getProjectStatuses
+  getProjectStatuses,
+  searchProjects
 } from '../../../lib/api_projects';
 import { fetchAllLabs } from '../../../lib/api_labs';
 import { isDraftMode } from '../../../utils/preview';
@@ -24,20 +25,47 @@ const limit = 12;
 const isPreviewMode = isDraftMode(Astro.request);
 
 // Fetch projects with filters
-const projects = await fetchAllProjects({
-  page,
-  limit,
-  labSlug: labFilter,
-  status: statusFilter,
-  request: Astro.request
-});
+let projects;
+let totalProjects;
 
-// Get total count for pagination
-const totalProjects = await getProjectsCount({
-  labSlug: labFilter,
-  status: statusFilter,
-  request: Astro.request
-});
+try {
+  if (searchQuery && searchQuery.trim() !== '') {
+    // Use search function when there's a search query
+    const allSearchResults = await searchProjects(searchQuery, {
+      labSlug: labFilter,
+      request: Astro.request
+    });
+    
+    totalProjects = allSearchResults.length;
+    
+    // Apply pagination to search results
+    const startIndex = (page - 1) * limit;
+    projects = allSearchResults.slice(startIndex, startIndex + limit);
+    
+  } else {
+    // Use regular fetch when no search
+    projects = await fetchAllProjects({
+      page,
+      limit,
+      labSlug: labFilter,
+      status: statusFilter,
+      request: Astro.request
+    });
+
+    // Get total count for pagination
+    totalProjects = await getProjectsCount({
+      labSlug: labFilter,
+      status: statusFilter,
+      request: Astro.request
+    });
+    
+    console.log('Regular fetch returned:', projects.length, 'projects, total:', totalProjects);
+  }
+} catch (error) {
+  console.error('Error fetching projects:', error);
+  projects = [];
+  totalProjects = 0;
+}
 
 // Get labs for filter dropdown
 const labs = await fetchAllLabs(Astro.request);
@@ -207,24 +235,36 @@ const pageDescription = labFilter && currentLab ?
           <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
             Search Projects
           </label>
-          <form method="get" class="flex">
-            <input 
-              type="text" 
-              id="search" 
-              name="search"
-              value={searchQuery || ''}
-              placeholder="Search by title or description..." 
-              class="flex-1 p-2 border border-gray-300 rounded-l focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+         <form method="GET" class="mb-6">
             {labFilter && <input type="hidden" name="lab" value={labFilter} />}
             {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
-            <button 
+          
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <input
+                type="text"
+                name="search"
+                value={searchQuery || ''}
+                placeholder="Search projects by title or description..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700 transition-colors duration-300"
+              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
             >
               Search
             </button>
-          </form>
+            {(searchQuery || labFilter || statusFilter) && (
+              <a
+                href="/labs/projects"
+                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300"
+              >
+                Clear
+              </a>
+            )}
+          </div>
+        </form>
         </div>
       </div>
       

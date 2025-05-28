@@ -137,9 +137,7 @@ export async function fetchAllProjects(options = {}) {
   }
 }
 
-/**
- * Fetch projects filtered by a specific lab
- */
+//**Fetch projects by lab */
 export async function fetchProjectsByLab(labSlug, options = {}) {
   const { 
     page = 1, 
@@ -164,7 +162,7 @@ export async function fetchProjectsByLab(labSlug, options = {}) {
     if (!labs || labs.length === 0) {
       return [];
     }
-    
+
     const labId = labs[0].id;
     
     // Get projects through junction table
@@ -220,7 +218,8 @@ export async function fetchProjectsByLab(labSlug, options = {}) {
       project.labs = labRelations.map(relation => relation.labs_id).filter(Boolean);
     }
     
-    return { projects, totalCount, lab: labs[0] };
+    // Return just the projects array, not an object
+    return projects;
   } catch (error) {
     console.error('Error fetching projects by lab:', error);
     return [];
@@ -284,9 +283,9 @@ export async function getProjectsCount(options = {}) {
     const showDrafts = isDraftMode(request);
     
     if (labSlug) {
-      // Get count through lab filtering
-      const result = await fetchProjectsByLab(labSlug, { page: 1, limit: 1000, status, request });
-      return result.totalCount || 0;
+      // Get count through lab filtering - need to count the filtered results
+      const projects = await fetchProjectsByLab(labSlug, { page: 1, limit: 1000, status, request });
+      return projects.length;
     }
     
     // Build filter for direct count
@@ -320,6 +319,7 @@ export async function searchProjects(searchTerm, options = {}) {
   
   try {
     if (!searchTerm || searchTerm.trim() === '') {
+      console.log('Search term is empty');
       return [];
     }
 
@@ -345,11 +345,11 @@ export async function searchProjects(searchTerm, options = {}) {
       ]
     };
 
-    const projects = await apiRequest('/items/lab_projects', {
+    let projects = await apiRequest('/items/lab_projects', {
       fields: ['*'],
       filter: JSON.stringify(filter),
       sort: '-featured,-sort,-start_date,title',
-      limit: limit
+      limit: 1000 // Get more results for filtering
     });
 
     // For each project, get associated labs
@@ -368,7 +368,7 @@ export async function searchProjects(searchTerm, options = {}) {
 
     // If filtering by lab, only return projects from that lab
     if (labSlug) {
-      return projects.filter(project => 
+      projects = projects.filter(project => 
         project.labs.some(lab => lab.slug === labSlug)
       );
     }

@@ -3,10 +3,12 @@
 export const prerender = false; // Enable SSR for this page
 
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+
 import { 
   fetchProjectBySlug,
   fetchProjectLabs
 } from '../../../lib/api_projects';
+import { fetchProjectFunding } from '../../../lib/api_funding';
 
 // Get the project for this page
 const { slug } = Astro.params;
@@ -20,6 +22,9 @@ if (!project) {
 // Get associated labs for this project
 const associatedLabs = await fetchProjectLabs(project.id);
 
+// Get funding sources for this project
+const projectFunding = await fetchProjectFunding(project.id);
+
 // Get the directus URL for asset loading
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
@@ -32,6 +37,22 @@ const formatDate = (dateString) => {
     day: 'numeric'
   });
 };
+
+// Helper function to format currency
+const formatCurrency = (amount, locale = 'en-US', currency = 'USD') => {
+  if (amount === null || amount === undefined) return 'Amount not specified';
+  
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
+// Calculate total project funding
+const totalFunding = projectFunding.reduce((total, grant) => total + (grant.amount || 0), 0);
+
 
 // Calculate project duration
 const getDuration = () => {
@@ -156,6 +177,20 @@ const pageDescription = project.description
             </div>
           )}
         </div>
+
+        <!-- Total Funding -->
+          {totalFunding > 0 && (
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <div class="text-sm text-gray-500">Total Funding</div>
+                <div class="font-medium text-green-600">{formatCurrency(totalFunding)}</div>
+              </div>
+            </div>
+          )}
+        </div>
         
         <!-- Associated Labs -->
         {associatedLabs.length > 0 && (
@@ -205,6 +240,104 @@ const pageDescription = project.description
       <div class="bg-white rounded-lg shadow-md p-6 md:p-8 mb-8">
         <h2 class="text-2xl font-bold text-blue-900 mb-4">Project Description</h2>
         <div class="prose prose-lg max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:mb-1 prose-headings:text-blue-900" set:html={project.description}></div>
+      </div>
+    )}
+
+    <!-- Project Funding Section -->
+    {projectFunding.length > 0 && (
+      <div class="bg-white rounded-lg shadow-md p-6 md:p-8 mb-8">
+        <h2 class="text-2xl font-bold text-blue-900 mb-6">Project Funding</h2>
+        
+        <div class="space-y-4">
+          {projectFunding.map(grant => (
+            <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+              <div class="flex justify-between flex-wrap gap-4 mb-4">
+                <h3 class="text-lg font-bold text-gray-900">{grant.title}</h3>
+                
+                {grant.amount && (
+                  <div class="px-3 py-1 bg-green-100 text-green-800 rounded-full font-medium">
+                    {formatCurrency(grant.amount)}
+                  </div>
+                )}
+              </div>
+              
+              <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
+                {grant.funding_agency && (
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span><strong>Agency:</strong> {grant.funding_agency.name || grant.funding_agency}</span>
+                  </div>
+                )}
+                
+                {grant.grant_number && (
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                    </svg>
+                    <span><strong>Grant #:</strong> {grant.grant_number}</span>
+                  </div>
+                )}
+                
+                {(grant.start_date || grant.end_date) && (
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span><strong>Period:</strong> 
+                      {grant.start_date ? formatDate(grant.start_date) : 'Start TBD'} - 
+                      {grant.end_date ? formatDate(grant.end_date) : 'Ongoing'}
+                    </span>
+                  </div>
+                )}
+                
+                {grant.role && (
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span><strong>Role:</strong> {grant.role}</span>
+                  </div>
+                )}
+              </div>
+              
+              {grant.description && (
+                <div class="text-gray-700 text-sm mt-3">
+                  <p>{grant.description}</p>
+                </div>
+              )}
+              
+              {grant.url && (
+                <div class="mt-4">
+                  <a 
+                    href={grant.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    More Information
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {projectFunding.length > 1 && (
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <div class="text-center">
+              <div class="text-lg font-bold text-gray-900">Total Project Funding</div>
+              <div class="text-2xl font-bold text-green-600">{formatCurrency(totalFunding)}</div>
+              <div class="text-sm text-gray-600 mt-1">
+                Across {projectFunding.length} funding source{projectFunding.length > 1 ? 's' : ''}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )}
     

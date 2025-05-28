@@ -4,15 +4,15 @@
 
 const { lab, activePage = 'home' } = Astro.props;
 const labSlug = lab?.slug || 'lab';
+const labShortName = lab?.short_name || 'Lab';
 
 // Navigation structure
 const navItems = [
   { id: 'home', label: 'Overview', url: `/labs/${labSlug}` },
   { id: 'people', label: 'People', url: `/labs/${labSlug}/people` },
-  //{ id: 'projects', label: 'Projects', url: `/labs/projects` },
+  { id: 'projects', label: 'Projects', url: `/labs/projects/?lab=${encodeURIComponent(labSlug)}` },
   { id: 'presentations', label: 'Presentations', url: `/labs/${labSlug}/presentations` },
   { id: 'publications', label: 'Publications', url: `/labs/${labSlug}/publications` },
-  { id: 'funding', label: 'Funding', url: `/labs/${labSlug}/funding` },
 ];
 ---
 

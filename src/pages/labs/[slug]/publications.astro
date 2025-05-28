@@ -18,7 +18,12 @@ if (!lab) {
 }
 
 // Get publications for this lab
-const publications = await fetchLabPublgeology-rocks1ications(lab.id);
+const publicationsResponse = await fetchLabPublications(lab.id);
+
+// Ensure we have an array to work with
+const publications = Array.isArray(publicationsResponse) ? publicationsResponse : 
+                    (publicationsResponse?.data && Array.isArray(publicationsResponse.data)) ? publicationsResponse.data : 
+                    [];
 
 // Sort publications by year (most recent first)
 const sortedPublications = publications.sort((a, b) => {
