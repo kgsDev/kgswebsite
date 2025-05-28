@@ -243,12 +243,10 @@ export async function fetchLabProjects(labId, request = null) {
 /**
  * Fetch publications for a specific lab using many-to-many relationship
  */
-export async function fetchLabPublications(labId, request = null) {
+export async function fetchLabPublications(labId, options = {}) {
+  const { limit = 10, page = 1, yearGroup = true } = options;
+  
   try {
-    // Note: Publications don't have status in your schema, so this stays the same
-    // but can add a filter for draft / published pubs if needed in the future
-    // const showDrafts = isDraftMode(request);
-    
     // First get the junction table entries for this lab
     const labPublicationRelations = await apiRequest('/items/publications_labs', {
       fields: ['publications_id.*'],
@@ -259,8 +257,12 @@ export async function fetchLabPublications(labId, request = null) {
       })
     });
 
+    if (!labPublicationRelations || labPublicationRelations.length === 0) {
+      return yearGroup ? {} : [];
+    }
+
     // Extract the actual publications from the relations
-    const publications = labPublicationRelations
+    let publications = labPublicationRelations
       .map(relation => relation.publications_id)
       .filter(publication => publication) // Filter out any null/undefined entries
       .sort((a, b) => {
@@ -272,9 +274,154 @@ export async function fetchLabPublications(labId, request = null) {
         return (a.title || '').localeCompare(b.title || '');
       });
 
+    // If yearGroup is true, group publications by year
+    if (yearGroup) {
+      const groupedByYear = {};
+      
+      publications.forEach(pub => {
+        const year = pub.year || 'Unknown Year';
+        if (!groupedByYear[year]) {
+          groupedByYear[year] = [];
+        }
+        groupedByYear[year].push(pub);
+      });
+      
+      return groupedByYear;
+    }
+
     return publications;
   } catch (error) {
     console.error('Error fetching lab publications:', error);
+    return yearGroup ? {} : [];
+  }
+}
+
+/**
+ * Fetch presentations associated with a lab using many-to-many relationship
+ */
+export async function fetchLabPresentations(labId, options = {}) {
+  const { limit = 10, page = 1, yearGroup = true } = options;
+  
+  try {
+    // First, get presentation relations through the junction table
+    const presentationRelations = await apiRequest('/items/labs_presentations', {
+      fields: ['presentations_id.*'],
+      filter: JSON.stringify({
+        labs_id: {
+          _eq: labId
+        }
+      })
+    });
+    
+    if (!presentationRelations || presentationRelations.length === 0) {
+      return yearGroup ? {} : [];
+    }
+    
+    // Extract presentation data
+    let presentations = presentationRelations
+      .map(relation => relation.presentations_id)
+      .filter(presentation => presentation) // Filter out any null/undefined entries
+      .sort((a, b) => {
+        // Sort by date (most recent first)
+        const dateA = a.date ? new Date(a.date) : new Date(0);
+        const dateB = b.date ? new Date(b.date) : new Date(0);
+        return dateB - dateA;
+      });
+    
+    // If yearGroup is true, group presentations by year
+    if (yearGroup) {
+      const groupedByYear = {};
+      
+      presentations.forEach(pres => {
+        const date = pres.date ? new Date(pres.date) : null;
+        const year = date ? date.getFullYear() : 'Unknown Year';
+        
+        if (!groupedByYear[year]) {
+          groupedByYear[year] = [];
+        }
+        groupedByYear[year].push(pres);
+      });
+      
+      return groupedByYear;
+    }
+    
+    return presentations;
+  } catch (error) {
+    console.error(`Error fetching presentations for lab ${labId}:`, error);
+    return yearGroup ? {} : [];
+  }
+}
+
+/**
+ * Fetch funding sources associated with a lab using many-to-many relationship
+ */
+export async function fetchLabFunding(labId, options = {}) {
+  const { active = null, limit = 50, sortBy = 'end_date' } = options;
+  
+  try {
+    // First, get funding relations through the junction table
+    const fundingRelations = await apiRequest('/items/labs_lab_funding', {
+      fields: ['lab_funding_id.*'],
+      filter: JSON.stringify({
+        labs_id: {
+          _eq: labId
+        }
+      })
+    });
+    
+    if (!fundingRelations || fundingRelations.length === 0) {
+      return [];
+    }
+    
+    // Extract funding data
+    let funding = fundingRelations
+      .map(relation => relation.lab_funding_id)
+      .filter(fundingItem => fundingItem); // Filter out any null/undefined entries
+    
+    // Apply active filter if specified
+    if (active !== null) {
+      const today = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      
+      funding = funding.filter(fundingItem => {
+        if (active) {
+          // Active funding has end_date in the future or null
+          return !fundingItem.end_date || fundingItem.end_date >= today;
+        } else {
+          // Past funding has end_date in the past
+          return fundingItem.end_date && fundingItem.end_date < today;
+        }
+      });
+    }
+    
+    // Sort the funding
+    funding.sort((a, b) => {
+      switch (sortBy) {
+        case 'start_date':
+          const startA = a.start_date ? new Date(a.start_date) : new Date(0);
+          const startB = b.start_date ? new Date(b.start_date) : new Date(0);
+          return startB - startA; // Most recent first
+          
+        case 'amount':
+          return (b.amount || 0) - (a.amount || 0); // Largest first
+          
+        case 'title':
+          return (a.title || '').localeCompare(b.title || '');
+          
+        default: // end_date
+          const endA = a.end_date ? new Date(a.end_date) : new Date('9999-12-31');
+          const endB = b.end_date ? new Date(b.end_date) : new Date('9999-12-31');
+          return endB - endA; // Most recent end date first
+      }
+    });
+    
+    // Apply limit
+    if (limit) {
+      funding = funding.slice(0, limit);
+    }
+    
+    return funding;
+  } catch (error) {
+    console.error(`Error fetching funding for lab ${labId}:`, error);
     return [];
   }
 }
@@ -431,136 +578,6 @@ export async function fetchRecentPublications(limit = 10) {
     return publications;
   } catch (error) {
     console.error('Error fetching recent publications:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch presentations associated with a lab
- */
-export async function fetchLabPresentations(labId, options = {}) {
-  const { limit = 10, page = 1, yearGroup = true } = options;
-  
-  try {
-    // First, get presentation relations
-    const presentationRelations = await apiRequest('/items/lab_presentations', {
-      fields: [
-        'presentation_id.*'
-      ],
-      filter: JSON.stringify({
-        lab_id: {
-          _eq: labId
-        }
-      })
-    });
-    
-    if (!presentationRelations || presentationRelations.length === 0) {
-      return yearGroup ? {} : [];
-    }
-    
-    // Extract presentation data
-    let presentations = presentationRelations.map(relation => relation.presentation_id);
-    
-    // Sort by date (most recent first)
-    presentations.sort((a, b) => {
-      const dateA = a.date ? new Date(a.date) : new Date(0);
-      const dateB = b.date ? new Date(b.date) : new Date(0);
-      return dateB - dateA;
-    });
-    
-    // If yearGroup is true, group presentations by year
-    if (yearGroup) {
-      const groupedByYear = {};
-      
-      presentations.forEach(pres => {
-        const date = pres.date ? new Date(pres.date) : null;
-        const year = date ? date.getFullYear() : 'Unknown Year';
-        
-        if (!groupedByYear[year]) {
-          groupedByYear[year] = [];
-        }
-        groupedByYear[year].push(pres);
-      });
-      
-      return groupedByYear;
-    }
-    
-    return presentations;
-  } catch (error) {
-    console.error(`Error fetching presentations for lab ${labId}:`, error);
-    return yearGroup ? {} : [];
-  }
-}
-
-/**
- * Fetch funding sources associated with a lab
- */
-export async function fetchLabFunding(labId, options = {}) {
-  const { active = null, limit = 50, sortBy = 'end_date' } = options;
-  
-  try {
-    // Build filter object
-    const filter = {
-      lab_id: {
-        _eq: labId
-      }
-    };
-    
-    // Add active filter if specified
-    if (active !== null) {
-      // Active funding has end_date in the future or null
-      const today = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
-      
-      if (active) {
-        filter._or = [
-          {
-            end_date: {
-              _gte: today
-            }
-          },
-          {
-            end_date: {
-              _null: true
-            }
-          }
-        ];
-      } else {
-        filter.end_date = {
-          _lt: today
-        };
-      }
-    }
-    
-    // Determine sort order
-    let sort;
-    switch (sortBy) {
-      case 'start_date':
-        sort = '-start_date';
-        break;
-      case 'amount':
-        sort = '-amount';
-        break;
-      case 'title':
-        sort = 'title';
-        break;
-      default:
-        sort = '-end_date,-start_date'; // Default to end date (most recent first)
-    }
-    
-    const funding = await apiRequest('/items/lab_funding', {
-      fields: [
-        '*', // Get all fields
-        'lab_id.*',
-        'funding_agency.*'
-      ],
-      filter: JSON.stringify(filter),
-      sort: sort,
-      limit: limit
-    });
-    
-    return funding;
-  } catch (error) {
-    console.error(`Error fetching funding for lab ${labId}:`, error);
     return [];
   }
 }
