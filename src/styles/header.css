@@ -1,3 +1,9 @@
+header {
+    background-color: var(--color-white);;
+}
+header .logo {
+    padding: 2vh 0;
+}
 /* mobile */
 .nav-menu-button {
     background-color: #2B3652;
@@ -106,12 +112,15 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        align-items: baseline;
+        align-items: center;
     }
-    .logo svg {
-        height: 61px;
+    header .logo {
+        width: 35%;
+        padding-bottom: 0;
     }
-    
+    .global-nav {
+        padding-top: 70px;
+    }
     .nav-menu-trigger {
         display: none;
     }
@@ -121,8 +130,6 @@
         display: flex;
         justify-content: space-between;
         width: 884px;
-        /* margin-top: 33px; */
-        /* margin-right: 25px; */
     }
     .nav-menu a {
         color: #971B00;
