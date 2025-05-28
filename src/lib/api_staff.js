@@ -264,17 +264,17 @@ export async function fetchStaffBySlug(slug) {
       }
 
       // Fetch labs for this staff member
-      const labs = await apiRequest('/items/lab_staff', {
-        fields: ['lab_id.*'],
+      const labs = await apiRequest('/items/labs_staff', {
+        fields: ['labs_id.*'],
         filter: JSON.stringify({
           staff_id: {
             _eq: member.id
           }
         })
       });
-      
+
       if (labs && labs.length > 0) {
-        member.labs = labs.map(l => l.lab_id);
+        member.labs = labs.map(l => l.labs_id);
       }
 
     } catch (error) {

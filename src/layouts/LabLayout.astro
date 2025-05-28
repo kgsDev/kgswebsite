@@ -1,0 +1,365 @@
+---
+// src/layouts/LabLayout.astro
+import BaseLayout from './BaseLayout.astro';
+import SideNav from '../components/labs/SideNav.astro';
+import { 
+  hexToRgb, 
+  calculateLuminance, 
+  getTextColorForBackground,
+  generateLabColorVariables 
+} from '../utils/lab_colorUtils';
+
+// Props for the lab layout
+const { 
+  lab, 
+  activePage = 'home',
+  pageTitle 
+} = Astro.props;
+
+// Define fallback content if missing
+const labName = lab?.name || 'Lab';
+const labSlug = lab?.slug || 'lab';
+const labDescription = lab?.short_description || '';
+const labLogo = lab?.logo || null;
+
+// Get custom font settings if available
+const useCustomFont = lab?.use_custom_font || false;
+const customFontUrl = lab?.custom_font_url || null;
+const customFontFamily = lab?.custom_font_family || null;
+const customFontWeight = lab?.custom_header_font_weight || '700';
+
+// Generate color variables with automatic contrast checking
+const colors = generateLabColorVariables(lab);
+const labPrimaryColor = colors.primaryColor;
+const labSecondaryColor = colors.secondaryColor;
+const labBackgroundColor = colors.backgroundColor;
+const labAccentColor = colors.accentColor;
+const textOnPrimary = colors.textOnPrimary;
+const textOnSecondary = colors.textOnSecondary;
+const textOnBackground = colors.textOnBackground;
+
+// Fallback description for SEO
+// Page title format
+const fullPageTitle = pageTitle ? 
+  `${pageTitle} | ${labName} | Kentucky Geological Survey` : 
+  `${labName} | Kentucky Geological Survey`;
+
+// Define props with defaults specific to lab pages
+const { 
+  title = fullPageTitle,
+  description = labDescription,
+  showBreadcrumb = true,
+} = Astro.props;
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="labs"
+  showBreadcrumb={showBreadcrumb}
+  bodyBackgroundColor={labBackgroundColor}
+>
+  <!-- Pass head content if needed -->
+  <Fragment slot="head">
+    <slot name="head-meta" />
+    <!-- Direct inline style to ensure the background color is applied -->
+    <style is:inline>
+      /* Force the background color directly */
+      body {
+        background-color: {labBackgroundColor} !important;
+      }
+    </style>
+    
+    <!-- Load custom font if specified -->
+    {useCustomFont && customFontUrl && (
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href={customFontUrl} rel="stylesheet">
+    )}
+    
+    <!-- Add dynamic styles for lab's custom colors with contrast adjustments -->
+    <style is:global define:vars={{ 
+      labPrimaryColor, 
+      labSecondaryColor, 
+      labBackgroundColor,
+      labAccentColor,
+      textOnPrimary, 
+      textOnSecondary,
+      textOnBackground,
+      customFontFamily: useCustomFont && customFontFamily ? customFontFamily : "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      customFontWeight: customFontWeight ? customFontWeight : '700'
+    }}>
+      /* Lab-specific color classes */
+      .lab-primary-bg {
+        background-color: var(--labPrimaryColor) !important;
+        color: var(--textOnPrimary) !important;
+      }
+      .lab-primary-text {
+        color: var(--labSecondaryColor) !important;
+      }
+      .lab-primary-border {
+        border-color: var(--labPrimaryColor) !important;
+      }
+      
+      .lab-secondary-border {
+        border-color: var(--labSecondaryColor) !important;
+      }
+
+      .lab-secondary-bg {
+        background-color: var(--labSecondaryColor) !important;
+        color: var(--textOnSecondary) !important;
+      }
+      .lab-secondary-text {
+        color: var(--labSecondaryColor) !important;
+      }
+      
+      .lab-accent-bg {
+        background-color: var(--labAccentColor) !important;
+      }
+      .lab-accent-text {
+        color: var(--labAccentColor) !important;
+      }
+      
+      /* Content blocks with accent border */
+      .content-block {
+        border-left: 5px solid var(--labSecondaryColor);
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 2rem;
+      }
+      
+      /* Side navigation styling */
+      .lab-sidenav {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+      
+      .lab-sidenav-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      
+      .lab-sidenav-item:last-child {
+        border-bottom: none;
+      }
+      
+      .lab-sidenav-item.active {
+        background-color: var(--labPrimaryColor);
+        color: var(--textOnPrimary);
+        font-weight: 500;
+      }
+      
+      .lab-sidenav-item:not(.active):hover {
+        background-color: #f9fafb;
+        color: var(--labSecondaryColor);
+      }
+      
+      /* Side nav on desktop */
+      @media (min-width: 768px) {
+        .content-with-sidenav {
+          display: grid;
+          grid-template-columns: 250px 1fr;
+          gap: 2rem;
+        }
+      }
+      
+      /* Mobile nav toggle */
+      .mobile-nav-toggle {
+        display: none;
+      }
+      
+      @media (max-width: 767px) {
+        .content-with-sidenav {
+          display: block;
+        }
+        
+        .mobile-nav-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.5rem;
+          height: 2.5rem;
+          background-color: var(--labPrimaryColor);
+          color: var(--textOnPrimary);
+          border: none;
+          border-radius: 0.25rem;
+          cursor: pointer;
+          margin-left: auto;
+          margin-right: 1rem;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          z-index: 100;
+        }
+        
+        .sidenav {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100vh;
+          width: 250px;
+          background-color: white;
+          z-index: 999;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          box-shadow: 0 0 15px rgba(0,0,0,0.2);
+          overflow-y: auto;
+          padding: 1rem;
+        }
+        
+        .sidenav.active {
+          transform: translateX(0);
+        }
+        
+        body.menu-open {
+          overflow: hidden;
+        }
+      }
+
+      .lab-header-full-width {
+        position: relative;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      /* Custom font class for lab title */
+      .lab-header-full-width .lab-title, h1, h2 {
+        font-family: var(--customFontFamily) !important;
+        font-weight: var(--customFontWeight) !important;
+        color: var(--labAccentColor) !important;
+      }
+
+      h3, h4, h5, h6 {
+        color: var(--labAccentColor) !important;
+      }
+
+      /*fixes for prose */
+      .prose ul {
+        list-style-type: disc !important;
+        margin-left: 1.5rem !important;
+      }
+
+      .prose ol {
+        list-style-type: decimal !important;  
+        margin-left: 1.5rem !important;
+      }
+    </style>
+  </Fragment>
+  
+  <!-- Custom breadcrumb for labs -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <a href="/labs" class="hover:text-[#0033A0] transition">Labs</a>
+    <span class="mx-2">›</span>
+    <a href={`/labs/${labSlug}`} class="hover:text-[#0033A0] transition">{labName}</a>
+    {pageTitle && (
+      <>
+        <span class="mx-2">›</span>
+        <span class="text-gray-800">{pageTitle}</span>
+      </>
+    )}
+  </Fragment>
+
+  <!-- Full width header placed OUTSIDE the normal content flow -->
+  <div class="lab-header-full-width lab-primary-bg py-6">
+    <div class="container mx-auto px-4">
+      <!-- Mobile menu button shown only on mobile -->
+      <div class="w-full flex justify-end md:hidden mb-3">
+        <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle menu">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Responsive layout for logo and title -->
+      <div class="flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-4 md:gap-8">
+        <!-- Lab Logo -->
+        {labLogo && (
+          <div class="w-32 h-32 md:w-48 md:h-48 flex-shrink-0 flex items-center justify-center p-2">
+            <img 
+              src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${labLogo}?width=640&quality=100`} 
+              alt={`${labName} logo`}
+              class="w-full h-full object-contain"
+            />
+          </div>
+        )}
+        
+        <!-- Lab Title and Description - Centered Vertically -->
+        <div class="text-center md:text-left max-w-2xl md:flex-1 flex flex-col justify-center">
+          <h1 class="text-3xl md:text-4xl font-bold mb-3 lab-title">{labName}</h1>
+          <p class="opacity-90">{labDescription}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content with Side Navigation -->
+  <div class="content-with-sidenav">
+    <!-- Side Navigation -->
+    <div class="sidenav md:relative md:transform-none md:shadow-none md:h-auto md:bg-transparent" id="sidenav">
+      <div class="md:pr-0">
+        <!-- Close button for mobile menu -->
+        <div class="flex justify-between items-center mb-4 md:hidden">
+          <h2 class="text-xl font-bold lab-primary-text">{lab.short_name || lab.name.split(' ').map(word => word[0]).join('')} Lab</h2>
+          <button id="close-nav" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+       
+        <SideNav lab={lab} activePage={activePage} />
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <slot />
+    </div>
+  </div>
+  
+  <script>
+    // Mobile navigation functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+      const closeNavButton = document.getElementById('close-nav');
+      const sidenav = document.getElementById('sidenav');
+      const body = document.body;
+      
+      if (mobileNavToggle && sidenav) {
+        mobileNavToggle.addEventListener('click', () => {
+          sidenav.classList.add('active');
+          body.classList.add('menu-open');
+        });
+        
+        // Close button functionality
+        if (closeNavButton) {
+          closeNavButton.addEventListener('click', () => {
+            sidenav.classList.remove('active');
+            body.classList.remove('menu-open');
+          });
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+          const isClickInsideNav = sidenav.contains(event.target);
+          const isClickOnToggle = mobileNavToggle.contains(event.target);
+          
+          if (!isClickInsideNav && !isClickOnToggle && sidenav.classList.contains('active')) {
+            sidenav.classList.remove('active');
+            body.classList.remove('menu-open');
+          }
+        });
+      }
+      
+      // Force background color on load
+      document.body.style.backgroundColor = "{labBackgroundColor}";
+    });
+  </script>
+</BaseLayout>

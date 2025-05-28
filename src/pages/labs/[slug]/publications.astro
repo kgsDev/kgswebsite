@@ -1,0 +1,252 @@
+---
+// src/pages/labs/[slug]/publications.astro
+export const prerender = false; // Enable SSR for this page
+
+import LabLayout from '../../../layouts/LabLayout.astro';
+import { 
+  fetchLabBySlug, 
+  fetchLabPublications 
+} from '../../../lib/api_labs';
+
+// Get the lab for this page
+const { slug } = Astro.params;
+const lab = await fetchLabBySlug(slug);
+
+// Handle 404 if lab not found
+if (!lab) {
+  return Astro.redirect('/404');
+}
+
+// Get publications for this lab
+const publications = await fetchLabPublgeology-rocks1ications(lab.id);
+
+// Sort publications by year (most recent first)
+const sortedPublications = publications.sort((a, b) => {
+  const yearA = a.year || 0;
+  const yearB = b.year || 0;
+  return yearB - yearA;
+});
+
+// Group publications by year for better organization
+const publicationsByYear = {};
+sortedPublications.forEach(pub => {
+  const year = pub.year || 'No Date';
+  if (!publicationsByYear[year]) {
+    publicationsByYear[year] = [];
+  }
+  publicationsByYear[year].push(pub);
+});
+
+// Get unique years for navigation
+const years = Object.keys(publicationsByYear).sort((a, b) => {
+  if (a === 'No Date') return 1;
+  if (b === 'No Date') return -1;
+  return b - a;
+});
+
+// Get the directus URL for asset loading
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Helper function to create citation
+const createCitation = (pub) => {
+  if (pub.citation) return pub.citation;
+  
+  let citation = '';
+  if (pub.authors) citation += `${pub.authors}. `;
+  if (pub.title) citation += `"${pub.title}." `;
+  if (pub.journal) {
+    citation += `${pub.journal}`;
+    if (pub.volume) citation += ` ${pub.volume}`;
+    if (pub.issue) citation += `.${pub.issue}`;
+    if (pub.pages) citation += ` (${pub.pages})`;
+    citation += '. ';
+  }
+  if (pub.year) citation += `${pub.year}.`;
+  
+  return citation.trim();
+};
+---
+
+<LabLayout lab={lab} activePage="publications" pageTitle="Publications">
+  <div class="space-y-8">
+    <!-- Page Header -->
+    <div class="content-block p-6">
+      <h1 class="text-2xl font-bold mb-4 lab-primary-text">Publications</h1>
+      <div class="flex flex-wrap items-center gap-4 text-sm">
+        <span class="text-gray-600">Total Publications: <strong>{publications.length}</strong></span>
+        {years.length > 1 && (
+          <div class="flex flex-wrap gap-2">
+            <span class="text-gray-600">Years:</span>
+            {years.map((year, index) => (
+              <span class="inline-flex items-center">
+                <a 
+                  href={`#year-${year}`} 
+                  class="lab-secondary-text hover:lab-primary-text transition-colors duration-300 font-medium"
+                >
+                  {year}
+                </a>
+                {index < years.length - 1 && <span class="text-gray-400 ml-1">•</span>}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Publications by Year -->
+    {years.map(year => (
+      <div id={`year-${year}`} class="content-block p-6">
+        <div class="flex items-center mb-6">
+          <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+          <h2 class="text-xl font-bold lab-secondary-text">{year}</h2>
+          <span class="ml-3 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+            {publicationsByYear[year].length}
+          </span>
+        </div>
+        
+        <div class="space-y-6">
+          {publicationsByYear[year].map((pub, index) => (
+            <div class="border-l-4 border-blue-500 pl-6 pb-6 border-b border-gray-100 last:border-b-0">
+              <div class="mb-3">
+                <h3 class="text-lg font-semibold lab-primary-text mb-2">{pub.title}</h3>
+                
+                {pub.authors && (
+                  <p class="text-gray-700 mb-2">
+                    <strong>Authors:</strong> {pub.authors}
+                  </p>
+                )}
+                
+                <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
+                  {pub.journal && (
+                    <div>
+                      <strong>Journal:</strong> {pub.journal}
+                      {pub.volume && <span>, Vol. {pub.volume}</span>}
+                      {pub.issue && <span>({pub.issue})</span>}
+                    </div>
+                  )}
+                  
+                  {pub.pages && (
+                    <div><strong>Pages:</strong> {pub.pages}</div>
+                  )}
+                  
+                  {pub.publication_date && (
+                    <div><strong>Published:</strong> {formatDate(pub.publication_date)}</div>
+                  )}
+                  
+                  {pub.doi && (
+                    <div><strong>DOI:</strong> {pub.doi}</div>
+                  )}
+                </div>
+              </div>
+              
+              {pub.abstract && (
+                <div class="mb-4">
+                  <h4 class="font-medium text-gray-900 mb-2">Abstract</h4>
+                  <p class="text-gray-700 text-sm leading-relaxed">{pub.abstract}</p>
+                </div>
+              )}
+              
+              <!-- Citation -->
+              <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 class="font-medium text-gray-900 mb-2 text-sm">Citation</h4>
+                <p class="text-sm text-gray-700 font-mono leading-relaxed">
+                  {createCitation(pub)}
+                </p>
+              </div>
+              
+              <!-- Links -->
+              <div class="flex flex-wrap gap-3 text-sm">
+                {pub.doi && (
+                  <a 
+                    href={`https://doi.org/${pub.doi}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    DOI Link
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+                
+                {pub.url && (
+                  <a 
+                    href={pub.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Full Text
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+                
+                {pub.pdf && (
+                  <a 
+                    href={`${directusUrl}assets/${pub.pdf}`} 
+                    target="_blank"
+                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download PDF
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    <!-- No Publications Message -->
+    {publications.length === 0 && (
+      <div class="content-block p-8">
+        <div class="text-center py-8">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No publications found</h3>
+          <p class="mt-1 text-sm text-gray-500">Publications will appear here once they are added to the lab.</p>
+        </div>
+      </div>
+    )}
+    
+    <!-- Back to Top Button for long publication lists -->
+    {publications.length > 5 && (
+      <div class="content-block p-4">
+        <div class="text-center">
+          <a 
+            href="#top" 
+            class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            Back to Top
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+</LabLayout>

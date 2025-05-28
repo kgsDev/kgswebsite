@@ -13,6 +13,7 @@ export interface Props {
   description?: string;
   activePage?: string;
   showBreadcrumb?: boolean;
+  bodyBackgroundColor?: string;
 }
 
 const { 
@@ -20,6 +21,7 @@ const {
   description = 'Kentucky Geological Survey at the University of Kentucky',
   activePage = '',
   showBreadcrumb = true,
+  bodyBackgroundColor = '#f9fafb', // Default background color
   image,
   imageAlt,
   type = "website",
@@ -41,6 +43,13 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Apply custom background color -->
+    <style define:vars={{ bodyBackgroundColor }}>
+      body {
+        background-color: var(--bodyBackgroundColor);
+      }
+    </style>
 
     <StyleSystem />
 

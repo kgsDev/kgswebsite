@@ -1,0 +1,562 @@
+---
+// src/pages/projects/index.astro
+export const prerender = false; // Enable SSR for this page
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import DraftBanner from '../../../components/DraftBanner.astro';
+import { 
+  fetchAllProjects, 
+  getProjectsCount,
+  getProjectStatuses
+} from '../../../lib/api_projects';
+import { fetchAllLabs } from '../../../lib/api_labs';
+import { isDraftMode } from '../../../utils/preview';
+
+// Get query parameters for filtering
+const url = new URL(Astro.request.url);
+const labFilter = url.searchParams.get('lab');
+const statusFilter = url.searchParams.get('status');
+const searchQuery = url.searchParams.get('search');
+const page = parseInt(url.searchParams.get('page') || '1');
+const limit = 12;
+
+// Check preview mode
+const isPreviewMode = isDraftMode(Astro.request);
+
+// Fetch projects with filters
+const projects = await fetchAllProjects({
+  page,
+  limit,
+  labSlug: labFilter,
+  status: statusFilter,
+  request: Astro.request
+});
+
+// Get total count for pagination
+const totalProjects = await getProjectsCount({
+  labSlug: labFilter,
+  status: statusFilter,
+  request: Astro.request
+});
+
+// Get labs for filter dropdown
+const labs = await fetchAllLabs(Astro.request);
+
+// Get available statuses for filter
+const availableStatuses = await getProjectStatuses(Astro.request);
+
+// Calculate pagination
+const totalPages = Math.ceil(totalProjects / limit);
+const hasNextPage = page < totalPages;
+const hasPrevPage = page > 1;
+
+// Get directus URL for asset loading
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Helper function to format dates
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short'
+  });
+};
+
+// Helper function to create filter URLs
+const createFilterUrl = (params) => {
+  const newUrl = new URL(Astro.request.url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      newUrl.searchParams.set(key, value);
+    } else {
+      newUrl.searchParams.delete(key);
+    }
+  });
+  // Reset to page 1 when changing filters
+  if (params.page === undefined) {
+    newUrl.searchParams.set('page', '1');
+  }
+  return newUrl.pathname + newUrl.search;
+};
+
+// Get current lab info if filtering by lab
+let currentLab = null;
+if (labFilter && projects.length > 0) {
+  currentLab = projects[0].labs?.find(lab => lab.slug === labFilter);
+}
+
+// Count draft projects for preview mode
+const draftProjects = isPreviewMode ? projects.filter(p => p.status === 'draft') : [];
+
+// Page title and description
+const pageTitle = labFilter && currentLab ? 
+  `${currentLab.name} Projects | Kentucky Geological Survey` :
+  'Lab Research Projects | Kentucky Geological Survey';
+
+const pageDescription = labFilter && currentLab ?
+  `Lab Research projects from ${currentLab.name} at Kentucky Geological Survey` :
+  'Explore lab research projects from Kentucky Geological Survey laboratories';
+---
+
+<BaseLayout 
+  title={pageTitle}
+  description={pageDescription}
+  activePage="projects"
+>
+  <!-- Custom breadcrumb -->
+  <Fragment slot="breadcrumb">
+    <span class="mx-2">›</span>
+    <a href="/labs" class="hover:text-[#0033A0] transition">Labs</a>
+    <span class="mx-2">›</span>
+    <span class="text-gray-800">Lab Research Projects</span>
+    {currentLab && (
+      <>
+        <span class="mx-2">›</span>
+        <span class="text-gray-800">{currentLab.name}</span>
+      </>
+    )}
+  </Fragment>
+
+  <div class="max-w-7xl mx-auto">
+    <!-- Draft/Preview Banner -->
+    <DraftBanner 
+      isDraft={isPreviewMode} 
+      type="projects" 
+      currentUrl={Astro.url.href}
+    />
+
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-3xl font-bold text-blue-900">
+            {currentLab ? `${currentLab.name} Projects` : 'Lab Research Projects'}
+          </h1>
+          <p class="text-gray-600 mt-2">
+            {currentLab ? 
+              `Explore research projects from ${currentLab.name}` :
+              'Explore research projects from Kentucky Geological Survey laboratories'
+            }
+          </p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="text-right">
+          <div class="text-2xl font-bold text-blue-900">{totalProjects}</div>
+          <div class="text-sm text-gray-600">
+            {totalProjects === 1 ? 'Project' : 'Projects'}
+            {isPreviewMode && draftProjects.length > 0 && (
+              <span class="block text-yellow-600 font-medium">
+                {draftProjects.length} draft
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="grid md:grid-cols-4 gap-4">
+        <!-- Lab Filter -->
+        <div>
+          <label for="lab-filter" class="block text-sm font-medium text-gray-700 mb-1">
+            Filter by Laboratory
+          </label>
+          <select 
+            id="lab-filter" 
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onchange="window.location.href = this.value"
+          >
+            <option value={createFilterUrl({ lab: null })}>All Labs</option>
+            {labs.map(lab => (
+              <option 
+                value={createFilterUrl({ lab: lab.slug })}
+                selected={labFilter === lab.slug}
+              >
+                {lab.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <!-- Status Filter -->
+        <div>
+          <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">
+            Filter by Status
+          </label>
+          <select 
+            id="status-filter" 
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onchange="window.location.href = this.value"
+          >
+            <option value={createFilterUrl({ status: null })}>All Statuses</option>
+            {availableStatuses.map(status => (
+              <option 
+                value={createFilterUrl({ status })}
+                selected={statusFilter === status}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+            Search Projects
+          </label>
+          <form method="get" class="flex">
+            <input 
+              type="text" 
+              id="search" 
+              name="search"
+              value={searchQuery || ''}
+              placeholder="Search by title or description..." 
+              class="flex-1 p-2 border border-gray-300 rounded-l focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            {labFilter && <input type="hidden" name="lab" value={labFilter} />}
+            {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+            <button 
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700 transition-colors duration-300"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Active Filters -->
+      {(labFilter || statusFilter || searchQuery) && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="text-sm text-gray-600">Active filters:</span>
+          
+          {labFilter && currentLab && (
+            <a 
+              href={createFilterUrl({ lab: null })}
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
+            >
+              Lab: {currentLab.name}
+              <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+          )}
+          
+          {statusFilter && (
+            <a 
+              href={createFilterUrl({ status: null })}
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200"
+            >
+              Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+              <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+          )}
+          
+          {searchQuery && (
+            <a 
+              href={createFilterUrl({ search: null })}
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
+            >
+              Search: {searchQuery}
+              <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </a>
+          )}
+          
+          <a 
+            href="/labs/projects"
+            class="text-xs text-blue-600 hover:text-blue-800 transition-colors duration-200"
+          >
+            Clear all filters
+          </a>
+        </div>
+      )}
+    </div>
+
+    <!-- Projects Grid -->
+    {projects.length > 0 ? (
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {projects.map(project => (
+          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative">
+            <!-- Draft Badge -->
+            {project.status === 'draft' && (
+              <div class="absolute top-3 right-3 z-10">
+                <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                  DRAFT
+                </span>
+              </div>
+            )}
+            
+            <!-- Project Image -->
+            {project.image && (
+              <div class="relative h-48">
+                <img 
+                  src={`${directusUrl}assets/${project.image}?width=400&height=300&fit=cover&quality=90`}
+                  alt={project.title}
+                  class="w-full h-full object-cover"
+                />
+                
+                <!-- Status Badge -->
+                <div class="absolute bottom-3 left-3">
+                  <span class={`px-2 py-1 rounded-full text-xs font-medium ${
+                    project.project_status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : project.project_status === 'completed'
+                      ? 'bg-gray-100 text-gray-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {project.project_status?.charAt(0).toUpperCase() + project.project_status?.slice(1)}
+                  </span>
+                </div>
+                
+                <!-- Featured Badge -->
+                {project.featured && (
+                  <div class="absolute top-3 left-3">
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                      Featured
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <!-- Project Content -->
+            <div class="p-4">
+              <div class="mb-3">
+                <h3 class="text-lg font-bold text-blue-900 mb-2">
+                  <a 
+                    href={`/labs/projects/${project.slug}${isPreviewMode ? '?preview=true' : ''}`}
+                    class="hover:text-blue-700 transition-colors duration-300"
+                  >
+                    {project.title}
+                  </a>
+                </h3>
+                
+                {project.description && (
+                  <div class="text-gray-700 text-sm line-clamp-3 prose prose-sm max-w-none prose-ul:list-disc prose-ul:ml-6 prose-ol:list-decimal prose-ol:ml-6 prose-li:mb-1" set:html={project.description}></div>
+                )}
+              </div>
+              
+              <!-- Project Metadata -->
+              <div class="space-y-2 text-xs text-gray-600 mb-4">
+                {project.start_date && (
+                  <div class="flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Started: {formatDate(project.start_date)}</span>
+                  </div>
+                )}
+                
+                {project.end_date && (
+                  <div class="flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>
+                      {project.project_status === 'completed' ? 'Completed' : 'Expected End'}: 
+                      {formatDate(project.end_date)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              <!-- Associated Labs -->
+              {project.labs && project.labs.length > 0 && (
+                <div class="mb-4">
+                  <div class="flex flex-wrap gap-1">
+                    {project.labs.map(lab => (    
+                      <a 
+                        href={`/labs/${lab.slug}${isPreviewMode ? '?preview=true' : ''}`}
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
+                        style={lab.secondary_color ? `background-color: ${lab.primary_color}20; color: ${lab.primary_color}` : ''}
+                      >
+                        {lab.logo && (
+                          <img 
+                            src={`${directusUrl}assets/${lab.logo}?width=100&&quality=90`}
+                            alt={`${lab.name} logo`}
+                            class="w-16 mr-1 rounded-full"
+                          />
+                        )}
+                        {lab.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                            )}
+              
+              <!-- Action Links -->
+              <div class="flex justify-between items-center">
+                <a 
+                  href={`/labs/projects/${project.slug}${isPreviewMode ? '?preview=true' : ''}`}
+                  class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  View Details →
+                </a>
+                
+                {project.url && (
+                  <a 
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors duration-300"
+                  >
+                    External Link
+                    <svg class="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-1a1 1 0 10-2 0v1H5V7h1a1 1 0 000-2H5z"/>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <!-- No Projects Message -->
+      <div class="text-center py-16 bg-white rounded-lg shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No projects found</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          {(labFilter || statusFilter || searchQuery) ? 
+            'Try adjusting your search criteria or filters.' :
+            'Projects will appear here once they are published.'
+          }
+        </p>
+        {(labFilter || statusFilter || searchQuery) && (
+          <a 
+            href="/labs/projects"
+            class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 transition-colors duration-300"
+          >
+            View All Projects
+          </a>
+        )}
+      </div>
+    )}
+
+    <!-- Pagination -->
+    {totalPages > 1 && (
+      <div class="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-md">
+        <div class="flex flex-1 justify-between sm:hidden">
+          <!-- Mobile pagination -->
+          {hasPrevPage && (
+            <a 
+              href={createFilterUrl({ page: page - 1 })}
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Previous
+            </a>
+          )}
+          {hasNextPage && (
+            <a 
+              href={createFilterUrl({ page: page + 1 })}
+              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Next
+            </a>
+          )}
+        </div>
+        
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Showing
+              <span class="font-medium">{((page - 1) * limit) + 1}</span>
+              to
+              <span class="font-medium">{Math.min(page * limit, totalProjects)}</span>
+              of
+              <span class="font-medium">{totalProjects}</span>
+              results
+            </p>
+          </div>
+          
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <!-- Previous -->
+              {hasPrevPage ? (
+                <a 
+                  href={createFilterUrl({ page: page - 1 })}
+                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <span class="sr-only">Previous</span>
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </a>
+              ) : (
+                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </span>
+              )}
+              
+              <!-- Page Numbers -->
+              {Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                let pageNum = page - 2 + i;
+                if (pageNum < 1) pageNum = i + 1;
+                if (pageNum > totalPages) pageNum = totalPages - 4 + i;
+                if (pageNum < 1 || pageNum > totalPages) return null;
+                
+                return pageNum === page ? (
+                  <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                    {pageNum}
+                  </span>
+                ) : (
+                  <a 
+                    href={createFilterUrl({ page: pageNum })}
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    {pageNum}
+                  </a>
+                );
+              })}
+              
+              <!-- Next -->
+              {hasNextPage ? (
+                <a 
+                  href={createFilterUrl({ page: page + 1 })}
+                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <span class="sr-only">Next</span>
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </a>
+              ) : (
+                <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </span>
+              )}
+            </nav>
+          </div>
+        </div>
+      </div>
+    )}
+    
+    <!-- Preview Mode Help -->
+    {isPreviewMode && (
+      <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="text-center text-sm text-blue-700">
+          <p class="font-medium">Preview Mode Active</p>
+          <ul class="mt-2 text-xs space-y-1">
+            <li>• Draft projects are marked with yellow "DRAFT" badges</li>
+            <li>• All links will maintain preview mode when clicked</li>
+            <li>• Share this URL to let others preview: <code class="bg-blue-100 px-1 rounded">{Astro.url.href}</code></li>
+          </ul>
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>
