@@ -6,6 +6,7 @@ footer {
 }
 footer .footer-address {
     padding: 25px 0;
+    font-style: normal;
 }
 footer a {
     color: #fff;
