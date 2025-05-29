@@ -25,10 +25,9 @@ async function apiRequest(path, params) {
  */
 export async function fetchProjectFunding(projectId) {
   try {
-    
     // Get funding relations through the junction table
     const fundingRelations = await apiRequest('/items/lab_projects_funding', {
-      fields: ['funding_id.*'],
+      fields: ['funding_id.*,funding_id.funding_agency.*'],
       filter: JSON.stringify({
         lab_projects_id: {
           _eq: projectId
@@ -45,8 +44,8 @@ export async function fetchProjectFunding(projectId) {
       .map(relation => relation.funding_id)
       .filter(fundingItem => fundingItem) // Filter out any null/undefined entries
       .sort((a, b) => (b.amount || 0) - (a.amount || 0));
-    return funding;
 
+    return funding;
   } catch (error) {
     console.error(`Error fetching funding for project ${projectId}:`, error);
     return [];
