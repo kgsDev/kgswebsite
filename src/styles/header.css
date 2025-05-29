@@ -137,6 +137,9 @@ header .logo {
     .nav-menu > * {
         border-top: none;
     }
+    .nav-menu details:last-of-type .nav-sub-menu{
+        right: 0px;
+    }
     .nav-sub-menu {
         display: block;
         position: absolute;
