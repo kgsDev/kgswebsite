@@ -4,6 +4,14 @@ header {
 header .logo {
     padding: 2vh 0;
 }
+
+.inter-nav {
+    font-family: "Inter", "Roboto", "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 900;
+    font-style: normal;
+}
+
 /* mobile */
 .nav-menu-button {
     background-color: #2B3652;
@@ -32,7 +40,6 @@ header .logo {
     list-style: none;
     padding: 0;
 }
-
 .nav-menu {
     background-color: #ffffff;
     color: #000;
@@ -106,8 +113,10 @@ header .logo {
 /* tablet */
 
 /* desktop */
-@media (min-width: 1100px) { 
+@media (min-width: 1200px) { 
     header {
+        border-top: 23px solid #B2A495;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -115,23 +124,25 @@ header .logo {
     }
     header .logo {
         width: 35%;
-        padding-bottom: 0;
+        padding-top: 10px;
+        padding-bottom: 12px;
     }
     .global-nav {
-        padding-top: 70px;
+        padding-top: 40px;
     }
     .nav-menu-trigger {
         display: none;
     }
     .nav-menu {
         background-color: #fff;
-        color: #971B00;
+        color: #B5A798;
         display: flex;
         justify-content: space-between;
-        width: 884px;
+        width: 930px;
+        font-weight: 700;
     }
     .nav-menu a {
-        color: #971B00;
+        color: #B5A798;
     }
     .nav-menu > * {
         border-top: none;
@@ -142,27 +153,43 @@ header .logo {
         position: static;
         width: 884px;
     }
+    .nav-menu summary::marker {
+        content: none;
+    }
+    .nav-menu details[open] {
+        background-color: #FFFFFF;
+    /* border-bottom: 13px solid #224560; */
+    }
     .nav-menu details:last-of-type .nav-sub-menu{
         right: 0px;
     }
     .nav-sub-menu {
+        background-color: #FFFFFF;
+        border-top: 7px solid #224560;
+        border-bottom: 7px solid #224560;
         display: block;
         position: absolute;
         z-index: 6;
     }
-    .nav-sub-menu-trigger:before {
-        border-left: none;
-        content: "\25be";
-        float:right;
-        color: brown;
-        padding-left: 10px;
-        padding-right: 10px;
+    .nav-menu summary:hover, .nav-menu > a:hover {
+    color: #224560;
+    border-bottom: 13px solid #224560;
+    }
+    .nav-menu details summary {
+        border-bottom: 13px solid #FFFFFF;
+    }
+    .nav-menu details[open] summary {
+    border-bottom: 13px solid #224560;
+    color: #224560
     }
     .global-nav ul li {
-        border: none;
-        color: brown;
+        border: 1px solid #B3BFD5;
     }
-    .global-nav ul li:last-child {
-        border: none;
+    .global-nav ul li a {
+        font-weight: 700;
+        color: #856E56;
+    }
+    .global-nav ul li:hover {
+        background-color: rgba(123, 123, 123, 0.09);
     }
 }
