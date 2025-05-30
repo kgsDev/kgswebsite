@@ -25,3 +25,4 @@ pnpm-debug.log*
 
 # big files
 *.mp4
+src/components/common/Header copy.astro
