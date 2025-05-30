@@ -251,20 +251,6 @@ const {
     </style>
   </Fragment>
   
-  <!-- Custom breadcrumb for labs -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <a href="/labs" class="hover:text-[#0033A0] transition">Labs</a>
-    <span class="mx-2">›</span>
-    <a href={`/labs/${labSlug}`} class="hover:text-[#0033A0] transition">{labName}</a>
-    {pageTitle && (
-      <>
-        <span class="mx-2">›</span>
-        <span class="text-gray-800">{pageTitle}</span>
-      </>
-    )}
-  </Fragment>
-
   <!-- Full width header placed OUTSIDE the normal content flow -->
   <div class="lab-header-full-width lab-primary-bg py-6">
     <div class="container mx-auto px-4">

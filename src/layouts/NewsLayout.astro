@@ -11,9 +11,10 @@ const pathname = Astro.url.pathname;
 
 // Define props with defaults specific to news pages
 const { 
-  title = 'News & Events',
+  title = 'News & Announcements',
   description = 'Latest news, updates, and events from the Kentucky Geological Survey.',
   showBreadcrumb = true,
+  customBreadcrumbs = null, // Allow custom breadcrumbs to be passed through
 } = Astro.props;
 ---
 
@@ -22,13 +23,10 @@ const {
   description={description}
   activePage="news"
   showBreadcrumb={showBreadcrumb}
+  customBreadcrumbs={customBreadcrumbs}
 >
-  <!-- Pass breadcrumb content if needed -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <a href="/news" class="hover:text-[#0033A0] transition">News & Events</a>
-    <slot name="breadcrumb" />
-  </Fragment>
+  <!-- Only add manual breadcrumb if we need to override the automatic ones -->
+  <slot name="breadcrumb" slot="breadcrumb" />
   
   <!-- Pass head content if needed -->
   <Fragment slot="head">

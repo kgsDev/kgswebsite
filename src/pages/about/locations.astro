@@ -1,7 +1,7 @@
 ---
 // src/pages/about/index.astro
 export const prerender = false; // Enable SSR for this page
-import StaffLayout from '../../layouts/StaffLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import { fetchKGSLocations } from '../../lib/api_locations';
 
 // Fetch all KGS directory locations
@@ -11,17 +11,14 @@ const locations = await fetchKGSLocations();
 const GOOGLE_MAPS_API_KEY = import.meta.env.GOOGLE_MAPS_API_KEY;
 ---
 
-<StaffLayout>
-  <!-- Override breadcrumb to show correct path -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <span class="text-gray-800">About</span>
-    <span class="mx-2">›</span>
-    <span class="text-gray-800">Locations</span>
-  </Fragment>
+<BaseLayout
+  title="KGS Locations"
+  description="Contact information and details for Kentucky Geological Survey locations and offices throughout Kentucky."
+  activePage="about"
+>
 
   <div class="mb-8">
-    <h1 class="text-3xl font-bold mb-2 text-blue-900">KGS Locations Directory</h1>
+    <h1 class="text-3xl font-bold mb-2 text-blue-900">KGS Locations</h1>
     <p class="text-gray-600">Contact information and details for Kentucky Geological Survey locations and offices throughout Kentucky.</p>
   </div>
 
@@ -200,7 +197,7 @@ const GOOGLE_MAPS_API_KEY = import.meta.env.GOOGLE_MAPS_API_KEY;
       Back to Home
     </a>
   </div>
-</StaffLayout>
+</BaseLayout>
 
 
 <style>

@@ -90,7 +90,6 @@ const formatDateRange = (startDate, endDate) => {
   return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`;
 };
 
-
 // Check if event is past
 const isEventPast = (endDate) => {
   if (!endDate) return false;
@@ -100,31 +99,41 @@ const isEventPast = (endDate) => {
   return end < today;
 };
 
-// Get category label and URL
+// Get category label and URL for breadcrumbs
 let categoryLabel = "";
 let categoryUrl = "";
 
 if (article.category === "press") {
-  categoryLabel = "Press Release";
+  categoryLabel = "Press Releases";
   categoryUrl = "/news/press-releases";
 } else if (article.category === "research") {
-  categoryLabel = "Research Update";
+  categoryLabel = "Research Updates";
   categoryUrl = "/news/research";
 } else if (article.category === "event") {
-  categoryLabel = isEventPast(article.event_end) ? "Past Event" : "Upcoming Event";
+  categoryLabel = "Events";
   categoryUrl = "/news/events";
 } else {
-  categoryLabel = "News";
+  categoryLabel = "News & Announcements";
   categoryUrl = "/news";
 }
+
+// Create custom breadcrumbs for this specific article
+const customBreadcrumbs = [
+  { label: "News & Announcements", href: "/news" },
+  { label: categoryLabel, href: categoryUrl },
+  { label: article.title } // No href for current page
+];
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 ---
 
-<NewsLayout>
+<NewsLayout 
+  title={article.title}
+  description={article.excerpt || article.title}
+  customBreadcrumbs={customBreadcrumbs}
+>
   <!-- Head Metadata -->
   <Fragment slot="head-meta">
-    <title>{article.title} | Kentucky Geological Survey</title>
     <meta name="description" content={article.excerpt || article.title} />
     <meta property="og:title" content={article.title} />
     <meta property="og:description" content={article.excerpt || article.title} />
@@ -140,18 +149,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         <meta name="twitter:image" content={`${directusUrl}assets/${article.main_image}?width=1200&height=630&quality=80&fit=cover`} />
       </>
     )}
-  </Fragment>
-  
-  <!-- Breadcrumb Addition -->
-  <Fragment slot="breadcrumb">
-    {article.category && (
-      <>
-        <span class="mx-2">›</span>
-        <a href={categoryUrl} class="hover:text-[#0033A0] transition">{categoryLabel}</a>
-      </>
-    )}
-    <span class="mx-2">›</span>
-    <span class="text-gray-800 truncate max-w-xs">{article.title}</span>
   </Fragment>
   
   <!-- Article Content -->
@@ -180,13 +177,16 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       {article.category && (
         <div class="mb-3">
           <a href={categoryUrl} class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 hover:bg-blue-200">
-            {categoryLabel}
+            {article.category === "press" ? "Press Release" : 
+             article.category === "research" ? "Research Update" : 
+             article.category === "event" ? (isEventPast(article.event_end) ? "Past Event" : "Upcoming Event") : 
+             "News"}
           </a>
         </div>
       )}
       
       <!-- Title -->
-      <h2 class="text-3xl font-bold text-blue-900 mb-4">{article.title}</h2>
+      <h1 class="text-3xl font-bold text-blue-900 mb-4">{article.title}</h1>
       
       <!-- Date and Author -->
       <div class="flex flex-wrap items-center gap-3 text-gray-600 mb-3">

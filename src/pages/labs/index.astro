@@ -1,4 +1,3 @@
-
 ---
 // src/pages/labs/index.astro
 export const prerender = false; // Enable SSR for this page
@@ -22,12 +21,6 @@ const {
     activePage="labs"
     showBreadcrumb={showBreadcrumb}
   >
-  <!-- Pass breadcrumb content if needed -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <a href="/labs" class="hover:text-[#0033A0] transition">Labs</a>
-    <slot name="breadcrumb" />
-  </Fragment>
   
   <!-- Pass head content if needed -->
   <Fragment slot="head">

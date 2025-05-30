@@ -1,33 +1,101 @@
 ---
-// Staff-specific layout that extends the BaseLayout
+// src/layouts/StaffLayout.astro
 import BaseLayout from './BaseLayout.astro';
 
 // Define props with defaults specific to staff pages
 const { 
-  title = 'Employee Directory',
+  title = 'Staff Directory',
   description = 'Kentucky Geological Survey staff directory with contact information and areas of expertise.',
-  showBreadcrumb = true
+  showBreadcrumb = true,
+  customBreadcrumbs = null, // Allow custom breadcrumbs to be passed through
+  activePage = 'staff'
 } = Astro.props;
+
+// Define UK Brand Colors (if not already defined elsewhere)
+const ukColors = {
+  wildcatBlue: "#0033A0",    // Primary blue - PMS 286 C
+  sky: "#B1C9E8",            // PMS 658
+  midnight: "#1B365D",       // Dark blue - PMS 534
+  bluegrass: "#1E8AFF",      // Bright blue - PMS 2382
+  goldenrod: "#FFDC00",      // PMS 122
+  sunset: "#FFA360",         // PMS 1635
+  riverGreen: "#4CBCC0"      // PMS 7465
+};
 ---
 
 <BaseLayout 
   title={title}
   description={description}
-  activePage="staff"
+  activePage={activePage}
   showBreadcrumb={showBreadcrumb}
+  customBreadcrumbs={customBreadcrumbs}
 >
-  <!-- Pass breadcrumb content if needed -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <a href="/staff" class="hover:text-[#0033A0] transition">Employee Directory</a>
-    <slot name="breadcrumb" />
-  </Fragment>
+  <!-- Only add manual breadcrumb if we need to override the automatic ones -->
+  <slot name="breadcrumb" slot="breadcrumb" />
   
   <!-- Pass head content if needed -->
   <Fragment slot="head">
     <slot name="head" />
+    
+    <!-- Staff-specific styles -->
+    <style define:vars={ukColors}>
+      /* UK Brand Colors as CSS Variables */
+      :root {
+        --wildcat-blue: var(--wildcatBlue);
+        --sky: var(--sky);
+        --midnight: var(--midnight);
+        --bluegrass: var(--bluegrass);
+        --goldenrod: var(--goldenrod);
+        --sunset: var(--sunset);
+        --river-green: var(--riverGreen);
+      }
+      
+      /* Custom Classes */
+      .uk-gradient-header {
+        background: linear-gradient(to right, var(--wildcatBlue), var(--midnight));
+      }
+      .uk-text-primary {
+        color: var(--wildcatBlue);
+      }
+      .uk-text-sky {
+        color: var(--sky);
+      }
+      .uk-text-bluegrass {
+        color: var(--bluegrass);
+      }
+      .uk-bg-midnight {
+        background-color: var(--midnight);
+      }
+      .uk-bg-wildcat-blue {
+        background-color: var(--wildcatBlue);
+      }
+      .uk-bg-sky-20 {
+        background-color: rgba(177, 201, 232, 0.2); /* Sky color with 20% opacity */
+      }
+      .uk-border-sky-30 {
+        border-color: rgba(177, 201, 232, 0.3); /* Sky color with 30% opacity */
+      }
+      
+      /* Hover effects */
+      .uk-hover-sky:hover {
+        color: var(--sky);
+      }
+      .uk-hover-bluegrass:hover {
+        color: var(--bluegrass);
+      }
+      .uk-hover-wildcat-blue:hover {
+        color: var(--wildcatBlue);
+      }
+      
+      /* Active state */
+      .uk-active-link {
+        border-bottom: 2px solid white;
+        padding-bottom: 0.25rem;
+        font-weight: 500;
+      }
+    </style>
   </Fragment>
-  
+
   <!-- Main staff content -->
   <slot />
 </BaseLayout>

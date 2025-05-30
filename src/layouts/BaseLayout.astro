@@ -14,6 +14,7 @@ export interface Props {
   activePage?: string;
   showBreadcrumb?: boolean;
   bodyBackgroundColor?: string;
+  customBreadcrumbs?: Array<{label: string, href?: string}>; // Optional custom breadcrumbs
 }
 
 const { 
@@ -22,6 +23,7 @@ const {
   activePage = '',
   showBreadcrumb = true,
   bodyBackgroundColor = '#f9fafb', // Default background color
+  customBreadcrumbs,
   image,
   imageAlt,
   type = "website",
@@ -31,6 +33,70 @@ const {
   keywords,
   canonicalUrl
 } = Astro.props;
+
+// Generate breadcrumbs automatically from URL
+function generateBreadcrumbs(url: URL, pageTitle: string) {
+  const pathSegments = url.pathname.split('/').filter(segment => segment !== '');
+  const breadcrumbs = [];
+  
+  // Mapping of URL segments to display names
+  const segmentMap: Record<string, string> = {
+    'staff': 'Staff Directory',
+    'about': 'About',
+    'locations': 'Locations',
+    'services': 'Services',
+    'resources': 'Resources',
+    'contact': 'Contact',
+    'news': 'News & Announcements',
+    'publications': 'Publications',
+    'maps': 'Maps & Data',
+    'research': 'Research',
+    'labs': 'Labs',
+    'departments': 'Departments',
+    'teams': 'Teams'
+  };
+  
+  let currentPath = '';
+  
+  pathSegments.forEach((segment, index) => {
+    currentPath += `/${segment}`;
+    
+    // For the last segment, use the page title if it's not a slug
+    let label;
+    if (index === pathSegments.length - 1) {
+      // If it's a known segment, use the mapped name
+      if (segmentMap[segment]) {
+        label = segmentMap[segment];
+      } else {
+        // For dynamic routes (like staff/john-doe), use the page title
+        label = pageTitle !== 'Kentucky Geological Survey' ? pageTitle : formatSegment(segment);
+      }
+    } else {
+      // For intermediate segments, use mapped name or format the segment
+      label = segmentMap[segment] || formatSegment(segment);
+    }
+    
+    breadcrumbs.push({
+      label,
+      href: currentPath,
+      isLast: index === pathSegments.length - 1
+    });
+  });
+  
+  return breadcrumbs;
+}
+
+// Helper function to format URL segments into readable text
+function formatSegment(segment: string): string {
+  return segment
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+// Get the current URL and generate breadcrumbs
+const currentUrl = Astro.url;
+const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(currentUrl, title);
 ---
 
 <html lang="en">
@@ -79,6 +145,19 @@ const {
         <div class="container mx-auto py-4 px-4">
           <div class="flex items-center text-sm text-gray-600">
             <a href="/" class="hover:text-[#0033A0] transition">Home</a>
+            
+            {breadcrumbs.map((crumb, index) => (
+              <Fragment>
+                <span class="mx-2">›</span>
+                {crumb.isLast ? (
+                  <span class="text-gray-800">{crumb.label}</span>
+                ) : (
+                  <a href={crumb.href} class="hover:text-[#0033A0] transition">{crumb.label}</a>
+                )}
+              </Fragment>
+            ))}
+            
+            <!-- Allow for custom breadcrumb additions via slot -->
             <slot name="breadcrumb" />
           </div>
         </div>
