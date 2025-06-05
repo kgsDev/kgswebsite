@@ -23,7 +23,7 @@ async function apiRequest(path, params) {
 }
 
 /**
- * Fetch a lab by slug with preview support (ENHANCED with new fields)
+ * Fetch a lab by slug with preview support
  */
 export async function fetchLabBySlug(slug, request = null) {
   try {
@@ -43,13 +43,9 @@ export async function fetchLabBySlug(slug, request = null) {
         'director.id',
         'director.first_name',
         'director.last_name',
-        'director.slug',
-        // NEW: Enhanced fields for rich lab pages
-        'hardware_description',
-        'workflows_description',
-        'lab_photo'
+        'director.slug'
       ],
-      filter: JSON.stringify(filter),
+      filter: JSON.stringify(filter), // Fixed: removed the duplicate nested filter
       limit: 1
     });
     
@@ -147,11 +143,11 @@ export async function fetchLabNews(labId, options = {}) {
 }
 
 /**
- * Fetch staff members associated with a lab (ENHANCED with proper relationships)
+ * Fetch staff members associated with a lab
  */
 export async function fetchLabStaff(labId) {
   try {
-    // Get staff relations with lab roles
+    // First, get staff relations
     const staffRelations = await apiRequest('/items/labs_staff', {
       fields: [
         'staff_id.*',
@@ -161,80 +157,52 @@ export async function fetchLabStaff(labId) {
         labs_id: {
           _eq: labId
         }
+        // Removed the nested staff_id filter - this was causing issues
       }),
       sort: 'sort'
     });
     
     if (!staffRelations || staffRelations.length === 0) {
-      return { principal_investigators: [], staff: [] };
+      return [];
     }
     
-    // Transform and categorize staff
-    const principal_investigators = [];
-    const staff = [];
+    // Transform the relations into staff members with added lab_role
+    const staffMembers = staffRelations
+      .map(relation => {
+        // Extract the staff data from staff_id
+        const staffData = relation.staff_id;
+        
+        // Skip if no staff data or staff is inactive
+        if (!staffData || staffData.status !== 'active') {
+          return null;
+        }
+        
+        // Add the lab role to the staff data
+        return {
+          ...staffData,
+          lab_role: relation.lab_role
+        };
+      })
+      .filter(Boolean); // Remove null entries
     
-    staffRelations.forEach(relation => {
-      const staffData = relation.staff_id;
-      
-      // Skip if no staff data or staff is inactive
-      if (!staffData || staffData.status !== 'active') {
-        return;
-      }
-      
-      // Add the lab role to the staff data
-      const enhancedStaffData = {
-        ...staffData,
-        lab_role: relation.lab_role
-      };
-      
-      // Categorize based on lab_role
-      if (relation.lab_role === 'Principal Investigator' || relation.lab_role === 'PI' || relation.lab_role === 'Director') {
-        principal_investigators.push(enhancedStaffData);
-      } else {
-        staff.push(enhancedStaffData);
-      }
-    });
-    
-    return { principal_investigators, staff };
+    return staffMembers;
   } catch (error) {
     console.error(`Error fetching staff for lab ${labId}:`, error);
-    return { principal_investigators: [], staff: [] };
+    return [];
   }
 }
 
 /**
- * Fetch projects for a specific lab using many-to-many relationship with preview support (ENHANCED)
+ * Fetch projects for a specific lab using many-to-many relationship with preview support
  */
-export async function fetchLabProjects(labId, options = {}) {
+export async function fetchLabProjects(labId, request = null) {
   try {
-    const { 
-      featured = null, 
-      limit = null, 
-      status = null,
-      request = null 
-    } = options;
 
     const showDrafts = isDraftMode(request);
 
     // First get the junction table entries for this lab
     const labProjectRelations = await apiRequest('/items/labs_lab_projects', {
-      fields: [
-        'lab_projects_id.*',
-        // NEW: Get related data
-        'lab_projects_id.principal_investigator.first_name',
-        'lab_projects_id.principal_investigator.last_name',
-        'lab_projects_id.principal_investigator.slug',
-        'lab_projects_id.principal_investigator.working_title',
-        // Get funding relationships
-        'lab_projects_id.funding.funding_id.title',
-        'lab_projects_id.funding.funding_id.amount',
-        'lab_projects_id.funding.funding_id.funding_agency.name',
-        'lab_projects_id.funding.funding_id.funding_agency.acronymn',
-        'lab_projects_id.funding.funding_id.funding_agency.logo',
-        'lab_projects_id.funding.funding_id.url',
-        'lab_projects_id.funding.funding_id.start_date',
-        'lab_projects_id.funding.funding_id.end_date'
-      ],
+      fields: ['lab_projects_id.*'],
       filter: JSON.stringify({
         labs_id: {
           _eq: labId
@@ -242,180 +210,33 @@ export async function fetchLabProjects(labId, options = {}) {
       })
     });
 
-    // Extract and filter the actual projects
-    let projects = labProjectRelations
+    // Extract the actual projects from the relations
+    const projects = labProjectRelations
       .map(relation => relation.lab_projects_id)
       .filter(project => {
         if (!project) return false;
         
-        // Status filtering
-        if (status && project.status !== status) return false;
-        
-        // Draft mode filtering
         if (showDrafts) {
           return ['published', 'draft'].includes(project.status);
         } else {
           return project.status === 'published';
         }
+      })
+      .sort((a, b) => {
+        // Sort by featured first, then by sort order, then by start_date
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        if (a.sort !== b.sort) return (a.sort || 999) - (b.sort || 999);
+        
+        const dateA = a.start_date ? new Date(a.start_date) : new Date(0);
+        const dateB = b.start_date ? new Date(b.start_date) : new Date(0);
+        return dateB - dateA; // Most recent first
       });
-
-    // Featured filtering
-    if (featured !== null) {
-      projects = projects.filter(project => project.featured === featured);
-    }
-
-    // Sorting
-    projects.sort((a, b) => {
-      // Sort by featured first, then by sort order, then by start_date
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      if (a.sort !== b.sort) return (a.sort || 999) - (b.sort || 999);
-      
-      const dateA = a.start_date ? new Date(a.start_date) : new Date(0);
-      const dateB = b.start_date ? new Date(b.start_date) : new Date(0);
-      return dateB - dateA; // Most recent first
-    });
-
-    // Limit results
-    if (limit) {
-      projects = projects.slice(0, limit);
-    }
 
     return projects;
   } catch (error) {
     console.error('Error fetching lab projects:', error);
     return [];
-  }
-}
-
-/**
- * NEW: Fetch lab tools/software
- */
-export async function fetchLabTools(labId) {
-  try {
-    return await apiRequest('/items/lab_tools', {
-      fields: ['*'],
-      filter: JSON.stringify({
-        lab_id: { _eq: labId },
-        status: { _eq: 'published' }
-      }),
-      sort: 'sort_order,name'
-    });
-  } catch (error) {
-    console.error('Error fetching lab tools:', error);
-    return [];
-  }
-}
-
-/**
- * NEW: Fetch research areas for a lab
- */
-export async function fetchLabResearchAreas(labId) {
-  try {
-    return await apiRequest('/items/research_areas', {
-      fields: ['*'],
-      filter: JSON.stringify({
-        lab_id: { _eq: labId },
-        status: { _eq: 'published' }
-      }),
-      sort: 'sort_order,title'
-    });
-  } catch (error) {
-    console.error('Error fetching research areas:', error);
-    return [];
-  }
-}
-
-/**
- * NEW: Fetch content blocks for a lab page
- */
-export async function fetchLabContentBlocks(labId, pageSlug = 'home') {
-  try {
-    return await apiRequest('/items/lab_content_blocks', {
-      fields: ['*'],
-      filter: JSON.stringify({
-        lab_id: { _eq: labId },
-        page_slug: { _eq: pageSlug },
-        status: { _eq: 'published' }
-      }),
-      sort: 'sort_order'
-    });
-  } catch (error) {
-    console.error('Error fetching content blocks:', error);
-    return [];
-  }
-}
-
-/**
- * NEW: Fetch funding information for a project
- */
-export async function fetchProjectFunding(projectId) {
-  try {
-    const fundingRelations = await apiRequest('/items/lab_projects_funding', {
-      fields: [
-        'funding_id.title',
-        'funding_id.grant_number', 
-        'funding_id.amount',
-        'funding_id.start_date',
-        'funding_id.end_date',
-        'funding_id.description',
-        'funding_id.url',
-        'funding_id.logo',
-        'funding_id.funding_agency.name',
-        'funding_id.funding_agency.acronymn',
-        'funding_id.funding_agency.logo',
-        'funding_id.funding_agency.website'
-      ],
-      filter: JSON.stringify({
-        lab_projects_id: { _eq: projectId }
-      })
-    });
-
-    return fundingRelations.map(rel => rel.funding_id) || [];
-  } catch (error) {
-    console.error('Error fetching project funding:', error);
-    return [];
-  }
-}
-
-/**
- * NEW: Fetch a specific project by slug with enhanced data
- */
-export async function fetchLabProjectBySlug(labId, projectSlug) {
-  try {
-    // First get projects for this lab
-    const labProjectRelations = await apiRequest('/items/labs_lab_projects', {
-      fields: ['lab_projects_id'],
-      filter: JSON.stringify({
-        labs_id: { _eq: labId }
-      })
-    });
-
-    if (!labProjectRelations.length) return null;
-
-    const projectIds = labProjectRelations.map(rel => rel.lab_projects_id);
-
-    const projects = await apiRequest('/items/lab_projects', {
-      fields: [
-        '*',
-        'featured_image',
-        'gallery',
-        'principal_investigator.*',
-        'funding.funding_id.*',
-        'funding.funding_id.funding_agency.*'
-      ],
-      filter: JSON.stringify({
-        id: { _in: projectIds },
-        slug: { _eq: projectSlug },
-        status: { _eq: 'published' }
-      }),
-      limit: 1
-    });
-
-    return projects.length > 0 ? projects[0] : null;
-  } catch (error) {
-    console.error('Error fetching project:', error);
-    return null;
   }
 }
 

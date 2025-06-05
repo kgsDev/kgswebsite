@@ -1,0 +1,330 @@
+---
+// src/pages/labs/[slug]/projects.astro
+export const prerender = false;
+
+import LabLayout from '../../../layouts/LabLayout.astro';
+import DraftBanner from '../../../components/DraftBanner.astro';
+import ContentBlock from '../../../components/labs/ContentBlock.astro';
+import { 
+  fetchLabBySlug, 
+  fetchLabProjects,
+  fetchLabContentBlocks,
+  fetchProjectFunding
+} from '../../../lib/api_labs';
+
+import { isDraftMode } from '../../../utils/preview';
+
+// Get the lab for this page
+const { slug } = Astro.params;
+const lab = await fetchLabBySlug(slug, Astro.request);
+
+// Handle 404 if lab not found
+if (!lab) {
+  return Astro.redirect('/404');
+}
+
+// Get all projects for this lab
+const allProjects = await fetchLabProjects(lab.id, { status: 'published' });
+
+// Get any custom content blocks for the projects page
+const contentBlocks = await fetchLabContentBlocks(lab.id, 'projects');
+
+// Group projects by status/category if needed
+const currentProjects = allProjects.filter(p => !p.end_date || new Date(p.end_date) > new Date());
+const completedProjects = allProjects.filter(p => p.end_date && new Date(p.end_date) <= new Date());
+
+// Check if this is draft content or preview mode
+const isDraft = lab.status === 'draft';
+const isPreviewMode = isDraftMode(Astro.request);
+---
+
+<LabLayout lab={lab} activePage="projects" pageTitle="Projects">
+  <!-- Draft/Preview Banner -->
+  <DraftBanner 
+    isDraft={isDraft || isPreviewMode} 
+    type="lab" 
+    currentUrl={Astro.url.href}
+  />
+
+  <!-- Current Projects Section -->
+  {currentProjects.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">Current Projects</h2>
+        
+        <div class="space-y-12">
+          {currentProjects.map(project => (
+            <div class="project-showcase border-b border-gray-200 last:border-b-0 pb-8 last:pb-0">
+              <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
+              
+              <div class="project-grid grid md:grid-cols-2 gap-6">
+                <!-- Project Images -->
+                {project.gallery && project.gallery.length > 0 && (
+                  <div class="project-images space-y-4">
+                    {project.gallery.slice(0, 3).map(imageId => (
+                      <img 
+                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${imageId}?width=600&quality=90`} 
+                        alt={`${project.title} visualization`}
+                        class="project-image w-full rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                <!-- Project Content -->
+                <div class="project-content">
+                  <!-- Highlight box for key features -->
+                  {project.short_description && (
+                    <div class="highlight-box bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+                      <div class="font-semibold text-yellow-800" set:html={project.short_description} />
+                    </div>
+                  )}
+                  
+                  <!-- Main description -->
+                  {project.description && (
+                    <div class="prose max-w-none mb-6" set:html={project.description} />
+                  )}
+                  
+                  <!-- Key Features/Research Focus -->
+                  {project.key_features && (
+                    <div class="mb-6">
+                      <p class="font-semibold mb-2">Key Features:</p>
+                      <div class="prose max-w-none text-sm" set:html={project.key_features} />
+                    </div>
+                  )}
+                  
+                  <!-- Products/Outcomes -->
+                  {project.outcomes && (
+                    <div class="products-list bg-gray-50 p-4 rounded-lg">
+                      <h4 class="font-semibold mb-2 text-gray-800">Products to Date:</h4>
+                      <div class="prose max-w-none text-sm" set:html={project.outcomes} />
+                    </div>
+                  )}
+                  
+                  <!-- Project metadata and funding -->
+                  <div class="bg-gray-50 p-4 rounded-lg mb-4 space-y-3 text-sm">
+                    {project.principal_investigator && (
+                      <p><strong>Principal Investigator:</strong> 
+                        <a href={`/staff/${project.principal_investigator.slug}`} class="lab-primary-text hover:underline">
+                          {project.principal_investigator.first_name} {project.principal_investigator.last_name}
+                        </a>
+                        <span class="text-gray-600 ml-2">({project.principal_investigator.working_title})</span>
+                      </p>
+                    )}
+                    
+                    {project.start_date && (
+                      <p><strong>Started:</strong> {new Date(project.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+                    )}
+                    
+                    {project.end_date && (
+                      <p><strong>End Date:</strong> {new Date(project.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+                    )}
+                    
+                    {project.project_status && (
+                      <p><strong>Status:</strong> 
+                        <span class={`px-2 py-1 rounded-full text-xs font-medium ml-1 ${
+                          project.project_status === 'active' ? 'bg-green-100 text-green-800' : 
+                          project.project_status === 'completed' ? 'bg-blue-100 text-blue-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {project.project_status}
+                        </span>
+                      </p>
+                    )}
+                    
+                    {project.url && (
+                      <p><strong>Project URL:</strong> 
+                        <a href={project.url} target="_blank" rel="noopener noreferrer" class="lab-primary-text hover:underline ml-1">
+                          View Project →
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                  
+                  <!-- Funding Information -->
+                  {project.funding && project.funding.length > 0 && (
+                    <div class="mb-6">
+                      <h4 class="font-semibold mb-3 text-gray-800">Funding Sources:</h4>
+                      <div class="space-y-3">
+                        {project.funding.map(fundingRel => {
+                          const funding = fundingRel.funding_id;
+                          return (
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                              <div class="flex items-start space-x-3">
+                                {funding.funding_agency?.logo && (
+                                  <img 
+                                    src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${funding.funding_agency.logo}?width=60&height=60&fit=contain`} 
+                                    alt={funding.funding_agency.name}
+                                    class="w-12 h-12 object-contain"
+                                  />
+                                )}
+                                <div class="flex-1">
+                                  <h5 class="font-medium text-lg">{funding.title}</h5>
+                                  <p class="text-gray-600 mb-2">
+                                    {funding.funding_agency?.name} ({funding.funding_agency?.acronymn})
+                                  </p>
+                                  
+                                  <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                    {funding.grant_number && (
+                                      <p><strong>Grant Number:</strong> {funding.grant_number}</p>
+                                    )}
+                                    {funding.amount && (
+                                      <p><strong>Amount:</strong> ${parseFloat(funding.amount).toLocaleString()}</p>
+                                    )}
+                                    {funding.start_date && (
+                                      <p><strong>Period:</strong> {new Date(funding.start_date).getFullYear()}{funding.end_date ? ` - ${new Date(funding.end_date).getFullYear()}` : ' - ongoing'}</p>
+                                    )}
+                                    {funding.url && (
+                                      <p><strong>More Info:</strong> 
+                                        <a href={funding.url} target="_blank" rel="noopener noreferrer" class="lab-primary-text hover:underline ml-1">
+                                          View Details →
+                                        </a>
+                                      </p>
+                                    )}
+                                  </div>
+                                  
+                                  {funding.description && (
+                                    <p class="text-gray-700 mt-2 text-sm">{funding.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Custom Content Blocks for Projects Page -->
+  {contentBlocks.map(block => (
+    <ContentBlock block={block} lab={lab} />
+  ))}
+
+  <!-- Future Directions Section (can be a content block or hardcoded) -->
+  <div class="content-block">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-6 lab-primary-text">Future Directions</h2>
+      
+      <!-- This could be populated from content blocks or directly from project data -->
+      {completedProjects.length > 0 && (
+        <div class="space-y-8">
+          {completedProjects.map(project => (
+            <div class="future-project border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
+              <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
+              <div class="grid md:grid-cols-2 gap-6">
+                {project.featured_image && (
+                  <div>
+                    <img 
+                      src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${project.featured_image}?width=500&quality=90`} 
+                      alt={project.title}
+                      class="w-full rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+                <div>
+                  {project.description && (
+                    <div class="prose max-w-none mb-4" set:html={project.description} />
+                  )}
+                  
+                  {project.planned_approach && (
+                    <div class="mb-4">
+                      <p class="font-semibold mb-2">Planned Approach:</p>
+                      <div class="prose max-w-none text-sm" set:html={project.planned_approach} />
+                    </div>
+                  )}
+                  
+                  {project.strategic_impact && (
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                      <p class="font-semibold mb-2 text-blue-800">Strategic Impact:</p>
+                      <div class="prose max-w-none text-sm text-blue-700" set:html={project.strategic_impact} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Navigation to other lab pages -->
+  <div class="content-block">
+    <div class="p-6 text-center">
+      <div class="flex flex-wrap justify-center gap-4">
+        <a 
+          href={`/labs/${lab.slug}`} 
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
+        >
+          ← Back to Lab Home
+        </a>
+        <a 
+          href={`/labs/${lab.slug}/research`} 
+          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+        >
+          View Research Areas & Tools →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Mode Footer -->
+  {isPreviewMode && (
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <p>
+        <strong>Preview Mode:</strong> 
+        Share this link to let others preview: 
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+      </p>
+    </div>
+  )}
+</LabLayout>
+
+<style>
+  /* Project showcase styling to match your old design */
+  .project-grid {
+    align-items: start;
+  }
+  
+  .project-images img {
+    max-height: 300px;
+    object-fit: cover;
+  }
+  
+  .highlight-box {
+    position: relative;
+  }
+  
+  .highlight-box::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #f59e0b, #d97706);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .project-images {
+      order: 2;
+    }
+    
+    .project-content {
+      order: 1;
+    }
+  }
+</style>

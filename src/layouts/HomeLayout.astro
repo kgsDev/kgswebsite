@@ -1,0 +1,78 @@
+---
+// src/layouts/BaseLayout.astro
+// Import css
+import '../styles/home_reset.css';
+import '../styles/home_styles.css';
+
+import '../styles/global.css';
+import SEOHead from '../components/SEOHead.astro';
+import StyleSystem from '../components/common/StyleSystem.astro';
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import BackToTop from '../components/common/BackToTop.astro';
+
+const currentYear = new Date().getFullYear();
+
+const { 
+  title = 'Kentucky Geological Survey',
+  description = 'Kentucky Geological Survey at the University of Kentucky',
+  activePage = '',
+  showBreadcrumb = true,
+  bodyBackgroundColor = '#f9fafb', // Default background color
+  customBreadcrumbs,
+  image,
+  imageAlt,
+  type = "website",
+  publishedDate,
+  modifiedDate,
+  authors,
+  keywords,
+  canonicalUrl
+} = Astro.props;
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Kentucky Geological Survey - Understanding Earth's Resources for our Commonwealth" />
+    <title>Kentucky Geological Survey | University of Kentucky</title>
+       <!-- Import Inter and Source Sans Pro fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <StyleSystem />
+
+    <!-- Include the SEO component with the provided props -->
+    <SEOHead
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+      type={type}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
+      authors={authors}
+      keywords={keywords}
+      canonicalUrl={canonicalUrl}
+    />
+  </head>
+  <body class="min-h-screen flex flex-col bg-white">
+    <!-- Header -->
+    <Header/>
+        
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+    
+    <!-- Footer -->
+    <Footer />
+    
+    <!-- Back to Top Button -->
+    <BackToTop />
+  
+  </body>
+</html>

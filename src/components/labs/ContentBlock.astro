@@ -1,0 +1,116 @@
+---
+// src/components/labs/ContentBlock.astro
+const { block, lab } = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Parse block data if it's JSON
+let blockData = {};
+if (block.data) {
+  try {
+    blockData = typeof block.data === 'string' ? JSON.parse(block.data) : block.data;
+  } catch (e) {
+    blockData = {};
+  }
+}
+---
+
+<div class="content-block">
+  <div class="p-6">
+    {block.title && (
+      <h2 class="text-2xl font-bold mb-4 lab-primary-text">{block.title}</h2>
+    )}
+    
+    {block.block_type === 'rich_text' && (
+      <div class="prose max-w-none" set:html={block.content} />
+    )}
+    
+    {block.block_type === 'image_gallery' && blockData.images && (
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {blockData.images.map(imageId => (
+          <img 
+            src={`${directusUrl}assets/${imageId}?width=400&quality=90`} 
+            alt="Gallery image"
+            class="w-full rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+          />
+        ))}
+      </div>
+    )}
+    
+    {block.block_type === 'highlight_section' && (
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
+        <div class="prose max-w-none" set:html={block.content} />
+      </div>
+    )}
+    
+    {block.block_type === 'two_column' && (
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          {blockData.left_title && (
+            <h3 class="text-xl font-bold mb-3 lab-secondary-text">{blockData.left_title}</h3>
+          )}
+          {blockData.left_content && (
+            <div class="prose max-w-none" set:html={blockData.left_content} />
+          )}
+        </div>
+        <div>
+          {blockData.right_title && (
+            <h3 class="text-xl font-bold mb-3 lab-secondary-text">{blockData.right_title}</h3>
+          )}
+          {blockData.right_content && (
+            <div class="prose max-w-none" set:html={blockData.right_content} />
+          )}
+        </div>
+      </div>
+    )}
+    
+    {block.block_type === 'method_cards' && blockData.methods && (
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {blockData.methods.map(method => (
+          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+            <h4 class="font-semibold mb-3 lab-secondary-text">{method.title}</h4>
+            <ul class="text-sm space-y-1">
+              {method.items.map(item => (
+                <li class="flex items-start">
+                  <span class="text-gray-400 mr-2">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    )}
+    
+    {/* Future directions section */}
+    {block.block_type === 'future_directions' && blockData.directions && (
+      <div class="space-y-8">
+        {blockData.directions.map(direction => (
+          <div class="border-b border-gray-200 pb-6 last:border-b-0">
+            <h3 class="text-xl font-bold mb-4 lab-secondary-text">{direction.title}</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              {direction.image && (
+                <div>
+                  <img 
+                    src={`${directusUrl}assets/${direction.image}?width=500&quality=90`} 
+                    alt={direction.title}
+                    class="w-full rounded-lg shadow-md"
+                  />
+                </div>
+              )}
+              <div>
+                {direction.description && (
+                  <div class="prose max-w-none" set:html={direction.description} />
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+    
+    {/* Default: just render content if block type not recognized */}
+    {!['rich_text', 'image_gallery', 'highlight_section', 'two_column', 'method_cards', 'future_directions'].includes(block.block_type) && block.content && (
+      <div class="prose max-w-none" set:html={block.content} />
+    )}
+  </div>
+</div>
