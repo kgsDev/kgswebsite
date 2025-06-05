@@ -1,4 +1,18 @@
-<!DOCTYPE html>
+---
+// Homepage for Kentucky Geological Survey
+import Header from '../components/common/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import NewsGrid from '../components/news/NewsGrid.astro';
+import { fetchRecentNews } from '../lib/api_news';
+
+import '../styles/global.css';
+import '../styles/home_reset.css';
+import '../styles/home_styles.css';
+
+// Fetch recent news for the homepage (limit to 6 items)
+const { articles } = await fetchRecentNews(6, 1);
+---
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,94 +23,47 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css_old/styles.css">
-    <link rel="stylesheet" href="./css_old/reset.css">
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <svg>
-                <image href="./src/assets/index/uk-kgs-logo-final.webp" x="0" y="0" width="100%" height="100%"/>
-            </svg>
-        </div>
-        <nav class="global-nav inter-nav">
-            <div class="nav-menu-trigger">
-                <button class="nav-menu-button inter-button" aria-label="Menu">
-                    <svg><image href="./src/assets/index/hamburger-button.svg" x="0" y="0" width="100%" height="100%"/></svg>Menu
-                </button> 
-            </div>
-            <div class="nav-menu">
-                <details>
-                    <summary>Information Services</summary>
-                    <ul class="nav-sub-menu">
-                        <li><a href="#">Energy</a></li>
-                        <li><a href="#">Water</a></li>    
-                        <li><a href="#">Hazards</a></li>
-                        <li><a href="#">Maps</a></li>
-                        <li><a href="#">Community</a></li>
-                    </ul> 
-                </details>
-                <a href="#">Kentucky Geology</a>
-                <a href="#">About Us</a>
-                <a href="#">Online Maps</a>
-                <a href="#">Publications</a>
-                <a href="#">Education</a>
-                <input type="search" placeholder="Search..." class="search-bar">
-            </div>
-		</nav>
-    </header>
+    <!-- Use your Astro Header component -->
+    <Header activePage="home" />
+    
     <main>
         <!-- Video Background -->
         <section class="hero">
             <div class="hero-container">
                 <div class="video-container">
                     <div class="link-container">
-                        <a class="hero-link inter-nav" href="#">
-                            <img src="./src/assets/index/cropped-energy.png">
+                        <a class="hero-link inter-nav" href="/research/energy">
+                            <img src="/src/assets/index/cropped-energy.png" alt="Energy & Minerals">
                             <span class="link-text">Energy &amp; Minerals</span>
-                            <!-- <div class="link-hover-container energy">
-                                <div class="hover-title-container">
-                                    <h3>Energy &amp; Minerals</h3>
-                                </div>
-                                <div class="hover-text">
-                                    <p>Supporting Kentucky's energy sector through research, providing data, and offering expertise on energy resources, including coal, oil, natural gas, and renewable energy, to promote sustainable energy development and informed policy decisions.</p>
-                                </div>
-                                <div class="hover-links">
-                                    <ul>
-                                        <li><a href="#">Coal</a></li>
-                                        <li><a href="#">Oil and Natural Gas</a></li>
-                                        <li><a href="#">Carbon Sequestration</a></li>
-                                        <li><a href="#">Critical Minerals</a></li>
-                                        <li><a href="#">Gems Lab</a></li>
-                                    </ul>
-                                </div>
-                            </div> -->
                         </a>
-                        <a class="hero-link inter-nav" href="#">
-                            <img src="./src/assets/index/cropped-water.png">
+                        <a class="hero-link inter-nav" href="/research/water">
+                            <img src="/src/assets/index/cropped-water.png" alt="Water">
                             <span class="link-text">Water</span>
                         </a>
-                        <a class="hero-link inter-nav" href="#">
-                            <img src="./src/assets/index/cropped-hazard.png">
+                        <a class="hero-link inter-nav" href="/research/hazards">
+                            <img src="/src/assets/index/cropped-hazard.png" alt="Hazards">
                             <span class="link-text">Hazards</span>
                         </a>
-                        <a class="hero-link inter-nav" href="#">
-                            <img src="./src/assets/index/cropped-maps.png">
+                        <a class="hero-link inter-nav" href="https://kgs.uky.edu/kygeode/">
+                            <img src="/src/assets/index/cropped-maps.png" alt="Maps">
                             <span class="link-text">Maps</span>
                         </a>
-                        <a class="hero-link inter-nav" href="#">
-                            <img src="./src/assets/index/cropped-community.png">
+                        <a class="hero-link inter-nav" href="/engage/">
+                            <img src="/src/assets/index/cropped-community.png" alt="Community">
                             <span class="link-text">Community</span>
                         </a>
                     </div>
                     <div class="video-copy-container">
                         <h2 class="hero-title inter-h2">Kentucky Geological Survey</h2>
-                        <h1 class="hero-subtitle inter-h1" >Understanding Earth's Resources for our Commonwealth</h1>
+                        <h1 class="hero-subtitle inter-h1">Understanding Earth's Resources for our Commonwealth</h1>
                     </div>
-                    <video class="video" src="./src/assets/index/video-icon-background.mp4" loop autoplay muted></video>
+                    <video class="video" src="/src/assets/index/video-icon-background.mp4" loop autoplay muted></video>
                 </div>
             </div>
         </section>
+
         <section class="section-tile">
             <div class="section-container">
                 <div class="tile-heading">
@@ -105,58 +72,138 @@
                 </div>
                 <div class="tile-container">
                     <div class="tile community">
-                        <h2 class="inter-h2">Community &amp; Education</h2>
-                        <p class="source-sans-3-p">Discover comprehensive geological educational resources tailored for K-16 educators and students.<br><br><br></p>
-                        <a href="#" class="inter-button">Learn more</a>
+                        <div class="tile-content">
+                            <h2 class="inter-h2 tile-title">Community &amp; Education</h2>
+                            <p class="source-sans-3-p tile-text">Discover comprehensive geological educational resources tailored for K-16 educators and students.</p>
+                        </div>
+                        <a href="https://www.uky.edu/KGS/education/" class="inter-button tile-button">Learn more</a>
                     </div>
                     <div class="tile research">
-                        <h2 class="inter-h2">Research &amp; Labs</h2>
-                        <p class="source-sans-3-p">Our research and laboratories enhance knowledge and understanding of Kentucky's geological resources, hazards, and water systems to support science-based decision making for the Commonwealth.</p>
-                        <a href="#" class="inter-button">Learn more</a>
+                        <div class="tile-content">
+                            <h2 class="inter-h2 tile-title">Research &amp; Labs</h2>
+                            <p class="source-sans-3-p tile-text">Our research and laboratories enhance knowledge and understanding of Kentucky's geological resources, hazards, and water systems to support science-based decision making for the Commonwealth.</p>
+                        </div>
+                        <a href="/labs/" class="inter-button tile-button">Learn more</a>
                     </div>
                     <div class="tile openings">
-                        <h2 class="inter-h2">Current Openings</h2>
-                        <p class="source-sans-3-p">Check out our current job opportunities and apply today.<br><br><br><br></p>
-                        <a href="#" class="inter-button">Learn more</a>
+                        <div class="tile-content">
+                            <h2 class="inter-h2 tile-title">Current Openings</h2>
+                            <p class="source-sans-3-p tile-text">Check out our current job opportunities and apply today.</p>
+                        </div>
+                        <a href="/about/jobs/" class="inter-button tile-button">Learn more</a>
                     </div>
                 </div>
             </div>
         </section>
+
         <section class="midsection">
             <div class="section-container">
                 <div class="section-internships">
                     <h2 class="inter-h2">Summer Internship Program</h2>
-                    <p class="source-sans-3-p">Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.
-                    </p> 
+                    <p class="source-sans-3-p">Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.</p> 
                     <div class="button-container">
-                        <a href="#" class="inter-button">Learn More</a>
+                        <a href="/about/intern" class="inter-button">Learn More</a>
                     </div>
-                    <img src="./src/assets/index/kgs-internship-sm.webp">
+                    <img src="/src/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
                     <p class="source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
                 </div>
-				<div class="section-podcast">
-                    <iframe title="The Big Blue Rock Pod" allowtransparency="true" height="625" width="100%" style="border: none; min-width: min(50vw, 500px);height:625px;" scrolling="no" data-name="pb-iframe-player" src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=1&download=1&fonts=Arial&skin=3267a3&font-color=auto&rtl=0&logo_link=&btn-skin=60a0c8&size=315" loading="lazy" allowfullscreen=""></iframe>
+
+
+                <div class="section-connect">
+                    <h2 class="inter-h2">Connect with Us</h2>
+                    
+                    <!-- Podcast Section -->
+                    <div class="connect-item">
+                        <h3 class="inter-h2 connect-subtitle">The Big Blue Rock Pod</h3>
+                        <p class="source-sans-3-p">This podcast is a fun, conversational approach to discussing all things geology and earth processes. 
+                            We primarily focus on Kentucky as we talk about emerging ideas in research, along with classic topics in earth science for all levels of interest.</p>
+                        <div class="podcast-player">
+                            <iframe 
+                                title="The Big Blue Rock Pod" 
+                                allowtransparency="true" 
+                                height="200" 
+                                width="100%" 
+                                style="border: none; min-height: 200px;" 
+                                scrolling="no" 
+                                data-name="pb-iframe-player" 
+                                src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=1&download=1&fonts=Arial&skin=3267a3&font-color=auto&rtl=0&logo_link=&btn-skin=60a0c8&size=200" 
+                                loading="lazy" 
+                                allowfullscreen="">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Section -->
+                    <div class="connect-item">
+                        <h3 class="inter-h2 connect-subtitle">Follow Our Research</h3>
+                        <p class="source-sans-3-p">Stay connected with KGS on social media for updates, research highlights, and community engagement.</p>
+                        <div class="social-links">
+                            <a href="https://twitter.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                                <span>Twitter</span>
+                            </a>
+                            <a href="https://www.facebook.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                                <span>Facebook</span>
+                            </a>
+                            <a href="https://www.linkedin.com/company/kentucky-geological-survey" class="social-link" target="_blank" rel="noopener">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                </svg>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://www.youtube.com/@kentuckygeologicalsurvey" class="social-link" target="_blank" rel="noopener">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                                <span>YouTube</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter/Contact Section -->
+                    <div class="connect-item">
+                        <h3 class="inter-h2 connect-subtitle">Stay Informed</h3>
+                        <p class="source-sans-3-p">Get the latest updates on Kentucky geology, research findings, and educational opportunities.</p>
+                        <div class="button-container">
+                            <a href="/contact" class="inter-button">Contact Us</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-		
+        
         <section class="section-tile">
             <div class="tile-container">
                 <div class="tile service">
                     <div class="service-container">
                         <h2 class="inter-h2">How KGS Serves Our Kentucky Community</h2>
                         
-                        <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) traces its roots back to 1838 and has been part of the University of Kentucky since 1948.  Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people.</p>
+                        <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) traces its roots back to 1838 and has been part of the University of Kentucky since 1948. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people.</p>
 
                         <p class="source-sans-3-p">We do this by conducting research and providing unbiased information about the geology and natural resources of Kentucky. We focus on issues relevant to the economic prosperity, environmental quality, and practical well-being of the Commonwealth and its people: the things that can make Kentucky a compelling place to live, work, and do business.</p>
 
                         <p class="source-sans-3-p">KGS provides technical support to several state agencies and organizations, and a host of local, county, and federal agencies. We also interact with stakeholders from a wide range of community, industry, environmental, and educational groups, and the KGS website provides free public access to our databases, digital map layers, and reports.</p>
-                        <a href="#" class="inter-button">Learn more</a>
+                        <a href="/about/" class="inter-button">Learn more</a>
                     </div>
-                   <div class="youtube-video-container">
-                        <p>hello world</p>
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>            </div>
+                    <div class="youtube-video-container">
+                        <iframe 
+                            width="560" 
+                            height="315" 
+                            src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerpolicy="strict-origin-when-cross-origin" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="section-data">
@@ -167,178 +214,37 @@
                     <br>
                     <p class="source-sans-3-p">Our Earth Analysis Research Library houses over 2,500 rock cores, 16,000 oil/gas well samples, 8,000+ limestone samples, and 5,000+ coal samples. The KGS Groundwater Data Repository contains information on 92,000+ water wells, 5,100 springs, and 58,000 water-quality analyses.</p>
                     <br>
-                    <p class="source-sans-3-p">Additional databases document Kentucky's landslides, sinkholes, oil/gas wells, earthquakes, mines, and quarries—all supporting resource exploration, environmental protection, and engineering studies. </p>
+                    <p class="source-sans-3-p">Additional databases document Kentucky's landslides, sinkholes, oil/gas wells, earthquakes, mines, and quarries—all supporting resource exploration, environmental protection, and engineering studies.</p>
                     <br/>
-                    <a href="#" class="inter-button">Learn more</a>
+                    <a href="https://kgs.uky.edu/kygeode/" class="inter-button">Explore Data</a>
                 </div>
-                <img src="./src/assets/index/kgs-coreviewing.webp">
+                <img src="/src/assets/index/kgs-coreviewing.webp" alt="KGS Core Viewing">
             </div>
         </section>
+
+        <!-- News Section -->
         <section class="section-news">
             <div class="section-container">
-
                 <h2 class="inter-h2">KGS News and Announcements</h2>
                 <div class="news-tile-container">
-                    <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/SPMLab_point.webp">
-                            <div class="news-headline inter-news">SP&M Lab Updates: Exciting Developments in Landslide Research and Flood Modelling</div>
-                        </div>
-                    </a>
-                    <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/2025_SPaMlogo.webp">
-                            <div class="news-headline inter-news">KGS Unveils State-of-the-Art Lab for Flood Modeling Research</div>
-                        </div>
-                    </a>
-                    <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/2025_seismicseth.webp">
-                            <div class="news-headline inter-news">KGS Monitoring Seismic Activity Across Kentucky and Surrounding States</div>
-                        </div>
-                    </a>
-                    <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/FEMA4_collage.webp">
-                            <div class="news-headline inter-news">FEMA grant will help KGS researchers collect hazards data, improve future hazards mitigation</div>
-                        </div>
-                    </a>
-                   <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/kgs-geologist-disaster-assistance-team-sri-lanka-600x400.webp">
-                            <div class="news-headline inter-news">KGS geologist accompanies landslide disaster assistance team to Sri Lanka</div>
-                        </div>
-                    </a><a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="./src/news/creelsboroarch.webp">
-                            <div class="news-headline inter-news">KGS geologist Steve Martin interviewed on KET’s Kentucky Life about Creelsboro Natural Bridge</div>
-                        </div>
-                    </a>
-                    <!--
-                    <a class="news-tile" href="#">
-                        <div class="news-tile">
-                            <img src="https://placehold.co/600x400@2x.webp">
-                            <div class="news-headline inter-news">"
-                                Fossil of the Month for August: Orthacanthus"</div>
-                            </div>
-                        </a><a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">Fossil of the Month for July: Pentremites</div>
-                            </div>
-                        </a><a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">KGS receives national funding to preserve Kentucky's critical minerals collections</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">KGS Annual Seminar takes an interdisciplinary approach to geological hazards in Kentucky</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">Fossil of the Month for March: Conostichus</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">KGS installs new seismic station inside Mammoth Cave</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">Fossil of the month for January 2023: Anthraconaia!</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">KGS Releases Report on July 2022 Landslides in Eastern Kentucky</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">KGS Releases New Critical Mineral Report</div>
-                            </div>
-                        </a>
-                        <a class="news-tile" href="#">
-                            <div class="news-tile">
-                                <img src="https://placehold.co/600x400@2x.webp">
-                                <div class="news-headline inter-news">Fossil of the month: Crinoid Holdfasts</div>
-                            </div>
-                        </a> -->
-                    </div>
+                    {articles.length > 0 ? (
+                        <NewsGrid articles={articles} layout="grid" />
+                    ) : (
+                        <!-- Fallback news tiles if no articles are available -->
+                    )}
                 </div>
-            </section>
-    </main>
-    <footer>
-		<div class="footer-container">
-            <div class="footer-logo">
-                <img src="./src/assets/index/uk-kgs-logo-white.png">
-                <address class="footer-address inter-footer">
-                    Kentucky Geological Survey<br/>
-                    University of Kentucky<br/>
-                    310 Columbia Avenue<br/>
-                    Lexington, KY 40506-0107<br/> 
-                    Telephone: <a href="tel:8592575500">(859) 257-5500</a>
-                </address>
+                
+                <!-- Add "View All News" button if using NewsGrid -->
+                {articles.length > 0 && (
+                    <div class="news-view-all-container">
+                        <a href="/news/" class="news-view-all-button inter-button">View All News</a>
+                    </div>
+                )}
             </div>
-            <details class="source-sans-3-footer-details">
-                <summary>Key Information</summary>
-                <ul>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Kentucky Geology</a></li>
-                    <li><a href="#">Publications</a></li>
-                    <li><a href="#">Online Maps</a></li>
-                    <li><a href="#">Education</a></li>
-                    <li><a href="#">Job Opportunities</a></li>
-                    <li><a href="#">Data Information Portal</a></li>
-                </ul>
-            </details>                 
-            <details class="source-sans-3-footer-details">
-                <summary>Connect with KGS</summary>
-                <ul>
-                    <li><a href="#"><img src="./src/assets/index/icon-ig-svg.svg"> Follow on Instagram</a></li>
-                    <li><a href="#"><img src="./src/assets/index/icon-fb-svg.svg"> Find on Facebook</a></li>
-                    <li><a href="#"><img src="./src/assets/index/icon-x-svg.svg"> Follow on X</a></li>
-                    <li><a href="#"><img src="./src/assets/index/icon-li-svg.svg"> Follow on LinkedIn</a></li>
-                    <li><a href="#"><img src="./src/assets/index/icon-yt-svg.svg"> Watch on YouTube</a></li>
-                </ul>
-            </details>
-            <details class="source-sans-3-footer-details">
-                <summary>Get Help</summary>
-                <ul>
-                    <li><a href="#">Help & FAQs</a></li>
-                    <li><a href="#">Contacts & Hours</a></li>
-                    <li><a href="#">Directory</a></li>
-                    <li><a href="#">Sitemap</a></li>
-                    <li><a href="#">Request Information</a></li>
-                </ul>
-            </details>
-        </div>
-        <div class="footer-nav source-sans-3-footer-misc">
-            Copyright &copy; University of Kentucky | 
-            <a href="#">Privacy</a> | 
-            <a href="#">Consumer Information</a> | 
-            <a href="#">EOP/ADA/Title IX</a> | 
-            <a href="#">Jobs at KGS</a> | 
-            <a href="#">Human Resources</a> | 
-            <a href="#">Site Feedback</a> | 
-            <a href="#">Accreditation</a> 
-        </div>
-        <div class="footer-blurb source-sans-3-footer-misc">
-            <p>University of Kentucky is an equal access/equal opportunity institution which does not discriminate on the basis of sex, race, color, marital status, age, religion, national origin, disability, veteran’s status, ethnicity, pregnancy, sexual orientation or genetic information. To obtain more information about University of Kentucky’s equal access and equal opportunity policies, procedures and practices, please contact the University’s Equity Officer.
-                <a href="mailto:EquityOffice@uk.edu">EquityOffice@uk.edu</a>
-            </p>
-        </div>
-	</footer>
-    <script src="./js/script.js"></script>
+        </section>
+    </main>
+
+    <!-- Use your Astro Footer component -->
+    <Footer />
 </body>
 </html>
