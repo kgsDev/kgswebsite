@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Define props with defaults specific to mission page
+const {
+    title = 'KGS Data Management Policy',
+    description = 'Kentucky Geological Survey Data Management Policy.',
+    showBreadcrumb = true,
+} = Astro.props;
+---
+<BaseLayout 
+title = {title}
+>
+<style>
+    a { color: #0088cc; }
+</style>
+    <h1>KGS Data Management Policy</h1>
+    <p>Long-term planning for data storage requires documentation of all processes from initial collection to archiving. This document outlines the minimum process and infrastructure requirements for maintaining and preserving digital data collected by the Kentucky Geological Survey (KGS). These policies were developed in accordance with <a href="https://www.go-fair.org/fair-principles/" target="_blank">FAIR (Findable, Accessible, Interoperable, and Reusable)</a> data standards and the data retention and ownership policies of the University of Kentucky.</p>
+    <h2>Documentation</h2>
+    <p>Any data collection processes and methods used by KGS researchers will be documented and references should be included, whenever possible. The information recorded will be clear and detailed enough to enable future researchers to repeat the collection methods. This includes detailed accounts of the field and analytical methods used and the quality assurance and control processes utilized. If the initial data collection is not conducted digitally, then a description of the digital conversion process, including file format information, is required. If initial data collection is digital-only then only file format information is required. All datasets must include metadata and readme files explaining all the information covered in this policy. Any metadata that is critical to the replication or reuse of the data collection not previously described should be recorded as additional metadata.</p>
+    <h2>Dissemination</h2>
+    <p>KGS data ready for public distribution can be accessed through two repositories 1) <a href="https://uknowledge.uky.edu/" target="_blank">UKnowledge</a> 2) <a href="https://kgs.uky.edu/kygeode/services/" target="_blank">KGS public map and web services</a>. The official institutional repository for the University of Kentucky is <b>UKnowledge</b> and all KGS data sets appropriate for public use are published through the <a href="https://uknowledge.uky.edu/kgs/" target="_blank">Geological Survey UKnowledge homepage</a>. All datasets contain appropriate documentation. This includes, where applicable, copyright information (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a> unless other restrictions apply), methodological review (IRB, IACUC, etc), permitting and associated data, and statements of confidentiality or other restrictions on data sharing. Requests for access to datasets not published to UKnowledge or the KGS public map and web services can be directed to <a href="mailto:KGSmail@uky.edu">KGSmail@uky.edu</a>.</p>
+    <h2>Storage</h2>
+    <p>An increased pool of knowledge and expertise leads to greater ingenuity and provides competitive advantages that increase institutional excellence. The Survey cannot exist without staff, collaborators, and stakeholders with a breadth of experience. KGS prides itself on being a supportive professional environment. As researchers, we encourage scholarly freedom in asking the big questions required of today's geoscientists.</p>
+    <p>We at KGS continue our long-standing commitment to provide unbiased scientific information to Kentuckians. We do not advocate on behalf of policy options.</p>
+    <h2>Legacy Projects</h2>
+    <p>As time and funding allow, KGS staff and researchers will work to digitize, document, and disseminate datasets collected before the official implementation of this policy.</p>
+    </BaseLayout>
