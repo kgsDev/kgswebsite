@@ -6,6 +6,7 @@
 
 @import "tailwindcss";
 
+/*Importing css files for header and footer */
 @import url(header.css);
 @import url('footer.css');
 
@@ -34,6 +35,7 @@ h1 {
 }
 
 h2 {
+  padding-top: 1vh;
   font-size: 1.875rem; /* 30px */
 }
 
