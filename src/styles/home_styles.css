@@ -258,15 +258,15 @@ body {
 }
 
 .tile.community {
-    background-image: url('/src/assets/index/kgs-community.webp');
+    background-image: url('/src/assets/index/kgs-education.webp');
 }
 
 .tile.openings {
-    background-image: url('/src/assets/index/kgs-openings.webp');
+    background-image: url('/src/assets/index/kgs-current-openings.webp');
 }
 
 .tile.research {
-    background-image: url('/src/assets/index/kgs-research.webp');
+    background-image: url('/src/assets/index/kgs-research-2.webp');
 }
 
 .tile.service {
