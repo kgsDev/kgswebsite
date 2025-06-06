@@ -9,10 +9,11 @@ const labShortName = lab?.short_name || 'Lab';
 // Navigation structure
 const navItems = [
   { id: 'home', label: 'Overview', url: `/labs/${labSlug}` },
-  { id: 'people', label: 'People', url: `/labs/${labSlug}/people` },
-  { id: 'projects', label: 'Projects', url: `/labs/projects/?lab=${encodeURIComponent(labSlug)}` },
+  { id: 'research', label: 'Research Areas & Tools', url: `/labs/${labSlug}/research` },
+  { id: 'projects', label: 'Projects', url: `/labs/${labSlug}/projects` },
   { id: 'presentations', label: 'Presentations', url: `/labs/${labSlug}/presentations` },
   { id: 'publications', label: 'Publications', url: `/labs/${labSlug}/publications` },
+  { id: 'contact', label: 'Contact', url: `/labs/${labSlug}/contact` },
 ];
 ---
 
@@ -37,7 +38,8 @@ const navItems = [
 <style>
   /* Basic styles that don't depend on CSS variables */
   .lab-sidenav {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
+    font-weight: 600;
   }
   
   .lab-sidenav ul {

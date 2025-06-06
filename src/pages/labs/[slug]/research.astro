@@ -1,0 +1,171 @@
+---
+// src/pages/labs/[slug]/research.astro
+export const prerender = false;
+
+import LabLayout from '../../../layouts/LabLayout.astro';
+import DraftBanner from '../../../components/DraftBanner.astro';
+import ToolGrid from '../../../components/labs/ToolGrid.astro';
+import ContentBlock from '../../../components/labs/ContentBlock.astro';
+import { 
+  fetchLabBySlug, 
+  fetchLabResearchAreas,
+  fetchLabTools,
+  fetchLabContentBlocks
+} from '../../../lib/api_labs';
+
+import { isDraftMode } from '../../../utils/preview';
+
+// Get the lab for this page
+const { slug } = Astro.params;
+const lab = await fetchLabBySlug(slug, Astro.request);
+
+// Handle 404 if lab not found
+if (!lab) {
+  return Astro.redirect('/404');
+}
+
+// Get research areas, tools, and content blocks
+const researchAreas = await fetchLabResearchAreas(lab.id);
+const labTools = await fetchLabTools(lab.id);
+const contentBlocks = await fetchLabContentBlocks(lab.id, 'research');
+
+// Group tools by category
+const toolsByCategory = labTools.reduce((acc, tool) => {
+  const category = tool.category || 'software';
+  if (!acc[category]) acc[category] = [];
+  acc[category].push(tool);
+  return acc;
+}, {});
+
+// Check if this is draft content or preview mode
+const isDraft = lab.status === 'draft';
+const isPreviewMode = isDraftMode(Astro.request);
+---
+
+<LabLayout lab={lab} activePage="research" pageTitle="Research Areas & Tools">
+  <!-- Draft/Preview Banner -->
+  <DraftBanner 
+    isDraft={isDraft || isPreviewMode} 
+    type="lab" 
+    currentUrl={Astro.url.href}
+  />
+
+  <!-- Research Areas from Directus -->
+  {researchAreas.map(area => (
+    <div class="content-block">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-4 lab-primary-text">{area.title}</h2>
+        
+        {area.description && (
+          <div class="prose max-w-none mb-6" set:html={area.description} />
+        )}
+        
+        {area.image && (
+          <div class="mt-6">
+            <img 
+              src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${area.image}?width=800&quality=90`} 
+              alt={area.title}
+              class="w-full rounded-lg shadow-md"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+
+  <!-- Custom Content Blocks for specific research sections -->
+  {contentBlocks.map(block => (
+    <ContentBlock block={block} lab={lab} />
+  ))}
+
+  <!-- Software Resources Grid -->
+  {labTools.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">Software Resources</h2>
+        <ToolGrid tools={labTools} />
+      </div>
+    </div>
+  )}
+
+  <!-- Navigation -->
+  <div class="content-block">
+    <div class="p-6 text-center">
+      <div class="flex flex-wrap justify-center gap-4">
+        <a 
+          href={`/labs/${lab.slug}/projects`} 
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
+        >
+          ← View Projects
+        </a>
+        <a 
+          href={`/labs/${lab.slug}`} 
+          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+        >
+          Back to Lab Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Mode Footer -->
+  {isPreviewMode && (
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <p>
+        <strong>Preview Mode:</strong> 
+        Share this link to let others preview: 
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+      </p>
+    </div>
+  )}
+</LabLayout>={`/labs/${lab.slug}/projects`} 
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
+        >
+          ← View Projects
+        </a>
+        <a 
+          href={`/labs/${lab.slug}`} 
+          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+        >
+          Back to Lab Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Mode Footer -->
+  {isPreviewMode && (
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <p>
+        <strong>Preview Mode:</strong> 
+        Share this link to let others preview: 
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+      </p>
+    </div>
+  )}
+</LabLayout>={`/labs/${lab.slug}/projects`} 
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
+        >
+          ← View Projects
+        </a>
+        <a 
+          href={`/labs/${lab.slug}`} 
+          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+        >
+          Back to Lab Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Mode Footer -->
+  {isPreviewMode && (
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <p>
+        <strong>Preview Mode:</strong> 
+        Share this link to let others preview: 
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+      </p>
+    </div>
+  )}
+</LabLayout>
