@@ -8,8 +8,7 @@ import ContentBlock from '../../../components/labs/ContentBlock.astro';
 import { 
   fetchLabBySlug, 
   fetchLabProjects,
-  fetchLabContentBlocks,
-  fetchProjectFunding
+  fetchLabContentBlocks
 } from '../../../lib/api_labs';
 
 import { isDraftMode } from '../../../utils/preview';
@@ -23,8 +22,8 @@ if (!lab) {
   return Astro.redirect('/404');
 }
 
-// Get all projects for this lab
-const allProjects = await fetchLabProjects(lab.id, { status: 'published' });
+// Get all projects for this lab with proper image loading
+const allProjects = await fetchLabProjects(lab.id, { request: Astro.request });
 
 // Get any custom content blocks for the projects page
 const contentBlocks = await fetchLabContentBlocks(lab.id, 'projects');
@@ -36,6 +35,8 @@ const completedProjects = allProjects.filter(p => p.end_date && new Date(p.end_d
 // Check if this is draft content or preview mode
 const isDraft = lab.status === 'draft';
 const isPreviewMode = isDraftMode(Astro.request);
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 ---
 
 <LabLayout lab={lab} activePage="projects" pageTitle="Projects">
@@ -57,22 +58,45 @@ const isPreviewMode = isDraftMode(Astro.request);
             <div class="project-showcase border-b border-gray-200 last:border-b-0 pb-8 last:pb-0">
               <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
               
-              <div class="project-grid grid md:grid-cols-2 gap-6">
-                <!-- Project Images -->
-                {project.gallery && project.gallery.length > 0 && (
-                  <div class="project-images space-y-4">
-                    {project.gallery.slice(0, 3).map(imageId => (
+              <div class="project-grid grid lg:grid-cols-3 gap-6">
+                <!-- Project Images - Handle both gallery and featured_image -->
+                <div class="project-images lg:col-span-1">
+                  {project.featured_image ? (
+                    <a href={`/labs/projects/${project.slug}`} class="block group">
                       <img 
-                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${imageId}?width=600&quality=90`} 
-                        alt={`${project.title} visualization`}
-                        class="project-image w-full rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                        src={`${directusUrl}assets/${project.featured_image}?width=650&fit=cover&quality=90`} 
+                        alt={`${project.title} featured image`}
+                        class="w-full h-64 object-cover rounded-lg shadow-md mb-4 group-hover:shadow-lg transition-shadow duration-200"
                       />
-                    ))}
-                  </div>
-                )}
+                    </a>
+                  ) : project.gallery && project.gallery.length > 0 ? (
+                    <a href={`/labs/projects/${project.slug}`} class="block group">
+                      <img 
+                        src={`${directusUrl}assets/${project.gallery[0]}?width=650&fit=cover&quality=90`} 
+                        alt={`${project.title} visualization`}
+                        class="w-full h-64 object-cover rounded-lg shadow-md mb-4 group-hover:shadow-lg transition-shadow duration-200"
+                      />
+                    </a>
+                  ) : null}
+                  
+                  {/* Additional gallery images - larger and evenly sized */}
+                  {project.gallery && project.gallery.length > 1 && (
+                    <div class="space-y-3">
+                      {project.gallery.slice(1, 4).map(imageId => (
+                        <a href={`/labs/projects/${project.slug}`} class="block group">
+                          <img 
+                            src={`${directusUrl}assets/${imageId}?width=650&fit=cover&quality=90`} 
+                            alt={`${project.title} visualization`}
+                            class="w-full h-64 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 
                 <!-- Project Content -->
-                <div class="project-content">
+                <div class="project-content lg:col-span-2">
                   <!-- Highlight box for key features -->
                   {project.short_description && (
                     <div class="highlight-box bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
@@ -95,7 +119,7 @@ const isPreviewMode = isDraftMode(Astro.request);
                   
                   <!-- Products/Outcomes -->
                   {project.outcomes && (
-                    <div class="products-list bg-gray-50 p-4 rounded-lg">
+                    <div class="products-list bg-gray-50 p-4 rounded-lg mb-6">
                       <h4 class="font-semibold mb-2 text-gray-800">Products to Date:</h4>
                       <div class="prose max-w-none text-sm" set:html={project.outcomes} />
                     </div>
@@ -139,6 +163,13 @@ const isPreviewMode = isDraftMode(Astro.request);
                         </a>
                       </p>
                     )}
+                    
+                    <!-- Link to detailed project page -->
+                    <p><strong>Project Details:</strong> 
+                      <a href={`/labs/projects/${project.slug}`} class="lab-primary-text hover:underline ml-1">
+                        View Full Project Page →
+                      </a>
+                    </p>
                   </div>
                   
                   <!-- Funding Information -->
@@ -153,7 +184,7 @@ const isPreviewMode = isDraftMode(Astro.request);
                               <div class="flex items-start space-x-3">
                                 {funding.funding_agency?.logo && (
                                   <img 
-                                    src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${funding.funding_agency.logo}?width=60&height=60&fit=contain`} 
+                                    src={`${directusUrl}assets/${funding.funding_agency.logo}?width=60&height=60&fit=contain`} 
                                     alt={funding.funding_agency.name}
                                     class="w-12 h-12 object-contain"
                                   />
@@ -203,30 +234,26 @@ const isPreviewMode = isDraftMode(Astro.request);
     </div>
   )}
 
-  <!-- Custom Content Blocks for Projects Page -->
-  {contentBlocks.map(block => (
-    <ContentBlock block={block} lab={lab} />
-  ))}
-
-  <!-- Future Directions Section (can be a content block or hardcoded) -->
-  <div class="content-block">
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-6 lab-primary-text">Future Directions</h2>
-      
-      <!-- This could be populated from content blocks or directly from project data -->
-      {completedProjects.length > 0 && (
+  <!-- Completed Projects Section -->
+  {completedProjects.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">Completed Projects</h2>
+        
         <div class="space-y-8">
           {completedProjects.map(project => (
-            <div class="future-project border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
+            <div class="completed-project border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
               <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
               <div class="grid md:grid-cols-2 gap-6">
-                {project.featured_image && (
+                {(project.featured_image || (project.gallery && project.gallery.length > 0)) && (
                   <div>
-                    <img 
-                      src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${project.featured_image}?width=500&quality=90`} 
-                      alt={project.title}
-                      class="w-full rounded-lg shadow-md"
-                    />
+                    <a href={`/labs/projects/${project.slug}`} class="block group">
+                      <img 
+                        src={`${directusUrl}assets/${project.featured_image || project.gallery[0]}?width=500&height=300&fit=cover&quality=90`} 
+                        alt={project.title}
+                        class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-200"
+                      />
+                    </a>
                   </div>
                 )}
                 <div>
@@ -234,47 +261,43 @@ const isPreviewMode = isDraftMode(Astro.request);
                     <div class="prose max-w-none mb-4" set:html={project.description} />
                   )}
                   
-                  {project.planned_approach && (
+                  {project.outcomes && (
                     <div class="mb-4">
-                      <p class="font-semibold mb-2">Planned Approach:</p>
-                      <div class="prose max-w-none text-sm" set:html={project.planned_approach} />
+                      <p class="font-semibold mb-2">Final Outcomes:</p>
+                      <div class="prose max-w-none text-sm" set:html={project.outcomes} />
                     </div>
                   )}
                   
                   {project.strategic_impact && (
                     <div class="bg-blue-50 p-4 rounded-lg">
-                      <p class="font-semibold mb-2 text-blue-800">Strategic Impact:</p>
+                      <p class="font-semibold mb-2 text-blue-800">Impact:</p>
                       <div class="prose max-w-none text-sm text-blue-700" set:html={project.strategic_impact} />
                     </div>
                   )}
+                  
+                  <!-- Project metadata for completed projects -->
+                  <div class="mt-4 text-sm text-gray-600">
+                    {project.principal_investigator && (
+                      <p><strong>PI:</strong> {project.principal_investigator.first_name} {project.principal_investigator.last_name}</p>
+                    )}
+                    {project.start_date && project.end_date && (
+                      <p><strong>Duration:</strong> {new Date(project.start_date).getFullYear()} - {new Date(project.end_date).getFullYear()}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      )}
-    </div>
-  </div>
-
-  <!-- Navigation to other lab pages -->
-  <div class="content-block">
-    <div class="p-6 text-center">
-      <div class="flex flex-wrap justify-center gap-4">
-        <a 
-          href={`/labs/${lab.slug}`} 
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
-        >
-          ← Back to Lab Home
-        </a>
-        <a 
-          href={`/labs/${lab.slug}/research`} 
-          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
-        >
-          View Research Areas & Tools →
-        </a>
       </div>
     </div>
-  </div>
+  )}
+
+
+  <!-- Custom Content Blocks for Projects Page (at top) -->
+  {contentBlocks.length > 0 && contentBlocks.map(block => (
+    <ContentBlock block={block} lab={lab} />
+  ))}
 
   <!-- Preview Mode Footer -->
   {isPreviewMode && (
@@ -289,7 +312,7 @@ const isPreviewMode = isDraftMode(Astro.request);
 </LabLayout>
 
 <style>
-  /* Project showcase styling to match your old design */
+  /* Project showcase styling */
   .project-grid {
     align-items: start;
   }
@@ -314,17 +337,26 @@ const isPreviewMode = isDraftMode(Astro.request);
   }
   
   /* Responsive adjustments */
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .project-grid {
       grid-template-columns: 1fr;
     }
     
     .project-images {
-      order: 2;
+      order: 1;
     }
     
     .project-content {
-      order: 1;
+      order: 2;
     }
+  }
+  
+  /* Completed projects styling */
+  .completed-project {
+    opacity: 0.9;
+  }
+  
+  .completed-project:hover {
+    opacity: 1;
   }
 </style>

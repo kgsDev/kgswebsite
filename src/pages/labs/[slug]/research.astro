@@ -5,12 +5,11 @@ export const prerender = false;
 import LabLayout from '../../../layouts/LabLayout.astro';
 import DraftBanner from '../../../components/DraftBanner.astro';
 import ToolGrid from '../../../components/labs/ToolGrid.astro';
-import ContentBlock from '../../../components/labs/ContentBlock.astro';
+import ResearchAreaBlock from '../../../components/labs/ResearchAreaBlock.astro';
 import { 
   fetchLabBySlug, 
   fetchLabResearchAreas,
-  fetchLabTools,
-  fetchLabContentBlocks
+  fetchLabTools
 } from '../../../lib/api_labs';
 
 import { isDraftMode } from '../../../utils/preview';
@@ -24,18 +23,9 @@ if (!lab) {
   return Astro.redirect('/404');
 }
 
-// Get research areas, tools, and content blocks
+// Get research areas with their content blocks
 const researchAreas = await fetchLabResearchAreas(lab.id);
 const labTools = await fetchLabTools(lab.id);
-const contentBlocks = await fetchLabContentBlocks(lab.id, 'research');
-
-// Group tools by category
-const toolsByCategory = labTools.reduce((acc, tool) => {
-  const category = tool.category || 'software';
-  if (!acc[category]) acc[category] = [];
-  acc[category].push(tool);
-  return acc;
-}, {});
 
 // Check if this is draft content or preview mode
 const isDraft = lab.status === 'draft';
@@ -50,35 +40,12 @@ const isPreviewMode = isDraftMode(Astro.request);
     currentUrl={Astro.url.href}
   />
 
-  <!-- Research Areas from Directus -->
+  <!-- Research Areas with Content Blocks -->
   {researchAreas.map(area => (
-    <div class="content-block">
-      <div class="p-6">
-        <h2 class="text-2xl font-bold mb-4 lab-primary-text">{area.title}</h2>
-        
-        {area.description && (
-          <div class="prose max-w-none mb-6" set:html={area.description} />
-        )}
-        
-        {area.image && (
-          <div class="mt-6">
-            <img 
-              src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${area.image}?width=800&quality=90`} 
-              alt={area.title}
-              class="w-full rounded-lg shadow-md"
-            />
-          </div>
-        )}
-      </div>
-    </div>
+    <ResearchAreaBlock area={area} lab={lab} />
   ))}
 
-  <!-- Custom Content Blocks for specific research sections -->
-  {contentBlocks.map(block => (
-    <ContentBlock block={block} lab={lab} />
-  ))}
-
-  <!-- Software Resources Grid -->
+  <!-- Software Resources Grid (from lab_tools) -->
   {labTools.length > 0 && (
     <div class="content-block">
       <div class="p-6">
@@ -87,26 +54,6 @@ const isPreviewMode = isDraftMode(Astro.request);
       </div>
     </div>
   )}
-
-  <!-- Navigation -->
-  <div class="content-block">
-    <div class="p-6 text-center">
-      <div class="flex flex-wrap justify-center gap-4">
-        <a 
-          href={`/labs/${lab.slug}/projects`} 
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors duration-200"
-        >
-          ← View Projects
-        </a>
-        <a 
-          href={`/labs/${lab.slug}`} 
-          class="px-4 py-2 lab-primary-bg text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
-        >
-          Back to Lab Home
-        </a>
-      </div>
-    </div>
-  </div>
 
   <!-- Preview Mode Footer -->
   {isPreviewMode && (

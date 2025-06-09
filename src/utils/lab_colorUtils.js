@@ -6,7 +6,7 @@
  * @returns {Object} RGB values as {r, g, b}
  */
 export function hexToRgb(hex) {
-  if (!hex) return { r: 0, g: 0, b: 0 };
+  if (!hex) return { r: 0, g, b: 0 };
   
   // Remove # if present
   hex = hex.replace(/^#/, '');
@@ -170,14 +170,12 @@ export function generateAccentColor(primaryColorHex) {
  * @returns {Object} Color variables with contrast adjustments
  */
 export function generateLabColorVariables(lab) {
-  // Default colors
-  const defaultPrimary = '#0033A0';  // UK Blue
-  const defaultSecondary = '#B1C9E8'; // UK Sky
-  const defaultBackground = '#f9fafb'; // Light gray
+  // Improved default colors for better visual hierarchy
+  const defaultPrimary = '#e2e8f0';    // Light gray-blue for header background
+  const defaultSecondary = '#1e3a8a';  // Dark blue (blue-800) for text/titles
+  const defaultBackground = '#f8fafc'; // Very light background
   
   // Get colors from lab or use defaults
-
-  // Get color properties, with fallbacks
   const primaryColor = lab?.primary_color || defaultPrimary;
   const secondaryColor = lab?.secondary_color || defaultSecondary;
   const backgroundColor = lab?.background_color || defaultBackground;
@@ -187,8 +185,8 @@ export function generateLabColorVariables(lab) {
   const textOnSecondary = getTextColorForBackground(secondaryColor);
   const textOnBackground = getTextColorForBackground(backgroundColor);
   
-  // Generate an accent color if none provided
-  const accentColor = lab?.accent_color || generateAccentColor(primaryColor);
+  // Generate an accent color if none provided (amber for subheadings)
+  const accentColor = lab?.accent_color || '#b45309'; // Amber-700
   
   // Return the color variables
   return {

@@ -37,20 +37,12 @@ const textOnPrimary = colors.textOnPrimary;
 const textOnSecondary = colors.textOnSecondary;
 const textOnBackground = colors.textOnBackground;
 
-// Smart color fallbacks for improved defaults
-// If no custom lab colors are set, use better defaults
-const hasCustomColors = lab?.primary_color || lab?.secondary_color || lab?.accent_color;
-
-// Enhanced defaults only when no custom colors exist
-const enhancedPrimary = hasCustomColors ? labPrimaryColor : '#e2e8f0'; // Lighter gray for more contrast
-const enhancedSecondary = hasCustomColors ? labSecondaryColor : '#1e3a8a'; // Much darker blue (blue-800)
-const enhancedAccent = hasCustomColors ? labAccentColor : '#b45309'; // Keep amber for subheadings
-const enhancedTextOnPrimary = hasCustomColors ? textOnPrimary : '#1e293b'; // Dark slate
-
+// Fallback description for SEO
 // Page title format
 const fullPageTitle = pageTitle ? 
   `${pageTitle} | ${labShortName} Lab` : 
   `${labShortName} Lab | ${labName}`;
+  `${labName}`;
 
 // Define props with defaults specific to lab pages
 const { 
@@ -85,13 +77,13 @@ const {
       <link href={customFontUrl} rel="stylesheet">
     )}
     
-    <!-- Add dynamic styles for lab's custom colors with enhanced defaults -->
+    <!-- Add dynamic styles for lab's custom colors with contrast adjustments -->
     <style is:global define:vars={{ 
-      labPrimaryColor: enhancedPrimary,
-      labSecondaryColor: enhancedSecondary, 
+      labPrimaryColor, 
+      labSecondaryColor, 
       labBackgroundColor,
-      labAccentColor: enhancedAccent,
-      textOnPrimary: enhancedTextOnPrimary, 
+      labAccentColor,
+      textOnPrimary, 
       textOnSecondary,
       textOnBackground,
       customFontFamily: useCustomFont && customFontFamily ? customFontFamily : "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -102,15 +94,6 @@ const {
         background-color: var(--labPrimaryColor) !important;
         color: var(--textOnPrimary) !important;
       }
-      
-      /* Add subtle gradient only for default colors - more noticeable */
-      ${!hasCustomColors ? `
-      .lab-primary-bg {
-        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%) !important;
-        border-bottom: 2px solid #64748b;
-      }
-      ` : ''}
-      
       .lab-primary-text {
         color: var(--labSecondaryColor) !important;
       }
@@ -178,62 +161,12 @@ const {
         color: var(--labSecondaryColor);
       }
       
-      /* Side nav on desktop - CHANGED TO HORIZONTAL */
+      /* Side nav on desktop */
       @media (min-width: 768px) {
         .content-with-sidenav {
-          display: block; /* Changed from grid */
-        }
-        
-        .desktop-nav {
-          display: block;
-        }
-        
-        .sidenav {
-          display: none; /* Hide sidebar on desktop */
-        }
-      }
-      
-      /* Desktop horizontal navigation - positioned under lab header */
-      .desktop-nav {
-        display: block; /* Show on all screens, then hide on mobile */
-        background-color: var(--labSecondaryColor);
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      .desktop-nav ul {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-      
-      .desktop-nav .lab-nav-item {
-        display: block;
-        padding: 1rem 1.5rem;
-        transition: background-color 0.2s ease, color 0.2s ease;
-        white-space: nowrap;
-        font-weight: 500;
-        color: white !important;
-        text-decoration: none;
-      }
-      
-      .desktop-nav .lab-nav-item.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white !important;
-        font-weight: 600;
-      }
-      
-      .desktop-nav .lab-nav-item:not(.active):hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white !important;
-      }
-      
-      /* Hide desktop nav on mobile */
-      @media (max-width: 767px) {
-        .desktop-nav {
-          display: none;
+          display: grid;
+          grid-template-columns: 250px 1fr;
+          gap: 2rem;
         }
       }
       
@@ -257,7 +190,7 @@ const {
           color: var(--textOnPrimary);
           border: none;
           border-radius: 0.25rem;
-          cursor: cursor;
+          cursor: pointer;
           margin-left: auto;
           margin-right: 1rem;
           box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -291,22 +224,21 @@ const {
       .lab-header-full-width {
         position: relative;
         border-radius: 0.5rem;
-        margin-bottom: 0; /* Remove bottom margin to eliminate gap */
+        margin-bottom: 2rem;
       }
       
-      /* Custom font class for lab title and headers */
+      /* Custom font class for lab title */
       .lab-header-full-width .lab-title, h1, h2 {
         font-family: var(--customFontFamily) !important;
         font-weight: var(--customFontWeight) !important;
-        color: var(--textOnPrimary) !important;
+        color: var(--labAccentColor) !important;
       }
 
-      /* Subheadings use accent color */
       h3, h4, h5, h6 {
         color: var(--labAccentColor) !important;
       }
 
-      /* Fixes for prose */
+      /*fixes for prose */
       .prose ul {
         list-style-type: disc !important;
         margin-left: 1.5rem !important;
@@ -347,76 +279,20 @@ const {
         <!-- Lab Title and Description - Centered Vertically -->
         <div class="text-center md:text-left max-w-2xl md:flex-1 flex flex-col justify-center">
           <h1 class="text-3xl md:text-4xl font-bold mb-3 lab-title">{labName}</h1>
-          <p class="opacity-90 text-lg">{labDescription}</p>
+          <p class="opacity-90">{labDescription}</p>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- Desktop Horizontal Navigation - Now AFTER the header -->
-  <nav class="desktop-nav">
-    <div class="container mx-auto">
-      <ul>
-        <li>
-          <a 
-            href={`/labs/${labSlug}`}
-            class={`lab-nav-item ${activePage === 'home' ? 'active' : ''}`}
-          >
-            Overview
-          </a>
-        </li>
-        <li>
-          <a 
-            href={`/labs/${labSlug}/research`}
-            class={`lab-nav-item ${activePage === 'research' ? 'active' : ''}`}
-          >
-            Research Areas & Tools
-          </a>
-        </li>
-        <li>
-          <a 
-            href={`/labs/${labSlug}/projects`}
-            class={`lab-nav-item ${activePage === 'projects' ? 'active' : ''}`}
-          >
-            Projects
-          </a>
-        </li>
-        <li>
-          <a 
-            href={`/labs/${labSlug}/presentations`}
-            class={`lab-nav-item ${activePage === 'presentations' ? 'active' : ''}`}
-          >
-            Presentations
-          </a>
-        </li>
-        <li>
-          <a 
-            href={`/labs/${labSlug}/publications`}
-            class={`lab-nav-item ${activePage === 'publications' ? 'active' : ''}`}
-          >
-            Publications
-          </a>
-        </li>
-        <li>
-          <a 
-            href={`/labs/${labSlug}#contact-info`}
-            class={`lab-nav-item ${activePage === 'contact' ? 'active' : ''}`}
-          >
-            Contact
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-  
-  <!-- Main Content with Navigation -->
+  <!-- Main Content with Side Navigation -->
   <div class="content-with-sidenav">
-    <!-- Mobile Side Navigation -->
+    <!-- Side Navigation -->
     <div class="sidenav md:relative md:transform-none md:shadow-none md:h-auto md:bg-transparent" id="sidenav">
       <div class="md:pr-0">
         <!-- Close button for mobile menu -->
         <div class="flex justify-between items-center mb-4 md:hidden">
-          <h2 class="text-xl font-bold lab-primary-text">{labShortName} Lab</h2>
+          <h2 class="text-xl font-bold lab-primary-text">{lab.short_name || lab.name.split(' ').map(word => word[0]).join('')} Lab</h2>
           <button id="close-nav" class="text-gray-500 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -428,7 +304,7 @@ const {
       </div>
     </div>
     
-    <!-- Main Content - Now Full Width -->
+    <!-- Main Content -->
     <div class="main-content">
       <slot />
     </div>

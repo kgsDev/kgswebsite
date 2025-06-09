@@ -14,7 +14,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     >
       {tool.logo ? (
         <img 
-          src={`${directusUrl}assets/${tool.logo}?width=80&height=80&fit=contain&quality=90`} 
+          src={`${directusUrl}assets/${tool.logo}?width=80&height=80&fit=inside&background=transparent&quality=90`} 
           alt={`${tool.name} logo`}
           class="software-logo w-12 h-12 md:w-16 md:h-16 object-contain mb-2 group-hover:scale-105 transition-transform duration-200"
         />

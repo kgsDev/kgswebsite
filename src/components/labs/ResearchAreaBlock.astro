@@ -1,0 +1,301 @@
+---
+// src/components/labs/ResearchAreaBlock.astro
+const { area, lab } = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+---
+
+<div class="content-block">
+  <div class="p-6">
+    <!-- Research Area Header -->
+    <h2 class="text-2xl font-bold mb-4 lab-primary-text">{area.title}</h2>
+    
+    <!-- Main description -->
+    {area.description && (
+      <div class="prose max-w-none mb-6" set:html={area.description} />
+    )}
+    
+    <!-- Main area image (if any) -->
+    {area.image && (
+      <div class="mb-6">
+        <img 
+          src={`${directusUrl}assets/${area.image}?width=800&quality=90`} 
+          alt={area.title}
+          class="w-full rounded-lg shadow-md"
+        />
+      </div>
+    )}
+    
+    <!-- Content Blocks -->
+    {area.content_blocks && area.content_blocks.length > 0 && (
+      <div class="content-blocks-container">
+        <!-- Tool Cards Stack (for Algorithm Development section) -->
+        {area.content_blocks.some(block => block.block_type === 'tool_card') && (
+          <div class="tool-cards-stack space-y-8 mb-8">
+            {area.content_blocks
+              .filter(block => block.block_type === 'tool_card')
+              .map(block => (
+                <div class="tool-card-row bg-white border-l-4 border-orange-400 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+                  <div class="grid md:grid-cols-3 gap-0">
+                    <!-- Tool Image (Left Third) -->
+                    {block.image && (
+                      <div class="tool-image-container md:col-span-1">
+                        {block.url ? (
+                          <a href={block.url} target="_blank" rel="noopener noreferrer" class="block h-full">
+                            <img 
+                              src={`${directusUrl}assets/${block.image}?width=400&height=300&fit=cover&quality=90`} 
+                              alt={block.title}
+                              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              style="min-height: 200px;"
+                            />
+                          </a>
+                        ) : (
+                          <img 
+                            src={`${directusUrl}assets/${block.image}?width=400&height=300&fit=cover&quality=90`} 
+                            alt={block.title}
+                            class="w-full h-full object-cover"
+                            style="min-height: 200px;"
+                          />
+                        )}
+                      </div>
+                    )}
+                    
+                    <!-- Tool Content (Right Two Thirds) -->
+                    <div class="tool-content p-6 md:col-span-2 flex flex-col justify-center">
+                      <h4 class="text-xl font-bold mb-4 text-orange-700">{block.title}</h4>
+                      
+                      {block.description && (
+                        <div class="tool-features mb-4" set:html={block.description} />
+                      )}
+                      
+                      {block.url && (
+                        <div class="mt-auto">
+                          <a 
+                            href={block.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg font-medium text-sm transition-colors duration-200"
+                          >
+                            Access {block.title.split('(')[0].trim()} Tool
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+        
+        <!-- Side-by-side Image/Text (for Remote Sensing section) -->
+        {area.content_blocks.some(block => block.block_type === 'image_text') && (
+          <div class="image-text-blocks space-y-8 mb-8">
+            {area.content_blocks
+              .filter(block => block.block_type === 'image_text')
+              .map(block => (
+                <div class="grid md:grid-cols-2 gap-6 items-start">
+                  {block.image && (
+                    <div>
+                      <img 
+                        src={`${directusUrl}assets/${block.image}?width=600&quality=90`} 
+                        alt={block.title}
+                        class="w-full rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    {block.title && (
+                      <h3 class="text-xl font-bold mb-3 lab-secondary-text">{block.title}</h3>
+                    )}
+                    {block.description && (
+                      <div class="prose max-w-none" set:html={block.description} />
+                    )}
+                    {block.content && (
+                      <div class="prose max-w-none" set:html={block.content} />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+        
+        <!-- Highlight Sections -->
+        {area.content_blocks.some(block => block.block_type === 'highlight_section') && (
+          <div class="highlight-sections space-y-6 mb-8">
+            {area.content_blocks
+              .filter(block => block.block_type === 'highlight_section')
+              .map(block => (
+                <div class="highlight-section bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
+                  {block.title && (
+                    <h3 class="text-lg font-bold mb-3 text-yellow-800">{block.title}</h3>
+                  )}
+                  {block.description && (
+                    <div class="prose max-w-none text-yellow-900" set:html={block.description} />
+                  )}
+                  {block.content && (
+                    <div class="prose max-w-none text-yellow-900" set:html={block.content} />
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+        
+        <!-- Method Cards Grid (for Computational Methods section) -->
+        {area.content_blocks.some(block => block.block_type === 'method_grid') && 
+         area.content_blocks.find(block => block.block_type === 'method_grid')?.data && (
+          <div class="method-cards-section mb-8">
+            {(() => {
+              const methodBlock = area.content_blocks.find(block => block.block_type === 'method_grid');
+              const methodData = typeof methodBlock.data === 'string' ? JSON.parse(methodBlock.data) : methodBlock.data;
+              
+              return methodData.methods && (
+                <div class="methods-grid grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {methodData.methods.map(method => (
+                    <div class="method-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                      <h4 class="text-lg font-semibold mb-3 lab-secondary-text">{method.title}</h4>
+                      <ul class="text-sm space-y-1">
+                        {method.items.map(item => (
+                          <li class="flex items-start">
+                            <span class="text-gray-400 mr-2 mt-1">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+        
+        <!-- Generic Content Blocks (for any other block types) -->
+        {area.content_blocks.some(block => !['tool_card', 'image_text', 'method_grid', 'highlight_section'].includes(block.block_type)) && (
+          <div class="generic-content-blocks space-y-6 mb-8">
+            {area.content_blocks
+              .filter(block => !['tool_card', 'image_text', 'method_grid', 'highlight_section'].includes(block.block_type))
+              .map(block => (
+                <div class="generic-block bg-gray-50 p-6 rounded-lg">
+                  {block.title && (
+                    <h3 class="text-lg font-bold mb-3 lab-secondary-text">{block.title}</h3>
+                  )}
+                  {block.description && (
+                    <div class="prose max-w-none mb-4" set:html={block.description} />
+                  )}
+                  {block.content && (
+                    <div class="prose max-w-none" set:html={block.content} />
+                  )}
+                  {block.image && (
+                    <div class="mt-4">
+                      <img 
+                        src={`${directusUrl}assets/${block.image}?width=600&quality=90`} 
+                        alt={block.title || 'Content image'}
+                        class="w-full rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+                  {block.url && (
+                    <div class="mt-4">
+                      <a 
+                        href={block.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-medium text-sm transition-colors duration-200"
+                      >
+                        Learn More
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  /* Tool card styling to match your original design */
+  .tool-card-row {
+    border-left: 5px solid #ea580c; /* Orange accent like your original */
+    background: linear-gradient(to right, #ffffff, #fefdf9);
+  }
+  
+  .tool-card-row:hover {
+    border-left-color: #dc2626;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  
+  .tool-image-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .tool-content {
+    background: linear-gradient(to bottom, #ffffff, #fefdf9);
+  }
+  
+  /* Style the feature lists to match your original */
+  .tool-features ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .tool-features li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  
+  .tool-features li::before {
+    content: "•";
+    color: #ea580c;
+    margin-right: 0.75rem;
+    margin-top: 0.125rem;
+    font-weight: bold;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .tool-card-row .grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .tool-image-container {
+      order: 1;
+    }
+    
+    .tool-content {
+      order: 2;
+    }
+  }
+  
+  /* Ensure images maintain aspect ratio */
+  .tool-image-container img {
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+  
+  /* Highlight section styling */
+  .highlight-section {
+    position: relative;
+  }
+  
+  .highlight-section::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #f59e0b, #d97706);
+  }
+</style>

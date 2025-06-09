@@ -12,37 +12,280 @@ if (block.data) {
     blockData = {};
   }
 }
+
 ---
 
-<div class="content-block">
-  <div class="p-6">
-    {block.title && (
-      <h2 class="text-2xl font-bold mb-4 lab-primary-text">{block.title}</h2>
-    )}
-    
-    {block.block_type === 'rich_text' && (
+{block.block_type === 'section_header' && (
+  <div class="content-block">
+    <div class="p-6 bg-blue-50 border-l-4 border-blue-500">
+      <h2 class="text-2xl font-bold lab-primary-text">{block.title}</h2>
+      {block.content && (
+        <div class="prose max-w-none mt-4" set:html={block.content} />
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'rich_text' && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-4 lab-primary-text">{block.title}</h2>
+      )}
       <div class="prose max-w-none" set:html={block.content} />
-    )}
-    
-    {block.block_type === 'image_gallery' && blockData.images && (
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {blockData.images.map(imageId => (
-          <img 
-            src={`${directusUrl}assets/${imageId}?width=400&quality=90`} 
-            alt="Gallery image"
-            class="w-full rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-          />
-        ))}
-      </div>
-    )}
-    
-    {block.block_type === 'highlight_section' && (
+    </div>
+  </div>
+)}
+
+{block.block_type === 'highlight_section' && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-4 lab-primary-text">{block.title}</h2>
+      )}
       <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
         <div class="prose max-w-none" set:html={block.content} />
       </div>
-    )}
-    
-    {block.block_type === 'two_column' && (
+    </div>
+  </div>
+)}
+
+{block.block_type === 'image_gallery' && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">{block.title}</h2>
+      )}
+      {block.content && (
+        <div class="prose max-w-none mb-6" set:html={block.content} />
+      )}
+      
+      {blockData.images && (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {blockData.images.map(imageId => (
+            <div class="group cursor-pointer">
+              <img 
+                src={`${directusUrl}assets/${imageId}?width=400&quality=90`} 
+                alt="Gallery image"
+                class="w-full rounded-lg shadow-md hover:shadow-lg transition-all duration-200 group-hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'future_directions' && (
+  <div class="content-block">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-6 lab-primary-text">
+        {block.title || 'Future Directions'}
+      </h2>
+      
+      {block.content && (
+        <div class="prose max-w-none mb-8" set:html={block.content} />
+      )}
+      
+      {blockData.directions && (
+        <div class="space-y-8">
+          {blockData.directions.map(direction => (
+            <div class="border-b border-gray-200 pb-6 last:border-b-0">
+              <h3 class="text-xl font-bold mb-4 lab-secondary-text">{direction.title}</h3>
+              <div class="grid md:grid-cols-2 gap-6">
+                {direction.image && (
+                  <div>
+                    <img 
+                      src={`${directusUrl}assets/${direction.image}?width=500&quality=90`} 
+                      alt={direction.title}
+                      class="w-full rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+                <div>
+                  {direction.description && (
+                    <div class="prose max-w-none" set:html={direction.description} />
+                  )}
+                  
+                  {direction.strategic_impact && (
+                    <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                      <p class="font-semibold mb-2 text-blue-800">Strategic Impact:</p>
+                      <div class="prose max-w-none text-sm text-blue-700" set:html={direction.strategic_impact} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'project_showcase' && (
+  <div class="content-block">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-6 lab-primary-text">
+        {block.title || 'Featured Projects'}
+      </h2>
+      
+      {blockData.projects && (
+        <div class="space-y-8">
+          {blockData.projects.map(project => (
+            <div class="project-showcase border-b border-gray-200 last:border-b-0 pb-8 last:pb-0">
+              <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
+              
+              <div class="grid md:grid-cols-2 gap-6">
+                {project.image && (
+                  <div>
+                    <img 
+                      src={`${directusUrl}assets/${project.image}?width=600&quality=90`} 
+                      alt={project.title}
+                      class="w-full rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+                
+                <div>
+                  {project.description && (
+                    <div class="prose max-w-none mb-4" set:html={project.description} />
+                  )}
+                  
+                  {project.outcomes && (
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                      <h4 class="font-semibold mb-2 text-gray-800">Outcomes:</h4>
+                      <div class="prose max-w-none text-sm" set:html={project.outcomes} />
+                    </div>
+                  )}
+                  
+                  {project.url && (
+                    <div class="mt-4">
+                      <a 
+                        href={project.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-medium text-sm transition-colors duration-200"
+                      >
+                        View Project
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'tool_showcase' && (
+  <div class="content-block">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold mb-6 lab-primary-text">
+        {block.title || 'Tools & Resources'}
+      </h2>
+      
+      {blockData.tools && (
+        <div class="space-y-6">
+          {blockData.tools.map(tool => (
+            <div class="tool-card-row bg-white border-l-4 border-orange-400 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+              <div class="grid md:grid-cols-3 gap-0">
+                {tool.image && (
+                  <div class="tool-image-container md:col-span-1">
+                    {tool.url ? (
+                      <a href={tool.url} target="_blank" rel="noopener noreferrer" class="block h-full">
+                        <img 
+                          src={`${directusUrl}assets/${tool.image}?width=400&height=300&fit=cover&quality=90`} 
+                          alt={tool.title}
+                          class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          style="min-height: 200px;"
+                        />
+                      </a>
+                    ) : (
+                      <img 
+                        src={`${directusUrl}assets/${tool.image}?width=400&height=300&fit=cover&quality=90`} 
+                        alt={tool.title}
+                        class="w-full h-full object-cover"
+                        style="min-height: 200px;"
+                      />
+                    )}
+                  </div>
+                )}
+                
+                <div class="tool-content p-6 md:col-span-2 flex flex-col justify-center">
+                  <h4 class="text-xl font-bold mb-4 text-orange-700">{tool.title}</h4>
+                  
+                  {tool.description && (
+                    <div class="tool-features mb-4 prose max-w-none" set:html={tool.description} />
+                  )}
+                  
+                  {tool.url && (
+                    <div class="mt-auto">
+                      <a 
+                        href={tool.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg font-medium text-sm transition-colors duration-200"
+                      >
+                        Access Tool
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'method_grid' && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">{block.title}</h2>
+      )}
+      
+      {blockData.methods && (
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {blockData.methods.map(method => (
+            <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+              <h4 class="font-semibold mb-3 lab-secondary-text">{method.title}</h4>
+              <ul class="text-sm space-y-1">
+                {method.items && method.items.map(item => (
+                  <li class="flex items-start">
+                    <span class="text-gray-400 mr-2">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{block.block_type === 'two_column' && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-6 lab-primary-text">{block.title}</h2>
+      )}
+      
       <div class="grid md:grid-cols-2 gap-6">
         <div>
           {blockData.left_title && (
@@ -61,56 +304,90 @@ if (block.data) {
           )}
         </div>
       </div>
-    )}
-    
-    {block.block_type === 'method_cards' && blockData.methods && (
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {blockData.methods.map(method => (
-          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-            <h4 class="font-semibold mb-3 lab-secondary-text">{method.title}</h4>
-            <ul class="text-sm space-y-1">
-              {method.items.map(item => (
-                <li class="flex items-start">
-                  <span class="text-gray-400 mr-2">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    )}
-    
-    {/* Future directions section */}
-    {block.block_type === 'future_directions' && blockData.directions && (
-      <div class="space-y-8">
-        {blockData.directions.map(direction => (
-          <div class="border-b border-gray-200 pb-6 last:border-b-0">
-            <h3 class="text-xl font-bold mb-4 lab-secondary-text">{direction.title}</h3>
-            <div class="grid md:grid-cols-2 gap-6">
-              {direction.image && (
-                <div>
-                  <img 
-                    src={`${directusUrl}assets/${direction.image}?width=500&quality=90`} 
-                    alt={direction.title}
-                    class="w-full rounded-lg shadow-md"
-                  />
-                </div>
-              )}
-              <div>
-                {direction.description && (
-                  <div class="prose max-w-none" set:html={direction.description} />
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-    
-    {/* Default: just render content if block type not recognized */}
-    {!['rich_text', 'image_gallery', 'highlight_section', 'two_column', 'method_cards', 'future_directions'].includes(block.block_type) && block.content && (
-      <div class="prose max-w-none" set:html={block.content} />
-    )}
+    </div>
   </div>
-</div>
+)}
+
+{/* Default: render as rich text if block type not recognized */}
+{!['section_header', 'rich_text', 'image_gallery', 'highlight_section', 'two_column', 'method_grid', 'future_directions', 'project_showcase', 'tool_showcase'].includes(block.block_type) && (
+  <div class="content-block">
+    <div class="p-6">
+      {block.title && (
+        <h2 class="text-2xl font-bold mb-4 lab-primary-text">{block.title}</h2>
+      )}
+      {block.content && (
+        <div class="prose max-w-none" set:html={block.content} />
+      )}
+    </div>
+  </div>
+)}
+
+<style>
+  /* Tool card styling */
+  .tool-card-row {
+    border-left: 5px solid #ea580c;
+    background: linear-gradient(to right, #ffffff, #fefdf9);
+  }
+  
+  .tool-card-row:hover {
+    border-left-color: #dc2626;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  
+  .tool-image-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .tool-content {
+    background: linear-gradient(to bottom, #ffffff, #fefdf9);
+  }
+  
+  /* Style the feature lists */
+  .tool-features ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .tool-features li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  
+  .tool-features li::before {
+    content: "•";
+    color: #ea580c;
+    margin-right: 0.75rem;
+    margin-top: 0.125rem;
+    font-weight: bold;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .tool-card-row .grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .tool-image-container {
+      order: 1;
+    }
+    
+    .tool-content {
+      order: 2;
+    }
+  }
+  
+  /* Ensure images maintain aspect ratio */
+  .tool-image-container img {
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+  
+  /* Gallery hover effects */
+  .group:hover img {
+    transform: scale(1.05);
+  }
+</style>
