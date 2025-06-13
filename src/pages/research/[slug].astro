@@ -1,0 +1,23 @@
+---
+//this is the dynamic page for Directus content - served by pages
+export const prerender = true; // Enable SSR for this page
+import Layout from "../../layouts/BaseLayout.astro";
+import directus from "../../../lib/directus";
+import { readItems } from "@directus/sdk";
+
+export async function getStaticPaths() {
+  const pages = await directus.request(readItems("research"));
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: page,
+  }));
+}
+const page = Astro.props;
+---
+
+<Layout title={page.title}>
+  <main>
+    <h1>{page.title}</h1>
+    <div set:html={page.content} />
+  </main>
+</Layout>

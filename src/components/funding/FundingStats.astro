@@ -1,0 +1,161 @@
+---
+// src/components/funding/FundingStats.astro
+const { projects } = Astro.props;
+
+// Calculate statistics
+const totalProjects = projects.length;
+const activeProjects = projects.filter(p => p.grant_status?.toLowerCase() === 'active' || p.grant_status?.toLowerCase() === 'awarded').length;
+const completedProjects = projects.filter(p => p.grant_status?.toLowerCase() === 'completed').length;
+const uniqueAgencies = [...new Set(projects.map(p => p.funding_agency?.name).filter(Boolean))].length;
+const uniquePIs = [...new Set(projects.flatMap(p => p.staff || []).map(s => `${s.first_name} ${s.last_name}`))].length;
+const uniqueLabs = [...new Set(projects.flatMap(p => p.labs || []).map(l => l.id))].length;
+const uniqueTeams = [...new Set(projects.flatMap(p => p.teams || []).map(t => t.id))].length;
+
+// Get top funding agencies
+const agencyCounts = {};
+projects.forEach(project => {
+  const agency = project.funding_agency?.name;
+  if (agency) {
+    agencyCounts[agency] = (agencyCounts[agency] || 0) + 1;
+  }
+});
+
+const topAgencies = Object.entries(agencyCounts)
+  .sort(([,a], [,b]) => b - a)
+  .slice(0, 5)
+  .map(([name, count]) => ({ name, count }));
+
+// Get recent projects (last 2 years)
+const currentYear = new Date().getFullYear();
+const recentProjects = projects.filter(p => {
+  if (!p.date_created) return false;
+  const projectYear = new Date(p.date_created).getFullYear();
+  return projectYear >= currentYear - 1;
+}).length;
+---
+
+<div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+  <div class="p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      Sponsored Projects Overview
+    </h2>
+    
+    <!-- Key Statistics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-8">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-blue-600">{totalProjects}</div>
+        <div class="text-sm text-gray-600">Total Projects</div>
+      </div>
+      
+      <div class="text-center">
+        <div class="text-3xl font-bold text-green-600">{activeProjects}</div>
+        <div class="text-sm text-gray-600">Active</div>
+      </div>
+      
+      <div class="text-center">
+        <div class="text-3xl font-bold text-blue-600">{completedProjects}</div>
+        <div class="text-sm text-gray-600">Completed</div>
+      </div>
+      
+      <div class="text-center">
+        <div class="text-3xl font-bold text-purple-600">{uniqueAgencies}</div>
+        <div class="text-sm text-gray-600">Funding Agencies</div>
+      </div>
+      
+      <div class="text-center">
+        <div class="text-3xl font-bold text-orange-600">{uniquePIs}</div>
+        <div class="text-sm text-gray-600">Principal Investigators</div>
+      </div>
+      
+      <div class="text-center">
+        <div class="text-3xl font-bold text-indigo-600">{recentProjects}</div>
+        <div class="text-sm text-gray-600">Recent Projects</div>
+      </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+      <!-- Lab & Team Stats -->
+      <div class="flex justify-around">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-teal-600">{uniqueLabs}</div>
+          <div class="text-sm text-gray-600">Associated Labs</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-emerald-600">{uniqueTeams}</div>
+          <div class="text-sm text-gray-600">Research Teams</div>
+        </div>
+      </div>
+
+      <!-- Top Funding Agencies -->
+      {topAgencies.length > 0 && (
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Top Funding Agencies</h3>
+          <div class="space-y-2">
+            {topAgencies.map(agency => (
+              <div class="flex justify-between items-center py-1">
+                <span class="text-sm text-gray-700 truncate flex-1">{agency.name}</span>
+                <span class="text-sm font-medium text-gray-900 ml-2">{agency.count} project{agency.count !== 1 ? 's' : ''}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<!-- Project Status Distribution Chart (Simple Visual) -->
+<div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+  <div class="p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Project Status Distribution</h3>
+    
+    <div class="space-y-3">
+      {Object.entries(
+        projects.reduce((acc, project) => {
+          const status = project.grant_status || 'Unknown';
+          acc[status] = (acc[status] || 0) + 1;
+          return acc;
+        }, {})
+      ).sort(([,a], [,b]) => b - a).map(([status, count]) => {
+        const percentage = totalProjects > 0 ? (count / totalProjects * 100).toFixed(1) : 0;
+        const getBarColor = (status) => {
+          switch (status.toLowerCase()) {
+            case 'active':
+            case 'awarded':
+              return 'bg-green-500';
+            case 'completed':
+              return 'bg-blue-500';
+            case 'pending':
+              return 'bg-yellow-500';
+            case 'declined':
+            case 'rejected':
+              return 'bg-red-500';
+            default:
+              return 'bg-gray-500';
+          }
+        };
+        
+        return (
+          <div class="flex items-center">
+            <div class="w-20 text-sm text-gray-700 font-medium">{status}</div>
+            <div class="flex-1 mx-4">
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  class={`h-3 rounded-full ${getBarColor(status)}`}
+                  style={`width: ${percentage}%`}
+                ></div>
+              </div>
+            </div>
+            <div class="w-16 text-sm text-gray-600 text-right">
+              {count} ({percentage}%)
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,355 @@
+---
+// src/components/funding/FundingCard.astro
+const { project } = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Format date for display
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long' 
+  });
+};
+
+// Get status color
+const getStatusColor = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'active':
+    case 'awarded':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'completed':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'declined':
+    case 'rejected':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+---
+
+<div 
+  class="funding-card bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200"
+  data-title={project.title}
+  data-agency={project.funding_agency?.name || ''}
+  data-date={project.date_created}
+>
+  <!-- Header with Agency Logo and Status -->
+  <div class="p-4 border-b border-gray-100">
+    <div class="flex items-start justify-between mb-3">
+      <div class="flex items-center space-x-3 flex-1">
+        {project.funding_agency?.logo && (
+          <div class="flex-shrink-0">
+            <img 
+              src={`${directusUrl}assets/${project.funding_agency.logo}?width=60&height=60&fit=contain&quality=90`}
+              alt={`${project.funding_agency.name} logo`}
+              class="w-12 h-12 object-contain"
+            />
+          </div>
+        )}
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-bold text-gray-900 line-clamp-2 leading-tight">
+            <a 
+              href={`/funding/${project.id}`}
+              class="hover:text-blue-600 transition-colors"
+            >
+              {project.title}
+            </a>
+          </h3>
+          <p class="text-sm text-gray-600 mt-1">
+            {project.funding_agency?.acronymn || project.funding_agency?.name}
+          </p>
+        </div>
+      </div>
+      
+      {project.grant_status && (
+        <span class={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(project.grant_status)}`}>
+          {project.grant_status}
+        </span>
+      )}
+    </div>
+    
+    {project.grant_number && (
+      <p class="text-xs text-gray-500 font-mono">
+        Grant #: {project.grant_number}
+      </p>
+    )}
+  </div>
+
+  <!-- Collapsible Content -->
+  <div class="funding-card-content">
+    <!-- Description (always visible) -->
+    {project.description && (
+      <div class="p-4 border-b border-gray-100">
+        <div class="text-sm text-gray-700 line-clamp-3">
+          {project.description}
+        </div>
+      </div>
+    )}
+
+    <!-- Expandable Details -->
+    <div class="expandable-content hidden">
+      <!-- Principal Investigators -->
+      {project.staff && project.staff.length > 0 && (
+        <div class="p-4 border-b border-gray-100">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Principal Investigators ({project.staff.length})
+          </h4>
+          <div class="grid gap-3">
+            {project.staff.map(staff => (
+              <div class="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                {staff.photo && (
+                  <img 
+                    src={`${directusUrl}assets/${staff.photo}?width=40&height=40&fit=cover&quality=90`}
+                    alt={`${staff.first_name} ${staff.last_name}`}
+                    class="w-8 h-8 rounded-full object-cover"
+                  />
+                )}
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900">
+                    {staff.slug ? (
+                      <a 
+                        href={`/staff/${staff.slug}`} 
+                        class="hover:text-blue-600 transition-colors"
+                      >
+                        {staff.first_name} {staff.last_name}
+                      </a>
+                    ) : (
+                      <span>{staff.first_name} {staff.last_name}</span>
+                    )}
+                  </p>
+                  <p class="text-xs text-gray-600 truncate">{staff.working_title}</p>
+                  {staff.department_id?.name && (
+                    <p class="text-xs text-gray-500">{staff.department_id.name}</p>
+                  )}
+                </div>
+                {staff.email && (
+                  <a 
+                    href={`mailto:${staff.email}`}
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Send email"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Associated Teams -->
+      {project.teams && project.teams.length > 0 && (
+        <div class="p-4 border-b border-gray-100">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Research Teams ({project.teams.length})
+          </h4>
+          <div class="flex flex-wrap gap-2">
+            {project.teams.map(team => (
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                {team.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Associated Labs -->
+      {project.labs && project.labs.length > 0 && (
+        <div class="p-4 border-b border-gray-100">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            Associated Labs ({project.labs.length})
+          </h4>
+          <div class="grid gap-2">
+            {project.labs.map(lab => (
+              <a 
+                href={`/labs/${lab.slug}`}
+                class="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+              >
+                {lab.logo && (
+                  <img 
+                    src={`${directusUrl}assets/${lab.logo}?width=45&quality=90`}
+                    alt={`${lab.name} logo`}
+                    class="w-12 object-contain"
+                  />
+                )}
+                <div class="flex-1">
+                  <p class="text-md font-medium text-purple-900">
+                    {lab.short_name || lab.name}
+                  </p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Associated Lab Projects -->
+      {project.lab_projects && project.lab_projects.length > 0 && (
+        <div class="p-4 border-b border-gray-100">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0-8v8m0-8a2 2 0 012-2h2a2 2 0 012 2v2m0 0v6a2 2 0 01-2 2h-2m0-6V9a2 2 0 012-2z" />
+            </svg>
+            Related Projects ({project.lab_projects.length})
+          </h4>
+          <div class="space-y-2">
+            {project.lab_projects.map(labProject => (
+              <div class="p-2 bg-orange-50 rounded-lg">
+                <p class="text-sm font-medium text-orange-900">
+                  {labProject.title}
+                </p>
+                {labProject.short_description && (
+                  <p class="text-xs text-orange-700 mt-1 line-clamp-2">
+                    {labProject.short_description}
+                  </p>
+                )}
+                <div class="flex items-center justify-between mt-2">
+                  {labProject.project_status && (
+                    <span class={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(labProject.project_status)}`}>
+                      {labProject.project_status}
+                    </span>
+                  )}
+                  {labProject.start_date && (
+                    <span class="text-xs text-gray-500">
+                      Started: {formatDate(labProject.start_date)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Project Metadata -->
+      <div class="p-4">
+        <div class="grid grid-cols-2 gap-4 text-xs text-gray-600">
+          {project.date_created && (
+            <div>
+              <span class="font-medium text-gray-700">Created:</span>
+              <br>
+              {formatDate(project.date_created)}
+            </div>
+          )}
+          {project.url && (
+            <div>
+              <span class="font-medium text-gray-700">Sponsored Project URL:</span>
+              <br>
+              <a 
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:text-blue-800 underline break-all"
+              >
+                View Details →
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Expand/Collapse Button -->
+    <div class="p-4 bg-gray-50 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <a 
+          href={`/funding/${project.id}`}
+          class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          View Full Details
+        </a>
+        
+        <button 
+          class="expand-toggle flex items-center justify-center space-x-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          aria-expanded="false"
+        >
+          <span class="toggle-text">Show Details</span>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            class="toggle-icon h-4 w-4 transition-transform" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add expand/collapse functionality to each card
+  document.addEventListener('DOMContentLoaded', () => {
+    const fundingCards = document.querySelectorAll('.funding-card');
+    
+    fundingCards.forEach(card => {
+      const toggleButton = card.querySelector('.expand-toggle');
+      const expandableContent = card.querySelector('.expandable-content');
+      const toggleText = card.querySelector('.toggle-text');
+      const toggleIcon = card.querySelector('.toggle-icon');
+      
+      if (toggleButton && expandableContent) {
+        toggleButton.addEventListener('click', () => {
+          const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+          
+          if (isExpanded) {
+            // Collapse
+            expandableContent.classList.add('hidden');
+            toggleButton.setAttribute('aria-expanded', 'false');
+            toggleText.textContent = 'Show Details';
+            toggleIcon.style.transform = 'rotate(0deg)';
+          } else {
+            // Expand
+            expandableContent.classList.remove('hidden');
+            toggleButton.setAttribute('aria-expanded', 'true');
+            toggleText.textContent = 'Hide Details';
+            toggleIcon.style.transform = 'rotate(180deg)';
+          }
+        });
+      }
+    });
+  });
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .toggle-icon {
+    transition: transform 0.2s ease-in-out;
+  }
+</style>

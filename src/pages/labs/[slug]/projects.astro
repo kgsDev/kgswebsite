@@ -56,7 +56,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         <div class="space-y-12">
           {currentProjects.map(project => (
             <div class="project-showcase border-b border-gray-200 last:border-b-0 pb-8 last:pb-0">
-              <h3 class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
+              <h3 id={project.slug} class="text-xl font-bold mb-4 lab-secondary-text">{project.title}</h3>
               
               <div class="project-grid grid lg:grid-cols-3 gap-6">
                 <!-- Project Images - Handle both gallery and featured_image -->
@@ -159,72 +159,12 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                     {project.url && (
                       <p><strong>Project URL:</strong> 
                         <a href={project.url} target="_blank" rel="noopener noreferrer" class="lab-primary-text hover:underline ml-1">
-                          View Project →
+                          View Project Website →
                         </a>
                       </p>
                     )}
                     
-                    <!-- Link to detailed project page -->
-                    <p><strong>Project Details:</strong> 
-                      <a href={`/labs/projects/${project.slug}`} class="lab-primary-text hover:underline ml-1">
-                        View Full Project Page →
-                      </a>
-                    </p>
                   </div>
-                  
-                  <!-- Funding Information -->
-                  {project.funding && project.funding.length > 0 && (
-                    <div class="mb-6">
-                      <h4 class="font-semibold mb-3 text-gray-800">Funding Sources:</h4>
-                      <div class="space-y-3">
-                        {project.funding.map(fundingRel => {
-                          const funding = fundingRel.funding_id;
-                          return (
-                            <div class="bg-white border border-gray-200 rounded-lg p-4">
-                              <div class="flex items-start space-x-3">
-                                {funding.funding_agency?.logo && (
-                                  <img 
-                                    src={`${directusUrl}assets/${funding.funding_agency.logo}?width=60&height=60&fit=contain`} 
-                                    alt={funding.funding_agency.name}
-                                    class="w-12 h-12 object-contain"
-                                  />
-                                )}
-                                <div class="flex-1">
-                                  <h5 class="font-medium text-lg">{funding.title}</h5>
-                                  <p class="text-gray-600 mb-2">
-                                    {funding.funding_agency?.name} ({funding.funding_agency?.acronymn})
-                                  </p>
-                                  
-                                  <div class="grid md:grid-cols-2 gap-4 text-sm">
-                                    {funding.grant_number && (
-                                      <p><strong>Grant Number:</strong> {funding.grant_number}</p>
-                                    )}
-                                    {funding.amount && (
-                                      <p><strong>Amount:</strong> ${parseFloat(funding.amount).toLocaleString()}</p>
-                                    )}
-                                    {funding.start_date && (
-                                      <p><strong>Period:</strong> {new Date(funding.start_date).getFullYear()}{funding.end_date ? ` - ${new Date(funding.end_date).getFullYear()}` : ' - ongoing'}</p>
-                                    )}
-                                    {funding.url && (
-                                      <p><strong>More Info:</strong> 
-                                        <a href={funding.url} target="_blank" rel="noopener noreferrer" class="lab-primary-text hover:underline ml-1">
-                                          View Details →
-                                        </a>
-                                      </p>
-                                    )}
-                                  </div>
-                                  
-                                  {funding.description && (
-                                    <p class="text-gray-700 mt-2 text-sm">{funding.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

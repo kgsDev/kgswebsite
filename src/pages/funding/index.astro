@@ -1,0 +1,403 @@
+---
+// src/pages/funding/index.astro
+export const prerender = false; // Enable SSR for this page
+
+import { 
+  fetchAllFunding, 
+  fetchFundingAgencies, 
+  fetchGrantStatuses 
+} from '../../lib/api_funding';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FundingCard from '../../components/funding/FundingCard.astro';
+import FundingStats from '../../components/funding/FundingStats.astro';
+
+// Fetch all funding projects and filter data
+const fundingProjects = await fetchAllFunding(Astro.request);
+const fundingAgencies = await fetchFundingAgencies();
+const grantStatuses = await fetchGrantStatuses();
+
+// Extract unique years from projects for year filter
+const years = [...new Set(
+  fundingProjects
+    .map(project => project.date_created ? new Date(project.date_created).getFullYear() : null)
+    .filter(Boolean)
+)].sort((a, b) => b - a);
+
+// Extract unique departments from staff for department filter
+const departments = [...new Set(
+  fundingProjects
+    .flatMap(project => project.staff || [])
+    .map(staff => staff.department_id?.name)
+    .filter(Boolean)
+)].sort();
+
+// Define props
+const { 
+  title = "Sponsored Projects | Kentucky Geological Survey",
+  description = 'Explore funded research projects and grants at Kentucky Geological Survey.',
+  showBreadcrumb = true,
+} = Astro.props;
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="funding"
+  showBreadcrumb={showBreadcrumb}
+>
+  
+  <Fragment slot="head">
+    <slot name="head-meta" />
+  </Fragment>
+
+  <div class="container mx-auto px-4 py-1">
+    <div class="mb-8">
+      <h1>Sponsored Projects</h1>
+      <p class="text-gray-600 mt-2">{description}</p>
+      <p class="text-sm text-gray-500 mt-1">
+        {fundingProjects.length} active and completed research projects
+      </p>
+    </div>
+    
+    <!-- Statistics Overview -->
+    <FundingStats projects={fundingProjects} />
+    
+    <!-- Search and Filter Controls -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+      <div class="grid md:grid-cols-4 gap-4 mb-4">
+        <!-- Search Input -->
+        <div class="md:col-span-2">
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+            Search Projects
+          </label>
+          <input 
+            type="text" 
+            id="search" 
+            placeholder="Search by title, PI, or description..." 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        
+        <!-- Funding Agency Filter -->
+        <div>
+          <label for="agency" class="block text-sm font-medium text-gray-700 mb-1">
+            Funding Agency
+          </label>
+          <select 
+            id="agency" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Agencies</option>
+            {fundingAgencies.map((agency) => (
+              <option value={agency.name}>
+                {agency.acronymn ? `${agency.acronymn} - ${agency.name}` : agency.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <!-- Grant Status Filter -->
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+            Grant Status
+          </label>
+          <select 
+            id="status" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Statuses</option>
+            {grantStatuses.map((status) => (
+              <option value={status}>{status}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-4 gap-4">
+        <!-- Year Filter -->
+        <div>
+          <label for="year" class="block text-sm font-medium text-gray-700 mb-1">
+            Year
+          </label>
+          <select 
+            id="year" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Years</option>
+            {years.map((year) => (
+              <option value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+        
+        <!-- Department Filter -->
+        <div>
+          <label for="department" class="block text-sm font-medium text-gray-700 mb-1">
+            Department
+          </label>
+          <select 
+            id="department" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Departments</option>
+            {departments.map((dept) => (
+              <option value={dept}>{dept}</option>
+            ))}
+          </select>
+        </div>
+        
+        <!-- Sort Options -->
+        <div>
+          <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">
+            Sort By
+          </label>
+          <select 
+            id="sort" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="title-desc">Title (Z-A)</option>
+            <option value="agency-asc">Agency (A-Z)</option>
+          </select>
+        </div>
+        
+        <!-- View Toggle -->
+        <div class="flex items-end">
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button 
+              id="grid-view" 
+              class="px-3 py-2 rounded-md text-sm font-medium transition-colors bg-blue-500 text-white"
+              title="Grid View"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button 
+              id="list-view" 
+              class="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-800"
+              title="List View"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Active Filters Display -->
+      <div class="mt-4 flex flex-wrap gap-2" id="active-filters">
+        <!-- Active filters will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Projects Container -->
+    <div id="projects-container">
+      {fundingProjects.length === 0 ? (
+        <div class="text-center py-16 bg-white rounded-lg shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No sponsored projects found</h3>
+          <p class="mt-1 text-sm text-gray-500">Please check back later for updates.</p>
+        </div>
+      ) : (
+        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+          {fundingProjects.map(project => (
+            <div 
+              class="funding-project"
+              data-title={project.title?.toLowerCase() || ''}
+              data-description={project.description?.toLowerCase() || ''}
+              data-agency={project.funding_agency?.name || ''}
+              data-status={project.grant_status || ''}
+              data-year={project.date_created ? new Date(project.date_created).getFullYear() : ''}
+              data-staff={project.staff?.map(s => `${s.first_name} ${s.last_name}`).join('|').toLowerCase() || ''}
+              data-departments={project.staff?.map(s => s.department_id?.name).join('|') || ''}
+              data-grant-number={project.grant_number?.toLowerCase() || ''}
+            >
+              <FundingCard project={project} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- No Results Message (hidden by default) -->
+    <div id="no-results" class="hidden py-16 text-center bg-white rounded-lg shadow-md">
+      <h3 class="text-xl font-medium text-gray-700">No projects found</h3>
+      <p class="text-gray-500 mt-2">Try adjusting your search criteria</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Client-side search and filtering functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search');
+    const agencySelect = document.getElementById('agency');
+    const statusSelect = document.getElementById('status');
+    const yearSelect = document.getElementById('year');
+    const departmentSelect = document.getElementById('department');
+    const sortSelect = document.getElementById('sort');
+    const projectsContainer = document.getElementById('projects-container');
+    const projectsGrid = document.getElementById('projects-grid');
+    const noResults = document.getElementById('no-results');
+    const activeFilters = document.getElementById('active-filters');
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    
+    let currentView = 'grid';
+    
+    // View toggle functionality
+    gridViewBtn.addEventListener('click', () => {
+      currentView = 'grid';
+      gridViewBtn.classList.add('bg-blue-500', 'text-white');
+      gridViewBtn.classList.remove('text-gray-600');
+      listViewBtn.classList.remove('bg-blue-500', 'text-white');
+      listViewBtn.classList.add('text-gray-600');
+      projectsGrid.className = 'grid md:grid-cols-2 lg:grid-cols-2 gap-6';
+    });
+    
+    listViewBtn.addEventListener('click', () => {
+      currentView = 'list';
+      listViewBtn.classList.add('bg-blue-500', 'text-white');
+      listViewBtn.classList.remove('text-gray-600');
+      gridViewBtn.classList.remove('bg-blue-500', 'text-white');
+      gridViewBtn.classList.add('text-gray-600');
+      projectsGrid.className = 'space-y-4';
+    });
+    
+    // Function to update active filter pills
+    function updateActiveFilters() {
+      activeFilters.innerHTML = '';
+      
+      const filters = [
+        { element: searchInput, label: 'Search', type: 'search' },
+        { element: agencySelect, label: 'Agency', type: 'agency' },
+        { element: statusSelect, label: 'Status', type: 'status' },
+        { element: yearSelect, label: 'Year', type: 'year' },
+        { element: departmentSelect, label: 'Department', type: 'department' }
+      ];
+      
+      filters.forEach(filter => {
+        if (filter.element.value) {
+          const pill = document.createElement('div');
+          pill.className = 'px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm flex items-center';
+          pill.innerHTML = `
+            <span>${filter.label}: ${filter.element.value}</span>
+            <button class="ml-2 text-blue-600 hover:text-blue-800" data-filter="${filter.type}">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          `;
+          activeFilters.appendChild(pill);
+          
+          // Add click handler to remove filter
+          pill.querySelector('button').addEventListener('click', () => {
+            filter.element.value = '';
+            filterProjects();
+          });
+        }
+      });
+    }
+    
+    // Function to filter and sort projects
+    function filterProjects() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedAgency = agencySelect.value;
+      const selectedStatus = statusSelect.value;
+      const selectedYear = yearSelect.value;
+      const selectedDepartment = departmentSelect.value;
+      const sortBy = sortSelect.value;
+      
+      const projects = Array.from(document.querySelectorAll('.funding-project'));
+      let visibleProjects = [];
+      
+      projects.forEach(project => {
+        const title = project.getAttribute('data-title') || '';
+        const description = project.getAttribute('data-description') || '';
+        const agency = project.getAttribute('data-agency') || '';
+        const status = project.getAttribute('data-status') || '';
+        const year = project.getAttribute('data-year') || '';
+        const staff = project.getAttribute('data-staff') || '';
+        const departments = project.getAttribute('data-departments') || '';
+        const grantNumber = project.getAttribute('data-grant-number') || '';
+        
+        // Check if project matches all filters
+        const matchesSearch = 
+          searchTerm === '' || 
+          title.includes(searchTerm) || 
+          description.includes(searchTerm) ||
+          staff.includes(searchTerm) ||
+          grantNumber.includes(searchTerm);
+          
+        const matchesAgency = selectedAgency === '' || agency === selectedAgency;
+        const matchesStatus = selectedStatus === '' || status === selectedStatus;
+        const matchesYear = selectedYear === '' || year === selectedYear;
+        const matchesDepartment = selectedDepartment === '' || departments.includes(selectedDepartment);
+        
+        if (matchesSearch && matchesAgency && matchesStatus && matchesYear && matchesDepartment) {
+          project.style.display = 'block';
+          visibleProjects.push(project);
+        } else {
+          project.style.display = 'none';
+        }
+      });
+      
+      // Sort visible projects
+      visibleProjects.sort((a, b) => {
+        const getCardData = (project, field) => {
+          const card = project.querySelector('.funding-card');
+          return card?.getAttribute(`data-${field}`) || '';
+        };
+        
+        switch (sortBy) {
+          case 'date-asc':
+            return new Date(getCardData(a, 'date')) - new Date(getCardData(b, 'date'));
+          case 'date-desc':
+            return new Date(getCardData(b, 'date')) - new Date(getCardData(a, 'date'));
+          case 'title-asc':
+            return getCardData(a, 'title').localeCompare(getCardData(b, 'title'));
+          case 'title-desc':
+            return getCardData(b, 'title').localeCompare(getCardData(a, 'title'));
+          case 'agency-asc':
+            return getCardData(a, 'agency').localeCompare(getCardData(b, 'agency'));
+          default:
+            return 0;
+        }
+      });
+      
+      // Reorder DOM elements
+      visibleProjects.forEach(project => {
+        projectsGrid.appendChild(project);
+      });
+      
+      // Update active filters display
+      updateActiveFilters();
+      
+      // Toggle no results message
+      if (visibleProjects.length === 0) {
+        projectsContainer.style.display = 'none';
+        noResults.classList.remove('hidden');
+      } else {
+        projectsContainer.style.display = 'block';
+        noResults.classList.add('hidden');
+      }
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterProjects);
+    agencySelect.addEventListener('change', filterProjects);
+    statusSelect.addEventListener('change', filterProjects);
+    yearSelect.addEventListener('change', filterProjects);
+    departmentSelect.addEventListener('change', filterProjects);
+    sortSelect.addEventListener('change', filterProjects);
+    
+    // Initialize
+    filterProjects();
+  });
+</script>

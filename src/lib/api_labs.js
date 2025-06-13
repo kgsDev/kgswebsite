@@ -278,15 +278,12 @@ export async function fetchLabProjects(labId, options = {}) {
         'lab_projects_id.featured_image',
         // Get gallery through junction table - this is the key fix
         'lab_projects_id.gallery.directus_files_id',
-        // Get funding relationships
-        'lab_projects_id.funding.funding_id.title',
-        'lab_projects_id.funding.funding_id.amount',
-        'lab_projects_id.funding.funding_id.funding_agency.name',
-        'lab_projects_id.funding.funding_id.funding_agency.acronymn',
-        'lab_projects_id.funding.funding_id.funding_agency.logo',
-        'lab_projects_id.funding.funding_id.url',
-        'lab_projects_id.funding.funding_id.start_date',
-        'lab_projects_id.funding.funding_id.end_date'
+        // Get funding relationships - not now
+        //'lab_projects_id.funding.funding_id.title',
+        //'lab_projects_id.funding.funding_id.funding_agency.name',
+        //'lab_projects_id.funding.funding_id.funding_agency.acronymn',
+        //'lab_projects_id.funding.funding_id.funding_agency.logo',
+        //'lab_projects_id.funding.funding_id.url',
       ],
       filter: JSON.stringify({
         labs_id: {

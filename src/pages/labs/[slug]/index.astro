@@ -174,39 +174,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                       </p>
                     )}
                   </div>
-                  
-                  <!-- Funding information -->
-                  {project.funding && project.funding.length > 0 && (
-                    <div class="mt-4">
-                      <h4 class="font-semibold mb-2 text-gray-800">Funding:</h4>
-                      <div class="space-y-2">
-                        {project.funding.map(fundingRel => {
-                          const funding = fundingRel.funding_id;
-                          return (
-                            <div class="flex items-center space-x-3 bg-white p-3 rounded-lg border border-gray-200">
-                              {funding.funding_agency?.logo && (
-                                <img 
-                                  src={`${directusUrl}assets/${funding.funding_agency.logo}?width=40&height=40&fit=contain`} 
-                                  alt={funding.funding_agency.name}
-                                  class="w-8 h-8 object-contain"
-                                />
-                              )}
-                              <div class="text-sm">
-                                <p class="font-medium">{funding.title}</p>
-                                <p class="text-gray-600">
-                                  {funding.funding_agency?.acronymn || funding.funding_agency?.name}
-                                  {funding.amount && (
-                                    <span class="ml-2">• ${parseFloat(funding.amount).toLocaleString()}</span>
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  
+                     
                   {project.outcomes && (
                     <div class="mt-4">
                       <h4 class="font-semibold mb-2 text-gray-800">Products & Outcomes:</h4>
