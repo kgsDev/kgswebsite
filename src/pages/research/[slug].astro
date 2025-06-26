@@ -1,23 +1,59 @@
 ---
-//this is the dynamic page for Directus content - served by pages
-export const prerender = true; // Enable SSR for this page
+// src/pages/research/[slug].astro
+// This version uses a parent_page field in Directus for flexible hierarchies
+export const prerender = true;
 import Layout from "../../layouts/BaseLayout.astro";
+import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
 export async function getStaticPaths() {
-  const pages = await directus.request(readItems("research"));
+  const pages = await directus.request(readItems("research", {
+    fields: ['*', 'parent_page.slug', 'parent_page.title'] // Include parent page data
+  }));
+  
   return pages.map((page) => ({
     params: { slug: page.slug },
     props: page,
   }));
 }
+
 const page = Astro.props;
+
+// Create breadcrumbs based on Directus parent_page relationship
+function createHierarchicalBreadcrumbs(page: any) {
+  const breadcrumbs = [
+    { label: 'Research', href: '/research' }
+  ];
+  
+  // If page has a parent, add it to breadcrumbs
+  if (page.parent_page) {
+    breadcrumbs.push({
+      label: page.parent_page.title,
+      href: `/research/${page.parent_page.slug}`
+    });
+  }
+  
+  // Add current page
+  breadcrumbs.push({
+    label: page.title
+  });
+  
+  return breadcrumbs;
+}
+
+const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
 ---
 
-<Layout title={page.title}>
+<Layout 
+  title={page.title}
+  customBreadcrumbs={customBreadcrumbs}
+>
   <main>
     <h1>{page.title}</h1>
     <div set:html={page.content} />
+    
+    <!-- Add lightbox functionality to any page that has galleries -->
+    <LightboxEnhancer />
   </main>
 </Layout>

@@ -1,0 +1,128 @@
+---
+// This component enhances any existing gallery images on the page with lightbox functionality
+// No props needed - it finds gallery images automatically
+---
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox">
+  <span class="close">&times;</span>
+  <div class="lightbox-content">
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption" class="lightbox-caption"></div>
+  </div>
+</div>
+
+<style>
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.lightbox-content {
+  position: relative;
+  margin: auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 800px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.lightbox-caption {
+  color: white;
+  font-size: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.close {
+  color: #fff;
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #ccc;
+}
+
+/* Enhance gallery images with hover effect and cursor */
+.gallery-enhanced {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.gallery-enhanced:hover {
+  transform: scale(1.05);
+}
+</style>
+
+<script>
+function openLightbox(img) {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  
+  lightbox.style.display = 'block';
+  lightboxImg.src = img.src;
+  lightboxCaption.textContent = img.alt;
+  
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  const lightbox = document.getElementById('lightbox');
+  lightbox.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+// Set up event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all images in gallery containers and enhance them
+  const galleryContainers = document.querySelectorAll('[data-gallery="true"]');
+  
+  galleryContainers.forEach(container => {
+    const images = container.querySelectorAll('img');
+    images.forEach(img => {
+      img.classList.add('gallery-enhanced');
+      img.addEventListener('click', () => openLightbox(img));
+    });
+  });
+
+  // Close lightbox handlers
+  const lightbox = document.getElementById('lightbox');
+  const closeBtn = document.querySelector('.close');
+  
+  if (lightbox && closeBtn) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    
+    closeBtn.addEventListener('click', closeLightbox);
+    
+    // Escape key handler
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  }
+});
+</script>
