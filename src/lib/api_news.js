@@ -92,7 +92,7 @@ export async function fetchNewsBySlug(slug) {
       }
       
       // Get lab relations
-      const labRelations = await apiRequest('/items/articles_lab', {
+      const labRelations = await apiRequest('/items/labs_articles', {
         fields: ['lab_id.id', 'lab_id.name', 'lab_id.slug', 'lab_id.logo', 'lab_id.shortname'],
         filter: JSON.stringify({
           articles_id: {
