@@ -29,28 +29,17 @@ if (!member) {
   return Astro.redirect('/404');
 }
 
-// Try to fix undefined properties now
+// Clean up null values in arrays
 if (member && member.team) {
-  // Add a debug badge if teams are present but properties are undefined
-  if (member.team.length > 0 && !member.team[0].name && !member.team[0].description) {
-    member.team = member.team.map(team => ({
-      ...team,
-      debug: true, // Add a flag to indicate this was fixed
-      name: team.name || `Team ID: ${team.id || 'Unknown'}`,
-      description: team.description || `Team ID: ${team.id || 'Unknown'}`
-    }));
-  }
+  member.team = member.team.filter(team => team !== null && team !== undefined);
 }
 
-// Same for locations
 if (member && member.location) {
-  if (member.location.length > 0 && !member.location[0].name) {
-    member.location = member.location.map(location => ({
-      ...location,
-      debug: true, // Add a flag to indicate this was fixed
-      name: location.name || `Location ID: ${location.id || 'Unknown'}`
-    }));
-  }
+  member.location = member.location.filter(location => location !== null && location !== undefined);
+}
+
+if (member && member.labs) {
+  member.labs = member.labs.filter(lab => lab !== null && lab !== undefined);
 }
 
 // Get related staff in the same department

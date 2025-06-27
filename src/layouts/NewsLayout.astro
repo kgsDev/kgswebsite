@@ -45,7 +45,7 @@ const {
             <li>
               <a 
                 href="/news" 
-                class={`text-blue-600 ${pathname === '/news/' || pathname === '/news' ? 'font-bold' : 'hover:underline'}`}
+                class={`baselink ${pathname === '/news/' || pathname === '/news' ? 'font-bold' : 'hover:underline'}`}
               >
                 All News
               </a>
@@ -53,7 +53,7 @@ const {
             <li>
               <a 
                 href="/news/press-releases" 
-                class={`text-blue-600 ${pathname.includes('/news/press-releases') ? 'font-bold' : 'hover:underline'}`}
+                class={`baselink ${pathname.includes('/news/press-releases') ? 'font-bold' : 'hover:underline'}`}
               >
                 Press Releases
               </a>
@@ -61,7 +61,7 @@ const {
             <li>
               <a 
                 href="/news/research" 
-                class={`text-blue-600 ${pathname.includes('/news/research') ? 'font-bold' : 'hover:underline'}`}
+                class={`baselink ${pathname.includes('/news/research') ? 'font-bold' : 'hover:underline'}`}
               >
                 Research Updates
               </a>
@@ -69,9 +69,9 @@ const {
             <li>
               <a 
                 href="/news/events" 
-                class={`text-blue-600 ${pathname.includes('/news/events') ? 'font-bold' : 'hover:underline'}`}
+                class={`baselink ${pathname.includes('/news/events') ? 'font-bold' : 'hover:underline'}`}
               >
-                Upcoming Events
+                Events
               </a>
             </li>
           </ul>
@@ -79,13 +79,13 @@ const {
         
         {years.length > 0 && (
           <div class="bg-white p-4 rounded-lg shadow">
-            <h2 class="text-xl font-bold mb-4 text-blue-800">Archives</h2>
+            <h2 class="text-xl font-bold mb-4">Archives</h2>
             <ul class="space-y-2">
               {years.map(year => (
                 <li>
                   <a 
                     href={`/news/archive/${year}`} 
-                    class={`text-blue-600 ${pathname.includes(`/news/archive/${year}`) ? 'font-bold' : 'hover:underline'}`}
+                    class={`baselink ${pathname.includes(`/news/archive/${year}`) ? 'font-bold' : 'hover:underline'}`}
                   >
                     {year}
                   </a>

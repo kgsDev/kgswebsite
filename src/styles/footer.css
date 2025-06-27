@@ -8,10 +8,17 @@ footer .footer-address {
     padding: 25px 0;
     font-style: normal;
 }
+
 footer a {
-    color: #fff;
-    text-decoration: none;
+    color: #fff !important;;
+    text-decoration: none !important;
 }
+
+footer a:hover {
+  color: var(--river-green) !important;
+  text-decoration: none !important;
+}
+
 footer details summary {
     font-weight: 700;
     border-bottom: 1px solid #5C7BAB;

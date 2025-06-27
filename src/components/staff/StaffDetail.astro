@@ -55,8 +55,8 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {/* Essential Contact Information in main card */}
         <div class="flex flex-wrap gap-4">
           {member.email && (
-            <a href={`mailto:${member.email}`} class="inline-flex items-center text-blue-600 hover:underline">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
+            <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
+              <div class="mr-2 p-1 bg-blue-100 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
@@ -67,8 +67,8 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           )}
           
           {member.phone && (
-            <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center text-blue-600 hover:underline">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full text-blue-500">
+            <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
+              <div class="mr-2 p-1 bg-blue-100 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                 </svg>
@@ -83,17 +83,15 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {/* Teams Section */}
           {member.team && member.team.length > 0 && (
             <div class="bg-blue-50 p-3 rounded-lg">
-              <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
+              <h5 class="text-m font-semibold mb-2 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Teams
               </h5>
               <div class="flex flex-wrap gap-1">
-                {member.team.map((team) => {
-                  // Try to find the best property to display
+                {member.team.filter(team => team !== null).map((team) => {
                   const displayName = team.name || team.description || ``;
-                  
                   return (
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-s font-medium bg-blue-100 text-blue-800">
                       {displayName}
@@ -141,7 +139,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                       <div class="p-3">
                         <div class="font-medium text-green-800">
                           {location.slug ? (
-                            <a href={`/locations/${slug}/`} class="hover:text-green-600 hover:underline">
+                            <a href={`/locations/${slug}/`} class="baselink">
                               {displayName}
                             </a>
                           ) : (
@@ -166,7 +164,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                         <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
                           <!--
                           {location.slug && (
-                            <a href={`/locations/${slug}/`} class="text-xs text-blue-600 hover:underline flex items-center">
+                            <a href={`/locations/${slug}/`} class="text-xs baselink flex items-center">
                               <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
@@ -175,7 +173,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                           )}
                            -->
                           {mapUrl && (
-                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 hover:underline flex items-center">
+                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs baselink flex items-center">
                               <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                               </svg>
@@ -209,7 +207,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {/* Other Contact Info Card - Only shown when profiles are available */}
   {(member.linkedin_url || member.researchgate_url || member.googlescholar_url || (typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
-      <h5 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
+      <h5 class="text-xl font-bold mb-4 flex items-center">
         <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8a6 6 0 016 6v4a2 2 0 01-2 2h-2m-6-8a6 6 0 01-6-6v-4a2 2 0 012-2h2" />
@@ -221,70 +219,70 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {/* Professional Profiles */}
 
         {member.other_url && (
-          <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+          <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M12 2L2 10h2v10h16V10h2L12 2zM10 20v-6h4v6h-4zm8 0V9.157l-6-5.25-6 5.25V20h3v-7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7h3z" clip-rule="evenodd"/>
               </svg>
             </div>
             <div>
-              <p class="text-blue-600 font-medium">Website</p>
+              <p class="text-blue-800 font-medium">Website</p>
             </div>
           </a>
         )}
 
         {member.linkedin_url && (
-          <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+          <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
               </svg>
             </div>
             <div>
               <p class="text-xs text-gray-500">LinkedIn</p>
-              <p class="text-blue-600 font-medium">View Profile</p>
+              <p class="text-blue-800 font-medium">View Profile</p>
             </div>
           </a>
         )}
         
         {member.researchgate_url && (
-          <a href={member.researchgate_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+          <a href={member.researchgate_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19.586 0c-2.183 0-4.226.6-5.274 1.894C13.396.8 11.502 0 9.416 0 4.641 0 0 3.705 0 9.585c0 3.92 2.645 5.412 4.252 5.412.5 0 .84-.283.84-.749 0-.425-.365-.713-.733-.868-.59-.282-1.422-.955-1.422-2.602 0-3.932 3.247-6.311 6.383-6.311 1.5 0 2.638.624 3.13 1.5.63 1.126.27 2.55-.723 3.771-1.07 1.127-2.668 2.17-4.155 3.326a63.368 63.368 0 0 0-1.53 1.227c-.68.57-.87 1.222-.87 1.874 0 1.01.795 1.966 2.26 1.966 1.82 0 3.547-1.056 4.691-2.882l.364-.598c.155-.267.35-.6.486-.838.315-.553.68-1.189.68-1.783 0-.275-.145-.552-.436-.695-.285-.142-.556-.24-.825-.339-.27-.1-.6-.317-.6-.54 0-.158.079-.317.254-.414.425-.254 1.042-.65 1.661-1.097l.05-.038c2.535-1.857 4.85-3.748 4.85-7.008C18.12 2.044 16.306 0 12.915 0h6.671zm-14.26 2.547c-1.023 0-2.8.816-2.8 3.7 0 1.882.827 3.624 1.88.827 1.054-2.797 2.424-4.002 4.008-3.64.775.178 1.352.765 1.686 1.866.156.511.294 1.055.404 1.553.11.498.273 1.022.306 1.444.033.399-.103.728-.503.728-1.008 0-3.076-1.894-3.076-3.466 0-.3.09-.781.09-1.061 0-.324-.143-.82-.473-.82h-.001z"/>
               </svg>
             </div>
             <div>
               <p class="text-xs text-gray-500">ResearchGate</p>
-              <p class="text-blue-600 font-medium">View Profile</p>
+              <p class="text-blue-800 font-medium">View Profile</p>
             </div>
           </a>
         )}
         
         {member.googlescholar_url && (
-          <a href={member.googlescholar_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+          <a href={member.googlescholar_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>
               </svg>
             </div>
             <div>
               <p class="text-xs text-gray-500">Google Scholar</p>
-              <p class="text-blue-600 font-medium">View Profile</p>
+              <p class="text-blue-800 font-medium">View Profile</p>
             </div>
           </a>
         )}
         
         {member.github_url && (
-          <a href={member.github_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+          <a href={member.github_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.983 1.03-2.682-.103-.253-.447-1.27.098-2.645 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.91-1.296 2.75-1.026 2.75-1.026.545 1.375.202 2.392.1 2.645.64.7 1.03 1.592 1.03 2.682 0 3.842-2.337 4.687-4.565 4.935.36.31.682.92.682 1.852 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/>
               </svg>
             </div>
             <div>
               <p class="text-xs text-gray-500">GitHub</p>
-              <p class="text-blue-600 font-medium">View Profile</p>
+              <p class="text-blue-800 font-medium">View Profile</p>
             </div>
           </a>
         )}
@@ -295,14 +293,14 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             target="_blank"
             class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition"
           >
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-500">
+            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
               <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div>
               <p class="text-xs text-gray-500">CV/Resume</p>
-              <p class="text-blue-600 font-medium">Download PDF</p>
+              <p class="text-blue-800 font-medium">Download PDF</p>
             </div>
           </a>
         )}
@@ -391,50 +389,12 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   <div class="mb-12 text-center">
     <a 
       href="/staff" 
-      class="inline-flex items-center px-5 py-2.5 bg-blue-700 text-white rounded-md hover:bg-blue-800 transition"
+      class="btn btn-primary btn-md"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
       Back to Employee Directory
     </a>
   </div>
 </div>
-
-<style>
-  /* Add hover effects */
-  .group:hover .text-blue-800 {
-    color: #2563eb; /* blue-600 color */
-  }
-  
-  /* Add support for rendered markdown in bio content */
-  .prose a {
-    color: #2563eb;
-    text-decoration: underline;
-  }
-  
-  .prose ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
-  }
-  
-  .prose ol {
-    list-style-type: decimal;
-    padding-left: 1.5rem;
-  }
-  
-  .prose p {
-    margin-bottom: 0.75rem;
-  }
-  
-  .prose h1, .prose h2, .prose h3, .prose h4 {
-    font-weight: 600;
-    margin-top: 1.25rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  /* Preserve line breaks from Directus */
-  .whitespace-pre-line {
-    white-space: pre-line;
-  }
-</style>

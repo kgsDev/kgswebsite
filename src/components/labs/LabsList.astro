@@ -5,8 +5,11 @@ import LabCard from './LabCard.astro';
 
 const { labs, directusUrl, title = "Lab Affiliations", icon = true } = Astro.props;
 
-// Don't render anything if there are no labs
-if (!labs || labs.length === 0) return null;
+// Filter out null/undefined labs and check if we have any valid labs
+const validLabs = labs ? labs.filter(lab => lab !== null && lab !== undefined) : [];
+
+// Don't render anything if there are no valid labs
+if (!validLabs || validLabs.length === 0) return null;
 ---
 
 <div class="bg-blue-50 p-3 rounded-lg">
@@ -20,7 +23,7 @@ if (!labs || labs.length === 0) return null;
   </h3>
 
   <div class="flex flex-col gap-2">
-    {labs.map((lab) => (
+    {validLabs.map((lab) => (
       <LabCard labs={lab} directusUrl={directusUrl} />
     ))}
   </div>

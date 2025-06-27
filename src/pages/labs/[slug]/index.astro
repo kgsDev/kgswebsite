@@ -238,8 +238,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         
         <!-- Contact & Location Information -->
         <div>
-          <h3 class="text-lg font-bold mb-4 lab-primary-text">Lab Location & Contact</h3>
-          
           {/* Lab Basic Info */}
           <div class="bg-gray-50 p-4 rounded-lg mb-4">
             <h4 class="font-semibold mb-2">{lab.name}</h4>
@@ -321,7 +319,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {lab.location?.description && (
             <div class="bg-blue-50 p-4 rounded-lg">
               <h5 class="font-semibold mb-2 text-blue-800">About This Location</h5>
-              <div class="prose prose-sm max-w-none text-blue-700" set:html={lab.location.description} />
+              <div class="prose prose-sm max-w-none" set:html={lab.location.description} />
             </div>
           )}
         </div>

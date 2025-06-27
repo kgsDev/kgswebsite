@@ -29,7 +29,7 @@ const {
 
   <div class="container mx-auto px-4 py-1">
     <div class="mb-8">
-      <h1>Research Labs</h1>
+      <h1>Research Laboratories</h1>
       <p class="text-gray-600 mt-2">{description}</p>
     </div>
     
@@ -51,7 +51,7 @@ const {
             >
               <div 
                 class="h-2 w-full" 
-                style={lab.primary_color ? `background-color: ${lab.primary_color}` : 'background-color: #0033A0'}
+                style={lab.primary_color ? `background-color: ${lab.primary_color}` : 'background-color: var(--skyBlue)'}
               ></div>
               
               <div class="p-6">
@@ -67,7 +67,7 @@ const {
                   ) : (
                     <div 
                       class="mr-6 w-20 h-20 flex-shrink-0 rounded-full flex items-center justify-center text-white text-xl font-bold"
-                      style={lab.secondary_color ? `background-color: ${lab.secondary_color}` : 'background-color: #0033A0'}
+                      style={lab.secondary_color ? `background-color: ${lab.secondary_color}` : 'background-color: var(--skyBlue)'}
                     >
                       {lab.short_name || lab.name.split(' ').map(word => word[0]).join('')}
                     </div>
@@ -76,7 +76,7 @@ const {
                   <div class="flex-1 flex flex-col justify-center min-w-0">
                     <h3 
                       class="text-xl font-bold leading-tight"
-                      style={lab.secondary_color ? `color: ${lab.secondary_color}` : 'color: #0033A0'}
+                      style={lab.secondary_color ? `color: ${lab.secondary_color}` : 'color: var(--midnightBlue)'}
                     >
                       {lab.name}
                     </h3>
@@ -93,7 +93,7 @@ const {
                 <div class="mt-4 flex justify-end">
                   <span 
                     class="inline-flex items-center text-sm font-medium hover:underline"
-                    style={lab.accent_color ? `color: ${lab.accent_color}` : 'color: #0033A0'}
+                    style={lab.accent_color ? `color: ${lab.accent_color}` : 'color: var(--wildcatBlue)'}
                   >
                     Visit Lab
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

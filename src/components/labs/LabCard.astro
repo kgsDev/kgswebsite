@@ -2,7 +2,13 @@
 // src/components/labs/LabCard.astro
 // A reusable card component for displaying lab information
 const { labs, directusUrl } = Astro.props;
-// Find the best property to display
+
+// Guard against null/undefined labs
+if (!labs) {
+  console.log('Labs data: null - skipping render');
+  return null;
+}
+
 const displayName = labs.name || `Lab #${labs.id || '?'}`;
 const shortName = labs.short_name || labs.shortname || null;
 const logo = labs.logo || null;
@@ -10,7 +16,7 @@ const slug = labs.slug || `lab-${labs.id}`;
 ---
 
 <a 
-  href={`/labs/${slug}/`} 
+  href={`/labs/${slug}/`}
   class="flex items-center p-2 rounded-lg bg-white border border-green-200 hover:bg-green-50 transition duration-200"
 >
   {logo && (

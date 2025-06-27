@@ -10,6 +10,18 @@
 @import url(header.css);
 @import url('footer.css');
 
+/* KGS Brand Colors as CSS Variables */
+:root {
+  --wildcatBlue: #0033A0;
+  --skyBlue: #B1C9E8;
+  --midnightBlue: #1B365D;
+  --bluegrassBlue: #1E8AFF;
+  --goldenrodYellow: #FFDC00;
+  --sunsetOrange: #FFA360;
+  --riverGreen: #4CBCC0;
+  --rockSlate: #575757;/* Slate-800 for better contrast */
+}
+
 /* Base font settings */
 body {
   font-family: 'Source Sans Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -21,12 +33,56 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base link styles for main content */
+p a {
+  color: var(--wildcatBlue);
+  text-decoration: none;
+}
+
+p a:hover {
+  color: var(--midnightBlue);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Focus styles for keyboard navigation (enhanced) */
+p a:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 3px;
+  border-radius: 2px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Base link styles for main content */
+a.baselink {
+  color: var(--wildcatBlue);
+  text-decoration: none;
+}
+
+a.baselink:hover {
+  color: var(--midnightBlue);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Focus styles for keyboard navigation (enhanced) */
+a.baselink:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 3px;
+  border-radius: 2px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
 /* Heading styles with Inter */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
   line-height: 1.2;
-  color: #575757; /* Slate-800 for better contrast */
+  color: var(--rockSlate); /* Slate-800 for better contrast */
   margin-bottom: 0.5em;
 }
 
@@ -91,17 +147,6 @@ ul {
 .social-icon:hover {
   transform: translateY(-2px);
   color: #1E8AFF;
-}
-
-/* KGS Brand Colors as CSS Variables */
-:root {
-  --wildcatBlue: #0033A0;
-  --sky: #B1C9E8;
-  --midnight: #1B365D;
-  --bluegrass: #1E8AFF;
-  --goldenrod: #FFDC00;
-  --sunset: #FFA360;
-  --riverGreen: #4CBCC0;
 }
 
 /* Custom animations */
@@ -192,6 +237,37 @@ a:focus-visible {
   color: #4b5563;
 }
 
+  /* Add support for rendered markdown in bio content */
+  .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  
+  .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+  }
+  
+  .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+  }
+  
+  .prose p {
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Preserve line breaks from Directus */
+  .whitespace-pre-line {
+    white-space: pre-line;
+  }
+
 /* Line clamp utilities */
 .line-clamp-1 {
   display: -webkit-box;
@@ -227,8 +303,11 @@ a:focus-visible {
   border-bottom: 2px solid var(--sky);
 }
 
-/* Button styling */
-.kgs-button {
+/* Universal Button System */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: 'Source Sans Pro', sans-serif;
   font-weight: 600;
   padding: 0.5rem 1rem;
@@ -236,26 +315,64 @@ a:focus-visible {
   transition: all 0.2s ease;
 }
 
-.kgs-button-primary {
+/* Button Sizes */
+.btn-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn-md {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* Primary Button (your main KGS blue) */
+.btn-primary {
   background-color: var(--wildcatBlue);
   color: white;
 }
 
-.kgs-button-primary:hover {
-  background-color: var(--midnight);
-  transform: translateY(-1px);
+.btn-primary:hover {
+  background-color: var(--midnightBlue);
+  /*transform: translateY(-1px); */
+  text-decoration: none;
 }
 
-.kgs-button-secondary {
-  background-color: white;
+/* Secondary Button (for less prominent actions) */
+.btn-secondary {
+  background-color: var(--bluegrassBlue);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #0066cc;
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+/* Outline Button */
+.btn-outline {
+  background-color: transparent;
   color: var(--wildcatBlue);
-  border: 1px solid var(--wildcatBlue);
+  border: 2px solid var(--wildcatBlue);
 }
 
-.kgs-button-secondary:hover {
-  background-color: var(--sky);
-  color: var(--midnight);
+.btn-outline:hover {
+  background-color: var(--wildcatBlue);
+  color: white;
   transform: translateY(-1px);
+  text-decoration: none;
+}
+
+/* Focus states for accessibility */
+.btn:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 3px;
 }
 
 /* Back to top button */
@@ -278,6 +395,6 @@ a:focus-visible {
 }
 
 #back-to-top:hover {
-  background-color: var(--bluegrass);
+  background-color: var(--riverGreen);
   transform: translateY(-3px);
 }

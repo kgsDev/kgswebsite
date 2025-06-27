@@ -31,6 +31,7 @@ const customFontWeight = lab?.custom_header_font_weight || '700';
 const colors = generateLabColorVariables(lab);
 const labPrimaryColor = colors.primaryColor;
 const labSecondaryColor = colors.secondaryColor;
+const labHeaderColor = colors.headerColor || labPrimaryColor; // Fallback to primary if header color not set
 const labBackgroundColor = colors.backgroundColor;
 const labAccentColor = colors.accentColor;
 const textOnPrimary = colors.textOnPrimary;
@@ -90,11 +91,12 @@ const {
       labPrimaryColor: enhancedPrimary,
       labSecondaryColor: enhancedSecondary, 
       labBackgroundColor,
+      labHeaderColor: labHeaderColor,
       labAccentColor: enhancedAccent,
       textOnPrimary: enhancedTextOnPrimary, 
       textOnSecondary,
       textOnBackground,
-      customFontFamily: useCustomFont && customFontFamily ? customFontFamily : "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      customFontFamily: useCustomFont && customFontFamily ? customFontFamily : "'Source Sans Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       customFontWeight: customFontWeight ? customFontWeight : '700'
     }}>
       /* Lab-specific color classes */
@@ -112,12 +114,12 @@ const {
       ` : ''}
       
       .lab-primary-text {
-        color: var(--labSecondaryColor) !important;
+        color: var(--labHeaderColor) !important;
       }
+
       .lab-primary-border {
         border-color: var(--labPrimaryColor) !important;
       }
-      
       .lab-secondary-border {
         border-color: var(--labSecondaryColor) !important;
       }
@@ -298,12 +300,7 @@ const {
       .lab-header-full-width .lab-title, h1, h2 {
         font-family: var(--customFontFamily) !important;
         font-weight: var(--customFontWeight) !important;
-        color: var(--textOnPrimary) !important;
-      }
-
-      /* Subheadings use accent color */
-      h3, h4, h5, h6 {
-        color: var(--labAccentColor) !important;
+        color: var(--labHeaderColor) !important;
       }
 
       /* Fixes for prose */
@@ -347,7 +344,7 @@ const {
         <!-- Lab Title and Description - Centered Vertically -->
         <div class="text-center md:text-left max-w-2xl md:flex-1 flex flex-col justify-center">
           <h1 class="text-3xl md:text-4xl font-bold mb-3 lab-title">{labName}</h1>
-          <p class="opacity-90 text-lg">{labDescription}</p>
+          <p class="opacity-90 text-md">{labDescription}</p>
         </div>
       </div>
     </div>

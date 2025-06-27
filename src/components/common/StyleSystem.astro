@@ -2,11 +2,11 @@
 // Component to define all UK branding styles
 const ukColors = {
   wildcatBlue: "#0033A0",    // Primary blue - PMS 286 C
-  sky: "#B1C9E8",            // PMS 658
-  midnight: "#1B365D",       // Dark blue - PMS 534
-  bluegrass: "#1E8AFF",      // Bright blue - PMS 2382
-  goldenrod: "#FFDC00",      // PMS 122
-  sunset: "#FFA360",         // PMS 1635
+  skyBlue: "#B1C9E8",            // PMS 658
+  midnightBlue: "#1B365D",       // Dark blue - PMS 534
+  bluegrassBlue: "#1E8AFF",      // Bright blue - PMS 2382
+  goldenrodYellow: "#FFDC00",      // PMS 122
+  sunsetOrange: "#FFA360",         // PMS 1635
   riverGreen: "#4CBCC0"      // PMS 7465
 };
 ---
@@ -15,11 +15,11 @@ const ukColors = {
   /* UK Brand Colors as CSS Variables */
   :root {
     --wildcat-blue: var(--wildcatBlue);
-    --sky: var(--sky);
-    --midnight: var(--midnight);
-    --bluegrass: var(--bluegrass);
-    --goldenrod: var(--goldenrod);
-    --sunset: var(--sunset);
+    --sky-blue: var(--skyBlue);
+    --midnight-blue: var(--midnightBlue);
+    --bluegrass-blue: var(--bluegrassBlue);
+    --goldenrod-yellow: var(--goldenrodYellow);
+    --sunset-orange: var(--sunsetOrange);
     --river-green: var(--riverGreen);
   }
   
@@ -31,13 +31,13 @@ const ukColors = {
     color: var(--wildcatBlue);
   }
   .uk-text-sky {
-    color: var(--sky);
+    color: var(--skyBlue);
   }
   .uk-text-bluegrass {
-    color: var(--bluegrass);
+    color: var(--bluegrassBlue);
   }
   .uk-bg-midnight {
-    background-color: var(--midnight);
+    background-color: var(--midnightBlue);
   }
   .uk-bg-wildcat-blue {
     background-color: var(--wildcatBlue);
@@ -51,10 +51,10 @@ const ukColors = {
   
   /* Hover effects */
   .uk-hover-sky:hover {
-    color: var(--sky);
+    color: var(--skyBlue);
   }
   .uk-hover-bluegrass:hover {
-    color: var(--bluegrass);
+    color: var(--bluegrassBlue);
   }
   .uk-hover-wildcat-blue:hover {
     color: var(--wildcatBlue);

@@ -174,12 +174,14 @@ export function generateLabColorVariables(lab) {
   const defaultPrimary = '#e2e8f0';    // Light gray-blue for header background
   const defaultSecondary = '#1e3a8a';  // Dark blue (blue-800) for text/titles
   const defaultBackground = '#f8fafc'; // Very light background
-  
+  const defaultHeaders = '#575757'; // slate for headers
+
   // Get colors from lab or use defaults
   const primaryColor = lab?.primary_color || defaultPrimary;
   const secondaryColor = lab?.secondary_color || defaultSecondary;
   const backgroundColor = lab?.background_color || defaultBackground;
- 
+  const headerColor = lab?.secondary_color || defaultHeaders;
+
   // Determine text colors for different backgrounds
   const textOnPrimary = getTextColorForBackground(primaryColor);
   const textOnSecondary = getTextColorForBackground(secondaryColor);
@@ -194,6 +196,7 @@ export function generateLabColorVariables(lab) {
     secondaryColor,
     accentColor,
     backgroundColor,
+    headerColor,
     textOnPrimary,
     textOnSecondary,
     textOnBackground
