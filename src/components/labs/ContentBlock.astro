@@ -2,14 +2,12 @@
 // src/components/labs/ContentBlock.astro
 const { block, lab } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
-
-
 ---
 
 <div class="content-block mb-8">
   {block.block_type === 'future_directions' && (
     <div class="future-directions-block">
-      <div class="p-6 bg-gray-50  border-l-4 rounded-r-lg">
+      <div class="p-6 bg-gray-50 rounded-r-lg">
         <h2 class="text-3xl font-bold mb-6 text-blue-800 border-b-2 border-blue-300 pb-2">
           Future Directions: {block.title}
         </h2>
@@ -179,43 +177,3 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     </div>
   )}
 </div>
-
-<style>
-  .prose {
-    line-height: 1.6;
-  }
-  
-  .prose img {
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 1rem 0;
-  }
-  
-  .prose ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
-  }
-  
-  .prose ol {
-    list-style-type: decimal;
-    padding-left: 1.5rem;
-  }
-  
-  .prose li {
-    margin-bottom: 0.5rem;
-  }
-  
-  .prose a {
-    color: #2563eb;
-    text-decoration: underline;
-  }
-  
-  .prose a:hover {
-    color: #1d4ed8;
-  }
-  
-  .prose strong {
-    font-weight: 600;
-    color: #374151;
-  }
-</style>

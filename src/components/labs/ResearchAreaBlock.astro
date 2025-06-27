@@ -7,11 +7,11 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 <div class="content-block">
   <div class="p-6">
     <!-- Research Area Header -->
-    <h2 class="text-2xl font-bold mb-4 lab-primary-text">{area.title}</h2>
+    <h1 class="text-2xl font-bold mb-4 lab-primary-text">{area.title}</h1>
     
     <!-- Main description -->
     {area.description && (
-      <div class="prose max-w-none mb-6" set:html={area.description} />
+      <div class="prose max-w-none mb-6" set:html={area.description}/>
     )}
     
     <!-- Main area image (if any) -->
@@ -34,7 +34,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             {area.content_blocks
               .filter(block => block.block_type === 'tool_card')
               .map(block => (
-                <div class="tool-card-row bg-white border-l-4 border-orange-400 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
+                <div class="tool-card-row bg-white border-l-4 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
                   <div class="grid md:grid-cols-3 gap-0">
                     <!-- Tool Image (Left Third) -->
                     {block.image && (
@@ -127,7 +127,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             {area.content_blocks
               .filter(block => block.block_type === 'highlight_section')
               .map(block => (
-                <div class="highlight-section bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
+                <div class="highlight-section bg-yellow-50 border-l-4 p-6 rounded-r-lg">
                   {block.title && (
                     <h3 class="text-lg font-bold mb-3 text-yellow-800">{block.title}</h3>
                   )}
@@ -223,12 +223,9 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 <style>
   /* Tool card styling to match your original design */
   .tool-card-row {
-    border-left: 5px solid #ea580c; /* Orange accent like your original */
     background: linear-gradient(to right, #ffffff, #fefdf9);
   }
-  
   .tool-card-row:hover {
-    border-left-color: #dc2626;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   }
   
@@ -296,6 +293,5 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(to bottom, #f59e0b, #d97706);
   }
 </style>

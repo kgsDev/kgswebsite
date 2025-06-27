@@ -51,7 +51,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {currentProjects.length > 0 && (
     <div class="content-block">
       <div class="p-6">
-        <h2 class="text-2xl font-bold mb-6 lab-primary-text">Current Projects</h2>
+        <h1 class="text-2xl font-bold mb-6 lab-primary-text">Current Projects</h1>
         
         <div class="space-y-12">
           {currentProjects.map(project => (
@@ -99,7 +99,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                 <div class="project-content lg:col-span-2">
                   <!-- Highlight box for key features -->
                   {project.short_description && (
-                    <div class="highlight-box bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+                    <div class="highlight-box bg-yellow-50 border-l-4 p-4 mb-6 rounded-r-lg">
                       <div class="font-semibold text-yellow-800" set:html={project.short_description} />
                     </div>
                   )}
@@ -273,7 +273,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(to bottom, #f59e0b, #d97706);
   }
   
   /* Responsive adjustments */

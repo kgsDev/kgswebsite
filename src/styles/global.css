@@ -238,10 +238,6 @@ a:focus-visible {
 }
 
   /* Add support for rendered markdown in bio content */
-  .prose a {
-    color: #2563eb;
-    text-decoration: underline;
-  }
   
   .prose ul {
     list-style-type: disc;
