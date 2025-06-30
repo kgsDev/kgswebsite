@@ -93,20 +93,20 @@ export async function fetchNewsBySlug(slug) {
       
       // Get lab relations
       const labRelations = await apiRequest('/items/labs_articles', {
-        fields: ['lab_id.id', 'lab_id.name', 'lab_id.slug', 'lab_id.logo', 'lab_id.shortname'],
+        fields: ['labs_id.id', 'labs_id.name', 'labs_id.slug', 'labs_id.logo', 'labs_id.short_name'],
         filter: JSON.stringify({
           articles_id: {
             _eq: article.id
           }
         })
       });
-      
+
       if (labRelations && labRelations.length > 0) {
-        article.related_labs = labRelations.map(relation => relation.lab_id);
+        article.related_labs = labRelations.map(relation => relation.labs_id);
       } else {
         article.related_labs = [];
       }
-            
+
     } catch (error) {
       console.error('Error fetching related items:', error);
       // Don't fail the whole request if just relations fail
