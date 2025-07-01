@@ -85,11 +85,11 @@ export async function fetchStaffByDepartment() {
         });
       }
       
-      // Now fetch all team data at once
+      // Now fetch all team data at once, including team lead info
       let teamData = [];
       if (teamIds.length > 0) {
         teamData = await apiRequest('/items/team', {
-          fields: ['*'],
+          fields: ['*', 'team_lead.id', 'team_lead.first_name', 'team_lead.last_name'],
           filter: JSON.stringify({
             id: {
               _in: teamIds
@@ -97,6 +97,7 @@ export async function fetchStaffByDepartment() {
           })
         });
         
+        console.log(`Fetched ${teamData.length} teams for ${teamIds.length} team IDs`);
       }
       
       // Create a map of team ID to team data for quick lookup
@@ -118,7 +119,13 @@ export async function fetchStaffByDepartment() {
           
           // Only add the team if we have data for it
           if (teamMap[teamId]) {
-            staffTeamsMap[staffId].push(teamMap[teamId]);
+            // Check if this staff member is the team lead
+            const team = teamMap[teamId];
+            const teamWithLeadInfo = {
+              ...team,
+              is_team_lead: team.team_lead?.id === staffId
+            };
+            staffTeamsMap[staffId].push(teamWithLeadInfo);
           }
         });
       }
@@ -143,6 +150,9 @@ export async function fetchStaffByDepartment() {
           member.teamNames = '';
         }
         
+        // Check if member is a team lead for any teams
+        member.is_team_lead = member.team.some(team => team.is_team_lead);
+        
         // Add to the appropriate department
         if (!staffByDepartment[departmentName]) {
           staffByDepartment[departmentName] = [];
@@ -151,12 +161,16 @@ export async function fetchStaffByDepartment() {
         staffByDepartment[departmentName].push(member);
       });
       
-      // Sort each department's staff to put department heads first
+      // Sort each department's staff to put department heads first, then team leads
       Object.keys(staffByDepartment).forEach(dept => {
         staffByDepartment[dept].sort((a, b) => {
           // Department heads come first
           if (a.department_head && !b.department_head) return -1;
           if (!a.department_head && b.department_head) return 1;
+          
+          // Then team leads
+          if (a.is_team_lead && !b.is_team_lead) return -1;
+          if (!a.is_team_lead && b.is_team_lead) return 1;
           
           // Then sort by the sort field
           if (a.sort !== b.sort) return a.sort - b.sort;
@@ -235,9 +249,9 @@ export async function fetchStaffBySlug(slug) {
     
     // After getting the basic staff member, fetch teams and locations and labs separately
     try {
-      // Fetch teams for this staff member
+      // Fetch teams for this staff member with team lead info
       const teams = await apiRequest('/items/staff_team', {
-        fields: ['team_id.*'],
+        fields: ['team_id.*', 'team_id.team_lead.id', 'team_id.team_lead.first_name', 'team_id.team_lead.last_name'],
         filter: JSON.stringify({
           staff_id: {
             _eq: member.id
@@ -246,7 +260,16 @@ export async function fetchStaffBySlug(slug) {
       });
       
       if (teams && teams.length > 0) {
-        member.team = teams.map(t => t.team_id);
+        member.team = teams.map(t => {
+          const team = t.team_id;
+          return {
+            ...team,
+            is_team_lead: team.team_lead?.id === member.id
+          };
+        });
+        
+        // Check if member is a team lead for any teams
+        member.is_team_lead = member.team.some(team => team.is_team_lead);
       }
       
       // Fetch locations for this staff member
