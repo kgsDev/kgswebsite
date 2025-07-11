@@ -137,7 +137,6 @@ body {
 
 .link-container .hero-link .rollover-active {
     display: none;
-    /* opacity: 0; */
 }
 
 .link-container .hero-link:first-child {
