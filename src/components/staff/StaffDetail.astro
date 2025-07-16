@@ -55,6 +55,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
               </span>
             )}
             
+            {/* Updated to only check computed is_team_lead */}
             {member.is_team_lead && (
               <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
                 <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

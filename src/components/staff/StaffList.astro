@@ -45,6 +45,7 @@ const { staff } = Astro.props;
         
         <div class="p-3 flex-grow">
           {/* Role Badges - Positioned above the name, side by side */}
+          {/* Updated to only check computed is_team_lead */}
           {(member.department_head || member.is_team_lead) && (
             <div class="mb-2 flex flex-wrap gap-1">
               {member.department_head && (
