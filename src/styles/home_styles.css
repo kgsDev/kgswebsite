@@ -270,11 +270,11 @@ body {
 }
 
 .tile.research {
-    background-image: url('/src/assets/index/kgs-research-2.webp');
+    background-image: url('/src/assets/index/kgs-research-tile.webp');
 }
 
 .tile.service {
-    background-image: url('/src/assets/index/kgs-service.webp');
+    background-image: url('/src/assets/index/kgs-service-tile.png');
     background-position: left;
 }
 
