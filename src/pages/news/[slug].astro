@@ -1,20 +1,22 @@
 ---
 // src/pages/news/[slug].astro
-export const prerender = false; // Enable SSR for this page
+export const prerender = true; // Enable SSR for this page
 import NewsLayout from '../../layouts/NewsLayout.astro';
 import LabsList from '../../components/labs/LabsList.astro';
 import { fetchAllNewsSlugs, fetchNewsBySlug, fetchRecentNews } from '../../lib/api_news';
 
 // Generate static paths for all news articles
 export async function getStaticPaths() {
-  const slugs = await fetchAllNewsSlugs();
-  
-  return slugs.map(slug => ({
+  const slugs = await fetchAllNewsSlugs(); // returns array of strings
+  console.log('Fetched slugs for news:', slugs);
+
+  return slugs.map((slug) => ({
     params: {
-      slug
-    }
+      slug: String(slug), // Ensure it's a string
+    },
   }));
 }
+
 
 // Get the article for this page
 const { slug } = Astro.params;

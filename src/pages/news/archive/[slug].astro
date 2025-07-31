@@ -1,18 +1,19 @@
 ---
 // src/pages/news/archive/[year].astro
-export const prerender = false; // Enable SSR for this page
+export const prerender = true; // Enable SSR for this page
 import NewsLayout from '../../../layouts/NewsLayout.astro';
 import NewsCard from '../../../components/news/NewsCard.astro';
-import { fetchNewsByMonth, fetchNewsYears } from '../../../lib/api_news';
+import { fetchNewsByMonth, fetchNewsYears, fetchAllNewsSlugs } from '../../../lib/api_news';
 
 // Generate static paths for all years
 export async function getStaticPaths() {
-  const years = await fetchNewsYears();
-  
-  return years.map(year => ({
+  const slugs = await fetchAllNewsSlugs();
+  console.log('Fetched slugs:', slugs); // Optional debug line
+
+  return slugs.map((slug) => ({
     params: {
-      year: year.toString()
-    }
+      slug: String(slug),
+    },
   }));
 }
 
