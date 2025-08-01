@@ -1,4 +1,67 @@
+/*home_Styles.css - Styles specific to the home page of the Astro project*/
 /* Home page specific styles - Fixed for Astro integration */
+
+/* ========================================
+   ROLLOVER TYPOGRAPHY CONTROL SECTION
+   ======================================== */
+/* All rollover font sizes and line heights grouped for easy adjustment */
+
+/* Base rollover styling (Desktop 1100px+) */
+@media (min-width: 1100px) {
+    .link-container .hero-link .rollover-active .inter-h3 {
+        border-bottom: 1px solid #fff;
+        padding: 15px 0 25px 0;
+        color: #fff;
+        text-transform: uppercase;
+        
+        /* TYPOGRAPHY CONTROLS - ADJUST THESE VALUES */
+        font-size: 1.2rem;           /* Base: 24px - CHANGE THIS */
+        line-height: 1.1;            /* Tight spacing - CHANGE THIS */
+        font-weight: 600;            /* Font weight - CHANGE THIS */
+        
+        /* Single line enforcement */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Medium desktop screens (1100px - 1399px) */
+@media (min-width: 1100px) and (max-width: 1399px) {
+    .link-container .hero-link .rollover-active .inter-h3 {
+        font-size: 1.6rem;           /* Medium: 25.6px - CHANGE THIS */
+        line-height: 1.1;            /* CHANGE THIS */
+    }
+}
+
+/* Large desktop screens (1400px - 1599px) */
+@media (min-width: 1400px) and (max-width: 1599px) {
+    .link-container .hero-link .rollover-active .inter-h3 {
+        font-size: 2rem;             /* Large: 32px - CHANGE THIS */
+        line-height: 1.1;            /* CHANGE THIS */
+    }
+}
+
+/* Extra wide screens (1600px+) */
+@media (min-width: 1600px) {
+    .link-container .hero-link .rollover-active .inter-h3 {
+        font-size: 2.2rem;           /* XL: 35.2px - CHANGE THIS */
+        line-height: 1.0;            /* Even tighter for larger text - CHANGE THIS */
+    }
+}
+
+/* Alternative responsive approach using clamp() - UNCOMMENT TO USE */
+
+@media (min-width: 1100px) {
+    .link-container .hero-link .rollover-active .inter-h3 {
+        font-size: clamp(1.5rem, 2.5vw, 2.375rem); 
+        line-height: clamp(1.0, 1.2vw, 1.2);
+    }
+}
+
+
+/* END ROLLOVER TYPOGRAPHY SECTION */
+/* ================================ */
 
 /* Override global body styles for homepage */
 body {
@@ -473,6 +536,7 @@ body {
     text-decoration: none;
     text-transform: uppercase;
 }
+
 .section-data {
     padding: 0; /* Remove padding to eliminate gaps */
     width: 100%;
@@ -828,27 +892,32 @@ body {
         max-width: 90%;
         top: 16px;
     }
+    
     .link-container .hero-link .rollover-active {
-        display:block;
+        display: block;
         opacity: 0;
         padding: 25px;
         position: absolute;
         width: 20%;
         top: -22%;
         height: 100vh;
+        
+        /* Ensure proper text containment */
+        box-sizing: border-box;
+        overflow: hidden;
     }
-    .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid #fff;
-        padding: 15px 0 25px 0;
-        font-size: 2.375rem;
-        color: #fff;
-        text-transform: uppercase;
+
+    /* Hover effect to show rollover */
+    .link-container .hero-link:hover .rollover-active {
+        opacity: 1;
+        transition: opacity 0.3s ease;
     }
 
     .link-container .hero-link .rollover-active p {
         padding-top: 5px;
         color: #fff;
     }
+    
     .link-container .hero-link:first-child {
         grid-column: 1;
         grid-row: 1;
