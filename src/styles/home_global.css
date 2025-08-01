@@ -53,33 +53,6 @@ h6 {
   font-size: 1rem; /* 16px */
 }
 
-/* Header styling */
-/* .site-header {
-  box-shadow: 0 2px 8px rgba(0, 0, 51, 0.1);
-  background: linear-gradient(135deg, #0033A0 0%, #1B365D 100%);
-}
-
-.site-logo {
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-}
-
-.nav-link {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.nav-link.active {
-  border-bottom: 2px solid #FFDC00;
-  padding-bottom: 0.25rem;
-} */
-
 /* Footer styling */
 .site-footer {
   background-color: #1B365D;

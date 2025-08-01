@@ -608,7 +608,6 @@ footer {
         align-items: center;
         justify-content: flex-start;
         border-bottom: 1px solid white;
-        text-transform: capitalize;
         text-decoration: none;
     }
     .hero-link .link-text {

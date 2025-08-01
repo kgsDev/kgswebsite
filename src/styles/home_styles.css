@@ -190,7 +190,6 @@ body {
 .link-container .hero-link {
     color: #fff !important; /* Force white color */
     padding: 0;
-    text-transform: uppercase;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -969,7 +968,6 @@ body {
         align-items: center;
         justify-content: flex-start;
         border-bottom: 1px solid white;
-        text-transform: capitalize;
         text-decoration: none;
     }
     
