@@ -9,7 +9,7 @@ export interface Props {
 const { activePage = '' } = Astro.props;
 
 // Check if we're in staging environment
-const isStaging = import.meta.env.PUBLIC_ENVIRONMENT === 'staging';
+const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
 ---
 
 <!-- Staging Banner - only shows on staging -->
