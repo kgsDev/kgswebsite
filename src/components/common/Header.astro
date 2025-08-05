@@ -7,7 +7,25 @@ export interface Props {
 }
 
 const { activePage = '' } = Astro.props;
+
+// Check if we're in staging environment
+const isStaging = import.meta.env.PUBLIC_ENVIRONMENT === 'staging';
 ---
+
+<!-- Staging Banner - only shows on staging -->
+{isStaging && (
+  <div class="staging-banner">
+    <div class="staging-banner-content">
+      <span class="staging-icon">🚧</span>
+      <span class="staging-text">
+        You are viewing the <strong>STAGING</strong> environment
+      </span>
+      <a href="https://128.163.188.65" class="production-link">
+        Go to Production →
+      </a>
+    </div>
+  </div>
+)}
 
 <header>
   <div class="logo">
@@ -110,5 +128,62 @@ const { activePage = '' } = Astro.props;
     </div>
   </nav>
 </header>
+
+<style>
+  /* Staging banner styles */
+  .staging-banner {
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 8px 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1001; /* Higher than your nav */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  
+  .staging-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .staging-icon {
+    font-size: 1.2em;
+  }
+  
+  .staging-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .production-link {
+    color: white;
+    text-decoration: underline;
+    font-size: 13px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+  }
+  
+  .production-link:hover {
+    opacity: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .staging-banner-content {
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .staging-text {
+      font-size: 13px;
+    }
+  }
+</style>
 
 <script src="/src/js/script.js"></script>
