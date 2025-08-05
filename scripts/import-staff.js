@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configuration
-const directusUrl = process.env.PUBLIC_DIRECTUS_URL || 'http://128.163.188.65/directus';
+const directusUrl = process.env.PUBLIC_DIRECTUS_URL || 'http://128.163.188.65:8056/';
 const adminToken = process.env.DIRECTUS_ADMIN_TOKEN;
 
 // Set the correct collection name here
