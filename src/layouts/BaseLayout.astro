@@ -34,6 +34,9 @@ const {
   canonicalUrl
 } = Astro.props;
 
+//✅ For the staging banner
+const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
+
 // Generate breadcrumbs automatically from URL
 function generateBreadcrumbs(url: URL, pageTitle: string) {
   const pathSegments = url.pathname.split('/').filter(segment => segment !== '');
@@ -139,6 +142,13 @@ const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(currentUrl, title);
     <!-- Header -->
     <Header activePage={activePage} />
     
+<!-- ✅STAGING BANNER -->
+{isStaging && (
+<div style="background-color: #d9534f; color: white; text-align: center; padding: 0.75rem; font-weight: bold; font-size: 1.1rem;">
+  🚧⚠️ You are viewing the <strong>STAGING</strong> site — content may not be final. ⚠️🚧
+</div>
+)}
+
     <!-- Breadcrumb bar (optional) -->
     {showBreadcrumb && (
       <div class="uk-bg-sky-20 border-b uk-border-sky-30">

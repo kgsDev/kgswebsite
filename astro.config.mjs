@@ -7,4 +7,8 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  server: {
+    port: 4322,  // <-- Set your desired port here
+    host: true   // <-- Listen on all interfaces (not just 127.0.0.1)
+  },
 });

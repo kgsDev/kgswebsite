@@ -12,7 +12,6 @@ import '../styles/home_styles.css';
 // Fetch recent news for the homepage (limit to 6 items)
 const { articles } = await fetchRecentNews(6, 1);
 ---
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +27,12 @@ const { articles } = await fetchRecentNews(6, 1);
     <!-- Use your Astro Header component -->
     <Header activePage="home" />
 
-    <main>
+<!-- ✅STAGING BANNER -->
+<div style="background-color: #d9534f; color: white; text-align: center; padding: 0.75rem; font-weight: bold; font-size: 1.1rem;">
+  🚧⚠️ You are viewing the <strong>STAGING</strong> site — content may not be final. ⚠️🚧
+</div>   
+
+ <main>
         <!-- Video Background -->
         <section class="hero">
             <div class="hero-container">
@@ -74,7 +78,6 @@ const { articles } = await fetchRecentNews(6, 1);
                                 <p class="source-sans-3-p">Stay current with KGS research findings, field studies, community outreach, and emergency response efforts. Learn about our latest discoveries, publications, and how we're helping Kentucky communities understand and prepare for geological hazards.</p>
                             </div>
                         </a>
-
 
                     </div>
                     <div class="video-copy-container">

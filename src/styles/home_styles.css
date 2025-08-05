@@ -1,10 +1,8 @@
-/*home_Styles.css - Styles specific to the home page of the Astro project*/
-/* Home page specific styles - Fixed for Astro integration */
+/*home_Styles.css - Fixed styles for the home page*/
 
 /* ========================================
    ROLLOVER TYPOGRAPHY CONTROL SECTION
    ======================================== */
-/* All rollover font sizes and line heights grouped for easy adjustment */
 
 /* Base rollover styling (Desktop 1100px+) */
 @media (min-width: 1100px) {
@@ -14,60 +12,82 @@
         color: #fff;
         text-transform: uppercase;
         
-        /* TYPOGRAPHY CONTROLS - ADJUST THESE VALUES */
-        font-size: 1.2rem;           /* Base: 24px - CHANGE THIS */
-        line-height: 1.1;            /* Tight spacing - CHANGE THIS */
-        font-weight: 600;            /* Font weight - CHANGE THIS */
+        /* TYPOGRAPHY CONTROLS */
+        font-size: 1.2rem;           
+        line-height: 1.1;            
+        font-weight: 600;            
         
         /* Single line enforcement */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    
+    /* Add icon styling below text */
+    .link-container .hero-link .rollover-active::after {
+        content: '';
+        display: block;
+        width: 60px;  /* Increased from 40px */
+        height: 60px; /* Increased from 40px */
+        margin: 20px auto 0;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    
+    /* Specific icons for each rollover */
+    .link-container .hero-link:nth-child(1) .rollover-active::after {
+        background-image: url('/assets/index/cropped-energy.png');
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active::after {
+        background-image: url('/assets/index/cropped-maps.png');
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active::after {
+        background-image: url('/assets/index/cropped-community.png');
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active::after {
+        background-image: url('/assets/index/cropped-water.png');
+    }
+    
+    .link-container .hero-link:nth-child(5) .rollover-active::after {
+        background-image: url('/assets/index/cropped-hazard.png');
+    }
 }
 
 /* Medium desktop screens (1100px - 1399px) */
 @media (min-width: 1100px) and (max-width: 1399px) {
     .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 1.6rem;           /* Medium: 25.6px - CHANGE THIS */
-        line-height: 1.1;            /* CHANGE THIS */
+        font-size: 1.6rem;           
+        line-height: 1.1;            
     }
 }
 
 /* Large desktop screens (1400px - 1599px) */
 @media (min-width: 1400px) and (max-width: 1599px) {
     .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2rem;             /* Large: 32px - CHANGE THIS */
-        line-height: 1.1;            /* CHANGE THIS */
+        font-size: 2rem;             
+        line-height: 1.1;            
     }
 }
 
 /* Extra wide screens (1600px+) */
 @media (min-width: 1600px) {
     .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2.2rem;           /* XL: 35.2px - CHANGE THIS */
-        line-height: 1.0;            /* Even tighter for larger text - CHANGE THIS */
+        font-size: 2.2rem;           
+        line-height: 1.0;            
     }
 }
-
-/* Alternative responsive approach using clamp() - UNCOMMENT TO USE */
-
-@media (min-width: 1100px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: clamp(1.5rem, 2.5vw, 2.375rem); 
-        line-height: clamp(1.0, 1.2vw, 1.2);
-    }
-}
-
 
 /* END ROLLOVER TYPOGRAPHY SECTION */
-/* ================================ */
 
 /* Override global body styles for homepage */
 body {
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    overflow-x: hidden; 
     background-color: #f9fafb;
 }
 
@@ -79,7 +99,7 @@ body {
     font-weight: 500;
     font-size: 46px;
     line-height: 50px;
-    color: white !important; /* Force white color */
+    color: white !important; 
 }
 
 .inter-h2 {
@@ -132,6 +152,50 @@ body {
     height: 590px;
     overflow: hidden;
     z-index: 2;
+}
+
+/* Add hover dimming effects */
+.hero:hover .video-copy-container {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.hero:hover .video-container .video {
+    filter: brightness(0.4);
+    transition: filter 0.3s ease;
+}
+
+/* Reset dimming when not hovering */
+.video-copy-container {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.video-container .video {
+    filter: brightness(1);
+    transition: filter 0.3s ease;
+}
+
+/* Add hover dimming effects */
+.hero:hover .video-copy-container {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.hero:hover .video-container .video {
+    filter: brightness(0.4);
+    transition: filter 0.3s ease;
+}
+
+/* Reset dimming when not hovering */
+.video-copy-container {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.video-container .video {
+    filter: brightness(1);
+    transition: filter 0.3s ease;
 }
 
 .hero-container {
@@ -188,7 +252,7 @@ body {
 }
 
 .link-container .hero-link {
-    color: #fff !important; /* Force white color */
+    color: #fff !important; 
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -236,7 +300,7 @@ body {
 
 .link-text {
     text-align: center;
-    color: white !important; /* Force white color */
+    color: white !important; 
 }
 
 /* Section tiles */
@@ -244,12 +308,12 @@ body {
     text-align: center;
     width: 100%;
     margin: 0;
-    padding: 0; /* Remove padding to eliminate gaps */
-    background-color: #edf4f6; /* Add background here */
+    padding: 0; 
+    background-color: #edf4f6; 
 }
 
 .section-tile .tile-heading {
-    padding: 40px 25px 40px; /* Increased bottom padding for more space before tiles */
+    padding: 40px 25px 40px; 
 }
 
 .section-tile .tile-heading h2, 
@@ -283,9 +347,9 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Changed to center content */
-    align-items: center; /* Center horizontally */
-    text-align: center; /* Center text */
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
     min-height: 350px;
 }
 
@@ -293,9 +357,9 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center content vertically */
-    align-items: center; /* Center content horizontally */
-    text-align: center; /* Center text */
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
 }
 
 .tile-title {
@@ -305,7 +369,7 @@ body {
     min-height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center; /* Center title */
+    justify-content: center; 
     text-align: center;
 }
 
@@ -314,13 +378,13 @@ body {
     padding: 0 0 20px 0 !important;
     flex-grow: 1;
     display: flex;
-    align-items: center; /* Center text vertically */
+    align-items: center; 
     text-align: center;
 }
 
 .tile-button {
     margin-top: auto;
-    align-self: center; /* Center button */
+    align-self: center; 
 }
 
 .tile.community {
@@ -348,18 +412,18 @@ body {
     padding: 25px;
     padding-bottom: 40px;
     text-align: left;
-    justify-content: flex-start; /* Override centering for service tile */
-    align-items: flex-start; /* Override centering for service tile */
+    justify-content: flex-start; 
+    align-items: flex-start; 
 }
 
 .tile.service .tile-content {
-    justify-content: flex-start; /* Override centering for service tile */
-    align-items: flex-start; /* Override centering for service tile */
-    text-align: left; /* Override centering for service tile */
+    justify-content: flex-start; 
+    align-items: flex-start; 
+    text-align: left; 
 }
 
 .tile.service .tile-button {
-    align-self: flex-start; /* Override centering for service tile */
+    align-self: flex-start; 
 }
 
 .tile.service .source-sans-3-p {
@@ -383,9 +447,9 @@ body {
     position: relative;
     overflow: hidden;
     width: 100%;
-    max-width: 560px; /* Limit maximum width */
-    margin: 25px auto 0; /* Center the video */
-    aspect-ratio: 16/9; /* Force 16:9 ratio */
+    max-width: 560px; 
+    margin: 25px auto 0; 
+    aspect-ratio: 16/9; 
 }
 
 .tile.service .youtube-video-container iframe {
@@ -401,13 +465,13 @@ body {
     width: 100%;
     padding: 0;
     margin: 0;
-    background-color: #edf4f6; /* Add background here */
+    background-color: #edf4f6; 
 }
 
 .section-internships {
-    padding: 40px 25px; /* Increase padding for better spacing */
-    flex: 1; /* Take up proportional space */
-    max-width: 500px; /* Limit width so it doesn't stretch too far */
+    padding: 40px 25px; 
+    flex: 1; 
+    max-width: 500px; 
 }
 
 /* Connect with Us section */
@@ -537,10 +601,10 @@ body {
 }
 
 .section-data {
-    padding: 0; /* Remove padding to eliminate gaps */
+    padding: 0; 
     width: 100%;
     margin: 0;
-    background-color: #edf4f6; /* Add background here */
+    background-color: #edf4f6; 
 }
 
 .section-data .section-container {
@@ -550,7 +614,7 @@ body {
 }
 
 .section-data .data-container {
-    order: 2; /* Put text below image on mobile */
+    order: 2; 
 }
 
 .section-data img {
@@ -558,8 +622,8 @@ body {
     height: auto;
     object-fit: cover;
     border-radius: 8px;
-    order: 1; /* Put image above text on mobile */
-    max-height: 300px; /* Limit height on mobile */
+    order: 1; 
+    max-height: 300px; 
 }
 
 .section-data .inter-button {
@@ -624,7 +688,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* NewsGrid component styles - Fixed image sizing */
+/* NewsGrid component styles */
 .news-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -640,8 +704,8 @@ body {
     transition: all 0.2s ease-in-out;
     text-decoration: none;
     color: inherit;
-    max-width: 400px; /* Limit maximum card width */
-    margin: 0 auto; /* Center cards */
+    max-width: 400px; 
+    margin: 0 auto; 
 }
 
 .news-card:hover {
@@ -652,7 +716,7 @@ body {
 .news-card-image {
     width: 100%;
     height: 200px;
-    max-height: 200px; /* Fixed height for images */
+    max-height: 200px; 
     object-fit: cover;
     transition: transform 0.3s ease;
 }
@@ -865,7 +929,7 @@ body {
         max-height: 400px;
         min-height: 300px;
         object-fit: cover;
-        object-position: center top; /* Align image to top */
+        object-position: center top; 
     }
 }
 
@@ -897,13 +961,37 @@ body {
         opacity: 0;
         padding: 25px;
         position: absolute;
-        width: 20%;
-        top: -22%;
+        width: 20vw;
+        top: 0; /* Flush with top of video */
         height: 100vh;
         
         /* Ensure proper text containment */
         box-sizing: border-box;
         overflow: hidden;
+        
+        /* Center each rollover relative to its hero link */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Position title to align with hero link baseline */
+    .link-container .hero-link .rollover-active .inter-h3 {
+        border-bottom: 1px solid #fff;
+        padding: 15px 0 25px 0;
+        color: #fff;
+        text-transform: uppercase;
+        margin-top: 60px; /* Push title down to align with hero link border */
+        margin-bottom: 0;
+        
+        /* TYPOGRAPHY CONTROLS */
+        font-size: 1.2rem;           
+        line-height: 1.1;            
+        font-weight: 600;            
+        
+        /* Single line enforcement */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* Hover effect to show rollover */
@@ -921,8 +1009,9 @@ body {
         grid-column: 1;
         grid-row: 1;
     }
+    /* Specific positioning for each rollover to align with hero links */
     .link-container .hero-link:nth-child(1) .rollover-active {
-        background-color: rgba(18, 68, 1, 0.75);
+        background-color: rgba(18, 68, 1, 1);
     }
     
     .link-container .hero-link:nth-child(2) {
@@ -965,16 +1054,155 @@ body {
     
     .link-container .hero-link {
         flex-direction: row;
-        align-items: center;
+        align-items: flex-end;
         justify-content: flex-start;
         border-bottom: 1px solid white;
         text-decoration: none;
+        position: relative; /* Add positioning context for rollover alignment */
     }
     
     .hero-link .link-text {
         padding-bottom: 5px;
         padding-left: 24px;
         color: white !important;
+    }
+    
+    /* Rollover positioning - full video height */
+    .link-container .hero-link .rollover-active {
+        display: block;
+        opacity: 0;
+        padding: 25px;
+        position: absolute;
+        width: 20vw;
+        top: -25px; /* Start at video container top */
+        height: 484px; /* Full video container height */
+        box-sizing: border-box;
+        overflow: hidden;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+    }
+    
+    /* Title positioning - at the top of rollover */
+    .link-container .hero-link .rollover-active .inter-h3 {
+        border-bottom: 1px solid #fff;
+        padding: 15px 0 25px 0;
+        color: #fff;
+        text-transform: uppercase;
+        margin: 0 0 20px 0;
+        
+        /* TYPOGRAPHY CONTROLS */
+        font-size: 1.2rem;           
+        line-height: 1.1;            
+        font-weight: 600;            
+        
+        /* Single line enforcement */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Content area - below title */
+    .link-container .hero-link .rollover-active p {
+        padding: 5px 0 20px 0;
+        color: #fff;
+        margin: 0;
+        line-height: 1.4;
+    }
+    
+    /* Add icon styling at bottom */
+    .link-container .hero-link .rollover-active::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 60px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    /* Show rollover on hover */
+    .link-container .hero-link:hover .rollover-active {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+    
+    /* Grid positioning for each link */
+    .link-container .hero-link:first-child {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(3) {
+        grid-column: 3;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(4) {
+        grid-column: 4;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:last-child {
+        grid-column: 5;
+        grid-row: 1;
+    }
+    
+    /* Background colors for each rollover */
+    .link-container .hero-link:nth-child(1) .rollover-active {
+        background-color: rgba(18, 68, 1, 1);
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active {
+        background-color: rgba(0, 118, 168, 1);
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active {
+        background-color: rgba(140, 1, 1, 1);
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active {
+        background-color: rgba(173, 161, 51, 1);
+    }
+    
+    .link-container .hero-link:last-child .rollover-active {
+        background-color: rgba(78, 30, 116, 1);
+    }
+    
+    /* Specific icons for each rollover */
+    .link-container .hero-link:nth-child(1) .rollover-active::after {
+        background-image: url('/assets/index/cropped-energy.png');
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active::after {
+        background-image: url('/assets/index/cropped-maps.png');
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active::after {
+        background-image: url('/assets/index/cropped-community.png');
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active::after {
+        background-image: url('/assets/index/cropped-water.png');
+    }
+    
+    .link-container .hero-link:nth-child(5) .rollover-active::after {
+        background-image: url('/assets/index/cropped-hazard.png');
+    }
+    
+    .link-container img {
+        max-width: 40px;
+        height: auto;
+        display: block;
     }
     
     .video-copy-container {
@@ -1008,21 +1236,36 @@ body {
         background-color: #fff;
     }
     
+    /* FIXED: Uniform tile display with equal spacing */
     .tile-container {
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
-        gap: 10px;
+        justify-content: space-between; /* Changed from space-around for equal spacing */
+        gap: 0; /* Remove gap to control spacing manually */
+        padding: 0 20px; /* Add padding to container for edge spacing */
     }
     
+    /* FIXED: Make tiles uniform rectangles with proper spacing */
     .tile-container .tile {
-        width: 370px;
+        width: calc(33.333% - 13.33px); /* 3 tiles with even spacing */
+        height: 349px; /* Fixed height to match your requirement */
+        margin: 0 20px; /* Equal margin between tiles */
+    }
+    
+    /* First and last tile margin adjustments for perfect alignment */
+    .tile-container .tile:first-child {
+        margin-left: 0;
+    }
+    
+    .tile-container .tile:last-child {
+        margin-right: 0;
     }
     
     .tile .source-sans-3-p {
         padding: 0 30px 30px;
     }
     
+    /* FIXED: Align midsection with tiles above */
     .midsection {
         display: flex;
         flex-direction: row;
@@ -1030,35 +1273,38 @@ body {
     
     .midsection .section-container {
         display: flex;
-        gap: 40px; /* Add gap between sections */
-        align-items: flex-start; /* Align to top */
-        justify-content: center; /* Center the two sections within the container */
-        width: 90%; /* Match the same width as other section containers */
-        margin: auto; /* Center the container */
-        background-color: #fff; /* Match other section containers */
+        gap: 40px; 
+        align-items: flex-start; 
+        justify-content: space-between; /* Changed to match tile alignment */
+        width: 90%; 
+        margin: auto; 
+        background-color: #fff; 
+        padding: 0 20px; /* Match tile container padding */
     }
     
+    /* FIXED: Align sections with tile edges */
     .section-internships {
-        width: auto; /* Remove fixed width */
-        flex: 1; /* Take up twice as much space as Connect section */
+        width: calc(50% - 20px); /* Take up half width minus gap */
+        margin-left: 0; /* Align with left edge of tiles */
         max-width: none; /* Remove max-width constraint */
     }
     
     .section-connect {
-        width: auto; /* Remove fixed width */  
-        flex: 2; /* Take up less space, stays to the right */
-        max-width: 600px; /* Limit Connect section width */
-        display: block; /* Override any display: none */
+        width: calc(50% - 20px); /* Take up half width minus gap */
+        margin-right: 0; /* Align with right edge of tiles */
+        max-width: none; /* Remove max-width constraint */
     }
     
     .tile-container .tile.service {
         width: 100%;
+        height: auto; /* Allow service tile to expand vertically */
         display: flex;
         flex-direction: row;
         padding: 40px 95px;
-        align-items: flex-start; /* Align to top */
+        align-items: flex-start; 
         justify-content: space-between;
         gap: 40px;
+        margin: 0; /* Reset margin for service tile */
     }
     
     .tile.service .service-container {
@@ -1069,8 +1315,8 @@ body {
     .tile.service .youtube-video-container {
         flex: 1;
         max-width: 50%;
-        margin: 0; /* Remove auto margin */
-        align-self: flex-start; /* Align video to top */
+        margin: 0; 
+        align-self: flex-start; 
     }
     
     .section-data {
@@ -1084,19 +1330,19 @@ body {
         display: flex;
         flex-direction: row-reverse;
         padding: 35px 25px;
-        align-items: flex-start; /* Align items to top */
+        align-items: flex-start; 
         gap: 40px;
     }
     
     .section-data .data-container {
-        padding: 0; /* Remove padding to align with image top */
+        padding: 0; 
         flex: 1;
     }
     
     .service .service-container h2, 
     .section-data h2 {
         padding-bottom: 40px;
-        margin-top: 0; /* Remove any top margin */
+        margin-top: 0; 
     }
     
     .section-data img {
@@ -1167,10 +1413,10 @@ body {
     }
 
     .section-data .section-container {
-        padding: 25px; /* Add padding for mobile margins */
+        padding: 25px; 
     }
     
     .section-data .data-container {
-        padding: 0 20px; /* Add left/right padding for text content */
+        padding: 0 20px; 
     }
 }

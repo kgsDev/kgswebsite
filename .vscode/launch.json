@@ -3,7 +3,7 @@
   "configurations": [
     {
       "command": "./node_modules/.bin/astro dev",
-      "name": "Development server",
+      "name": "Staging server",
       "request": "launch",
       "type": "node-terminal"
     }
