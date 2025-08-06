@@ -29,7 +29,15 @@ const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
 
 <header>
   <div class="logo">
-    <a href="/"><img src ="/assets/index/uk-kgs-logo-final.webp" alt="UK KGS Logo" /></a>
+    <!-- Split logo into two clickable parts -->
+    <div class="logo-split">
+      <a href="https://uky.edu" class="uk-logo-link" target="_blank" rel="noopener">
+        <img src="/assets/index/uk-logo-final.png" alt="University of Kentucky" class="uk-logo" />
+      </a>
+      <a href="/" class="kgs-logo-link">
+        <img src="/assets/index/kgs-logo-final.png" alt="Kentucky Geological Survey" class="kgs-logo" />
+      </a>
+    </div>
   </div>
   <nav class="global-nav inter-nav">
     <div class="nav-menu-trigger">
@@ -182,6 +190,62 @@ const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
     
     .staging-text {
       font-size: 13px;
+    }
+  }
+
+  /* Split logo styles */
+  .logo-split {
+    display: flex;
+    align-items: center;
+    gap: 0; /* No gap between logo parts for seamless appearance */
+  }
+  
+  .uk-logo-link,
+  .kgs-logo-link {
+    display: block;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  
+  .uk-logo-link:hover,
+  .kgs-logo-link:hover {
+    opacity: 0.8;
+    transform: translateY(-0.5px);
+  }
+  
+  .uk-logo,
+  .kgs-logo {
+    height: auto;
+    vertical-align: middle;
+    display: block;
+  }
+  
+  /* Ensure logos align properly */
+  .uk-logo-link {
+    border-radius: 4px 0 0 4px; /* Rounded left corners */
+  }
+  
+  .kgs-logo-link {
+    border-radius: 0 4px 4px 0; /* Rounded right corners */
+  }
+  
+  /* Optional: Add subtle hover effects to indicate clickability */
+  .uk-logo-link:hover .uk-logo {
+    filter: brightness(1.1);
+  }
+  
+  .kgs-logo-link:hover .kgs-logo {
+    filter: brightness(1.1);
+  }
+  
+  /* Responsive adjustments for mobile */
+  @media (max-width: 768px) {
+    .logo-split {
+      justify-content: center;
+    }
+    
+    .uk-logo,
+    .kgs-logo {
+      max-height: 40px; /* Adjust as needed for mobile */
     }
   }
 </style>
