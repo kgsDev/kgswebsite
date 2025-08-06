@@ -1,4 +1,4 @@
-/*home_Styles.css - Fixed styles for the home page*/
+/*home_Styles.css - Fixed styles for the home page with designer rollover backgrounds*/
 
 /* ========================================
    ROLLOVER TYPOGRAPHY CONTROL SECTION
@@ -152,28 +152,6 @@ body {
     height: 590px;
     overflow: hidden;
     z-index: 2;
-}
-
-/* Add hover dimming effects */
-.hero:hover .video-copy-container {
-    opacity: 0.3;
-    transition: opacity 0.3s ease;
-}
-
-.hero:hover .video-container .video {
-    filter: brightness(0.4);
-    transition: filter 0.3s ease;
-}
-
-/* Reset dimming when not hovering */
-.video-copy-container {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.video-container .video {
-    filter: brightness(1);
-    transition: filter 0.3s ease;
 }
 
 /* Add hover dimming effects */
@@ -959,119 +937,7 @@ body {
     .link-container .hero-link .rollover-active {
         display: block;
         opacity: 0;
-        padding: 25px;
-        position: absolute;
-        width: 20vw;
-        top: 0; /* Flush with top of video */
-        height: 100vh;
-        
-        /* Ensure proper text containment */
-        box-sizing: border-box;
-        overflow: hidden;
-        
-        /* Center each rollover relative to its hero link */
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    /* Position title to align with hero link baseline */
-    .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid #fff;
-        padding: 15px 0 25px 0;
-        color: #fff;
-        text-transform: uppercase;
-        margin-top: 60px; /* Push title down to align with hero link border */
-        margin-bottom: 0;
-        
-        /* TYPOGRAPHY CONTROLS */
-        font-size: 1.2rem;           
-        line-height: 1.1;            
-        font-weight: 600;            
-        
-        /* Single line enforcement */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Hover effect to show rollover */
-    .link-container .hero-link:hover .rollover-active {
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
-
-    .link-container .hero-link .rollover-active p {
-        padding-top: 5px;
-        color: #fff;
-    }
-    
-    .link-container .hero-link:first-child {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    /* Specific positioning for each rollover to align with hero links */
-    .link-container .hero-link:nth-child(1) .rollover-active {
-        background-color: rgba(18, 68, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    .link-container .hero-link:nth-child(2) .rollover-active {
-        background-color: rgba(0, 118, 168, 1);
-    }
-    
-    .link-container .hero-link:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
-    }
-    .link-container .hero-link:nth-child(3) .rollover-active {
-        background-color: rgba(140, 1, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(4) {
-        grid-column: 4;
-        grid-row: 1;
-    }
-    .link-container .hero-link:nth-child(4) .rollover-active {
-        background-color: rgba(173, 161, 51, 1);
-    }
-    
-    .link-container .hero-link:last-child {
-        grid-column: 5;
-        grid-row: 1;
-    }
-    .link-container .hero-link:last-child .rollover-active {
-        background-color: rgba(78, 30, 116, 1);
-    }
-    
-    .link-container img {
-        max-width: 40px;
-        height: auto;
-        display: block;
-    }
-    
-    .link-container .hero-link {
-        flex-direction: row;
-        align-items: flex-end;
-        justify-content: flex-start;
-        border-bottom: 1px solid white;
-        text-decoration: none;
-        position: relative; /* Add positioning context for rollover alignment */
-    }
-    
-    .hero-link .link-text {
-        padding-bottom: 5px;
-        padding-left: 24px;
-        color: white !important;
-    }
-    
-    /* Rollover positioning - full video height */
-    .link-container .hero-link .rollover-active {
-        display: block;
-        opacity: 0;
-        padding: 25px;
+        padding: 32px; /*this sets the rollover title area height*/
         position: absolute;
         width: 20vw;
         top: -25px; /* Start at video container top */
@@ -1081,6 +947,50 @@ body {
         left: 50%;
         transform: translateX(-50%);
         z-index: 5;
+        
+        /* Designer background images */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    /* Add overlay to ensure text readability */
+    .link-container .hero-link .rollover-active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4); /* Dark overlay for text readability */
+        z-index: 1;
+    }
+    
+    /* Ensure text content appears above overlay */
+    .link-container .hero-link .rollover-active > * {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Designer background images for each rollover */
+    .link-container .hero-link:nth-child(1) .rollover-active {
+        background-image: url('/assets/index/LABS.png');
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active {
+        background-image: url('/assets/index/MAPS.png');
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active {
+        background-image: url('/assets/index/PEOPLE.png');
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active {
+        background-image: url('/assets/index/MONITOR.png');
+    }
+    
+    .link-container .hero-link:nth-child(5) .rollover-active {
+        background-image: url('/assets/index/NEWS.png');
     }
     
     /* Title positioning - at the top of rollover */
@@ -1090,6 +1000,8 @@ body {
         color: #fff;
         text-transform: uppercase;
         margin: 0 0 20px 0;
+        position: relative;
+        z-index: 2;
         
         /* TYPOGRAPHY CONTROLS */
         font-size: 1.2rem;           
@@ -1108,9 +1020,11 @@ body {
         color: #fff;
         margin: 0;
         line-height: 1.4;
+        position: relative;
+        z-index: 2;
     }
     
-    /* Add icon styling at bottom */
+    /* Add icon styling at bottom - updated to work with background images */
     .link-container .hero-link .rollover-active::after {
         content: '';
         display: block;
@@ -1123,6 +1037,7 @@ body {
         bottom: 25px;
         left: 50%;
         transform: translateX(-50%);
+        z-index: 2;
     }
     
     /* Show rollover on hover */
@@ -1131,54 +1046,7 @@ body {
         transition: opacity 0.3s ease;
     }
     
-    /* Grid positioning for each link */
-    .link-container .hero-link:first-child {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(4) {
-        grid-column: 4;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:last-child {
-        grid-column: 5;
-        grid-row: 1;
-    }
-    
-    /* Background colors for each rollover */
-    .link-container .hero-link:nth-child(1) .rollover-active {
-        background-color: rgba(18, 68, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(2) .rollover-active {
-        background-color: rgba(0, 118, 168, 1);
-    }
-    
-    .link-container .hero-link:nth-child(3) .rollover-active {
-        background-color: rgba(140, 1, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(4) .rollover-active {
-        background-color: rgba(173, 161, 51, 1);
-    }
-    
-    .link-container .hero-link:last-child .rollover-active {
-        background-color: rgba(78, 30, 116, 1);
-    }
-    
-    /* Specific icons for each rollover */
+    /* Specific icons for each rollover - these will appear over the background images */
     .link-container .hero-link:nth-child(1) .rollover-active::after {
         background-image: url('/assets/index/cropped-energy.png');
     }
@@ -1203,6 +1071,46 @@ body {
         max-width: 40px;
         height: auto;
         display: block;
+    }
+    
+    .link-container .hero-link {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: flex-start;
+        border-bottom: 1px solid white;
+        text-decoration: none;
+        position: relative;
+    }
+    
+    .hero-link .link-text {
+        padding-bottom: 5px;
+        padding-left: 24px;
+        color: white !important;
+    }
+    
+    .link-container .hero-link:first-child {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(3) {
+        grid-column: 3;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:nth-child(4) {
+        grid-column: 4;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:last-child {
+        grid-column: 5;
+        grid-row: 1;
     }
     
     .video-copy-container {
@@ -1240,16 +1148,16 @@ body {
     .tile-container {
         display: flex;
         flex-direction: row;
-        justify-content: space-between; /* Changed from space-around for equal spacing */
-        gap: 0; /* Remove gap to control spacing manually */
-        padding: 0 20px; /* Add padding to container for edge spacing */
+        justify-content: space-between;
+        gap: 0;
+        padding: 0 20px;
     }
     
     /* FIXED: Make tiles uniform rectangles with proper spacing */
     .tile-container .tile {
-        width: calc(33.333% - 13.33px); /* 3 tiles with even spacing */
-        height: 349px; /* Fixed height to match your requirement */
-        margin: 0 20px; /* Equal margin between tiles */
+        width: calc(33.333% - 13.33px);
+        height: 349px;
+        margin: 0 20px;
     }
     
     /* First and last tile margin adjustments for perfect alignment */
@@ -1273,38 +1181,38 @@ body {
     
     .midsection .section-container {
         display: flex;
-        gap: 40px; 
-        align-items: flex-start; 
-        justify-content: space-between; /* Changed to match tile alignment */
-        width: 90%; 
-        margin: auto; 
-        background-color: #fff; 
-        padding: 0 20px; /* Match tile container padding */
+        gap: 40px;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 90%;
+        margin: auto;
+        background-color: #fff;
+        padding: 0 20px;
     }
     
     /* FIXED: Align sections with tile edges */
     .section-internships {
-        width: calc(50% - 20px); /* Take up half width minus gap */
-        margin-left: 0; /* Align with left edge of tiles */
-        max-width: none; /* Remove max-width constraint */
+        width: calc(50% - 20px);
+        margin-left: 0;
+        max-width: none;
     }
     
     .section-connect {
-        width: calc(50% - 20px); /* Take up half width minus gap */
-        margin-right: 0; /* Align with right edge of tiles */
-        max-width: none; /* Remove max-width constraint */
+        width: calc(50% - 20px);
+        margin-right: 0;
+        max-width: none;
     }
     
     .tile-container .tile.service {
         width: 100%;
-        height: auto; /* Allow service tile to expand vertically */
+        height: auto;
         display: flex;
         flex-direction: row;
         padding: 40px 95px;
-        align-items: flex-start; 
+        align-items: flex-start;
         justify-content: space-between;
         gap: 40px;
-        margin: 0; /* Reset margin for service tile */
+        margin: 0;
     }
     
     .tile.service .service-container {
@@ -1315,8 +1223,8 @@ body {
     .tile.service .youtube-video-container {
         flex: 1;
         max-width: 50%;
-        margin: 0; 
-        align-self: flex-start; 
+        margin: 0;
+        align-self: flex-start;
     }
     
     .section-data {
@@ -1330,19 +1238,19 @@ body {
         display: flex;
         flex-direction: row-reverse;
         padding: 35px 25px;
-        align-items: flex-start; 
+        align-items: flex-start;
         gap: 40px;
     }
     
     .section-data .data-container {
-        padding: 0; 
+        padding: 0;
         flex: 1;
     }
     
     .service .service-container h2, 
     .section-data h2 {
         padding-bottom: 40px;
-        margin-top: 0; 
+        margin-top: 0;
     }
     
     .section-data img {
@@ -1413,10 +1321,10 @@ body {
     }
 
     .section-data .section-container {
-        padding: 25px; 
+        padding: 25px;
     }
     
     .section-data .data-container {
-        padding: 0 20px; 
+        padding: 0 20px;
     }
 }
