@@ -17,6 +17,12 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local configuration files
+.vscode/
+
+#astro config files
+astro.config.mjs
+
 # macOS-specific files
 .DS_Store
 

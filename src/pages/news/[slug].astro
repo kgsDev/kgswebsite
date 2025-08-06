@@ -1,6 +1,6 @@
 ---
 // src/pages/news/[slug].astro
-export const prerender = true; // Enable SSR for this page
+export const prerender = false; // Enable SSR for this page
 import NewsLayout from '../../layouts/NewsLayout.astro';
 import LabsList from '../../components/labs/LabsList.astro';
 import { fetchAllNewsSlugs, fetchNewsBySlug, fetchRecentNews } from '../../lib/api_news';
