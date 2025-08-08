@@ -91,27 +91,25 @@ const { articles } = await fetchRecentNews(6, 1);
                     <p class="source-sans-3-p">The Kentucky Geological Survey is a state supported research center and public resource within the University of Kentucky. Our mission is to support sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people. We do this by conducting research and providing unbiased information about geologic resources, environmental issues, and natural hazards affecting Kentucky.</p>
                 </div>
                 <div class="tile-container">
-                    <div class="tile community">
+                    <!-- Make tiles clickable buttons by converting to anchor tags -->
+                    <a href="https://www.uky.edu/KGS/education/" class="tile community">
                         <div class="tile-content">
                             <h2 class="inter-h2 tile-title">Community &amp; Education</h2>
                             <p class="source-sans-3-p tile-text">Discover comprehensive geological educational resources tailored for K-16 educators and students.</p>
                         </div>
-                        <a href="https://www.uky.edu/KGS/education/" class="inter-button tile-button">Learn more</a>
-                    </div>
-                    <div class="tile research">
+                    </a>
+                    <a href="/labs/" class="tile research">
                         <div class="tile-content">
                             <h2 class="inter-h2 tile-title">Research &amp; Labs</h2>
                             <p class="source-sans-3-p tile-text">Our research and laboratories enhance knowledge and understanding of Kentucky's geological resources, hazards, and water systems to support science-based decision making for the Commonwealth.</p>
                         </div>
-                        <a href="/labs/" class="inter-button tile-button">Learn more</a>
-                    </div>
-                    <div class="tile openings">
+                    </a>
+                    <a href="/about/jobs/" class="tile openings">
                         <div class="tile-content">
                             <h2 class="inter-h2 tile-title">Current Openings</h2>
                             <p class="source-sans-3-p tile-text">Check out our current job opportunities and apply today.</p>
                         </div>
-                        <a href="/about/jobs/" class="inter-button tile-button">Learn more</a>
-                    </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -121,13 +119,13 @@ const { articles } = await fetchRecentNews(6, 1);
                 <div class="section-internships">
                     <h2 class="inter-h2">Summer Internship Program</h2>
                     <p class="source-sans-3-p">Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.</p> 
+                    <br>
                     <div class="button-container">
                         <a href="/about/intern" class="inter-button">Learn More</a>
                     </div>
                     <img src="/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
                     <p class="source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
                 </div>
-
 
                 <div class="section-connect">
                     <h2 class="inter-h2">Connect with Us</h2>
@@ -144,7 +142,6 @@ const { articles } = await fetchRecentNews(6, 1);
                                 height="200"
                                 width="100%"
                                 style="border: none; min-height: 200px;"
-                                scrolling="no"
                                 data-name="pb-iframe-player"
                                 src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=1&download=1&fonts=Arial&skin=3267a3&font-color=auto&rtl=0&logo_link=&btn-skin=60a0c8&size=200"
                                 loading="lazy"
@@ -197,30 +194,32 @@ const { articles } = await fetchRecentNews(6, 1);
             </div>
         </section>
 
-        <section class="section-tile">
-            <div class="tile-container">
+        <section class="section-tile service-section">
+            <div class="tile-container service-full-width">
                 <div class="tile service">
-                    <div class="service-container">
-                        <h2 class="inter-h2">How KGS Serves Our Kentucky Community</h2>
+                    <div class="service-inner-container">
+                        <div class="service-container">
+                            <h2 class="inter-h2">How KGS Serves Our Kentucky Community</h2>
 
-                        <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) traces its roots back to 1838 and has been part of the University of Kentucky since 1948. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people.</p>
+                            <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) traces its roots back to 1838 and has been part of the University of Kentucky since 1948. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people.</p>
 
-                        <p class="source-sans-3-p">We do this by conducting research and providing unbiased information about the geology and natural resources of Kentucky. We focus on issues relevant to the economic prosperity, environmental quality, and practical well-being of the Commonwealth and its people: the things that can make Kentucky a compelling place to live, work, and do business.</p>
+                            <p class="source-sans-3-p">We do this by conducting research and providing unbiased information about the geology and natural resources of Kentucky. We focus on issues relevant to the economic prosperity, environmental quality, and practical well-being of the Commonwealth and its people: the things that can make Kentucky a compelling place to live, work, and do business.</p>
 
-                        <p class="source-sans-3-p">KGS provides technical support to several state agencies and organizations, and a host of local, county, and federal agencies. We also interact with stakeholders from a wide range of community, industry, environmental, and educational groups, and the KGS website provides free public access to our databases, digital map layers, and reports.</p>
-                        <a href="/about/" class="inter-button">Learn more</a>
-                    </div>
-                    <div class="youtube-video-container">
-                        <iframe
-                            width="560"
-                            height="315"
-                            src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ"
-                            title="YouTube video player"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen>
-                        </iframe>
+                            <p class="source-sans-3-p">KGS provides technical support to several state agencies and organizations, and a host of local, county, and federal agencies. We also interact with stakeholders from a wide range of community, industry, environmental, and educational groups, and the KGS website provides free public access to our databases, digital map layers, and reports.</p>
+                            <!-- Add transparent class to make this button transparent -->
+                            <a href="/about/" class="inter-button transparent">Learn more</a>
+                        </div>
+                        <div class="youtube-video-container">
+                            <iframe
+                                width="560"
+                                height="315"
+                                src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ"
+                                title="YouTube video player"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
                     </div>
                 </div>
             </div>
