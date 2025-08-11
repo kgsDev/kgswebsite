@@ -84,7 +84,6 @@ body {
 
 .inter-h3 {
     font-family: var(--font-inter);
-    font-optical-sizing: auto;
     font-style: normal;
 }
 
@@ -113,7 +112,7 @@ body {
 .inter-nav {
     font-family: var(--font-inter);
     font-optical-sizing: auto;
-    font-weight: 900;
+    font-weight: 700;
     font-style: normal;
 }
 
@@ -343,86 +342,6 @@ body {
     color: var(--white) !important; 
 }
 
-/* ========================================
-   ROLLOVER EFFECTS (DESKTOP)
-   ======================================== */
-
-/* Base rollover styling (Desktop 1100px+) */
-@media (min-width: 1100px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid var(--white);
-        padding: 15px 0 25px 0;
-        color: var(--white);
-        text-transform: uppercase;
-        
-        /* TYPOGRAPHY CONTROLS */
-        font-size: 1.2rem;           
-        line-height: 1.1;            
-        font-weight: 600;            
-        
-        /* Single line enforcement */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    /* Add icon styling below text */
-    .link-container .hero-link .rollover-active::after {
-        content: '';
-        display: block;
-        width: 150px;  
-        height: 150px; 
-        margin: 20px auto 0;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-    
-    /* Specific icons for each rollover */
-    .link-container .hero-link:nth-child(1) .rollover-active::after {
-        background-image: url('/assets/index/cropped-energy.png');
-    }
-    
-    .link-container .hero-link:nth-child(2) .rollover-active::after {
-        background-image: url('/assets/index/cropped-maps.png');
-    }
-    
-    .link-container .hero-link:nth-child(3) .rollover-active::after {
-        background-image: url('/assets/index/cropped-community.png');
-    }
-    
-    .link-container .hero-link:nth-child(4) .rollover-active::after {
-        background-image: url('/assets/index/cropped-water.png');
-    }
-    
-    .link-container .hero-link:nth-child(5) .rollover-active::after {
-        background-image: url('/assets/index/cropped-hazard.png');
-    }
-}
-
-/* Responsive typography for rollovers
-@media (min-width: 1100px) and (max-width: 1399px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 1.6rem;           
-        line-height: 1.1;            
-    }
-}
-
-@media (min-width: 1400px) and (max-width: 1599px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2rem;             
-        line-height: 1.1;            
-    }
-}
-
-@media (min-width: 1600px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2.2rem;           
-        line-height: 1.0;            
-    }
-}
- */
- 
 /* ========================================
    SECTION TILES
    ======================================== */
@@ -1055,57 +974,42 @@ body {
     .link-container .hero-link:nth-child(5) .rollover-active {
         background-image: url('/assets/index/NEWS.png');
     }
-    
+
     /* Title positioning - at the top of rollover */
     .link-container .hero-link .rollover-active .inter-h3 {
+        margin-top:38px;
         border-bottom: 1px solid var(--white);
-        padding: 15px 0 25px 0;
+        padding-bottom: 10px;
         color: var(--white);
-        text-transform: uppercase;
-        margin: 0 0 20px 0;
         position: relative;
         z-index: 2;
-        
-        /* Single line enforcement */
+        font-size: 1.1em;
+        /* FIXED WIDTH ENFORCEMENT */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
+
+
     /* Content area - below title */
     .link-container .hero-link .rollover-active p {
         padding: 5px 0 20px 0;
         color: var(--white);
         margin: 0;
-        line-height: 1.4;
+        line-height: 1.5;
         position: relative;
         z-index: 2;
     }
-    
-    /* Add icon styling at bottom - updated to work with background images */
-    .link-container .hero-link .rollover-active::after {
-        content: '';
-        display: block;
-        width: 100px;
-        height: 100px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 2;
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-    }
-    
+ 
+   
     /* Show rollover on hover */
     .link-container .hero-link:hover .rollover-active {
         opacity: 1;
         transition: opacity 0.3s ease;
     }
     
-    /* Specific icons for each rollover - these will appear over the background images */
+    /* Specific icons for each rollover - these will also appear over the background images */
     .link-container .hero-link:nth-child(1) .rollover-active::after {
         background-image: url('/assets/index/cropped-energy.png');
     }
@@ -1125,13 +1029,47 @@ body {
     .link-container .hero-link:nth-child(5) .rollover-active::after {
         background-image: url('/assets/index/cropped-hazard.png');
     }
-    
+
     .link-container img {
         max-width: 40px;
         height: auto;
         display: block;
+   }
+   
+   /*need to adjust the icon heights to align with text:*/
+      .link-container .hero-link:nth-child(1) img{ /*labs*/
+        padding-bottom:2px;
     }
-    
+       .link-container .hero-link:nth-child(2) img{ /*maps*/
+        padding-bottom:5px;
+    }
+       .link-container .hero-link:nth-child(3) img{ /*people*/
+        padding-bottom:10px;
+    }
+       .link-container .hero-link:nth-child(4) img{ /*monitoring*/
+        padding-bottom:15px;
+    }
+   .link-container .hero-link:nth-child(5) img{ /*news*/
+        padding-bottom:5px;
+    }
+
+    /* Add icon styling at bottom of text in rollover - updated to work with background images */
+    .link-container .hero-link .rollover-active::after {
+        content: '';
+        display: block;
+        width: 90px;
+        height: 90px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        bottom: 37px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 4;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    }
+
     .link-container .hero-link {
         flex-direction: row;
         align-items: flex-end;
@@ -1142,9 +1080,10 @@ body {
     }
     
     .hero-link .link-text {
-        padding-bottom: 5px;
-        padding-left: 24px;
+        padding-bottom: 12px;
+        padding-left: 20px;
         color: var(--white) !important;
+
     }
     
     .link-container .hero-link:first-child {
@@ -1386,7 +1325,7 @@ body {
     }
     
     .link-text {
-        font-size: 12px;
+        font-size: 1.2em;
     }
     
     .video-copy-container {

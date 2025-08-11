@@ -8,7 +8,7 @@ export default defineConfig({
     mode: 'standalone',
   }),
   server: {
-    port: 4321,  // <-- Set your desired port here
+    port: 4322,  // <-- Set your desired port here
     host: true   // <-- Listen on all interfaces (not just 127.0.0.1)
   },
 });
