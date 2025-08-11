@@ -34,45 +34,46 @@ const { articles } = await fetchRecentNews(6, 1);
                 <div class="video-container">
                     <div class="link-container">
                         <a class="hero-link inter-nav" href="/labs/">
-                          <img src="/assets/index/cropped-energy.png" alt="Labs">
+                            <img src="/assets/index/cropped-energy.png" alt="Labs">
                             <span class="link-text">Labs</span>
                             <div class="rollover-active">
                                 <h3 class="inter-h3">Labs</h3>
-                                <p class="source-sans-3-p">State-of-the-art research facilities providing geochemical analysis, materials testing, and hazard assessments for geological research and environmental monitoring across Kentucky.</p>
+                                <p class="source-sans-3-p">Explore our state-of-the-art research facilities and analytical laboratories. From geochemical analysis to materials testing to hazard assessments, our labs provide essential services for geological research, environmental monitoring, and engineering solutions across Kentucky.</p>
                             </div>
-                            </a>
-                            <a class="hero-link inter-nav" href="https://kgs.uky.edu/kygeode/">
-                                <img src="/assets/index/cropped-maps.png" alt="Maps">
-                                <span class="link-text">Maps &amp; Data</span>
-                                <div class="rollover-active">
-                                    <h3 class="inter-h3">Maps &amp; Data</h3>
-                                    <p class="source-sans-3-p">Comprehensive geological maps, hazard assessments, and scientific data covering Kentucky's geology, mineral resources, groundwater, and natural hazards.</p>
-                                </div>
-                            </a>
-                            <a class="hero-link inter-nav" href="/staff/">
-                                <img src="/assets/index/cropped-community.png" alt="Community">
-                                <span class="link-text">People</span>
-                                <div class="rollover-active">
-                                    <h3 class="inter-h3">People</h3>
-                                    <p class="source-sans-3-p">Expert geologists, researchers, and support staff specializing in landslide monitoring, hydrogeology, mineral resources, and environmental geology.</p>
-                                </div>
-                            </a>
-                            <a class="hero-link inter-nav" href="/monitoring">
-                                <img src="/assets/index/cropped-water.png" alt="Water">
-                                <span class="link-text">Monitoring</span>
-                                <div class="rollover-active">
-                                    <h3 class="inter-h3">Monitoring</h3>
-                                    <p class="source-sans-3-p">Real-time monitoring of groundwater, seismic activity, landslides, and environmental conditions to protect communities and infrastructure across Kentucky.</p>
-                                </div>
-                            </a>
-                            <a class="hero-link inter-nav" href="/news/">
-                                <img src="/assets/index/cropped-hazard.png" alt="Hazards">
-                                <span class="link-text">Updates</span>
-                                <div class="rollover-active">
-                                    <h3 class="inter-h3">Updates</h3>
-                                    <p class="source-sans-3-p">Latest KGS research findings, field studies, publications, and community outreach helping Kentucky understand and prepare for geological hazards.</p>
-                                </div>
-                            </a>
+                        </a>
+                        <a class="hero-link inter-nav" href="https://kgs.uky.edu/kygeode/">
+                            <img src="/assets/index/cropped-maps.png" alt="Maps">
+                            <span class="link-text">Maps &amp; Data</span>
+                            <div class="rollover-active">
+                                <h3 class="inter-h3">Maps &amp; Data</h3>
+                                <p class="source-sans-3-p">Access comprehensive geological maps, hazard assessments, and scientific data. Find detailed information about Kentucky's geology, mineral resources, groundwater, and natural hazards to support research, planning, and decision-making.</p>
+                            </div>
+                        </a>
+                        <a class="hero-link inter-nav" href="/staff/">
+                            <img src="/assets/index/cropped-community.png" alt="Community">
+                            <span class="link-text">People</span>
+                            <div class="rollover-active">
+                                <h3 class="inter-h3">People</h3>
+                                <p class="source-sans-3-p">Meet our team of expert geologists, researchers, and support staff. Connect with specialists in areas ranging from landslide monitoring and hydrogeology to mineral resources and environmental geology.</p>
+                            </div>
+                        </a>
+                        <a class="hero-link inter-nav" href="/monitoring">
+                            <img src="/assets/index/cropped-water.png" alt="Water">
+                            <span class="link-text">Monitoring</span>
+                            <div class="rollover-active">
+                                <h3 class="inter-h3">Monitoring</h3>
+                                <p class="source-sans-3-p">Discover our ongoing monitoring programs tracking groundwater, seismic activity, landslides, and environmental conditions. Our real-time data and help inform and protect communities and infrastructure across the Commonwealth.</p>
+                            </div>
+                        </a>
+                        <a class="hero-link inter-nav" href="/news/">
+                            <img src="/assets/index/cropped-hazard.png" alt="Hazards">
+                            <span class="link-text">News & Events</span>
+                            <div class="rollover-active">
+                                <h3 class="inter-h3">News & Events</h3>
+                                <p class="source-sans-3-p">Stay current with KGS research findings, field studies, community outreach, and emergency response efforts. Learn about our latest discoveries, publications, and how we're helping Kentucky communities understand and prepare for geological hazards.</p>
+                            </div>
+                        </a>
+
                     </div>
                     <div class="video-copy-container">
                         <h2 class="hero-title inter-h2">Kentucky Geological Survey</h2>
@@ -135,7 +136,17 @@ const { articles } = await fetchRecentNews(6, 1);
                         <p class="source-sans-3-p">This podcast is a fun, conversational approach to discussing all things geology and earth processes.
                             We primarily focus on Kentucky as we talk about emerging ideas in research, along with classic topics in earth science for all levels of interest.</p>
                         <div class="podcast-player">
-                            <iframe title="The Big Blue Rock Pod" allowtransparency="true" height="260" width="100%" style="border: none; min-width: min(100%, 430px);height:260px;" scrolling="no" data-name="pb-iframe-player" src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=0&download=1&rtl=0&fonts=Verdana&skin=3267a3&font-color=auto&logo_link=episode_page&order=episodic&limit=3&filter=all&ss=8d19f7d7d2764f3305b6868e1e1efb88&btn-skin=60a0c8&size=260" loading="lazy" allowfullscreen=""></iframe>
+                            <iframe
+                                title="The Big Blue Rock Pod"
+                                allowtransparency="true"
+                                height="200"
+                                width="100%"
+                                style="border: none; min-height: 200px;"
+                                data-name="pb-iframe-player"
+                                src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=1&download=1&fonts=Arial&skin=3267a3&font-color=auto&rtl=0&logo_link=&btn-skin=60a0c8&size=200"
+                                loading="lazy"
+                                allowfullscreen="">
+                            </iframe>
                         </div>
                     </div>
 
