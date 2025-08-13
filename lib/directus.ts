@@ -30,6 +30,6 @@ type Schema = {
   pages: Page[];
 }
 
-const directus = createDirectus<Schema>('http://128.163.188.65:8056/').with(rest());
+const directus = createDirectus<Schema>('http://128.163.188.65/directus').with(rest());
 
 export default directus;

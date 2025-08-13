@@ -14,8 +14,6 @@ export async function getStaticPaths() {
 }
 const page = Astro.props;
 ---
-const isStaging = import.meta.env.PUBLIC_ENV === "staging";
----
 <Layout title={page.title}>
 
   <main>
