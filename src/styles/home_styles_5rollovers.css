@@ -287,7 +287,7 @@ body {
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 50px);
+    width: calc(100% - 40px);
     max-width: 600px;
     height: auto;
     z-index: 5;
@@ -307,24 +307,27 @@ body {
     display: none;
 }
 
-/* Link positioning for mobile:*/
-/*top center:*/
+/* Link positioning */
 .link-container .hero-link:first-child {
     grid-column: 2;
 }
-/*middle left:*/
+
 .link-container .hero-link:nth-child(2) {
     grid-row: 2;
 }
-/*middle right*/
+
 .link-container .hero-link:nth-child(3) {
     grid-column: 3;
     grid-row: 2;
 }
-/*bottom center*/
-.link-container .hero-link:last-child {
-    grid-column: 2;
+
+.link-container .hero-link:nth-child(4) {
     grid-row: 3;
+}
+
+.link-container .hero-link:last-child {
+    grid-row: 3;
+    grid-column: 3;
 }
 
 .link-container a img {
@@ -812,8 +815,13 @@ body {
         grid-row: 1;
     }
     
-    .link-container .hero-link:last-child {
+    .link-container .hero-link:nth-child(4) {
         grid-column: 4;
+        grid-row: 1;
+    }
+    
+    .link-container .hero-link:last-child {
+        grid-column: 5;
         grid-row: 1;
     }
     
@@ -895,9 +903,9 @@ body {
     }
     
     .link-container {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         grid-template-rows: 80px;
-        gap: 50px;
+        gap: 40px;
         padding-top: 10px;
         max-width: var(--content-max-width); /* Changed to use content max width */
         top: 16px;
@@ -913,7 +921,7 @@ body {
         padding: 32px;
         position: absolute;
         width: 20vw;
-        max-width: 420px; /* Add max width to prevent getting too large */
+        max-width: 320px; /* Add max width to prevent getting too large */
         top: -25px;
         height: var(--video-height-desktop);
         box-sizing: border-box;
@@ -946,21 +954,24 @@ body {
         z-index: 2;
     }
     
-    
+    /* Designer background images for each rollover */
     .link-container .hero-link:nth-child(1) .rollover-active {
-        background-image: url('/assets/index/PEOPLE.png');
-    }
-
-     /* Designer background images for each rollover */
-    .link-container .hero-link:nth-child(2) .rollover-active {
         background-image: url('/assets/index/LABS.png');
     }
-
+    
+    .link-container .hero-link:nth-child(2) .rollover-active {
+        background-image: url('/assets/index/MAPS.png');
+    }
+    
     .link-container .hero-link:nth-child(3) .rollover-active {
-        background-image: url('/assets/index/MONITOR.png');
+        background-image: url('/assets/index/PEOPLE.png');
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active {
+        background-image: url('/assets/index/MONITOR.png');
+    }
+    
+    .link-container .hero-link:nth-child(5) .rollover-active {
         background-image: url('/assets/index/NEWS.png');
     }
 
@@ -999,20 +1010,23 @@ body {
     }
     
     /* Specific icons for each rollover - these will also appear over the background images */
-
     .link-container .hero-link:nth-child(1) .rollover-active::after {
-        background-image: url('/assets/index/cropped-community.png');
-    }
-
-    .link-container .hero-link:nth-child(2) .rollover-active::after {
         background-image: url('/assets/index/cropped-energy.png');
     }
-
+    
+    .link-container .hero-link:nth-child(2) .rollover-active::after {
+        background-image: url('/assets/index/cropped-maps.png');
+    }
+    
     .link-container .hero-link:nth-child(3) .rollover-active::after {
-        background-image: url('/assets/index/cropped-water.png');
+        background-image: url('/assets/index/cropped-community.png');
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active::after {
+        background-image: url('/assets/index/cropped-water.png');
+    }
+    
+    .link-container .hero-link:nth-child(5) .rollover-active::after {
         background-image: url('/assets/index/cropped-hazard.png');
     }
 
@@ -1021,20 +1035,21 @@ body {
         height: auto;
         display: block;
    }
- 
-   .link-container .hero-link:nth-child(1) img{ /*people*/
-        padding-bottom:10px;
-    }
-
-    /*need to adjust the icon heights to align with text:*/
-    .link-container .hero-link:nth-child(2) img{ /*labs*/
+   
+   /*need to adjust the icon heights to align with text:*/
+      .link-container .hero-link:nth-child(1) img{ /*labs*/
         padding-bottom:2px;
     }
-
-    .link-container .hero-link:nth-child(3) img{ /*monitoring*/
+       .link-container .hero-link:nth-child(2) img{ /*maps*/
+        padding-bottom:5px;
+    }
+       .link-container .hero-link:nth-child(3) img{ /*people*/
+        padding-bottom:10px;
+    }
+       .link-container .hero-link:nth-child(4) img{ /*monitoring*/
         padding-bottom:15px;
     }
-   .link-container .hero-link:nth-child(4) img{ /*news*/
+   .link-container .hero-link:nth-child(5) img{ /*news*/
         padding-bottom:5px;
     }
 
@@ -1086,11 +1101,16 @@ body {
         grid-row: 1;
     }
     
-    .link-container .hero-link:last-child {
+    .link-container .hero-link:nth-child(4) {
         grid-column: 4;
         grid-row: 1;
     }
-   
+    
+    .link-container .hero-link:last-child {
+        grid-column: 5;
+        grid-row: 1;
+    }
+    
     .video-copy-container {
         display: block;
         color: var(--white) !important;
