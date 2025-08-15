@@ -417,7 +417,15 @@ body {
     color: var(--white);
     padding: 0 0 20px 0 !important;
     flex-grow: 1;
+    font-size:18px;
     display: flex;
+    align-items: center; 
+    text-align: center;
+}
+
+.rollover-text{
+    color: var(--white);
+    font-size:17px;
     align-items: center; 
     text-align: center;
 }
@@ -948,39 +956,37 @@ body {
     
     
     .link-container .hero-link:nth-child(1) .rollover-active {
-        background-image: url('/assets/index/PEOPLE.png');
+        background-image: url('/assets/index/PEOPLE.webp');
     }
 
      /* Designer background images for each rollover */
     .link-container .hero-link:nth-child(2) .rollover-active {
-        background-image: url('/assets/index/LABS.png');
+        background-image: url('/assets/index/LABS.webp');
     }
 
     .link-container .hero-link:nth-child(3) .rollover-active {
-        background-image: url('/assets/index/MONITOR.png');
+        background-image: url('/assets/index/MONITOR.webp');
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active {
-        background-image: url('/assets/index/NEWS.png');
+        background-image: url('/assets/index/NEWS.webp');
     }
 
     /* Title positioning - at the top of rollover */
     .link-container .hero-link .rollover-active .inter-h3 {
-        margin-top:38px;
+        margin-top:40px;
         border-bottom: 1px solid var(--white);
         padding-bottom: 10px;
         color: var(--white);
         position: relative;
         z-index: 2;
-        font-size: 1.1em;
+        font-size: 1.2em;
         /* FIXED WIDTH ENFORCEMENT */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-
-
     /* Content area - below title */
     .link-container .hero-link .rollover-active p {
         padding: 5px 0 20px 0;
@@ -1013,7 +1019,7 @@ body {
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active::after {
-        background-image: url('/assets/index/cropped-hazard.png');
+        background-image: url('/assets/index/bullhorn-regular-full.svg');
     }
 
     .link-container img {
