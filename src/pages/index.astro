@@ -62,7 +62,7 @@ const { articles } = await fetchRecentNews(6, 1);
                             </a>
 
                             <a class="hero-link inter-nav" href="/news/">
-                                <img src="/assets/index/bullhorn-regular-full.svg" alt="News">
+                                <img src="/assets/index/bullhorn-regular-full.svg" alt="News" class="hero-icon">
                                 <span class="link-text">News & Events</span>
                                 <div class="rollover-active">
                                     <h3 class="inter-h3">News & Events</h3>
@@ -122,11 +122,13 @@ const { articles } = await fetchRecentNews(6, 1);
                     <p class="source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
                 </div>
 
+                            
+           
                 <div class="section-connect">
                     <h2 class="inter-h2">Connect with Us</h2>
 
                     <!-- Podcast Section -->
-                    <div class="connect-item">
+                    <div class="connect-item podcast">
                         <h3 class="inter-h2 connect-subtitle">The Big Blue Rock Pod</h3>
                         <p class="source-sans-3-p">This podcast is a fun, conversational approach to discussing all things geology and earth processes.
                             We primarily focus on Kentucky as we talk about emerging ideas in research, along with classic topics in earth science for all levels of interest.</p>
@@ -135,36 +137,39 @@ const { articles } = await fetchRecentNews(6, 1);
                         </div>
                     </div>
 
-                    <!-- Social Media Section -->
-                    <div class="connect-item">
-                        <h3 class="inter-h2 connect-subtitle">Follow Our Research</h3>
-                        <p class="source-sans-3-p">Stay connected with KGS on social media for updates, research highlights, and community engagement.</p>
-                        <div class="social-links">
-                            <a href="https://twitter.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener">
-                                <img src="/assets/index/x-twitter.svg" alt="X/Twitter">
-                            </a>
-                            <a href="https://www.facebook.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener">
-                                <img src="/assets/index/facebook.svg" alt="Facebook">
-                            </a>
-                            <a href="https://www.linkedin.com/company/kentucky-geological-survey" class="social-link" target="_blank" rel="noopener">
-                                <img src="/assets/index/linkedin.svg" alt="LinkedIn">
-                            </a>
-                            <a href="https://www.youtube.com/@kentuckygeologicalsurvey" class="social-link" target="_blank" rel="noopener">
-                                <img src="/assets/index/youtube.svg" alt="YouTube">
-                            </a>
+                    <!-- Two-column layout below podcast -->
+                    <div class="connect-two-columns">
+                        <!-- Social Media Section - Left Column -->
+                        <div class="connect-item social">
+                            <h3 class="inter-h2 connect-subtitle">Follow Our Research</h3>
+                            <p class="source-sans-3-p">Stay connected with KGS on social media for updates, research highlights, and community engagement.</p>
+                            <div class="social-links">
+                                <a href="https://twitter.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener" aria-label="Follow us on Twitter/X">
+                                    <img src="/assets/index/x-twitter.svg" alt="X/Twitter">
+                                </a>
+                                <a href="https://www.facebook.com/kygeolsurvey" class="social-link" target="_blank" rel="noopener" aria-label="Follow us on Facebook">
+                                    <img src="/assets/index/facebook.svg" alt="Facebook">
+                                </a>
+                                <a href="https://www.linkedin.com/company/kentucky-geological-survey" class="social-link" target="_blank" rel="noopener" aria-label="Follow us on LinkedIn">
+                                    <img src="/assets/index/linkedin.svg" alt="LinkedIn">
+                                </a>
+                                <a href="https://www.youtube.com/@kentuckygeologicalsurvey" class="social-link" target="_blank" rel="noopener" aria-label="Subscribe to our YouTube channel">
+                                    <img src="/assets/index/youtube.svg" alt="YouTube">
+                                </a>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Newsletter/Contact Section -->
-                    <div class="connect-item">
-                        <h3 class="inter-h2 connect-subtitle">Stay Informed</h3>
-                        <p class="source-sans-3-p">Get the latest updates on Kentucky geology, research findings, and educational opportunities.</p>
-                        <div class="button-container">
-                            <a href="/contact" class="inter-button">Contact Us</a>
+                        <!-- Newsletter/Stay Informed Section - Right Column -->
+                        <div class="connect-item newsletter">
+                            <h3 class="inter-h2 connect-subtitle">Stay Informed</h3>
+                            <p class="source-sans-3-p">Get the latest updates on Kentucky geology, research findings, and educational opportunities.</p>
+                            <div class="newsletter-form">
+                                <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
+                                <button type="submit" class="newsletter-button">Register</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <section class="section-tile service-section">
