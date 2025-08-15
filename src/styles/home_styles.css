@@ -275,6 +275,208 @@ body {
 }
 
 /* ========================================
+   ICON FIXES - Add to your existing CSS
+   ======================================== */
+
+/* ========================================
+   ICON FIXES - Add to your existing CSS
+   ======================================== */
+
+/* Fix for bullhorn SVG icon to turn white */
+.hero-icon {
+    color: white !important;
+    filter: brightness(0) invert(1); /* This will make any SVG white */
+}
+
+/* For the navigation menu bullhorn icon */
+.link-container .hero-link:nth-child(4) img {
+    filter: brightness(0) invert(1);
+    padding-bottom: 5px;
+}
+
+/* For the rollover background icon */
+.link-container .hero-link:nth-child(4) .rollover-active::after {
+    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+/* ========================================
+   CONNECT SECTION UPDATES
+   ======================================== */
+
+/* Podcast Section - Enhanced styling */
+.connect-item.podcast {
+    margin-bottom: 40px;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.connect-subtitle {
+    font-size: 1.3rem !important;
+    color: var(--text-dark) !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 0 !important;
+    font-weight: 600;
+}
+
+.podcast-player {
+    margin-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Two-column layout below podcast */
+.connect-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Social Media Section - Circular icons only */
+.connect-item.social {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: flex-start;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-blue);
+    color: var(--white) !important;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-blue);
+}
+
+.social-link:hover {
+    background-color: var(--hover-button-blue);
+    border-color: var(--hover-button-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.social-link img {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1); /* Make icons white */
+}
+
+/* Newsletter/Stay Informed Section */
+.connect-item.newsletter {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.connect-item.newsletter .connect-subtitle {
+    color: var(--text-dark) !important;
+}
+
+.newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.newsletter-input {
+    padding: 12px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    font-family: var(--font-source-sans);
+}
+
+.newsletter-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.newsletter-button {
+    background-color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    border-radius: 6px;
+    color: var(--white) !important;
+    padding: 12px 24px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    font-family: var(--font-inter);
+}
+
+.newsletter-button:hover {
+    background-color: var(--hover-button-blue);
+    border-color: var(--hover-button-blue);
+}
+
+/* ========================================
+   RESPONSIVE UPDATES
+   ======================================== */
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .connect-two-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+    
+    .connect-item.podcast,
+    .connect-item.newsletter,
+    .connect-item.social {
+        padding: 20px;
+    }
+}
+
+/* Desktop adjustments */
+@media (min-width: 1100px) {
+    .connect-two-columns {
+        gap: 30px;
+    }
+    
+    .social-links {
+        gap: 18px;
+    }
+    
+    .social-link {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .social-link img {
+        width: 26px;
+        height: 26px;
+    }
+}
+
+/* ========================================
    NAVIGATION LINKS (HERO OVERLAY)
    ======================================== */
 
@@ -953,8 +1155,7 @@ body {
         position: relative;
         z-index: 2;
     }
-    
-    
+        
     .link-container .hero-link:nth-child(1) .rollover-active {
         background-image: url('/assets/index/PEOPLE.webp');
     }
@@ -1005,7 +1206,6 @@ body {
     }
     
     /* Specific icons for each rollover - these will also appear over the background images */
-
     .link-container .hero-link:nth-child(1) .rollover-active::after {
         background-image: url('/assets/index/cropped-community.png');
     }
@@ -1019,6 +1219,7 @@ body {
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active::after {
+        color: var(--white);
         background-image: url('/assets/index/bullhorn-regular-full.svg');
     }
 
