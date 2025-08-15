@@ -1,6 +1,6 @@
 ---
 // Static generation approach (recommended for content pages)
-export const prerender = true;
+export const prerender = false;
 import Layout from "../layouts/BaseLayout.astro";
 import directus from "../../lib/directus";
 import { readItems } from "@directus/sdk";
@@ -9,7 +9,7 @@ export async function getStaticPaths() {
   try {
     const pages = await directus.request(readItems("pages", {
       filter: {
-        status: { _eq: "published" } // Only get published pages
+        status: { _eq: "published" } // For Staging View all status
       }
     }));
  
