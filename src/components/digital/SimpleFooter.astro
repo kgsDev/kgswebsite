@@ -1,0 +1,119 @@
+---
+// src/components/digital/SimpleFooter.astro
+// Simple footer for digital display - minimal contact info
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="digital-footer">
+  <div class="footer-container">
+    <div class="footer-content">
+      <!-- Main contact info -->
+      <div class="contact-info">
+        <h4>Kentucky Geological Survey</h4>
+        <p>University of Kentucky • 504 Rose Street • Lexington, KY 40506</p>
+        <p>Phone: <a href="tel:8592575500">(859) 257-5500</a> • Email: <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a></p>
+      </div>
+      
+      <!-- Website and last updated -->
+      <div class="footer-meta">
+        <p>Visit us online at <a href="https://kygs.uky.edu" target="_blank">kygs.uky.edu</a></p>
+        <p class="copyright">© {currentYear} University of Kentucky</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .digital-footer {
+    background: #1B365D;
+    color: white;
+    padding: 2rem 0;
+    margin-top: auto;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .footer-content {
+    text-align: center;
+    space-y: 1rem;
+  }
+  
+  .contact-info h4 {
+    color: #B1C9E8;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .contact-info p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .footer-meta {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(177, 201, 232, 0.3);
+  }
+  
+  .footer-meta p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .copyright {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem !important;
+  }
+  
+  /* Links styling */
+  .digital-footer a {
+    color: #B1C9E8;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .digital-footer a:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .digital-footer {
+      padding: 1.5rem 0;
+    }
+    
+    .footer-container {
+      padding: 0 1rem;
+    }
+    
+    .contact-info h4 {
+      font-size: 1.1rem;
+    }
+    
+    .contact-info p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  /* For large displays like 55" monitors */
+  @media (min-height: 3000px) {
+    .digital-footer {
+      padding: 3rem 0;
+    }
+    
+    .contact-info h4 {
+      font-size: 1.5rem;
+    }
+    
+    .contact-info p {
+      font-size: 1.1rem;
+    }
+  }
+</style>

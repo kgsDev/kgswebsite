@@ -22,13 +22,29 @@ async function apiRequest(path, params) {
 }
 
 /**
- * Fetch all staff members grouped by department
+ * Determine leadership level for sorting (higher number = higher priority)
+ */
+function getLeadershipLevel(member) {
+  if (member.director_kgs) return 4; // State Geologist - highest
+  if (member.associate_dir) return 3; // Associate Director
+  if (member.assistant_dir) return 2; // Assistant Director  
+  if (member.div_director) return 1; // Division Director
+  return 0; // Regular staff
+}
+
+/**
+ * Fetch all staff members grouped by leadership and department
  */
 export async function fetchStaffByDepartment() {
   try {
-    // First get all departments
+    // First get only departments marked for directory display
     const departments = await apiRequest('/items/departments', {
       fields: ['id', 'name', 'slug'],
+      filter: JSON.stringify({
+        directory: {
+          _eq: true
+        }
+      }),
       sort: 'sort'
     });
 
@@ -44,13 +60,15 @@ export async function fetchStaffByDepartment() {
           _eq: 'active'
         }
       }),
-      sort: 'department_id.name,-department_head,sort,last_name,first_name'
+      sort: 'department_id.name,sort,last_name,first_name'
     });
 
-    // Group staff by department
-    const staffByDepartment = {};
+    // Initialize the structure with leadership section first
+    const staffByDepartment = {
+      'State Geologist and Directors': []
+    };
 
-    // Initialize departments
+    // Initialize departments (only those marked for directory)
     if (Array.isArray(departments)) {
       departments.forEach(dept => {
         staffByDepartment[dept.name] = [];
@@ -178,31 +196,84 @@ export async function fetchStaffByDepartment() {
         // Check if member is a team leader (only from leading specific teams)
         member.is_team_lead = member.team && member.team.some(team => team.is_team_lead);
         
-        // Add to the appropriate department
-        if (!staffByDepartment[departmentName]) {
-          staffByDepartment[departmentName] = [];
-        }
+        // Determine where to place this staff member
+        const leadershipLevel = getLeadershipLevel(member);
         
-        staffByDepartment[departmentName].push(member);
+        if (leadershipLevel > 0) {
+          // This person is a director - add to leadership section
+          staffByDepartment['State Geologist and Directors'].push(member);
+        } else {
+          // Regular staff member - add to their department
+          // But only if their department is marked for directory display
+          if (staffByDepartment[departmentName]) {
+            staffByDepartment[departmentName].push(member);
+          } else if (departmentName === 'Other') {
+            // Always allow "Other" department
+            staffByDepartment['Other'].push(member);
+          }
+          // If department not marked for directory, staff member is excluded
+        }
       });
       
-      // Sort each department's staff to put department heads first, then team leads
-      Object.keys(staffByDepartment).forEach(dept => {
-        staffByDepartment[dept].sort((a, b) => {
-          // Department heads come first
-          if (a.department_head && !b.department_head) return -1;
-          if (!a.department_head && b.department_head) return 1;
-          
-          // Then team leads
-          if (a.is_team_lead && !b.is_team_lead) return -1;
-          if (!a.is_team_lead && b.is_team_lead) return 1;
-          
-          // Then sort by the sort field
-          if (a.sort !== b.sort) return a.sort - b.sort;
-          
-          // Finally sort by last name, first name
-          return `${a.last_name}${a.first_name}`.localeCompare(`${b.last_name}${b.first_name}`);
+      // Now fetch locations for all staff members
+      const allStaffIdsForLocations = staff.map(member => member.id);
+      const allLocationRelations = await apiRequest('/items/staff_locations', {
+        fields: ['staff_id', 'locations_id.*'],
+        filter: JSON.stringify({
+          staff_id: {
+            _in: allStaffIdsForLocations
+          }
+        })
+      });
+      
+      // Create a map of staff ID to locations
+      const staffLocationsMap = {};
+      if (allLocationRelations && allLocationRelations.length > 0) {
+        allLocationRelations.forEach(relation => {
+          const staffId = relation.staff_id;
+          if (!staffLocationsMap[staffId]) {
+            staffLocationsMap[staffId] = [];
+          }
+          if (relation.locations_id) {
+            staffLocationsMap[staffId].push(relation.locations_id);
+          }
         });
+      }
+      
+      // Add location data to all staff members
+      Object.values(staffByDepartment).flat().forEach(member => {
+        member.location = staffLocationsMap[member.id] || [];
+      });
+      
+      // Sort leadership section by hierarchy
+      staffByDepartment['State Geologist and Directors'].sort((a, b) => {
+        const aLevel = getLeadershipLevel(a);
+        const bLevel = getLeadershipLevel(b);
+        
+        // Higher leadership level comes first
+        if (aLevel !== bLevel) return bLevel - aLevel;
+        
+        // Within same level, sort by sort field, then name
+        if (a.sort !== b.sort) return a.sort - b.sort;
+        
+        return `${a.last_name}${a.first_name}`.localeCompare(`${b.last_name}${b.first_name}`);
+      });
+      
+      // Sort each department's staff (excluding leadership section)
+      Object.keys(staffByDepartment).forEach(dept => {
+        if (dept !== 'State Geologist and Directors') {
+          staffByDepartment[dept].sort((a, b) => {
+            // Team leads first
+            if (a.is_team_lead && !b.is_team_lead) return -1;
+            if (!a.is_team_lead && b.is_team_lead) return 1;
+            
+            // Then sort by the sort field
+            if (a.sort !== b.sort) return a.sort - b.sort;
+            
+            // Finally sort by last name, first name
+            return `${a.last_name}${a.first_name}`.localeCompare(`${b.last_name}${b.first_name}`);
+          });
+        }
       });
     }
     

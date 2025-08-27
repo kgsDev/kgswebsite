@@ -1,0 +1,22 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* remove default scrollbars */
+}
+
+.scroll-wrapper {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.scroll-content {
+  display: flex;
+  flex-direction: column;
+  animation: scroll-up var(--scroll-speed, 120s) linear infinite;
+}
+
+@keyframes scroll-up {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
