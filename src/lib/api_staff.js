@@ -111,6 +111,9 @@ export async function fetchStaffByDepartment() {
           filter: JSON.stringify({
             id: {
               _in: teamIds
+            },
+            division: {
+              _eq: 4 //only geoscience research teams
             }
           })
         });
