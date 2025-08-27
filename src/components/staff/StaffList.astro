@@ -15,7 +15,7 @@ function getLeadershipBadge(member) {
 }
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-20">
   {staff.map((member) => (
     <a 
       href={`/staff/${member.slug}`} 
@@ -30,7 +30,7 @@ function getLeadershipBadge(member) {
         <div class="relative overflow-hidden bg-gray-100" style="padding-top: 125%;">
           {typeof member.photo === 'string' && member.photo ? (
             <img 
-              src={`${directusUrl}assets/${member.photo}?width=240&height=300&quality=90`} 
+              src={`${directusUrl}assets/${member.photo}?width=480&height=600&quality=90`} 
               alt={`${member.first_name} ${member.last_name}`}
               class="absolute inset-0 w-full h-full object-contain bg-gray-100 transition duration-500"
               style="transform: scale(1); transition: transform 0.5s;"
