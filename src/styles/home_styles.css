@@ -434,49 +434,6 @@ body {
 }
 
 /* ========================================
-   RESPONSIVE UPDATES
-   ======================================== */
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .connect-two-columns {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .social-links {
-        justify-content: center;
-    }
-    
-    .connect-item.podcast,
-    .connect-item.newsletter,
-    .connect-item.social {
-        padding: 20px;
-    }
-}
-
-/* Desktop adjustments */
-@media (min-width: 1100px) {
-    .connect-two-columns {
-        gap: 30px;
-    }
-    
-    .social-links {
-        gap: 18px;
-    }
-    
-    .social-link {
-        width: 55px;
-        height: 55px;
-    }
-    
-    .social-link img {
-        width: 26px;
-        height: 26px;
-    }
-}
-
-/* ========================================
    NAVIGATION LINKS (HERO OVERLAY)
    ======================================== */
 
@@ -982,10 +939,11 @@ body {
 }
 
 /* ========================================
-   MEDIA QUERIES
+   MEDIA QUERIES - Responsiveness
    ======================================== */
 
-/* Tablet (550px+) */
+/* Tablet (550px - 1100px) - not great so removing
+
 @media (min-width: 550px) {
     .video-container {
         height: var(--hero-height-tablet);
@@ -1068,7 +1026,6 @@ body {
         width: 195px;
     }
     
-    /* Data section improvements for tablet */
     .section-data .section-container {
         flex-direction: row;
         align-items: flex-start;
@@ -1089,6 +1046,8 @@ body {
         object-position: center top; 
     }
 }
+
+*/
 
 /* Desktop (1100px+) */
 @media (min-width: 1100px) {
@@ -1482,10 +1441,28 @@ body {
     .section-news .news-tile {
         width: 290px;
     }
+
+        .connect-two-columns {
+        gap: 30px;
+    }
+    
+    .social-links {
+        gap: 18px;
+    }
+    
+    .social-link {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .social-link img {
+        width: 26px;
+        height: 26px;
+    }
 }
 
 /* Mobile specific fixes (max-width: 549px) */
-@media (max-width: 549px) {
+@media (max-width: 1100px) {
     .hero {
         height: var(--hero-height-mobile);
     }

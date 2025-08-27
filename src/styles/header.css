@@ -140,7 +140,8 @@ header .logo {
     }
     .nav-menu {
         background-color: #fff;
-        color: #B5A798;
+        /*color: #B5A798;  too light - not ADA*/ 
+        color:#886D52; /*constrast ratio to #fff is 4.82:1*/
         display: flex;
         justify-content: space-between;
         width: 930px;
