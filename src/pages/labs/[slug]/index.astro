@@ -224,7 +224,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       <h2 class="text-2xl font-bold mb-6 lab-primary-text">Contact & Location</h2>
       
       <!-- Lab Location with Map and Details -->
-      <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <div class="grid md:grid-cols-3 gap-8 mb-8">
         <!-- Lab Photo -->
         {lab.lab_photo && (
           <div>
@@ -305,11 +305,12 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                 <a 
                   href={`/about/locations#${lab.location.slug}`}
                   class="inline-flex items-center text-sm lab-primary-text hover:underline"
+                  aria-label={`View complete location details for ${lab.location.name}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  View Complete Location Details
+                  View Location Details
                 </a>
               </div>
             )}

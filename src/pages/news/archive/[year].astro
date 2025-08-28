@@ -3,23 +3,22 @@
 export const prerender = true; // Enable SSR for this page
 import NewsLayout from '../../../layouts/NewsLayout.astro';
 import NewsCard from '../../../components/news/NewsCard.astro';
-import { fetchNewsByMonth, fetchNewsYears, fetchAllNewsSlugs } from '../../../lib/api_news';
+import { fetchNewsByMonth, fetchNewsYears } from '../../../lib/api_news';
 
 // Generate static paths for all years
 export async function getStaticPaths() {
-  const slugs = await fetchAllNewsSlugs();
-  console.log('Fetched slugs:', slugs); // Optional debug line
+  const years = await fetchNewsYears();
+  console.log('Available years for archive:', years);
 
-  return slugs.map((slug) => ({
+  return years.map((year) => ({
     params: {
-      slug: String(slug),
+      year: String(year),
     },
   }));
 }
 
-// Get year from URL params
-const url = new URL(Astro.url);
-const year = url.pathname.split('/').pop();
+// Get year from params (not URL)
+const { year } = Astro.params;
 
 // Try parsing the year - if it's not valid, use current year
 let yearNum;
@@ -91,15 +90,6 @@ const formatDate = (dateString) => {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
   </Fragment>
-  
-  <!-- Breadcrumb Addition -->
-  <Fragment slot="breadcrumb">
-    <span class="mx-2">›</span>
-    <a href="/news/archive" class="hover:text-[#0033A0] transition">Archive</a>
-    <span class="mx-2">›</span>
-    <span class="text-gray-800">{year}</span>
-  </Fragment>
-  
   <!-- Custom Sidebar -->
   <Fragment slot="sidebar">
     <!-- Years navigation -->
@@ -165,7 +155,7 @@ const formatDate = (dateString) => {
                   <div class="mb-3 flex items-center gap-2">
                     <div class="text-gray-600 text-sm flex items-center">
                       <Fragment set:html={getCategoryIcon(article.category)} />
-                      <time datetime={article.published_date}>{formatDate(article.published_date)}</time>
+                      <time datetime={article.publication_date}>{formatDate(article.publication_date)}</time>
                     </div>
                     
                     {article.category && (
@@ -195,7 +185,7 @@ const formatDate = (dateString) => {
                     </p>
                   )}
                   
-                  <a href={`/news/${article.slug}`} class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                  <a href={`/news/${article.slug}`} class="inline-flex items-center text-blue-600 hover:text-blue-800" aria-label={`View article ${article.title}`}>
                     Read more
                     <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />

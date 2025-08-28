@@ -33,13 +33,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Base link styles for main content */
-p a {
-  color: var(--wildcatBlue);
-  text-decoration: none;
+p {
+  color: #4b5563; /* Gray-600 for better readability */
 }
 
-p a:hover {
+/* Base link styles for main content */
+p a, ol a, ul a {
+  color: var(--wildcatBlue);
+  text-decoration: underline;
+}
+
+p a:hover, ol a:hover, ul a:hover {
   color: var(--midnightBlue);
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -48,7 +52,7 @@ p a:hover {
 }
 
 /* Focus styles for keyboard navigation (enhanced) */
-p a:focus-visible {
+p a:focus-visible, ol a:focus-visible, ul a:focus-visible {
   outline: 3px solid #3b82f6;
   outline-offset: 3px;
   border-radius: 2px;
@@ -114,6 +118,11 @@ h6 {
 ul {
   list-style: disc;
   padding-left: 2vw;
+  color: #4b5563; /* Gray-600 for better readability */
+}
+
+ol {
+  color: #4b5563; /* Gray-600 for better readability */
 }
 
 /* Footer styling */

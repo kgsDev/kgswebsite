@@ -1,0 +1,381 @@
+---
+// src/pages/about/board.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import axios from 'axios';
+
+// Define props with defaults specific to advisory board page
+const {
+    title = 'KGS Advisory Board',
+    description = 'Meet the Kentucky Geological Survey Advisory Board members who provide guidance and expertise.',
+    showBreadcrumb = true,
+} = Astro.props;
+
+// Fetch advisory board members from Directus
+let boardMembers = [];
+try {
+    const api = axios.create({
+        baseURL: import.meta.env.PUBLIC_DIRECTUS_URL,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const response = await api.get('/items/advisory_board', {
+        params: {
+            fields: ['*'],
+            filter: JSON.stringify({
+                status: {
+                    _eq: 'published'
+                }
+            }),
+            sort: 'start_term_date,-end_term_date,last,first'
+        }
+    });
+    
+    boardMembers = response.data.data || [];
+} catch (error) {
+    console.error('Error fetching advisory board members:', error);
+}
+
+// Group members by term dates
+const groupedMembers = {};
+boardMembers.forEach(member => {
+    // Format dates to show only month/year
+    const startDate = new Date(member.start_term_date);
+    const endDate = new Date(member.end_term_date);
+    
+    const startFormatted = startDate.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
+    });
+    const endFormatted = endDate.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long' 
+    });
+    
+    const termKey = `${startFormatted} - ${endFormatted}`;
+    
+    if (!groupedMembers[termKey]) {
+        groupedMembers[termKey] = [];
+    }
+    
+    groupedMembers[termKey].push(member);
+});
+
+// Sort groups by start date (most recent first)
+const sortedGroups = Object.entries(groupedMembers).sort((a, b) => {
+    const aStartDate = new Date(a[1][0].start_term_date);
+    const bStartDate = new Date(b[1][0].start_term_date);
+    return bStartDate - aStartDate;
+});
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+---
+
+<BaseLayout 
+    title={title}
+    description={description}
+>
+    <style>
+        h2 {
+            padding-top: 3vh;
+            text-transform: uppercase;
+        }
+        
+        .board-section {
+            padding-top: 0.5vh;
+        }
+        
+        .term-group {
+            margin: 3vh 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .term-header {
+            background: var(--wildcatBlue);
+            color: #fff;
+            padding: 1.5rem 2rem;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+        
+        .member-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-photo {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .member-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .member-initials {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--wildcatBlue);
+        }
+        
+        .member-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .member-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: var(--rockSlate);
+        }
+        
+        .member-title {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0 0 0.5rem 0;
+            color: var(--wildcatBlue);
+        }
+        
+        .member-location {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .location-icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        
+        .intro-text {
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 1.25rem 0;
+        }
+        
+        .mission-quote {
+            margin: 2vh 0;
+            padding: 2rem;
+            border-left: 4px solid var(--wildcatBlue);
+            background: #f9fafb;
+            font-style: italic;
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+        }
+        
+        .no-members-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2vh 0;
+            text-align: center;
+        }
+        
+        .no-members-note p {
+            margin: 0;
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        
+        /* Skip link for screen readers */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--wildcatBlue);
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 1000;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-weight: 600;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        /* Screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .members-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .member-card {
+                padding: 1rem;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .member-photo {
+                align-self: center;
+                margin-bottom: 1rem;
+            }
+            
+            .term-header {
+                padding: 1rem;
+                font-size: 1.125rem;
+            }
+            
+            h1 {
+                font-size: 1.875rem; /* 30px on mobile */
+            }
+            
+            h2 {
+                font-size: 1.5rem; /* 24px on mobile */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .members-grid {
+                gap: 1rem;
+            }
+            
+            .member-card {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <main id="main-content">
+        <h1>KGS Advisory Board</h1>
+        
+        <div class="intro-text">
+            <p>The Kentucky Geological Survey Advisory Board is a 12-member body that provides strategic guidance and expertise to support our mission of serving the Commonwealth through 
+                geological research and public service. Our board members bring diverse professional backgrounds and valuable insights from across Kentucky and beyond.</p>
+        </div>
+
+        <section class="board-section" aria-labelledby="current-members">
+            {sortedGroups.length > 0 ? (
+                sortedGroups.map(([termLabel, members]) => (
+                    <div class="term-group">
+                        <h2 class="term-header" id={`term-${termLabel.replace(/\s+/g, '-').toLowerCase()}`}>
+                            {termLabel}
+                        </h2>
+                        
+                        <div class="members-grid" role="list" aria-labelledby={`term-${termLabel.replace(/\s+/g, '-').toLowerCase()}`}>
+                            {members.map((member) => {
+                                const initials = `${member.first?.charAt(0) || ''}${member.last?.charAt(0) || ''}`;
+                                
+                                return (
+                                    <div class="member-card" role="listitem">
+                                        <div class="member-photo">
+                                            {member.photo ? (
+                                                <img 
+                                                    src={`${directusUrl}assets/${member.photo}?width=160&height=160&quality=90&fit=cover`}
+                                                    alt={`${member.first} ${member.last}`}
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div class="member-initials" aria-label={`${member.first} ${member.last} - no photo available`}>
+                                                    {initials}
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div class="member-info">
+                                            <h3 class="member-name">
+                                                {member.first} {member.last}
+                                            </h3>
+                                            
+                                            {member.title && (
+                                                <p class="member-title">{member.title}</p>
+                                            )}
+                                            
+                                            {member.location && (
+                                                <p class="member-location">
+                                                    <svg class="location-icon" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="sr-only">Location: </span>
+                                                    {member.location}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div class="no-members-note">
+                    <p>Advisory Board member information is currently being updated. Please check back soon.</p>
+                </div>
+            )}
+        </section>
+
+        <section class="board-section" aria-labelledby="board-purpose">
+            <h2 id="board-purpose">Advisory Board Purpose</h2>
+            
+            <div class="mission-quote">
+                <p>The Advisory Board serves as a vital link between the Kentucky Geological Survey and the communities, industries, and stakeholders we serve. Board members provide strategic counsel on research priorities, help identify emerging needs, and ensure our work remains relevant and impactful for the Commonwealth of Kentucky.</p>
+            </div>
+            
+            <div class="intro-text">
+                <p>Advisory Board members are appointed by the Governor of Kentucky to staggered 3-year terms. Members represent a range of sectors including industry, academia, government, and non-profits. The board meets biannually to review KGS activities, provide feedback, and discuss opportunities for collaboration.</p>
+            </div>
+        </section>
+    </main>
+</BaseLayout>

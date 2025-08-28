@@ -1,8 +1,8 @@
 ---
 // SSR approach (for dynamic content - changes when you update the directus content)
 export const prerender = false;
-import Layout from "../layouts/BaseLayout.astro";
-import directus from "../../lib/directus";
+import Layout from "../../layouts/BaseLayout.astro";
+import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
 // Get the slug from URL params

@@ -23,14 +23,16 @@ const GOOGLE_MAPS_API_KEY = import.meta.env.GOOGLE_MAPS_API_KEY;
   </div>
 
   <!-- Locations List -->
-  <div class="space-y-8">
+  <div class="space-y-8" >
     {locations.map((location) => (
+            <span id={location.slug}></span>
+            <br><br>
             <div 
               class="location-card bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <!-- Location Header -->
               <div class="bg-blue-50 p-4 border-b">
-                <h3 class="text-xl font-semibold text-blue-900 mb-1" id={location.slug}>
+                <h3 class="text-xl font-semibold text-blue-900 mb-1">
                   {location.name}
                 </h3>
                 {location.city && location.state && (

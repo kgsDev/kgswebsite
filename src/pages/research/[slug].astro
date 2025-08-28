@@ -1,24 +1,35 @@
 ---
 // src/pages/research/[slug].astro
-// This version uses a parent_page field in Directus for flexible hierarchies
-export const prerender = true;
+// Dynamic version that fetches fresh content on each request
+export const prerender = false;
 import Layout from "../../layouts/BaseLayout.astro";
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
-export async function getStaticPaths() {
+// Get the slug from URL params
+const { slug } = Astro.params;
+
+// Fetch the research page dynamically based on the slug
+let page = null;
+try {
   const pages = await directus.request(readItems("research", {
-    fields: ['*', 'parent_page.slug', 'parent_page.title'] // Include parent page data
+    fields: ['*', 'parent_page.slug', 'parent_page.title'], // Include parent page data
+    filter: {
+      slug: { _eq: slug }
+    },
+    limit: 1
   }));
   
-  return pages.map((page) => ({
-    params: { slug: page.slug },
-    props: page,
-  }));
+  page = pages.length > 0 ? pages[0] : null;
+} catch (error) {
+  console.error("Error fetching research page:", error);
 }
 
-const page = Astro.props;
+// Handle 404 if page not found
+if (!page) {
+  return Astro.redirect('/404');
+}
 
 // Create breadcrumbs based on Directus parent_page relationship
 function createHierarchicalBreadcrumbs(page: any) {

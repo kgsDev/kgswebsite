@@ -1,0 +1,371 @@
+---
+// src/pages/jobs.astro
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Define props with defaults specific to jobs page
+const {
+    title = 'Employment Opportunities',
+    description = 'Join the Kentucky Geological Survey team. Current job openings and career information.',
+    showBreadcrumb = true,
+} = Astro.props;
+---
+
+<BaseLayout 
+    title={title}
+    description={description}
+>
+    <style>
+        h2 {
+            padding-top: 3vh;
+            text-transform: uppercase;
+        }
+        
+        .job-section {
+            padding-top: 2vh;
+        }
+        
+        .job-links {
+            margin: 2vh 0;
+        }
+        
+        .job-link {
+            display: block;
+            margin: 1.5vh 0;
+            padding: 1.5rem;
+            border: 2px solid var(--rockSlate);
+            background: #fff;
+            text-decoration: none;
+            color: var(--rockSlate);
+            font-family: 'Source Sans Pro', sans-serif;
+            transition: all 0.2s ease;
+        }
+        
+        .job-link:hover {
+            background: #f9fafb;
+            border-color: var(--wildcatBlue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 51, 160, 0.1);
+        }
+        
+        .job-link:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 3px;
+            border-radius: 2px;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .job-link-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: var(--wildcatBlue);
+        }
+        
+        .job-link-desc {
+            margin: 0;
+            color: #4b5563;
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .primary-link {
+            border-color: var(--wildcatBlue);
+            border-width: 3px;
+            background: rgba(0, 51, 160, 0.02);
+        }
+        
+        .benefits {
+            padding-top: 3vh;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2vh 0;
+        }
+        
+        .benefit-item {
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .benefit-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin: 0 0 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--rockSlate);
+        }
+        
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            padding-right:35px;
+            flex-shrink: 0;
+        }
+        
+        .benefit-item p {
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .mission-quote {
+            margin: 2vh 0;
+            padding: 2rem;
+            border-left: 4px solid var(--wildcatBlue);
+            background: #f9fafb;
+            font-style: italic;
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+        }
+        
+        .equal-opportunity {
+            padding-top: 3vh;
+        }
+        
+        .equal-opportunity-content {
+            padding: 2rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+        
+        .equal-opportunity-content p {
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        
+        .resources {
+            padding-top: 3vh;
+        }
+        
+        .resources ul {
+            list-style: disc;
+            padding-left: 2vw;
+        }
+        
+        .resources li {
+            margin: 0.75rem 0;
+        }
+        
+        .resources a {
+            color: var(--wildcatBlue);
+            text-decoration: underline;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-weight: 500;
+        }
+        
+        .resources a:hover {
+            color: var(--midnightBlue);
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+            transition: all 0.2s ease;
+        }
+        
+        .resources a:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 3px;
+            border-radius: 2px;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .no-positions-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2vh 0;
+        }
+        
+        .no-positions-note strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--rockSlate);
+        }
+        
+        .no-positions-note p {
+            margin: 0;
+            font-family: 'Source Sans Pro', sans-serif;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        
+        .no-positions-note a {
+            color: var(--wildcatBlue);
+            text-decoration: underline;
+        }
+        
+        .no-positions-note a:hover {
+            color: var(--midnightBlue);
+        }
+        
+        /* Skip link for screen readers */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--wildcatBlue);
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 1000;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-weight: 600;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        /* Screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .job-link {
+                padding: 1rem;
+            }
+            
+            .benefit-item {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.875rem; /* 30px on mobile */
+            }
+            
+            h2 {
+                font-size: 1.5rem; /* 24px on mobile */
+            }
+        }
+    </style>
+
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <main id="main-content">
+        <h1>Employment Opportunities</h1>
+        
+        <p>Join our team of dedicated researchers and professionals working to advance Kentucky's geological knowledge and serve the Commonwealth through meaningful research and public service.</p>
+
+        <section class="job-section" aria-labelledby="current-openings">
+
+            <div class="job-links">
+                <a href="https://ukjobs.uky.edu/postings/search?query_organizational_tier_3_id%5B%5D=234&commit=Search" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="job-link primary-link"
+                   aria-describedby="faculty-desc">
+                    <h3 class="job-link-title">Current KGS Openings</h3>
+                    <p class="job-link-desc" id="faculty-desc">Browse and apply for full and part-time positions including research scientists, support staff, and administrative roles. Also includes non-work study student positions. Opens to UK Jobs in a new window.</p>
+                </a>
+                
+                <a href="https://ukjobs.uky.edu/postings/search?utf8=%E2%9C%93&query=Ky Geological&query_organizational_tier_3_id%5B%5D=any&commit=Search" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="job-link"
+                   aria-describedby="student-desc">
+                    <h3 class="job-link-title">Federal Work Study Student Positions</h3>
+                    <p class="job-link-desc" id="student-desc">Find federal work study student positions at KGS. Opens to UK Jobs in a new window.</p>
+                </a>
+            </div>
+            
+            <div class="no-positions-note">
+                <strong>Don't see any current openings?</strong>
+                <p>We encourage you to check back regularly as new positions are posted throughout the year. You can also <a href="/contact">contact us</a> to express interest in future opportunities.</p>
+            </div>
+        </section>
+
+        <section class="benefits" aria-labelledby="why-work-kgs">
+            <h2 id="why-work-kgs">Why Work at KGS?</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-globe-americas benefit-icon" aria-hidden="true"></i>
+                        Meaningful Impact
+                    </h3>
+                    <p>Contribute to research that directly benefits Kentucky's communities, environment, and economic development.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-microscope benefit-icon" aria-hidden="true"></i>
+                        Cutting-Edge Research
+                    </h3>
+                    <p>Work with state-of-the-art equipment and collaborate with leading experts in geological sciences.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-university benefit-icon" aria-hidden="true"></i>
+                        University Benefits
+                    </h3>
+                    <p>Enjoy comprehensive benefits as a University of Kentucky employee, including healthcare, retirement, and educational opportunities.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <h3 class="benefit-title">
+                        <i class="fas fa-users benefit-icon" aria-hidden="true"></i>
+                        Collaborative Environment
+                    </h3>
+                    <p>Join a dynamic team of scientists, researchers, and support staff working together on important challenges.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="job-section" aria-labelledby="our-mission">
+            <h2 id="our-mission">Our Mission</h2>
+            
+            <div class="mission-quote">
+                <p>The Kentucky Geological Survey (KGS) is a state-supported research center and public resource within the University of Kentucky. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship land grant university, and the welfare of its people. We do this by conducting research in the geological sciences, providing unbiased data and information to the public, and engaging with stakeholders. Research conducted by the KGS serves the Commonwealth and its people by building resilience.</p>
+            </div>
+            
+            <p><a href="/about/mission">Learn more about our Mission, Vision, and Values</a></p>
+        </section>
+
+        <section class="equal-opportunity" aria-labelledby="equal-opportunity-title">
+            <h2 id="equal-opportunity-title">Equal Opportunity Employer</h2>
+            
+            <div class="equal-opportunity-content">
+                <p>The University follows both the federal and state Constitutions as well as all applicable federal and state laws on nondiscrimination. The University provides equal opportunities for qualified persons in all aspects of institutional operations and does not discriminate on the basis of race, color, national origin, ethnic origin, religion, creed, age, physical or mental disability, veteran status, uniformed service, political belief, sex, sexual orientation, gender identity, gender expression, pregnancy, marital status, genetic information or social or economic status.</p>
+            </div>
+        </section>
+
+        <section class="resources" aria-labelledby="additional-resources">
+            <h2 id="additional-resources">Additional Resources</h2>
+            <ul>
+                <li><a href="https://ukjobs.uky.edu/" target="_blank" rel="noopener noreferrer">UK Jobs - University of Kentucky Employment Portal<span class="sr-only"> (opens in new window)</span></a></li>
+                <li><a href="https://www.uky.edu/hr/benefits" target="_blank" rel="noopener noreferrer">UK Employee Benefits Information<span class="sr-only"> (opens in new window)</span></a></li>
+                <li><a href="/staff">Meet Our Current Team</a></li>
+                <li><a href="/research">Explore Our Research Areas</a></li>
+            </ul>
+        </section>
+    </main>
+</BaseLayout>
