@@ -379,58 +379,198 @@ body {
     filter: brightness(0) invert(1); /* Make icons white */
 }
 
-/* Newsletter/Stay Informed Section */
-.connect-item.newsletter {
+/* Ask a Geologist Section */
+
+.email-contact-container {
+    margin-top: 1.5rem;
+}
+
+.email-contact-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 2px solid var(--gray-dark, #E5E9ED);
+    transition: all 0.3s ease;
+}
+
+.email-contact-card:hover {
+    border-color: var(--primary-blue, #204b6e);
+    box-shadow: 0 4px 12px rgba(32, 75, 110, 0.1);
+}
+
+.email-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background-color: var(--primary-blue, #204b6e);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.email-content {
+    flex-grow: 1;
+    min-width: 0; /* Prevents flex overflow issues */
+}
+
+.email-label {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--text-gray, #4b5563);
+    font-weight: 500;
+}
+
+.email-link {
+    /* Use your existing button styles */
+    background-color: var(--primary-blue, #204b6e);
+    border: 2px solid var(--primary-blue, #204b6e);
+    border-radius: 5px;
+    color: white !important;
+    padding: 8px 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.email-link:hover {
+    background-color: var(--hover-button-blue, #396686);
+    border-color: var(--hover-button-blue, #396686);
+    transform: translateY(-1px);
+}
+
+.email-description {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-gray-light, #6b7280);
+    line-height: 1.4;
+}
+
+/* Full-width Ask a Geologist styling */
+.ask-geologist-full {
+    margin-top: 40px;
     background: #f8f9fa;
     padding: 25px;
     border-radius: 12px;
-    border-left: 4px solid var(--primary-blue);
+    border-left: 4px solid var(--primary-blue, #204b6e);
 }
 
-.connect-item.newsletter .connect-subtitle {
-    color: var(--text-dark) !important;
+.ask-geologist-full .connect-subtitle {
+    font-size: 1.3rem !important;
+    color: var(--text-dark, #2B3652) !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 0 !important;
+    font-weight: 600;
 }
 
-.newsletter-form {
+.email-contact-container {
+    margin-top: 1.5rem;
+}
+
+.email-contact-card {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
+    align-items: flex-start;
+    gap: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 2px solid var(--gray-dark, #E5E9ED);
+    transition: all 0.3s ease;
 }
 
-.newsletter-input {
-    padding: 12px 16px;
-    border: 2px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-    font-family: var(--font-source-sans);
+.email-contact-card:hover {
+    border-color: var(--primary-blue, #204b6e);
+    box-shadow: 0 4px 12px rgba(32, 75, 110, 0.1);
 }
 
-.newsletter-input:focus {
-    outline: none;
-    border-color: var(--primary-blue);
+.email-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background-color: var(--primary-blue, #204b6e);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
 }
 
-.newsletter-button {
-    background-color: var(--primary-blue);
-    border: 2px solid var(--primary-blue);
-    border-radius: 6px;
-    color: var(--white) !important;
-    padding: 12px 24px;
+.email-content {
+    flex-grow: 1;
+    min-width: 0; /* Prevents flex overflow issues */
+}
+
+.email-label {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--text-gray, #4b5563);
+    font-weight: 500;
+}
+
+.email-link {
+    /* Use your existing button styles */
+    background-color: var(--primary-blue, #204b6e);
+    border: 2px solid var(--primary-blue, #204b6e);
+    border-radius: 5px;
+    color: white !important;
+    padding: 8px 16px;
     text-decoration: none;
     text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
     font-weight: 700;
+    font-style: normal;
     transition: all 0.3s ease;
     display: inline-block;
-    text-align: center;
-    cursor: pointer;
-    font-family: var(--font-inter);
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
 }
 
-.newsletter-button:hover {
-    background-color: var(--hover-button-blue);
-    border-color: var(--hover-button-blue);
+.email-link:hover {
+    background-color: var(--hover-button-blue, #396686);
+    border-color: var(--hover-button-blue, #396686);
+    transform: translateY(-1px);
+}
+
+.email-description {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-gray-light, #6b7280);
+    line-height: 1.5;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .email-contact-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+    
+    .email-icon {
+        margin: 0 auto 1rem auto;
+    }
+    
+    .email-content {
+        text-align: center;
+    }
+    
+    .ask-geologist-full {
+        margin-top: 30px;
+        padding: 20px;
+    }
 }
 
 /* ========================================

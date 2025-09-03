@@ -1,0 +1,91 @@
+---
+// src/components/InternSidebar.astro
+import { fetchCurrentInternDetails, fetchInternProjectYears } from '../lib/api_intern';
+
+// Get current program year and available years for navigation
+const currentDetails = await fetchCurrentInternDetails();
+const currentYear = currentDetails?.program_year || new Date().getFullYear();
+const availableYears = await fetchInternProjectYears();
+
+const { activeSection } = Astro.props;
+
+// Get current path for active link highlighting
+const pathname = Astro.url.pathname;
+---
+
+<aside class="lg:col-span-1">
+  <!-- Current Year Navigation -->
+  <div class="bg-white p-4 rounded-lg shadow mb-6">
+    <h2 class="text-xl font-bold mb-4 text-blue-800">Program Information</h2>
+    <ul class="space-y-2">
+      <li>
+        <a 
+          href="/intern" 
+          class={`baselink ${activeSection === 'about' || pathname === '/intern/' || pathname === '/intern' ? 'font-bold' : 'hover:underline'}`}
+        >
+          About
+        </a>
+      </li>
+      <li>
+        <a 
+          href={`/intern/${currentYear}`}
+          class={`baselink ${activeSection === 'program' || pathname.includes(`/intern/${currentYear}`) ? 'font-bold' : 'hover:underline'}`}
+        >
+          {currentYear} Program
+        </a>
+      </li>
+      <li>
+        <a 
+          href="/intern/faq"
+          class={`baselink ${activeSection === 'faq' || pathname.includes('/intern/faq') ? 'font-bold' : 'hover:underline'}`}
+        >
+          FAQs
+        </a>
+      </li>
+      <li>
+        <a 
+          href="/intern/projects"
+          class={`baselink ${activeSection === 'projects' || pathname.includes('/intern/projects') ? 'font-bold' : 'hover:underline'}`}
+        >
+          Past Projects
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+  <!-- Archive Years (if there are other years) -->
+  {availableYears.length > 1 && (
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-bold mb-4 text-blue-800">Archives</h2>
+      <ul class="space-y-2">
+        {availableYears
+          .filter(year => year !== currentYear)
+          .map(year => (
+            <li>
+              <a 
+                href={`/intern/archive/${year}`}
+                class={`baselink ${pathname.includes(`/intern/archive/${year}`) ? 'font-bold' : 'hover:underline'}`}
+              >
+                {year} Projects
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  )}
+  
+  <!-- Contact Info -->
+  <div class="bg-white p-4 rounded-lg shadow">
+    <h2 class="text-xl font-bold mb-4 text-blue-800">Questions?</h2>
+    <p class="text-sm text-gray-700 mb-3">
+      Contact us about the internship program:
+    </p>
+    <a 
+      href="mailto:kgspotterinternship@uky.edu"
+      class="baselink text-sm hover:underline"
+    >
+      kgspotterinternship@uky.edu
+    </a>
+  </div>
+</aside>

@@ -5,6 +5,10 @@ footer {
     color: #fff;
     padding: 25px;
 }
+
+footer p{
+    color:#fff;
+}
 footer .footer-address {
     padding: 25px 0;
     font-style: normal;
