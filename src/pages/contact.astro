@@ -1,0 +1,136 @@
+---
+// src/pages/contact.astro
+export const prerender = false;
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Contact KGS"
+  description="Contact information for the Kentucky Geological Survey - locations, phone numbers, and email addresses."
+  activePage="contact"
+>
+  <div class="max-w-4xl mx-auto text-center">
+    <!-- Header -->
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold text-blue-900 mb-4">Contact KGS</h1>
+      <p class="text-xl text-gray-600">
+        Get in touch with the Kentucky Geological Survey
+      </p>
+    </div>
+
+    <!-- Quick Contact Options -->
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <!-- Primary Contact -->
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <div class="text-blue-800 mb-4">
+          <i class="fas fa-building text-3xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-blue-800 mb-3">Main Office</h2>
+        <p class="text-gray-600 mb-4">
+          For general inquiries and information
+        </p>
+        <div class="space-y-2 text-sm">
+          <p><strong>Phone:</strong> <a href="tel:8592575500" class="baselink">(859) 257-5500</a></p>
+          <p><strong>Email:</strong> <a href="mailto:KGSMail@kgs.uky.edu" class="baselink" aria-label="Contact KGS Email">KGSMail@kgs.uky.edu</a></p>
+        </div>
+      </div>
+
+      <!-- Staff Directory (moved here from Additional Resources) -->
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <div class="text-blue-800 mb-4">
+          <i class="fas fa-users text-3xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-blue-800 mb-3">Staff Directory</h2>
+        <p class="text-gray-600 mb-4">
+          Find specific researchers and staff members with their contact information and expertise areas
+        </p>
+        <div class="mt-4">
+          <a href="/staff" class="btn btn-primary btn-md" aria-label="Browse Staff Directory">
+            Browse Staff Directory
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+ <!-- Additional Resources -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
+        <h3>
+          <i class="fas fa-graduation-cap mr-2"></i>Internship Program
+        </h3>
+        <p class="text-gray-600 mb-3">Questions about the Paul Edwin Potter Internship</p>
+        <div class="space-y-2 text-sm mb-4">
+          <p><strong>Email:</strong> <a href="mailto:kgspotterinternship@uky.edu" class="baselink" aria-label="Contact KGS Internship Program">kgspotterinternship@uky.edu</a></p>
+        </div>
+        <div class="mt-auto">
+          <a href="/intern"  class="btn btn-primary btn-md" aria-label="Learn More About Internships">
+            Learn More About Internships
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
+        <h3>
+          <i class="fas fa-flask mr-2"></i>Research Labs
+        </h3>
+        <p class="text-gray-600 mb-3">Explore our specialized laboratories and research facilities.</p>
+        <div class="mt-auto">
+          <a href="/labs"  class="btn btn-primary btn-md" aria-label="View Labs and Facilities">
+            View Labs & Facilities
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main CTA -->
+    <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="rounded-lg p-8 mb-8">
+      <h2 class="text-xl font-bold mb-4" style="color: white !important;">
+        Looking for Specific Locations?
+      </h2>
+      <p class="text-lg mb-6" style="color: white !important; opacity: 0.9;">
+        View detailed contact information, addresses, and maps for KGS facilities.
+      </p>
+      <a 
+        href="/about/locations" 
+        class="inline-flex items-center px-6 py-3 bg-white font-semibold rounded-lg hover:bg-gray-100 transition"
+        style="color: var(--wildcatBlue);"
+      >
+        <i class="fas fa-map-marker-alt mr-2"></i>
+        View All Locations & Facilities
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 text-left">
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="font-semibold text-blue-800 mb-2">
+          <i class="fas fa-handshake mr-2"></i>Associated Organizations
+        </h3>
+        <p class="text-sm text-gray-600 mb-3">Learn about our partner organizations and collaborative programs</p>
+        <a href="/about/orgs" class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label="View partners">
+          View partners
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+
+      </div>
+
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="font-semibold text-blue-800 mb-2">
+          <i class="fas fa-newspaper mr-2"></i>News & Updates
+        </h3>
+        <p class="text-sm text-gray-600 mb-3">Stay informed about KGS activities and announcements</p>
+        <a href="/news" class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label="Read news">
+          Read news
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </div>
+    </div>
+
+  </div>
+  
+</BaseLayout>

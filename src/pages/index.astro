@@ -22,7 +22,7 @@ const { articles } = await fetchRecentNews(6, 1);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/bb3bef310a.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Use your Astro Header component -->
@@ -173,11 +173,13 @@ const { articles } = await fetchRecentNews(6, 1);
                                             Ask Our Experts
                                         </a>
                                         <p class="email-description source-sans-3-p">
-                                            Send your geology questions to <strong>kgsmail@uky.edu</strong>. Please include the topic in your subject line. 
+                                            Send your geology questions to <strong><a href="mailto:kgsmail@uky.edu?subject=Geology Question" class="baselink">kgsmail@uky.edu</a></strong>. Please include the topic in your subject line. 
                                             For specimen identification (fossils, rocks, minerals), include a high-quality (+150 dpi), in-focus photo with an item next to the specimen for 
                                             scale (ruler, coin, etc.). If possible, please also provide at least county-level location details where you found the specimen. 
                                             <br><br>
-                                            <strong>Please note:</strong> KGS staff and researchers cannot perform land surveying, consulting services, or referrals.
+                                            <strong>Please note:</strong> KGS staff and researchers cannot perform land surveying, consulting services, or referrals. 
+                                            You can find a list of licensed geologists in Kentucky through the Kentucky Board of Registration for Professional Geologists: 
+                                            <a href="https://bpg.ky.gov/" target="_blank" rel="noopener" class="baselink" aria-label="Kentucky Board of Registration for Professional Geologists">bpg.ky.gov</a>.
                                         </p>
                                     </div>
                                 </div>

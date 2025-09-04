@@ -53,6 +53,28 @@ h6 {
   font-size: 1rem; /* 16px */
 }
 
+/* Base link styles for main content */
+a.baselink {
+  color: var(--wildcatBlue);
+  text-decoration: none;
+}
+
+a.baselink:hover {
+  color: var(--midnightBlue);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Focus styles for keyboard navigation (enhanced) */
+a.baselink:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 3px;
+  border-radius: 2px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
 /* Footer styling */
 .site-footer {
   background-color: #1B365D;

@@ -1,36 +1,420 @@
 ---
-// src/pages/research/index.astro
+// src/pages/monitoring/index.astro
 export const prerender = false; // Enable SSR for this page
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-// Define props with defaults specific to news pages
+// Define props with defaults specific to monitoring pages
 const { 
-  title = "Monitoring",
-  description = 'Explore the ways researchers at the Kentucky Geological Survey are monitoring geologic and hydrologic activity across the Commonwealth.',
+  title = "Geologic Monitoring Networks",
+  description = 'Explore the ways researchers at the Kentucky Geological Survey monitor geologic and hydrologic activity across the Commonwealth to protect communities and infrastructure.',
   showBreadcrumb = true,
 } = Astro.props;
----
-  <BaseLayout 
-    title={title}
-    description={description}
-    activePage="labs"
-    showBreadcrumb={showBreadcrumb}
-  >
+
+// Fetch monitoring networks from Directus
+let monitoringNetworks = [];
+
+try {
+  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   
-  <!-- Pass head content if needed -->
+  const response = await fetch(`${directusUrl}/items/monitoring_networks?fields=*&filter[status][_eq]=published&sort=sort,title`);
+  const data = await response.json();
+  monitoringNetworks = data.data || [];
+} catch (error) {
+  console.error('Error fetching monitoring networks:', error);
+  
+  // Fallback data if Directus is unavailable
+  monitoringNetworks = [
+    {
+      title: "Groundwater Monitoring",
+      description: "Comprehensive network monitoring groundwater levels, quality, and flow patterns across Kentucky to support water resource management and protection.",
+      url: "https://www.uky.edu/KGS/water/water-groundwater-monitoring.php",
+      features: ["Real-time water level monitoring", "Water quality assessment", "Aquifer characterization", "Drought and flood impact analysis"],
+      icon_class: "fas fa-tint",
+      color: "#B1C9E8",
+      stat_value: "200+",
+      stat_label: "Active monitoring wells"
+    },
+    {
+      title: "Landslide Monitoring", 
+      description: "Advanced monitoring system tracking slope stability and developing weather-driven landslide forecasting models to reduce risk across Kentucky.",
+      url: "https://www.uky.edu/KGS/landslide/",
+      features: ["24 hydrologic monitoring stations", "Soil moisture and water potential sensors", "Weather condition tracking", "UAV-based slope surveying"],
+      icon_class: "fas fa-mountain",
+      color: "#FFA360",
+      stat_value: "24",
+      stat_label: "Monitoring stations planned"
+    },
+    {
+      title: "Seismic Monitoring",
+      description: "Statewide earthquake monitoring network providing real-time seismic data and hazard assessment to enhance public safety and emergency preparedness.",
+      url: "https://www.uky.edu/KGS/earthquake/",
+      features: ["Real-time earthquake detection", "Seismic hazard mapping", "Ground motion assessment", "Regional seismic analysis"],
+      icon_class: "fas fa-wave-square",
+      color: "#E35169",
+      stat_value: "15+",
+      stat_label: "Seismic stations"
+    }
+  ];
+}
+
+// Helper function to get color classes based on hex values
+function getColorClasses(hexColor) {
+  // Normalize the hex color (ensure uppercase and with #)
+  const normalizedColor = hexColor?.toUpperCase().startsWith('#') ? hexColor.toUpperCase() : `#${hexColor?.toUpperCase()}`;
+  
+  // Define your specific hex colors and their corresponding custom class names
+  const colorMap = {
+    '#B1C9E8': 'sky-blue',      // skyBlue
+    '#FFA360': 'sunset-orange', // sunsetOrange  
+    '#4CBCC0': 'river-green',   // riverGreen/teal
+    '#6644FF': 'custom-purple', // purple
+    '#E35169': 'custom-rose'    // pink/red
+  };
+  
+  const colorKey = colorMap[normalizedColor] || 'sky-blue'; // default to sky-blue
+  
+  return {
+    iconBg: `custom-${colorKey}-icon-bg`,
+    statBg: `custom-${colorKey}-stat-bg`,
+    button: `custom-${colorKey}-button`,
+    gradient: `custom-${colorKey}-gradient`,
+    accent: `custom-${colorKey}-accent`
+  };
+}
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="monitoring"
+  showBreadcrumb={showBreadcrumb}
+>
+  
+  <!-- Font Awesome Pro -->
   <Fragment slot="head">
+    <script src="https://kit.fontawesome.com/YOUR_KIT_ID.js" crossorigin="anonymous"></script>
     <slot name="head-meta" />
   </Fragment>
 
-  <div class="container mx-auto px-4 py-1">
-    <div class="mb-8">
-      <h1>Monitoring</h1>
-      <p class="text-gray-600 mt-2">{description}</p>
+  <div class="container mx-auto px-4 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl font-bold text-slate-800 mb-4">Geologic Monitoring Networks</h1>
+      <p class="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+        The Kentucky Geological Survey operates comprehensive monitoring networks to track geologic conditions, 
+        assess natural hazards, and provide critical data for protecting Kentucky's communities and infrastructure.
+      </p>
     </div>
-    <div class="text-center py-16 bg-white rounded-lg shadow-md">
-      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">Holding index page for monitoring networks</h3>
+
+    <!-- Impact Statistics Bar -->
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 mb-12 border border-blue-100">
+      <div class="grid md:grid-cols-2 gap-20 text-center">
+        <div>
+          <div class="text-3xl font-bold text-green-800">24/7</div>
+          <div class="text-sm text-gray-600">Continuous monitoring and data collection</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-orange-800">{monitoringNetworks.reduce((sum, network) => sum + parseInt(network.stat_value.replace(/\D/g, '') || 0), 0)}+</div>
+          <div class="text-sm text-gray-600">Combined active monitoring stations</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monitoring Networks Grid -->
+    <div class="grid lg:grid-cols-1 gap-12 mb-16">
+      {monitoringNetworks.map((network, index) => {
+        const colors = getColorClasses(network.color);
+        const features = Array.isArray(network.features) ? network.features : (typeof network.features === 'string' ? JSON.parse(network.features) : []);
+        
+        return (
+          <div class={`
+            bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 
+            ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}
+          `}>
+            <div class="lg:flex">
+              
+              <!-- Content Section -->
+              <div class="lg:w-2/3 p-8 lg:p-12">
+                <div class="flex items-start gap-4 mb-6">
+                  <!-- Font Awesome Icon -->
+                  <div class={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center ${colors.iconBg}`}>
+                    <i class={`${network.icon_class} text-2xl`}></i>
+                  </div>
+                  
+                  <!-- Title and Stats -->
+                  <div class="flex-grow">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">{network.title}</h2>
+                    <div class={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${colors.statBg}`}>
+                      {network.stat_value} {network.stat_label}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <p class="text-gray-600 text-lg leading-relaxed mb-6">
+                  {network.description}
+                </p>
+
+                <!-- Features Grid -->
+                <div class="grid md:grid-cols-2 gap-3 mb-8">
+                  {features.map((feature) => (
+                    <div class="flex items-center gap-3">
+                      <div class={`w-2 h-2 rounded-full flex-shrink-0 ${colors.accent}`}></div>
+                      <span class="text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <!-- Call to Action -->
+                <a 
+                  href={network.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:transform hover:translate-y-[-2px] hover:shadow-lg ${colors.button}`}
+                >
+                  Explore {network.title}
+                  <i class="fas fa-external-link-alt text-sm"></i>
+                </a>
+              </div>
+
+              <!-- Visual Section -->
+              <div class="lg:w-1/3 relative">
+                <div class="h-64 lg:h-full relative overflow-hidden bg-gray-100">
+                  
+                  {/* Featured Image */}
+                  {network.featured_image ? (
+                    <div class="absolute inset-0">
+                      <img 
+                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}/assets/${network.featured_image}?quality=85&width=600&height=400&fit=cover`}
+                        alt={network.featured_image_caption || `${network.title} monitoring equipment`}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      
+                      <!-- Caption overlay -->
+                      {network.featured_image_caption && (
+                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                          <p class="text-sm leading-snug font-medium" style="color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                            {network.featured_image_caption}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Fallback gradient with icon if no image */
+                    <div class={`h-full relative ${colors.gradient}`}>
+                      <!-- Large centered icon -->
+                      <div class="absolute inset-0 flex items-center justify-center">
+                        <i class={`${network.icon_class} text-8xl text-white/20`}></i>
+                      </div>
+                      
+                      <!-- Floating elements for visual interest -->
+                      <div class="absolute inset-0 opacity-10">
+                        <div class="absolute top-1/4 left-1/4 w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                        <div class="absolute top-1/2 right-1/4 w-3 h-3 bg-white rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+                        <div class="absolute bottom-1/3 left-1/3 w-2 h-2 bg-white rounded-full animate-pulse" style="animation-delay: 1s"></div>
+                        <div class="absolute top-3/4 right-1/3 w-5 h-5 bg-white rounded-full animate-pulse" style="animation-delay: 1.5s"></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <!-- Network indicator - positioned over image or gradient -->
+                  <div class="absolute top-6 right-6 text-white text-right">
+                    <div class={`${colors.gradient} rounded-lg p-3 shadow-lg`}>
+                      <div class="text-2xl font-bold">{network.stat_value}</div>
+                      <div class="text-sm opacity-90">{network.stat_label}</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Icon overlay in corner when image is present -->
+                  {network.featured_image && (
+                    <div class="absolute top-6 left-6">
+                      <div class={`w-12 h-12 rounded-full flex items-center justify-center ${colors.gradient} shadow-lg`}>
+                        <i class={`${network.icon_class} text-white text-xl`}></i>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="text-center">
+        <a 
+          href="/research" 
+          class="btn btn-primary btn-lg"
+        >
+          <i class="fas fa-microscope mr-2"></i>
+          Explore Our Research
+        </a>
+      </div>
+    </div>
+
+  </div>
 </BaseLayout>
+
+<style>
+  /* Custom Color Variables */
+  :root {
+    --color-sky-blue: #B1C9E8;
+    --color-sky-blue-dark: #9BB8E0;
+    --color-sky-blue-light: #D1E2F4;
+    --color-sky-blue-lighter: #E8F1FA;
+    
+    --color-sunset-orange: #FFA360;
+    --color-sunset-orange-dark: #FF8F42;
+    --color-sunset-orange-light: #FFB584;
+    --color-sunset-orange-lighter: #FFDCC8;
+    
+    --color-river-green: #4CBCC0;
+    --color-river-green-dark: #3AA8AC;
+    --color-river-green-light: #6FCBD4;
+    --color-river-green-lighter: #B7E5E8;
+    
+    --color-custom-purple: #6644FF;
+    --color-custom-purple-dark: #5533E6;
+    --color-custom-purple-light: #8866FF;
+    --color-custom-purple-lighter: #BFB3FF;
+    
+    --color-custom-rose: #E35169;
+    --color-custom-rose-dark: #DE3456;
+    --color-custom-rose-light: #E9748A;
+    --color-custom-rose-lighter: #F4BAC5;
+  }
+
+  /* Sky Blue Theme - Uses black text for accessibility */
+  .custom-sky-blue-icon-bg {
+    background-color: var(--color-sky-blue-lighter);
+    color: #1a202c; /* Dark gray instead of pure black for better readability */
+  }
+  .custom-sky-blue-stat-bg {
+    background-color: var(--color-sky-blue-lighter);
+    color: #1a202c;
+  }
+  .custom-sky-blue-button {
+    background-color: #7da3d9; /* Darker version for AA compliance with white text */
+    color: white;
+    transition: all 0.2s;
+  }
+  .custom-sky-blue-button:hover {
+    background-color: #6b91c7;
+  }
+  .custom-sky-blue-gradient {
+    background: linear-gradient(to bottom right, var(--color-sky-blue-light), #7da3d9);
+  }
+  .custom-sky-blue-accent {
+    background-color: var(--color-sky-blue);
+  }
+
+  /* Sunset Orange Theme - Uses black text for accessibility */
+  .custom-sunset-orange-icon-bg {
+    background-color: var(--color-sunset-orange-lighter);
+    color: #1a202c;
+  }
+  .custom-sunset-orange-stat-bg {
+    background-color: var(--color-sunset-orange-lighter);
+    color: #1a202c;
+  }
+  .custom-sunset-orange-button {
+    background-color: #e8722d; /* Darker version for AA compliance with white text */
+    color: white;
+    transition: all 0.2s;
+  }
+  .custom-sunset-orange-button:hover {
+    background-color: #d4611a;
+  }
+  .custom-sunset-orange-gradient {
+    background: linear-gradient(to bottom right, var(--color-sunset-orange-light), #e8722d);
+  }
+  .custom-sunset-orange-accent {
+    background-color: var(--color-sunset-orange);
+  }
+
+  /* River Green Theme - Uses black text for accessibility */
+  .custom-river-green-icon-bg {
+    background-color: var(--color-river-green-lighter);
+    color: #1a202c;
+  }
+  .custom-river-green-stat-bg {
+    background-color: var(--color-river-green-lighter);
+    color: #1a202c;
+  }
+  .custom-river-green-button {
+    background-color: #2a9ca0; /* Darker version for AA compliance with white text */
+    color: white;
+    transition: all 0.2s;
+  }
+  .custom-river-green-button:hover {
+    background-color: #228a8e;
+  }
+  .custom-river-green-gradient {
+    background: linear-gradient(to bottom right, var(--color-river-green-light), #2a9ca0);
+  }
+  .custom-river-green-accent {
+    background-color: var(--color-river-green);
+  }
+
+  /* Custom Purple Theme - Uses white text (already AA compliant) */
+  .custom-custom-purple-icon-bg {
+    background-color: var(--color-custom-purple-lighter);
+    color: var(--color-custom-purple-dark);
+  }
+  .custom-custom-purple-stat-bg {
+    background-color: var(--color-custom-purple-lighter);
+    color: var(--color-custom-purple-dark);
+  }
+  .custom-custom-purple-button {
+    background-color: var(--color-custom-purple); /* Already AA compliant */
+    color: white;
+    transition: all 0.2s;
+  }
+  .custom-custom-purple-button:hover {
+    background-color: var(--color-custom-purple-dark);
+  }
+  .custom-custom-purple-gradient {
+    background: linear-gradient(to bottom right, var(--color-custom-purple-light), var(--color-custom-purple));
+  }
+  .custom-custom-purple-accent {
+    background-color: var(--color-custom-purple);
+  }
+
+  /* Custom Rose Theme - Uses black text for better accessibility */
+  .custom-custom-rose-icon-bg {
+    background-color: var(--color-custom-rose-lighter);
+    color: #1a202c;
+  }
+  .custom-custom-rose-stat-bg {
+    background-color: var(--color-custom-rose-lighter);
+    color: #1a202c;
+  }
+  .custom-custom-rose-button {
+    background-color: #c73650; /* Darker version for AA compliance with white text */
+    color: white;
+    transition: all 0.2s;
+  }
+  .custom-custom-rose-button:hover {
+    background-color: #b32a43;
+  }
+  .custom-custom-rose-gradient {
+    background: linear-gradient(to bottom right, var(--color-custom-rose-light), #c73650);
+  }
+  .custom-custom-rose-accent {
+    background-color: var(--color-custom-rose);
+  }
+
+  /* Custom animations for floating elements */
+  @keyframes pulse {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.1); }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+</style>
