@@ -9,9 +9,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Contact information for the Kentucky Geological Survey - locations, phone numbers, and email addresses."
   activePage="contact"
 >
-  <div class="max-w-4xl mx-auto text-center">
+  <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <div class="mb-12">
+    <div class="text-center mb-12">
       <h1 class="text-4xl font-bold text-blue-900 mb-4">Contact KGS</h1>
       <p class="text-xl text-gray-600">
         Get in touch with the Kentucky Geological Survey
@@ -35,7 +35,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
       </div>
 
-      <!-- Staff Directory (moved here from Additional Resources) -->
+      <!-- Staff Directory -->
       <div class="bg-white rounded-lg shadow-lg p-8">
         <div class="text-blue-800 mb-4">
           <i class="fas fa-users text-3xl"></i>
@@ -53,42 +53,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </div>
 
- <!-- Additional Resources -->
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
-        <h3>
-          <i class="fas fa-graduation-cap mr-2"></i>Internship Program
-        </h3>
-        <p class="text-gray-600 mb-3">Questions about the Paul Edwin Potter Internship</p>
-        <div class="space-y-2 text-sm mb-4">
-          <p><strong>Email:</strong> <a href="mailto:kgspotterinternship@uky.edu" class="baselink" aria-label="Contact KGS Internship Program">kgspotterinternship@uky.edu</a></p>
-        </div>
-        <div class="mt-auto">
-          <a href="/intern"  class="btn btn-primary btn-md" aria-label="Learn More About Internships">
-            Learn More About Internships
-            <i class="fas fa-arrow-right ml-2"></i>
-          </a>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
-        <h3>
-          <i class="fas fa-flask mr-2"></i>Research Labs
-        </h3>
-        <p class="text-gray-600 mb-3">Explore our specialized laboratories and research facilities.</p>
-        <div class="mt-auto">
-          <a href="/labs"  class="btn btn-primary btn-md" aria-label="View Labs and Facilities">
-            View Labs & Facilities
-            <i class="fas fa-arrow-right ml-2"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-
     <!-- Main CTA -->
-    <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="rounded-lg p-8 mb-8">
+    <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="rounded-lg p-8 shadow-lg mb-8">
       <h2 class="text-xl font-bold mb-4" style="color: white !important;">
-        Looking for Specific Locations?
+        Looking for Specific Office Locations?
       </h2>
       <p class="text-lg mb-6" style="color: white !important; opacity: 0.9;">
         View detailed contact information, addresses, and maps for KGS facilities.
@@ -103,6 +71,198 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </a>
     </div>
 
+    <!-- Connect With Us Section -->
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-12">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-blue-800 mb-2">
+          <i class="fas fa-share-alt mr-2"></i>
+          Connect With Us
+        </h2>
+        <p class="text-gray-600">
+          Stay connected with KGS on social media for updates, research highlights, and community engagement
+        </p>
+      </div>
+      
+      <div class="flex justify-center space-x-6">
+        <a 
+          href="https://twitter.com/kygeolsurvey" 
+          target="_blank" 
+          rel="noopener" 
+          class="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition duration-200"
+          aria-label="Follow us on Twitter/X"
+        >
+          <div class="bg-gray-100 group-hover:bg-blue-100 rounded-full p-4 mb-2 transition duration-200">
+            <i class="fab fa-x-twitter text-2xl text-gray-600 group-hover:text-blue-600"></i>
+          </div>
+          <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">Twitter/X</span>
+        </a>
+        
+        <a 
+          href="https://www.facebook.com/kygeolsurvey" 
+          target="_blank" 
+          rel="noopener" 
+          class="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition duration-200"
+          aria-label="Follow us on Facebook"
+        >
+          <div class="bg-gray-100 group-hover:bg-blue-100 rounded-full p-4 mb-2 transition duration-200">
+            <i class="fab fa-facebook text-2xl text-gray-600 group-hover:text-blue-600"></i>
+          </div>
+          <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">Facebook</span>
+        </a>
+        
+        <a 
+          href="https://www.linkedin.com/company/kentucky-geological-survey" 
+          target="_blank" 
+          rel="noopener" 
+          class="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition duration-200"
+          aria-label="Follow us on LinkedIn"
+        >
+          <div class="bg-gray-100 group-hover:bg-blue-100 rounded-full p-4 mb-2 transition duration-200">
+            <i class="fab fa-linkedin text-2xl text-gray-600 group-hover:text-blue-600"></i>
+          </div>
+          <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">LinkedIn</span>
+        </a>
+        
+        <a 
+          href="https://www.youtube.com/@kentuckygeologicalsurvey" 
+          target="_blank" 
+          rel="noopener" 
+          class="group flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition duration-200"
+          aria-label="Subscribe to our YouTube channel"
+        >
+          <div class="bg-gray-100 group-hover:bg-blue-100 rounded-full p-4 mb-2 transition duration-200">
+            <i class="fab fa-youtube text-2xl text-gray-600 group-hover:text-red-600"></i>
+          </div>
+          <span class="text-sm font-medium text-gray-700 group-hover:text-red-700">YouTube</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Ask a Geologist Section - Full Width Feature -->
+    <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="rounded-lg p-8 shadow-lg mb-12">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <div class="flex items-center mb-4">
+            <div class="bg-white rounded-full p-3 mr-4">
+              <i class="fas fa-question text-2xl" style="color: var(--wildcatBlue);"></i>
+            </div>
+            <h2 class="text-2xl font-bold" style="color: white;">Ask a Geologist</h2>
+          </div>
+          <p class="text-lg mb-6" style="color: white !important; opacity: 0.9;">
+            Have questions about Kentucky's geology? Wondering about rocks, minerals, landslides, or groundwater in your area? Our expert geologists are here to help.
+          </p>
+          <a 
+            href="mailto:kgsmail@uky.edu?subject=Geology Question" 
+            class="inline-flex items-center px-6 py-3 bg-white font-semibold rounded-lg hover:bg-gray-100 transition duration-200"
+            style="color: var(--wildcatBlue);"
+          >
+            <i class="fas fa-envelope mr-2"></i>
+            Ask Our Experts
+          </a>
+        </div>
+        <div class="bg-white bg-opacity-10 rounded-lg p-6">
+          <h3 class="font-semibold mb-3">
+            <i class="fas fa-info-circle mr-2"></i>
+            Tips for Better Responses
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-start">
+              <i class="fas fa-camera text-sm mt-1 mr-2"></i>
+              For specimen ID: Include high-quality photos (+150 dpi) with scale reference (ruler, coin)
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt text-sm mt-1 mr-2"></i>
+              Provide location details (at least county level) where specimens were found
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-tag text-sm mt-1 mr-2"></i>
+              Include the topic in your email subject line
+            </li>
+          </ul>
+          <div class="mt-4 pt-4 border-t border-white border-opacity-30">
+            <p class="text-sm">
+              <strong>Note:</strong> KGS staff cannot perform land surveying or consulting services. 
+              For licensed geologists: <a href="https://bpg.ky.gov/" target="_blank" rel="noopener" class="underline hover:text-gray-200 text-white">bpg.ky.gov</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Podcast Section -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 mb-8">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <div class="flex items-center mb-4">
+            <div class="bg-blue-100 rounded-full p-3 mr-4">
+              <i class="fas fa-microphone text-2xl text-blue-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-blue-800">The Big Blue Rock Pod</h2>
+          </div>
+          <p class="text-gray-700 mb-4">
+            This podcast is a fun, conversational approach to discussing all things geology and earth processes. 
+            We primarily focus on Kentucky as we talk about emerging ideas in research, along with classic topics in earth science for all levels of interest.
+          </p>
+          <a 
+            href="https://www.podbean.com/podcast-detail/wi7jm-cf37a4/The-Big-Blue-Rock-Pod-Podcast" 
+            target="_blank" 
+            rel="noopener"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+          >
+            <i class="fas fa-podcast mr-2"></i>
+            Listen Now
+          </a>
+        </div>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <iframe 
+            title="The Big Blue Rock Pod" 
+            allowtransparency="true" 
+            height="260" 
+            width="100%" 
+            style="border: none; min-width: min(100%, 430px);height:260px;" 
+            scrolling="no" 
+            data-name="pb-iframe-player" 
+            src="https://www.podbean.com/player-v2/?i=d94fw-cf37a4-pbblog-playlist&share=0&download=1&rtl=0&fonts=Verdana&skin=3267a3&font-color=auto&logo_link=episode_page&order=episodic&limit=3&filter=all&ss=8d19f7d7d2764f3305b6868e1e1efb88&btn-skin=60a0c8&size=260" 
+            loading="lazy" 
+            allowfullscreen="">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Resources -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
+        <h3>
+          <i class="fas fa-graduation-cap mr-2"></i>Internship Program
+        </h3>
+        <p class="text-gray-600 mb-3">Questions about the Paul Edwin Potter Internship</p>
+        <div class="space-y-2 text-sm mb-4">
+          <p><strong>Email:</strong> <a href="mailto:kgspotterinternship@uky.edu" class="baselink" aria-label="Contact KGS Internship Program">kgspotterinternship@uky.edu</a></p>
+        </div>
+        <div class="mt-auto">
+          <a href="/intern" class="btn btn-primary btn-md" aria-label="Learn More About Internships">
+            Learn More About Internships
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col">
+        <h3>
+          <i class="fas fa-flask mr-2"></i>Research Labs
+        </h3>
+        <p class="text-gray-600 mb-3">Explore our specialized laboratories and research facilities.</p>
+        <div class="mt-auto">
+          <a href="/labs" class="btn btn-primary btn-md" aria-label="View Labs and Facilities">
+            View Labs & Facilities
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <div class="grid md:grid-cols-2 gap-6 text-left">
       <div class="bg-gray-50 rounded-lg p-6">
         <h3 class="font-semibold text-blue-800 mb-2">
@@ -111,11 +271,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p class="text-sm text-gray-600 mb-3">Learn about our partner organizations and collaborative programs</p>
         <a href="/about/orgs" class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label="View partners">
           View partners
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-      </a>
-
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
       </div>
 
       <div class="bg-gray-50 rounded-lg p-6">
@@ -125,9 +284,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p class="text-sm text-gray-600 mb-3">Stay informed about KGS activities and announcements</p>
         <a href="/news" class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label="Read news">
           Read news
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
       </div>
     </div>
 
