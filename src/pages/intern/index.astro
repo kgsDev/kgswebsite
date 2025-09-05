@@ -1,0 +1,156 @@
+---
+// src/pages/intern/index.astro
+export const prerender = false;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InternSidebar from '../../components/InternSidebar.astro';
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+---
+
+<BaseLayout 
+  title="The Paul Edwin Potter Internship Program"
+  description="Paid summer research internships for undergraduate and graduate students interested in geoscience-related research at the Kentucky Geological Survey."
+  activePage="intern"
+>
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <InternSidebar activeSection="about" />
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 max-w-4xl">
+    <h1 class="text-3xl font-bold text-blue-900 mb-6">The Paul Edwin Potter Internship Program</h1>
+    
+    <!-- Hero Image and Description -->
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <div>
+        <p class="mb-6">
+          A gracious gift from the late <a href="https://ohiodnr.gov/wps/portal/gov/odnr/discover-and-learn/safety-conservation/about-ODNR/news/051321-paul-e-potter" target="_blank" class="text-blue-600 hover:underline">Dr. Paul Edwin Potter</a>, 
+          a former professor of geology at the University of Cincinnati, established an annual summer internship program at the Kentucky Geological Survey (KGS). 
+          Launching in 2022, the program pairs KGS mentors with undergraduate and graduate students interested in geoscience-related research. 
+          The program aims to expand and enrich geological training opportunities for Kentucky students.
+        </p>
+        
+        <p class="mb-6">
+          Dr. Potter was a long-time supporter of KGS and strongly believed in mentoring young scientists. Over the course of his career, Dr. Potter made significant 
+          contributions to the fields of sedimentology and stratigraphy. He worked closely with the state surveys of Illinois, Ohio, Indiana, and Kentucky and mentored 
+          many of their research staff until his death in 2020. Dr. Potter enjoyed a long tenure as a professor at both the University of Indiana and the University of Cincinnati. 
+          He cared deeply for his students, advising several well into his retirement.
+        </p>
+      </div>
+      
+      <div class="text-center">
+        <figure>
+          <img 
+            src="/assets/intern/Potter_Nuttall_Crop.png" 
+            alt="Paul Potter in the field. Photo by Brandon Nuttall" 
+            class="w-full h-auto rounded-lg shadow-lg"
+          />
+          <figcaption class="text-sm text-gray-600 mt-2">
+            Paul Potter in the field. Photo by Brandon Nuttall (KGS).
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+    
+    <!-- Program Description -->
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+      <h2 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        Program Overview
+      </h2>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <p class="mb-4">
+            Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects. 
+            Project topics include geologic hazards, critical minerals, hydrogeology, landscape evolution, flooding, and cutting-edge geological research.
+          </p>
+          
+          <p class="mb-4">
+            Interns develop technical skills, participate in professional development opportunities, and expand their academic networks. 
+            The program culminates in a poster presentation at the KGS Paul Edwin Potter Internship showcase.
+          </p>
+        </div>
+        
+        <div class="text-center">
+          <figure>
+            <img 
+              src="/assets/intern/EllieStevens.png" 
+              alt="Ellie Stevenson, Geography student at UK and 2022 Paul Potter Intern." 
+              class="w-full h-auto rounded-lg shadow-md"
+            />
+            <figcaption class="text-sm text-gray-600 mt-2">
+              Ellie Stevenson, Geography student at UK<br>and 2022 Paul Potter Intern.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Program Benefits -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-blue-50 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-blue-800">Hands-On Research</h3>
+        </div>
+        <p class="text-gray-700">
+          Work directly with KGS researchers on current projects spanning geology, environmental science, and public health.
+        </p>
+      </div>
+      
+      <div class="bg-green-50 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-green-800">Professional Development</h3>
+        </div>
+        <p class="text-gray-700">
+          Build technical skills, scientific writing abilities, and professional networks through mentorship and training.
+        </p>
+      </div>
+      
+      <div class="bg-yellow-50 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-yellow-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+          </svg>
+          <h3 class="text-lg font-semibold text-yellow-800">Paid Experience</h3>
+        </div>
+        <p class="text-gray-700">
+          Receive competitive compensation while gaining valuable research experience in the geosciences.
+        </p>
+      </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="text-white rounded-lg p-8 text-center">
+      <h2 class="text-2xl font-bold mb-4" style="color: white !important;">Ready to Apply?</h2>
+      <p class="text-lg mb-6" style="color: white !important; opacity: 0.9;">
+        Join the next generation of geoscientists through the Paul Edwin Potter Internship Program.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a 
+          href="/intern/2025" 
+          class="inline-flex items-center justify-center px-6 py-3 bg-white font-semibold rounded-lg hover:bg-gray-100 transition"
+          style="color: var(--wildcatBlue);"
+        >
+          View Current Program
+        </a>
+        <a 
+          href="/intern/faq" 
+          class="inline-flex items-center justify-center px-6 py-3 border-2 text-white font-semibold rounded-lg hover:bg-white transition hover:text-blue-600"
+          style="border-color: white;"
+        >
+          Read FAQs
+        </a>
+      </div>
+    </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -159,16 +159,33 @@ const { articles } = await fetchRecentNews(6, 1);
                             </div>
                         </div>
 
-                        <!-- Newsletter/Stay Informed Section - Right Column -->
-                        <div class="connect-item newsletter">
-                            <h3 class="inter-h2 connect-subtitle">Stay Informed</h3>
-                            <p class="source-sans-3-p">Get the latest updates on Kentucky geology, research findings, and educational opportunities.</p>
-                            <div class="newsletter-form">
-                                <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
-                                <button type="submit" class="newsletter-button">Register</button>
+                        <div class="connect-item newsletter ask-geologist-full">
+                            <h3 class="inter-h2 connect-subtitle">Ask a Geologist</h3>
+                            <p class="source-sans-3-p">Have questions about Kentucky's geology? Wondering about rocks, minerals, landslides, or groundwater in your area? Our expert geologists are here to help.</p>
+                            
+                            <div class="email-contact-container">
+                                <div class="email-contact-card">
+                                    <div class="email-icon">
+                                        <!-- Font Awesome question icon -->
+                                        <i class="fas fa-question" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="email-content">
+                                        <a href="mailto:kgsmail@uky.edu?subject=Geology Question" class="email-link inter-button">
+                                            Ask Our Experts
+                                        </a>
+                                        <p class="email-description source-sans-3-p">
+                                            Send your geology questions to <strong><a href="mailto:kgsmail@uky.edu?subject=Geology Question" class="baselink">kgsmail@uky.edu</a></strong>. Please include the topic in your subject line. 
+                                            For specimen identification (fossils, rocks, minerals), include a high-quality (+150 dpi), in-focus photo with an item next to the specimen for 
+                                            scale (ruler, coin, etc.). If possible, please also provide at least county-level location details where you found the specimen. 
+                                            <br><br>
+                                            <strong>Please note:</strong> KGS staff and researchers cannot perform land surveying, consulting services, or referrals. 
+                                            You can find a list of licensed geologists in Kentucky through the Kentucky Board of Registration for Professional Geologists: 
+                                            <a href="https://bpg.ky.gov/" target="_blank" rel="noopener" class="baselink" aria-label="Kentucky Board of Registration for Professional Geologists">bpg.ky.gov</a>.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                 </div>
         </section>
 

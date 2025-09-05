@@ -195,9 +195,9 @@ const formatDate = (dateString) => {
                     </p>
                   )}
                   
-                  <a href={`/news/${article.slug}`} class="inline-flex items-center text-blue-600 hover:text-blue-800">
-                    Read more
-                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <a href={`/news/${article.slug}`} class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label={`Read full article: ${article.title}`}>
+                    Read Article
+                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.2rem; height: 1rem;margin-left:3px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </a>
