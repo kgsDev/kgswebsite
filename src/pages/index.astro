@@ -4,6 +4,7 @@ import Header from '../components/common/Header.astro';
 import Footer from '../components/common/Footer.astro';
 import NewsGrid from '../components/news/NewsGrid.astro';
 import { fetchRecentNews } from '../lib/api_news';
+import { fetchHomepageSection } from '../lib/api_homepage';
 
 import '../styles/home_global.css';
 import '../styles/home_reset.css';
@@ -11,6 +12,20 @@ import '../styles/home_styles.css';
 
 // Fetch recent news for the homepage (limit to 6 items)
 const { articles } = await fetchRecentNews(6, 1);
+
+// Fetch the internship section data
+const dynamicSection = await fetchHomepageSection();
+
+// Fallback data for the internship section if no CMS data is available
+const fallbackDynamicData = {
+    title: "Summer Internship Program",
+    content: `<p>Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.</p>`,
+    button_text: "Find Out More",
+    button_url: "/intern/",
+    image: null, // Will use hardcoded image path below
+    image_alt_text: "2023 Potter Internship Program participants",
+    image_caption: "2023 Potter Internship Program participants"
+};
 ---
 <html lang="en">
 <head>
@@ -83,8 +98,8 @@ const { articles } = await fetchRecentNews(6, 1);
         <section class="section-tile">
             <div class="section-container">
                 <div class="tile-heading">
-                    <h2 class="inter-h2">Who we are</h2>
-                    <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) is a state-supported research center and public resource within the University of Kentucky. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship land grant university, and the welfare of its people. We do this by conducting research in the geological sciences, providing unbiased data and information to the public, and engaging with stakeholders. Research conducted by the KGS serves the Commonwealth and its people by building resilience.</p>
+                    <h2 class="inter-h2">Who We Are</h2>
+                    <p class="source-sans-3-p-bigger-bolder">The Kentucky Geological Survey (KGS) is a state-supported research center and public resource within the University of Kentucky. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship land grant university, and the welfare of its people. We do this by conducting research in the geological sciences, providing unbiased data and information to the public, and engaging with stakeholders. Research conducted by the KGS serves the Commonwealth and its people by building resilience.</p>
                 </div>
                 <div class="tile-container">
                     <!-- Make tiles clickable buttons by converting to anchor tags -->
@@ -112,19 +127,39 @@ const { articles } = await fetchRecentNews(6, 1);
 
         <section class="midsection">
             <div class="section-container">
-                <div class="section-internships">
-                    <h2 class="inter-h2">Summer Internship Program</h2>
-                    <p class="source-sans-3-p">Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.</p> 
-                    <br>
-                    <div class="button-container">
-                        <a href="/intern/" class="inter-button">Find Out More</a>
-                    </div>
-                    <img src="/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
-                    <p class="source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
+             <!-- Dynamic Internship/First Section -->
+            <div class="section-dynamic">
+                <h2 class="inter-h2">{dynamicSection?.title || fallbackDynamicData.title}</h2>
+                
+                <!-- Content with HTML support -->
+                <div class="section-content" set:html={dynamicSection?.content || fallbackDynamicData.content} />
+                
+                <!-- Button - aligned left -->
+                <div class="button-container-left">
+                    <a href={dynamicSection?.button_url || fallbackDynamicData.button_url} class="inter-button">
+                        {dynamicSection?.button_text || fallbackDynamicData.button_text}
+                    </a>
                 </div>
-
+                
+                <!-- Image - centered with left-aligned caption -->
+                {dynamicSection?.image ? (
+                    <div class="image-container-centered">
+                        <img 
+                            src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${dynamicSection.image}?quality=90&width=600&fit=cover`} 
+                            alt={dynamicSection.image_alt_text || ''} 
+                        />
+                        {dynamicSection.image_caption && (
+                            <p class="image-caption-left source-sans-3-p-smaller">{dynamicSection.image_caption}</p>
+                        )}
+                    </div>
+                ) : (
+                    <div class="image-container-centered">
+                        <img src="/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
+                        <p class="image-caption-left source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
+                    </div>
+                )}
+            </div>
                             
-           
                 <div class="section-connect">
                     <h2 class="inter-h2">Connect with Us</h2>
 
@@ -200,32 +235,20 @@ const { articles } = await fetchRecentNews(6, 1);
             </div>
         </section>
 
-
         <section class="section-tile service-section">
             <div class="tile-container service-full-width">
                 <div class="tile service">
                     <div class="service-inner-container">
                         <div class="service-container">
                             <h2 class="inter-h2">How KGS Serves Our Kentucky Community</h2>
-
                             <p class="source-sans-3-p">The Kentucky Geological Survey (KGS) traces its roots back to 1838 and has been part of the University of Kentucky since 1948. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship university, and the welfare of its people.</p>
-
                             <p class="source-sans-3-p">We do this by conducting research and providing unbiased information about the geology and natural resources of Kentucky. We focus on issues relevant to the economic prosperity, environmental quality, and practical well-being of the Commonwealth and its people: the things that can make Kentucky a compelling place to live, work, and do business.</p>
-
                             <p class="source-sans-3-p">KGS provides technical support to several state agencies and organizations, and a host of local, county, and federal agencies. We also interact with stakeholders from a wide range of community, industry, environmental, and educational groups, and the KGS website provides free public access to our databases, digital map layers, and reports.</p>
-                            <!-- Add transparent class to make this button transparent -->
-                            <a href="/about/" class="inter-button transparent">Learn more</a>
+                        
+                            <a href="/about/" class="inter-button transparent service-button">Learn more</a>
                         </div>
                         <div class="youtube-video-container">
-                            <iframe
-                                width="560"
-                                height="315"
-                                src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ"
-                                title="YouTube video player"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                referrerpolicy="strict-origin-when-cross-origin"
-                                allowfullscreen>
-                            </iframe>
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/yIvYDxurai4?si=ZIGOG3YK43cEIIxQ" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>

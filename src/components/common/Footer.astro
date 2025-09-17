@@ -17,6 +17,7 @@ const currentYear = new Date().getFullYear();
           Email: <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a>
       </address>
     </div>
+    <!-- Remove 'open' attribute to make them closed by default -->
     <details class="source-sans-3-footer-details">
       <summary>Key Information</summary>
         <ul>
@@ -63,32 +64,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const details = document.querySelectorAll('footer details');
         
         if (window.innerWidth >= 1100) {
-            // Desktop: Open all details but keep them interactive
+            // Desktop: Open all details
             details.forEach(detail => {
                 detail.open = true;
-                const summary = detail.querySelector('summary');
-                if (summary) {
-                    summary.style.pointerEvents = 'auto'; // Keep clicking enabled
-                }
             });
         } else {
-            // Mobile/Tablet: Close details and ensure they're interactive
+            // Mobile/Tablet: Always keep closed
             details.forEach(detail => {
                 detail.open = false;
-                const summary = detail.querySelector('summary');
-                if (summary) {
-                    summary.style.pointerEvents = 'auto';
-                }
             });
         }
     }
     
+    // Add interaction tracking
+    document.querySelectorAll('footer details').forEach(detail => {
+        detail.addEventListener('toggle', function() {
+            this.setAttribute('data-user-interacted', 'true');
+        });
+    });
+    
     // Run on load
     handleFooterExpansion();
     
-    // Run on resize
-    window.addEventListener('resize', handleFooterExpansion);
+    // Run on resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleFooterExpansion, 100);
+    });
 });
-
 </script>
-
