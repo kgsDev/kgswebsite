@@ -742,19 +742,85 @@ body {
     width: 100%;
     padding: 0;
     margin: 0;
-    background-color: var(--gray-medium); 
+    background-color: var(--white); 
+}
+
+/* Mobile/Tablet: Full width sections with proper padding */
+.midsection .section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    margin: 0;
+    background-color: var(--white);
+    padding: 0;
+    max-width: none; /* Remove width constraint for mobile/tablet */
 }
 
 .section-dynamic {
+    width: 100%;
     padding: var(--section-padding); 
-    flex: 1; 
-    max-width: 500px; 
+    margin: 0;
+    max-width: none; /* Remove width constraint */
 }
 
 .section-connect {
+    width: 100%;
     padding: var(--section-padding);
-    flex: 1;
-    max-width: 600px;
+    margin: 0;
+    max-width: none; /* Remove width constraint */
+}
+
+.section-dynamic .inter-h2,
+.section-connect .inter-h2 {
+    color: var(--navy);
+}
+
+.section-connect .inter-h2 {
+    margin-bottom: 30px;
+}
+
+.section-dynamic .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* Desktop layout - constrain width and use side-by-side layout */
+@media (min-width: 1100px) {
+    /* Midsection layout */
+    .midsection {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .midsection .section-container {
+        display: flex;
+        flex-direction: row; /* Side by side on desktop */
+        gap: var(--section-gap);
+        align-items: flex-start;
+        justify-content: space-between;
+        width: var(--container-max-width); /* Constrain width on desktop */
+        margin: auto;
+        background-color: var(--white);
+        padding: 0 var(--tile-gap);
+        max-width: var(--content-max-width); /* Apply max-width on desktop */
+    }
+    
+    .section-dynamic {
+        width: calc(50% - 20px);
+        margin-left: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
+    }
+    
+    .section-connect {
+        width: calc(50% - 20px);
+        margin-right: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
+    }
 }
 
 .section-dynamic .inter-h2,
@@ -1604,9 +1670,6 @@ body {
    ======================================== */
 
 @media (min-width: 768px) and (max-width: 1099px) {
-    .section-ask-geologist {
-        padding: 70px 0;
-    }
     
     .ask-geologist-full .connect-subtitle {
         font-size: 2.2rem !important;
