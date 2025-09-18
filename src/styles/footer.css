@@ -28,7 +28,7 @@ footer a:hover {
 /* Custom arrow styling for mobile/tablet */
 footer details summary {
     font-weight: 700;
-    border-bottom: 1px solid #5C7BAB;
+    border-bottom: 1.5px solid #5C7BAB;
     margin-left: 5px; /* Adjusted to accommodate left arrow */
     position: relative;
     cursor: pointer;
