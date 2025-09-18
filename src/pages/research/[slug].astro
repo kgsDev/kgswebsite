@@ -2,26 +2,129 @@
 // src/pages/research/[slug].astro
 // Dynamic version that fetches fresh content on each request
 export const prerender = false;
+
 import Layout from "../../layouts/BaseLayout.astro";
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Get the slug from URL params
 const { slug } = Astro.params;
 
 // Fetch the research page dynamically based on the slug
 let page = null;
+let teamStaff = {
+  leaders: [],
+  members: []
+};
+
 try {
   const pages = await directus.request(readItems("research", {
-    fields: ['*', 'parent_page.slug', 'parent_page.title'], // Include parent page data
-    filter: {
-      slug: { _eq: slug }
-    },
+    fields: [
+      '*', 
+      'parent_page.slug', 
+      'parent_page.title',
+      'Research_Team.id',
+      'Research_Team.name',
+      'Research_Team.description'
+    ],
+    filter: { slug: { _eq: slug } },
     limit: 1
   }));
-  
+
   page = pages.length > 0 ? pages[0] : null;
+
+  // If page exists and has no parent (top-level research page) and has a research team, fetch team staff
+  if (page && !page.parent_page && page.Research_Team?.id) {
+    try {
+      // Fetch team leaders - the team_leader field goes through team_staff junction to staff
+      const teamWithLeaders = await directus.request(readItems("team", {
+        fields: [
+          'id',
+          'team_leader.staff_id.id',
+          'team_leader.staff_id.slug',
+          'team_leader.staff_id.first_name',
+          'team_leader.staff_id.last_name',
+          'team_leader.staff_id.working_title',
+          'team_leader.staff_id.email',
+          'team_leader.staff_id.phone',
+          'team_leader.staff_id.photo'
+        ],
+        filter: { id: { _eq: page.Research_Team.id } },
+        limit: 1
+      }));
+
+      // Extract team leaders
+      if (teamWithLeaders.length > 0 && teamWithLeaders[0].team_leader) {
+        const leaders = Array.isArray(teamWithLeaders[0].team_leader) 
+          ? teamWithLeaders[0].team_leader 
+          : [teamWithLeaders[0].team_leader];
+        
+        teamStaff.leaders = leaders
+          .map(leader => leader.staff_id)
+          .filter(Boolean)
+          .filter(staff => staff && staff.id);
+      }
+
+      // Fetch all team members through staff_team junction table  
+      const allTeamMembers = await directus.request(readItems("staff_team", {
+        fields: [
+          'staff_id.id',
+          'staff_id.slug', 
+          'staff_id.first_name',
+          'staff_id.last_name',
+          'staff_id.working_title',
+          'staff_id.email',
+          'staff_id.phone',
+          'staff_id.photo'
+        ],
+        filter: {
+          team_id: { _eq: page.Research_Team.id }
+        }
+      }));
+
+      // Get leader IDs for filtering
+      const leaderIds = teamStaff.leaders.map(leader => leader.id).filter(Boolean);
+      
+      // Filter out leaders from the general members list
+      teamStaff.members = allTeamMembers
+        .map(item => item.staff_id)
+        .filter(Boolean)
+        .filter(staff => staff.id && !leaderIds.includes(staff.id)); // Exclude leaders from members
+
+      } catch (teamError) {
+      console.error("Error fetching team staff:", teamError);
+      // If there's an error fetching leaders, just show all team members without leader distinction
+      try {
+        const allTeamMembers = await directus.request(readItems("staff_team", {
+          fields: [
+            'staff_id.id',
+            'staff_id.slug', 
+            'staff_id.first_name',
+            'staff_id.last_name',
+            'staff_id.working_title',
+            'staff_id.email',
+            'staff_id.phone',
+            'staff_id.photo'
+          ],
+          filter: {
+            team_id: { _eq: page.Research_Team.id }
+          }
+        }));
+
+        teamStaff.members = allTeamMembers
+          .map(item => item.staff_id)
+          .filter(Boolean)
+          .filter(staff => staff && staff.id);
+          
+      } catch (fallbackError) {
+        console.error("Fallback team fetch also failed:", fallbackError);
+      }
+    }
+  }
+
 } catch (error) {
   console.error("Error fetching research page:", error);
 }
@@ -36,7 +139,7 @@ function createHierarchicalBreadcrumbs(page: any) {
   const breadcrumbs = [
     { label: 'Research', href: '/research' }
   ];
-  
+
   // If page has a parent, add it to breadcrumbs
   if (page.parent_page) {
     breadcrumbs.push({
@@ -44,27 +147,151 @@ function createHierarchicalBreadcrumbs(page: any) {
       href: `/research/${page.parent_page.slug}`
     });
   }
-  
+
   // Add current page
-  breadcrumbs.push({
-    label: page.title
-  });
-  
+  breadcrumbs.push({ label: page.title });
+
   return breadcrumbs;
 }
 
 const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
 ---
 
-<Layout 
-  title={page.title}
-  customBreadcrumbs={customBreadcrumbs}
->
+<Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
   <main>
     <h1>{page.title}</h1>
-    <div set:html={page.content} />
     
+    <!-- Main content -->
+    <div set:html={page.content} />
+
+    <!-- Research Team Section (only for top-level pages with teams) -->
+    {!page.parent_page && page.Research_Team && (teamStaff.leaders.length > 0 || teamStaff.members.length > 0) && (
+      <div class="mt-12 mb-8">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+          <h2 class="text-2xl font-bold mb-6 text-blue-800">Research Team</h2>
+          
+          {page.Research_Team.description && (
+            <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+              <div class="prose max-w-none text-gray-700 text-lg font-bold" set:html={page.Research_Team.name} />
+            </div>
+          )}
+
+          <div class="space-y-6">
+            
+            <!-- Team Leaders -->
+            {teamStaff.leaders.length > 0 && (
+              <div>
+                <h3 class="text-lg font-bold mb-3 text-blue-800">
+                  Team Leader{teamStaff.leaders.length > 1 ? 's' : ''}
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                  {teamStaff.leaders.map(leader => (
+                    <div class="bg-white border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
+                      <div class="flex items-start space-x-4">
+                        {leader.photo && (
+                          <img 
+                            src={`${directusUrl}assets/${leader.photo}?width=80&height=80&fit=cover&quality=90`} 
+                            alt={`${leader.first_name} ${leader.last_name}`}
+                            class="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div class="flex-1">
+                          <h4 class="font-bold text-lg">
+                            <a href={`/staff/${leader.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                              {leader.first_name} {leader.last_name}
+                            </a>
+                          </h4>
+                          <p class="text-gray-600 mb-2">{leader.working_title}</p>
+                          <div class="space-y-1 text-sm">
+                            {leader.email && (
+                              <p>
+                                <a href={`mailto:${leader.email}`} class="text-blue-600 hover:underline">
+                                  {leader.email}
+                                </a>
+                              </p>
+                            )}
+                            {leader.phone && (
+                              <p class="text-gray-600">📞 {leader.phone}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <!-- Team Members -->
+            {teamStaff.members.length > 0 && (
+              <div>
+                <h3 class="text-lg font-bold mb-3 text-blue-800">Team Members</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {teamStaff.members.map(member => (
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                      <div class="flex items-center space-x-3">
+                        {member.photo && (
+                          <img 
+                            src={`${directusUrl}assets/${member.photo}?width=60&height=60&fit=cover&quality=90`} 
+                            alt={`${member.first_name} ${member.last_name}`}
+                            class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div class="flex-1 min-w-0">
+                          <h4 class="font-medium text-base">
+                            <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                              {member.first_name} {member.last_name}
+                            </a>
+                          </h4>
+                          <p class="text-sm text-gray-600 truncate" title={member.working_title}>
+                            {member.working_title}
+                          </p>
+                          {member.email && (
+                            <p class="text-xs mt-1">
+                              <a href={`mailto:${member.email}`} class="text-blue-600 hover:underline truncate block">
+                                {member.email}
+                              </a>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}           
+
+          </div>
+        </div>
+      </div>
+    )}
+
     <!-- Add lightbox functionality to any page that has galleries -->
     <LightboxEnhancer />
   </main>
 </Layout>
+
+<style>
+  /* Ensure consistent styling for team member cards */
+  .team-member-card {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .team-member-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .team-members-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Ensure proper text truncation */
+  .truncate-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
