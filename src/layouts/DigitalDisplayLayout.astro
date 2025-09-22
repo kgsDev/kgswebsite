@@ -1,0 +1,86 @@
+---
+// src/layouts/DigitalDisplayLayout.astro
+// Simple layout for digital directory display
+import '../styles/global.css';
+import SimpleHeader from '../components/digital/SimpleHeader.astro';
+import SimpleFooter from '../components/digital/SimpleFooter.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { 
+  title = 'Digital Directory',
+  description = 'Kentucky Geological Survey digital staff directory display.'
+} = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} - Kentucky Geological Survey</title>
+    
+    <!-- Import fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Auto-refresh for digital display (optional - remove if not needed) -->
+    <!-- <meta http-equiv="refresh" content="3600"> --> <!-- Refresh every hour -->
+    
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen flex flex-col bg-gray-50">
+    <!-- Simple Header -->
+    <SimpleHeader />
+    
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+    
+    <!-- Simple Footer -->
+    <SimpleFooter />
+  </body>
+</html>
+
+<style>
+  /* Digital display optimizations */
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scroll on displays */
+  }
+  
+  /* Ensure content is always visible */
+  main {
+    min-height: calc(100vh - 200px); /* Adjust based on header/footer height */
+  }
+  
+  /* Optimize for large displays */
+  @media (min-width: 1920px) {
+    html {
+      font-size: 18px; /* Larger base font for big displays */
+    }
+  }
+  
+  /* Prevent text selection for display purposes */
+  .digital-display {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Hide scrollbars for cleaner display look */
+  .digital-display::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .digital-display {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>

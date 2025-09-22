@@ -1,13 +1,18 @@
 ---
 // src/components/staff/StaffDetail.astro
 import LabsList from '../labs/LabsList.astro';
+import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam } from '../../lib/badgeUtils.js';
+
 // This component displays detailed information about a staff member
-const { member, relatedStaff = [] } = Astro.props;
+const { member = [] } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Debug output to help diagnose what's in the member object
 // console.log("Staff member detail:", JSON.stringify(member, null, 2));
 ---
+
+<!-- Add Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="max-w-5xl mx-auto">
   <!-- Staff Member Header - More compact design -->
@@ -46,22 +51,18 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           
           <!-- Role Badges -->
           <div class="flex flex-col gap-2 ml-4">
-            {member.department_head && (
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-                Division Director
+            {/* Director Badges */}
+            {getDirectorBadges(member).map(badge => (
+              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${badge.class}`}>
+                {badge.label}
               </span>
-            )}
+            ))}
             
-            {/* Updated to only check computed is_team_lead */}
-            {member.is_team_lead && (
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-                Team Lead
+            {/* Team Lead Badge - Only for Geoscience Research teams */}
+            {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
+              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${getTeamLeadBadge().class}`}>
+              <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
+                {getTeamLeadBadge().label}
               </span>
             )}
           </div>
@@ -69,9 +70,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         
         <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
         <p class="text-gray-500 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
+          <i class="fas fa-building mr-2 text-blue-500" style="font-size: 1.25rem;"></i>
           {member.department}
         </p>
       </div>
@@ -82,10 +81,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {member.email && (
             <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
               <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
+                <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
               </div>
               {member.email}
             </a>
@@ -94,9 +90,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {member.phone && (
             <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
               <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                </svg>
+                <i class="fas fa-phone text-blue-500" style="font-size: 1rem;"></i>
               </div>
               {member.phone}
             </a>
@@ -109,24 +103,22 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {member.team && member.team.length > 0 && (
             <div class="bg-blue-50 p-3 rounded-lg">
               <h5 class="text-m font-semibold mb-2 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
                 Teams
               </h5>
               <div class="flex flex-wrap gap-1">
                 {member.team.filter(team => team !== null).map((team) => {
                   const displayName = team.name || team.description || ``;
+                  const isTeamLead = isTeamLeadForTeam(member, team);
+                  const isGeoscienceResearch = isGeoscienceResearchTeam(team);
+                  const badgeClass = getTeamBadgeClass(isTeamLead, isGeoscienceResearch);
+                  
                   return (
                     <div class="relative">
-                      <span class={`inline-flex items-center px-2 py-1 rounded-full text-s font-medium ${team.is_team_lead ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-blue-100 text-blue-800'}`}>
-                        {team.is_team_lead && (
-                          <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                          </svg>
-                        )}
+                      <span class={`inline-flex items-center px-2 py-1 rounded-full text-s font-medium border ${badgeClass}`}>
+                        <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
                         {displayName}
-                        {team.is_team_lead && <span class="ml-1 text-xs">(Lead)</span>}
+                        {isTeamLead && isGeoscienceResearch && <span class="ml-1 text-xs">(Lead)</span>}
                       </span>
                     </div>
                   );
@@ -139,10 +131,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           {member.location && member.location.length > 0 && (
             <div class="bg-blue-50 p-3 rounded-lg">
               <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <i class="fas fa-map-marker-alt mr-2" style="font-size: 1.25rem;"></i>
                 Locations
               </h5>
 
@@ -172,7 +161,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                       <div class="p-3">
                         <div class="font-medium text-green-800">
                           {location.slug ? (
-                            <a href={`/locations/${slug}/`} class="baselink">
+                            <a href={`/about/locations#${slug}`} class="baselink">
                               {displayName}
                             </a>
                           ) : (
@@ -196,10 +185,8 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                       {(location.slug || mapUrl) && (
                         <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
                           {mapUrl && (
-                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs baselink flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                              </svg>
+                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs baselink flex items-center" aria-label={`View map for ${displayName}`}>
+                              <i class="fas fa-map mr-1" style="font-size: 0.75rem;"></i>
                               Map
                             </a>
                           )}
@@ -231,10 +218,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {(member.linkedin_url || member.researchgate_url || member.googlescholar_url || (typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8a6 6 0 016 6v4a2 2 0 01-2 2h-2m-6-8a6 6 0 01-6-6v-4a2 2 0 012-2h2" />
-        </svg>
+        <i class="fas fa-address-card mr-2 text-blue-800" style="font-size: 1.5rem;"></i>
         Other Contact Info
       </h5>
       
@@ -244,9 +228,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {member.other_url && (
           <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M12 2L2 10h2v10h16V10h2L12 2zM10 20v-6h4v6h-4zm8 0V9.157l-6-5.25-6 5.25V20h3v-7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7h3z" clip-rule="evenodd"/>
-              </svg>
+              <i class="fas fa-home" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-blue-800 font-medium">Website</p>
@@ -257,9 +239,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {member.linkedin_url && (
           <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-              </svg>
+              <i class="fab fa-linkedin" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-xs text-gray-500">LinkedIn</p>
@@ -271,9 +251,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {member.researchgate_url && (
           <a href={member.researchgate_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.586 0c-2.183 0-4.226.6-5.274 1.894C13.396.8 11.502 0 9.416 0 4.641 0 0 3.705 0 9.585c0 3.92 2.645 5.412 4.252 5.412.5 0 .84-.283.84-.749 0-.425-.365-.713-.733-.868-.59-.282-1.422-.955-1.422-2.602 0-3.932 3.247-6.311 6.383-6.311 1.5 0 2.638.624 3.13 1.5.63 1.126.27 2.55-.723 3.771-1.07 1.127-2.668 2.17-4.155 3.326a63.368 63.368 0 0 0-1.53 1.227c-.68.57-.87 1.222-.87 1.874 0 1.01.795 1.966 2.26 1.966 1.82 0 3.547-1.056 4.691-2.882l.364-.598c.155-.267.35-.6.486-.838.315-.553.68-1.189.68-1.783 0-.275-.145-.552-.436-.695-.285-.142-.556-.24-.825-.339-.27-.1-.6-.317-.6-.54 0-.158.079-.317.254-.414.425-.254 1.042-.65 1.661-1.097l.05-.038c2.535-1.857 4.85-3.748 4.85-7.008C18.12 2.044 16.306 0 12.915 0h6.671zm-14.26 2.547c-1.023 0-2.8.816-2.8 3.7 0 1.882.827 3.624 1.88.827 1.054-2.797 2.424-4.002 4.008-3.64.775.178 1.352.765 1.686 1.866.156.511.294 1.055.404 1.553.11.498.273 1.022.306 1.444.033.399-.103.728-.503.728-1.008 0-3.076-1.894-3.076-3.466 0-.3.09-.781.09-1.061 0-.324-.143-.82-.473-.82h-.001z"/>
-              </svg>
+              <i class="fab fa-researchgate" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-xs text-gray-500">ResearchGate</p>
@@ -285,9 +263,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {member.googlescholar_url && (
           <a href={member.googlescholar_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>
-              </svg>
+              <i class="fas fa-graduation-cap" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-xs text-gray-500">Google Scholar</p>
@@ -299,9 +275,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
         {member.github_url && (
           <a href={member.github_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.483 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.983 1.03-2.682-.103-.253-.447-1.27.098-2.645 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.91-1.296 2.75-1.026 2.75-1.026.545 1.375.202 2.392.1 2.645.64.7 1.03 1.592 1.03 2.682 0 3.842-2.337 4.687-4.565 4.935.36.31.682.92.682 1.852 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/>
-              </svg>
+              <i class="fab fa-github" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-xs text-gray-500">GitHub</p>
@@ -317,9 +291,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition"
           >
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <i class="fas fa-file-pdf" style="font-size: 1.25rem;"></i>
             </div>
             <div>
               <p class="text-xs text-gray-500">CV/Resume</p>
@@ -335,9 +307,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {member.expertise && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
+        <i class="fas fa-lightbulb mr-2" style="font-size: 1.5rem;"></i>
         Areas of Expertise
       </h5>
       <div class="text-gray-600">
@@ -351,9 +321,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   {member.bio_writeup && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
       <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+        <i class="fas fa-user mr-2" style="font-size: 1.5rem;"></i>
         Biography
       </h3>
       <div class="text-gray-700 prose max-w-none whitespace-pre-line">
@@ -362,51 +330,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     </div>
   )}
   
-  <!-- Related Staff Section -->
-  {relatedStaff && relatedStaff.length > 0 && (
-    <div class="mt-8 mb-8">
-      <h3 class="text-xl font-bold mb-4 text-blue-800">
-        Other Employees in {member.department}
-      </h3>
-      
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {relatedStaff.map((related) => (
-          <a href={`/staff/${related.slug}`} class="group">
-            <div class="bg-white shadow rounded-lg overflow-hidden flex flex-col h-full hover:shadow-md transition">
-              <div class="relative overflow-hidden bg-gray-100" style="padding-top: 75%;">
-                {typeof related.photo === 'string' && related.photo ? (
-                  <img 
-                    src={`${directusUrl}assets/${related.photo}?width=400&height=300&quality=90&fit=cover`} 
-                    alt={`${related.first_name} ${related.last_name}`}
-                    class="absolute inset-0 w-full h-full object-cover transition duration-300"
-                    style="transform: scale(1); transition: transform 0.5s;"
-                    onmouseover="this.style.transform='scale(1.05)'"
-                    onmouseout="this.style.transform='scale(1)'"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="absolute inset-0 flex items-center justify-center bg-gray-200">
-                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                      <h6 class="text-xl font-bold mb-4 text-blue-800">
-                        {related.first_name.charAt(0)}{related.last_name.charAt(0)}
-                    </h6>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div class="p-3">
-                <h5 class="font-medium text-blue-800 transition">
-                  {related.first_name} {related.last_name}
-                </h5>
-                <p class="text-sm text-gray-600 truncate">{related.working_title}</p>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  )}
   
   <!-- Back to Directory Button -->
   <div class="mb-12 text-center">
@@ -414,10 +337,52 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       href="/staff" 
       class="btn btn-primary btn-md"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-      </svg>
+      <i class="fas fa-arrow-left mr-2" style="font-size: 1.25rem;"></i>
       Back to Employee Directory
     </a>
   </div>
 </div>
+
+<style>
+  /* Font Awesome icon colors to match new design */
+  .fa-star {
+    color: #d97706; /* amber-600 - consistent for all star badges */
+  }
+  
+  .fa-users {
+    color: #64748b; /* slate-500 - subtle for team badges */
+  }
+  
+  .fa-envelope, .fa-phone {
+    color: #3b82f6; /* blue-500 */
+  }
+  
+  .fa-building, .fa-map-marker-alt, .fa-address-card, .fa-lightbulb, .fa-user {
+    color: #1e40af; /* blue-800 */
+  }
+  
+  .fa-arrow-left {
+    color: currentColor;
+  }
+  
+  /* Social media brand colors */
+  .fa-linkedin {
+    color: #0077b5;
+  }
+  
+  .fa-github {
+    color: #333;
+  }
+  
+  .fa-researchgate {
+    color: #00ccbb;
+  }
+  
+  .fa-graduation-cap {
+    color: #4285f4; /* Google Scholar blue */
+  }
+  
+  .fa-home, .fa-file-pdf {
+    color: #3b82f6; /* blue-500 */
+  }
+</style>

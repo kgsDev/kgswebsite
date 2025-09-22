@@ -5,7 +5,7 @@ import StaffLayout from '../../layouts/StaffLayout.astro';
 import StaffList from '../../components/staff/StaffList.astro';
 import { fetchStaffByDepartment, fetchAllDepartments } from '../../lib/api_staff';
 
-// Fetch all staff grouped by department
+// Fetch all staff grouped by department (now includes leadership section)
 const staffByDepartment = await fetchStaffByDepartment();
 
 // Extract unique teams from all staff members for the team filter
@@ -40,13 +40,15 @@ Object.values(staffByDepartment).flat().forEach(member => {
 
 const uniqueTeams = Array.from(allTeams).sort();
 console.log(`Found ${uniqueTeams.length} unique teams`);
+
+// Get list of departments for filter (excluding leadership section)
+const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== 'State Geologist and Directors');
 ---
 
 <StaffLayout 
   title="Staff Directory"
-  description="Contact information for Kentucky Geological Survey staff and affiliates."
->
-
+  description="Contact information for Kentucky Geological Survey staff and affiliates.">
+      
   <div class="mb-8">
     <h1 class="text-3xl font-bold mb-2 text-blue-900">KGS Staff and Affiliates Directory</h1>
     <p class="text-gray-600">Contact information for Kentucky Geological Survey staff and affiliated faculty and students.</p>
@@ -74,7 +76,7 @@ console.log(`Found ${uniqueTeams.length} unique teams`);
           class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">All Divisions</option>
-          {Object.keys(staffByDepartment).map((dept) => (
+          {departmentNames.map((dept) => (
             <option value={dept}>{dept}</option>
           ))}
         </select>
@@ -125,7 +127,20 @@ console.log(`Found ${uniqueTeams.length} unique teams`);
   <div id="staff-container" class="space-y-12">
     {Object.entries(staffByDepartment).map(([department, staff]) => (
       <div class="department-section" data-department={department}>
-        <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
+        {/* Consistent blue styling for all sections including leadership */}
+        {department === 'State Geologist and Directors' ? (
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold mb-2 pb-2 border-b-2 border-blue-500 text-blue-900">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="inline mr-2 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              {department}
+            </h2>
+            <p class="text-gray-600 text-sm mb-4">Leadership of the Kentucky Geological Survey</p>
+          </div>
+        ) : (
+          <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
+        )}
         <StaffList staff={staff} />
       </div>
     ))}
@@ -179,10 +194,10 @@ console.log(`Found ${uniqueTeams.length} unique teams`);
       // Add team filter if selected
       if (teamSelect.value) {
         const pill = document.createElement('div');
-        pill.className = 'px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs flex items-center';
+        pill.className = 'px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs flex items-center';
         pill.innerHTML = `
           <span>Team: ${teamSelect.value}</span>
-          <button class="ml-1 text-green-500 hover:text-green-700" data-filter="team">
+          <button class="ml-1 text-blue-500 hover:text-blue-700" data-filter="team">
             <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
@@ -235,45 +250,84 @@ console.log(`Found ${uniqueTeams.length} unique teams`);
         const staffCards = section.querySelectorAll('.staff-card-container');
         let visibleCardsInDepartment = 0;
         
-        // Show/hide department section based on department filter
-        if (selectedDepartment && selectedDepartment !== department) {
-          section.classList.add('hidden');
-        } else {
-          section.classList.remove('hidden');
-          
-          // Filter individual staff cards by search term and team
-          staffCards.forEach(card => {
-            const name = card.getAttribute('data-name').toLowerCase();
-            const title = card.getAttribute('data-title').toLowerCase();
-            const expertise = card.getAttribute('data-expertise')?.toLowerCase() || '';
-            const teams = card.getAttribute('data-teams')?.split('|') || [];
+        // Always show leadership section unless specifically filtered
+        if (department === 'State Geologist and Directors') {
+          if (!selectedDepartment) {
+            section.classList.remove('hidden');
+            // Count all leadership cards as visible for search/team filtering
+            staffCards.forEach(card => {
+              const name = card.getAttribute('data-name').toLowerCase();
+              const title = card.getAttribute('data-title').toLowerCase();
+              const expertise = card.getAttribute('data-expertise')?.toLowerCase() || '';
+              const teams = card.getAttribute('data-teams')?.split('|') || [];
+              
+              const matchesSearch = 
+                searchTerm === '' || 
+                name.includes(searchTerm) || 
+                title.includes(searchTerm) || 
+                expertise.includes(searchTerm);
+              
+              const matchesTeam = 
+                selectedTeam === '' || 
+                teams.some(t => t.toLowerCase() === selectedTeam.toLowerCase());
+              
+              if (matchesSearch && matchesTeam) {
+                card.classList.remove('hidden');
+                visibleCardsInDepartment++;
+              } else {
+                card.classList.add('hidden');
+              }
+            });
             
-            // Check if card matches search term
-            const matchesSearch = 
-              searchTerm === '' || 
-              name.includes(searchTerm) || 
-              title.includes(searchTerm) || 
-              expertise.includes(searchTerm);
-            
-            // Check if card matches team filter
-            const matchesTeam = 
-              selectedTeam === '' || 
-              teams.some(t => t.toLowerCase() === selectedTeam.toLowerCase());
-            
-            // Show card only if it matches both filters
-            if (matchesSearch && matchesTeam) {
-              card.classList.remove('hidden');
-              visibleCardsInDepartment++;
+            if (visibleCardsInDepartment > 0) {
+              hasVisibleStaff = true;
             } else {
-              card.classList.add('hidden');
+              section.classList.add('hidden');
             }
-          });
-          
-          // Hide department if no visible staff after filtering
-          if (visibleCardsInDepartment === 0) {
+          } else {
+            section.classList.add('hidden');
+          }
+        } else {
+          // Regular department filtering
+          if (selectedDepartment && selectedDepartment !== department) {
             section.classList.add('hidden');
           } else {
-            hasVisibleStaff = true;
+            section.classList.remove('hidden');
+            
+            // Filter individual staff cards by search term and team
+            staffCards.forEach(card => {
+              const name = card.getAttribute('data-name').toLowerCase();
+              const title = card.getAttribute('data-title').toLowerCase();
+              const expertise = card.getAttribute('data-expertise')?.toLowerCase() || '';
+              const teams = card.getAttribute('data-teams')?.split('|') || [];
+              
+              // Check if card matches search term
+              const matchesSearch = 
+                searchTerm === '' || 
+                name.includes(searchTerm) || 
+                title.includes(searchTerm) || 
+                expertise.includes(searchTerm);
+              
+              // Check if card matches team filter
+              const matchesTeam = 
+                selectedTeam === '' || 
+                teams.some(t => t.toLowerCase() === selectedTeam.toLowerCase());
+              
+              // Show card only if it matches both filters
+              if (matchesSearch && matchesTeam) {
+                card.classList.remove('hidden');
+                visibleCardsInDepartment++;
+              } else {
+                card.classList.add('hidden');
+              }
+            });
+            
+            // Hide department if no visible staff after filtering
+            if (visibleCardsInDepartment === 0) {
+              section.classList.add('hidden');
+            } else {
+              hasVisibleStaff = true;
+            }
           }
         }
       });
@@ -293,8 +347,15 @@ console.log(`Found ${uniqueTeams.length} unique teams`);
       const sortBy = sortSelect.value;
       
       departmentSections.forEach(section => {
-        const staffList = section.querySelector('.staff-list');
+        const department = section.getAttribute('data-department');
+        const staffList = section.querySelector('div[class*="grid"]');
+        
+        if (!staffList) return;
+        
         const staffCards = Array.from(staffList.children);
+        
+        // Don't sort the leadership section - it has its own hierarchy
+        if (department === 'State Geologist and Directors') return;
         
         staffCards.sort((a, b) => {
           const aName = a.getAttribute('data-name');

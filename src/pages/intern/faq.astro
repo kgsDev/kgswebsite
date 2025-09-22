@@ -1,0 +1,208 @@
+---
+// src/pages/intern/faq.astro
+export const prerender = false;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InternSidebar from '../../components/InternSidebar.astro';
+import { fetchInternFAQs } from '../../lib/api_intern';
+
+const faqs = await fetchInternFAQs();
+---
+
+<BaseLayout 
+  title="Internship FAQs"
+  description="Frequently asked questions about the Paul Edwin Potter Internship Program at Kentucky Geological Survey."
+  activePage="intern"
+>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <InternSidebar activeSection="faq" />
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 max-w-4xl">
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">The Paul Edwin Potter Internship - FAQs</h1>
+    
+    <!-- Hero Image -->
+    <div class="text-center mb-8">
+      <figure>
+        <img 
+          src="/assets/intern/FAQImage.jpg" 
+          alt="Internship FAQ image of interns in a classroom setting" 
+          class="w-full max-w-lg h-auto rounded-lg shadow-lg mx-auto"
+        />
+      </figure>
+    </div>
+    
+    <!-- FAQs Section -->
+    {faqs.length > 0 ? (
+      <div class="space-y-6">
+        {faqs.map((faq, index) => (
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <button 
+              class="w-full px-6 py-4 text-left bg-blue-50 hover:bg-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 faq-toggle"
+              data-target={`faq-${index}`}
+              aria-expanded="false"
+            >
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-blue-800 pr-4">
+                  {faq.question}
+                </h3>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  style="width: 1.5rem; height: 1.5rem;" 
+                  class="text-blue-600 transform transition-transform duration-200 faq-icon"
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+            
+            <div 
+              id={`faq-${index}`}
+              class="faq-content hidden px-6 py-4 border-t border-gray-200"
+            >
+              <div 
+                class="prose max-w-none text-gray-700"
+                set:html={faq.answer}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 4rem; height: 4rem;" class="text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-xl font-medium text-gray-700 mb-2">No FAQs Available</h3>
+        <p class="text-gray-500">
+          FAQs will be posted here soon. In the meantime, feel free to contact us with any questions.
+        </p>
+      </div>
+    )}
+    
+    <!-- Contact Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-8 mt-12">
+      <div class="text-center">
+        <h3 class="text-2xl font-bold text-blue-800 mb-4">Have Other Questions?</h3>
+        <p class="text-gray-700 mb-6">
+          Don't see your question answered above? We're here to help! Please reach out to us and we'll get back to you as soon as possible.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <a 
+            href="mailto:kgspotterinternship@uky.edu"
+            class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Email Us
+          </a>
+          
+          <span class="text-gray-500 text-sm">
+            kgspotterinternship@uky.edu
+          </span>
+        </div>
+        
+        <div class="mt-6 text-center">
+          <figure>
+            <img 
+              src="/assets/intern/2024Interns_NaturalBridge.JPG" 
+              alt="At Natural Bridge with the 2024 interns" 
+              class="w-full max-w-2xl h-auto rounded-lg shadow-md mx-auto"
+            />
+            <figcaption class="text-sm text-gray-600 mt-2 italic">
+              At Natural Bridge with the 2024 interns
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // FAQ Accordion functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const faqToggles = document.querySelectorAll('.faq-toggle');
+    
+    faqToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const targetId = toggle.getAttribute('data-target');
+        const content = document.getElementById(targetId);
+        const icon = toggle.querySelector('.faq-icon');
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other FAQs
+        faqToggles.forEach((otherToggle) => {
+          if (otherToggle !== toggle) {
+            const otherId = otherToggle.getAttribute('data-target');
+            const otherContent = document.getElementById(otherId);
+            const otherIcon = otherToggle.querySelector('.faq-icon');
+            
+            otherContent.classList.add('hidden');
+            otherToggle.setAttribute('aria-expanded', 'false');
+            otherIcon.style.transform = 'rotate(0deg)';
+          }
+        });
+        
+        // Toggle current FAQ
+        if (isExpanded) {
+          content.classList.add('hidden');
+          toggle.setAttribute('aria-expanded', 'false');
+          icon.style.transform = 'rotate(0deg)';
+        } else {
+          content.classList.remove('hidden');
+          toggle.setAttribute('aria-expanded', 'true');
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  /* Smooth transitions for FAQ content */
+  .faq-content {
+    transition: all 0.3s ease;
+  }
+  
+  /* Style for FAQ content with HTML from Directus */
+  .faq-content .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  
+  .faq-content .prose a:hover {
+    color: #1d4ed8;
+  }
+  
+  .faq-content .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .faq-content .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .faq-content .prose li {
+    margin: 0.5rem 0;
+  }
+  
+  .faq-content .prose p {
+    margin-bottom: 1rem;
+  }
+  
+  .faq-content .prose strong {
+    font-weight: 600;
+  }
+</style>

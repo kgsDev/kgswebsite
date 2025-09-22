@@ -1,0 +1,251 @@
+---
+// src/pages/intern/archive/[year].astro
+export const prerender = false;
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import InternSidebar from '../../../components/InternSidebar.astro';
+import { fetchInternProjectsForYear, fetchInternProjectYears, fetchInternDetailsByYear, fetchFinalProjectDetailsByYear } from '../../../lib/api_intern';
+
+// Generate static paths for available years
+export async function getStaticPaths() {
+  const years = await fetchInternProjectYears();
+  
+  return years.map(year => ({
+    params: {
+      year: year.toString()
+    }
+  }));
+}
+
+const { year } = Astro.params;
+const yearInt = parseInt(year);
+
+// Fetch projects for the specific year
+const projects = await fetchInternProjectsForYear(yearInt);
+const details = await fetchInternDetailsByYear(yearInt);
+const finalProjectDetails = await fetchFinalProjectDetailsByYear(yearInt);
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+if (!projects || projects.length === 0) {
+  return Astro.redirect('/intern/projects');
+}
+---
+
+<BaseLayout 
+  title={`${year} Internship Projects`}
+  description={`View the ${year} Paul Edwin Potter Internship Program projects and research completed by program participants.`}
+  activePage="intern"
+  customBreadcrumbs={[
+    { label: 'The Paul Edwin Potter Internship', href: '/intern' },
+    { label: 'Past Projects', href: '/intern/projects' },
+    { label: `${year} Projects` }
+  ]}
+>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <InternSidebar activeSection="projects" />
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 max-w-6xl">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold text-blue-900">{year} Potter Internship Projects</h1>
+      <a 
+        href="/intern/projects" 
+        class="inline-flex items-center px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        View All Years
+      </a>
+    </div>
+
+    {/* Final Project Details Header */}
+    {finalProjectDetails && (finalProjectDetails.overall_details || finalProjectDetails.final_project_image) && (
+      <div class="bg-blue-50 rounded-lg p-6 mb-8">
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+          {/* Summary Text */}
+          {finalProjectDetails.overall_details && (
+            <div>
+              <p class="text-gray-700 leading-relaxed">
+                {finalProjectDetails.overall_details}
+              </p>
+            </div>
+          )}
+          
+          {/* Image */}
+          {finalProjectDetails.final_project_image && (
+            <div class="text-center">
+              <figure>
+                <img 
+                  src={`${directusUrl}assets/${finalProjectDetails.final_project_image}?width=600&quality=90`}
+                  alt={finalProjectDetails.final_project_image_caption || `${year} internship program`}
+                  class="w-full h-auto rounded-lg shadow-md mx-auto"
+                />
+                {finalProjectDetails.final_project_image_caption && (
+                  <figcaption class="text-sm text-gray-600 mt-2 italic">
+                    {finalProjectDetails.final_project_image_caption}
+                  </figcaption>
+                )}
+              </figure>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* Program Details if available */}
+    {details && (
+      <div class="bg-blue-50 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-blue-800 mb-2">
+          {year} Program: {new Date(details.program_start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - {new Date(details.program_end_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </h2>
+        {details.project_description && (
+          <div 
+            class="prose max-w-none text-gray-700"
+            set:html={details.project_description}
+          />
+        )}
+      </div>
+    )}
+   
+
+    {/* Projects Grid */}
+    <div class="grid gap-8 mb-12">
+      {projects.map((project, index) => (
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <div class="flex items-start mb-4">
+              <div class="w-1 h-16 bg-blue-500 rounded-full mr-4 mt-1 flex-shrink-0"></div>
+              <div class="flex-grow">
+                <h3 class="text-xl font-bold text-blue-800 mb-2">
+                  {project.title || `Project ${index + 1}`}
+                </h3>
+                
+                {project.research_question && (
+                  <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">Research Question:</h4>
+                    <p class="text-gray-600 italic">{project.research_question}</p>
+                  </div>
+                )}
+                
+                {project.project_summary && (
+                  <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">Summary:</h4>
+                    <p class="text-gray-700">{project.project_summary}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Final Project Section */}
+            <div class="bg-gray-50 rounded-lg p-6 mt-6">
+              <h4 class="font-semibold text-gray-800 mb-4">Final Project:</h4>
+              
+              <div class="flex flex-col md:flex-row gap-6">
+                {/* Poster thumbnail */}
+                {project.poster_thumb && (
+                  <div class="md:w-48 flex-shrink-0">
+                    {project.poster_pdf ? (
+                      <a href={`${directusUrl}assets/${project.poster_pdf}`} target="_blank" class="block">
+                        <img 
+                          src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
+                          alt={`${project.title} poster`}
+                          class="w-full h-auto rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                        />
+                      </a>
+                    ) : (
+                      <img 
+                        src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
+                        alt={`${project.title} poster`}
+                        class="w-full h-auto rounded-lg shadow-md"
+                      />
+                    )}
+                  </div>
+                )}
+                
+                {/* Project details */}
+                <div class="flex-grow">
+                  <div class="mb-2">
+                    <h5 class="font-semibold text-gray-800">{project.name_intern}</h5>
+                    <p class="text-sm text-gray-600">{project.affiliation_intern}</p>
+                  </div>
+                  
+                  <div class="text-gray-700 italic mb-4">
+                    "{project.title}"
+                  </div>
+                  
+                  {project.poster_pdf && (
+                    <div>
+                      <a 
+                        href={`${directusUrl}assets/${project.poster_pdf}`}
+                        target="_blank"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        View Poster (PDF)
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Group photo for the year */}
+    <div class="text-center mb-8">
+      {/* Group photo from database if available */}
+      {finalProjectDetails && finalProjectDetails.interns_group_image && (
+        <figure>
+          <img 
+            src={`${directusUrl}assets/${finalProjectDetails.interns_group_image}?width=800&quality=90`}
+            alt={finalProjectDetails.interns_group_caption || `${year} Potter Interns and mentors`}
+            class="w-full max-w-3xl h-auto rounded-lg shadow-lg mx-auto"
+          />
+          {finalProjectDetails.interns_group_caption && (
+            <figcaption class="text-sm text-gray-600 mt-2 italic">
+              {finalProjectDetails.interns_group_caption}
+            </figcaption>
+          )}
+        </figure>
+      )}
+      
+
+    {/* Navigation */}
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex justify-between items-center">
+        <a 
+          href="/intern/projects" 
+          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          View All Years
+        </a>
+        
+        <div class="text-center">
+          <p class="text-sm text-gray-600">
+            Showing {projects.length} project{projects.length !== 1 ? 's' : ''} from {year}
+          </p>
+        </div>
+        
+        <a 
+          href="/intern" 
+          class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
+        >
+          Learn About the Program
+          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+    </div>
+  </div>
+</BaseLayout>

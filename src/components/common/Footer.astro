@@ -7,7 +7,7 @@ const currentYear = new Date().getFullYear();
 <footer>
   <div class="footer-container">
     <div class="footer-logo">
-      <img src="../../assets/index/uk-kgs-logo-white.png">
+      <a href="https://kygs.uky.edu"><img src="../../assets/index/uk-kgs-logo-white.png" alt="University of Kentucky - Kentucky Geological Survey Logo" /></a>
       <address class="footer-address inter-footer">
           Kentucky Geological Survey<br/>
           University of Kentucky<br/>
@@ -17,12 +17,13 @@ const currentYear = new Date().getFullYear();
           Email: <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a>
       </address>
     </div>
+    <!-- Remove 'open' attribute to make them closed by default -->
     <details class="source-sans-3-footer-details">
       <summary>Key Information</summary>
         <ul>
             <li><a href="/about/">About</a></li>
             <li><a href="https://www.uky.edu/KGS/geoky/">Kentucky Geology</a></li>
-            <li><a href="https://kgs.uky.edu/kygeode/services/pubs/">Publications</a></li>
+            <li><a href="https://kgs.uky.edu/kygeode/services/pubs/">Publications Catalog</a></li>
             <li><a href="https://kgs.uky.edu/kygeode/">Maps and Data</a></li>
             <li><a href="https://www.uky.edu/KGS/education/">Education</a></li>
             <li><a href="/about/jobs/">Job Opportunities</a></li>
@@ -31,21 +32,20 @@ const currentYear = new Date().getFullYear();
     <details class="source-sans-3-footer-details">
         <summary>Connect with KGS</summary>
         <ul>
-            <li><a href="https://www.instagram.com/kygeologicalsurvey/"><img src="../../assets/index/icon-ig-svg.svg"> Follow on Instagram</a></li>
-            <li><a href="https://www.facebook.com/kgsnews/"><img src="../../assets/index/icon-fb-svg.svg"> Find on Facebook</a></li>
-            <li><a href="https://twitter.com/KGSNews"><img src="../../assets/index/icon-x-svg.svg"> Follow on X</a></li>
-            <li><a href="https://www.linkedin.com/company/kgsnews/"><img src="../../assets/index/icon-li-svg.svg"> Follow on LinkedIn</a></li>
-            <li><a href="http://www.youtube.com/user/KGSUK"><img src="../../assets/index/icon-yt-svg.svg"> Watch on YouTube</a></li>
+            <li><a href="https://www.instagram.com/kygeologicalsurvey/"><img src="../../assets/index/icon-ig-svg.svg" alt="Follow on Instagram - Instagram logo"> Follow on Instagram</a></li>
+            <li><a href="https://www.facebook.com/kgsnews/"><img src="../../assets/index/icon-fb-svg.svg" alt="Find on Facebook - Facebook logo"> Find on Facebook</a></li>
+            <li><a href="https://twitter.com/KGSNews"><img src="../../assets/index/icon-x-svg.svg" alt="Follow on X - X logo"> Follow on X</a></li>
+            <li><a href="https://www.linkedin.com/company/kgsnews/"><img src="../../assets/index/icon-li-svg.svg" alt="Follow on LinkedIn - LinkedIn logo"> Follow on LinkedIn</a></li>
+            <li><a href="http://www.youtube.com/user/KGSUK"><img src="../../assets/index/icon-yt-svg.svg" alt="Watch on YouTube - YouTube logo"> Watch on YouTube</a></li>
         </ul>
     </details>
     <details class="source-sans-3-footer-details">
         <summary>Get Help</summary>
         <ul>
-            <li><a href="/about/help">Help & FAQs</a></li>
+            <li><a href="/contact">Contact Us</a></li>
             <li><a href="/about/locations">Locations & Hours</a></li>
             <li><a href="/staff/">Staff Directory</a></li>
-            <li><a href="#">Sitemap</a></li>
-            <li><a href="/about/ask">Request Information</a></li>
+            <li><a href="/about/orgs">Associated Organizations</a></li>
         </ul>
     </details>
 </div>
@@ -64,205 +64,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const details = document.querySelectorAll('footer details');
         
         if (window.innerWidth >= 1100) {
-            // Desktop: Open all details but keep them interactive
+            // Desktop: Open all details
             details.forEach(detail => {
                 detail.open = true;
-                const summary = detail.querySelector('summary');
-                if (summary) {
-                    summary.style.pointerEvents = 'auto'; // Keep clicking enabled
-                }
             });
         } else {
-            // Mobile/Tablet: Close details and ensure they're interactive
+            // Mobile/Tablet: Always keep closed
             details.forEach(detail => {
                 detail.open = false;
-                const summary = detail.querySelector('summary');
-                if (summary) {
-                    summary.style.pointerEvents = 'auto';
-                }
             });
         }
     }
+    
+    // Add interaction tracking
+    document.querySelectorAll('footer details').forEach(detail => {
+        detail.addEventListener('toggle', function() {
+            this.setAttribute('data-user-interacted', 'true');
+        });
+    });
     
     // Run on load
     handleFooterExpansion();
     
-    // Run on resize
-    window.addEventListener('resize', handleFooterExpansion);
+    // Run on resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleFooterExpansion, 100);
+    });
 });
-
-
-// Unified font sizing - all titles sized based on the longest one
-function unifiedRolloverSizing(maxFontSize = 2.5, minFontSize = 1.2) {
-    const titles = document.querySelectorAll('.link-container .hero-link .rollover-active .inter-h3');
-    
-    if (titles.length === 0) return;
-    
-    let smallestWorkingSize = maxFontSize;
-    
-    // Test each title to find the constraining one
-    titles.forEach(title => {
-        const container = title.parentElement;
-        const containerWidth = container.clientWidth - 50; // Account for padding
-        
-        // Temporarily set to max size to measure
-        title.style.fontSize = maxFontSize + 'rem';
-        
-        // If it overflows, find the size that fits
-        if (title.scrollWidth > containerWidth) {
-            const workingSize = findOptimalSize(title, containerWidth, maxFontSize, minFontSize);
-            smallestWorkingSize = Math.min(smallestWorkingSize, workingSize);
-        }
-    });
-    
-    // Apply the unified size to all titles
-    titles.forEach(title => {
-        title.style.fontSize = smallestWorkingSize + 'rem';
-        
-        // Optional: Add data attribute for debugging
-        title.dataset.unifiedSize = smallestWorkingSize.toFixed(2);
-    });
-    
-    console.log(`Rollover titles unified at ${smallestWorkingSize.toFixed(2)}rem`);
-    return smallestWorkingSize;
-}
-
-// Binary search to find optimal size for a specific title
-function findOptimalSize(element, containerWidth, maxSize, minSize) {
-    let low = minSize;
-    let high = maxSize;
-    let bestSize = minSize;
-    
-    while (high - low > 0.05) {
-        const mid = (low + high) / 2;
-        element.style.fontSize = mid + 'rem';
-        
-        if (element.scrollWidth <= containerWidth) {
-            bestSize = mid;
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-    
-    return bestSize;
-}
-
-// Alternative approach: Calculate based on text length ratios
-function unifiedRolloverSizingByLength(maxFontSize = 2.5, minFontSize = 1.2) {
-    const titles = document.querySelectorAll('.link-container .hero-link .rollover-active .inter-h3');
-    
-    if (titles.length === 0) return;
-    
-    // Find the longest title
-    let longestTitle = '';
-    let longestElement = null;
-    
-    titles.forEach(title => {
-        const text = title.textContent.trim();
-        if (text.length > longestTitle.length) {
-            longestTitle = text;
-            longestElement = title;
-        }
-    });
-    
-    // Calculate optimal size for the longest title
-    const container = longestElement.parentElement;
-    const containerWidth = container.clientWidth - 50;
-    const optimalSize = findOptimalSize(longestElement, containerWidth, maxFontSize, minFontSize);
-    
-    // Apply to all titles
-    titles.forEach(title => {
-        title.style.fontSize = optimalSize + 'rem';
-        title.dataset.unifiedSize = optimalSize.toFixed(2);
-        title.dataset.basedOn = 'longest';
-    });
-    
-    console.log(`All titles sized at ${optimalSize.toFixed(2)}rem based on: "${longestTitle}"`);
-    return optimalSize;
-}
-
-// Most robust approach: Test all containers and find the most restrictive
-function unifiedRolloverSizingRobust(maxFontSize = 2.5, minFontSize = 1.2) {
-    const titles = document.querySelectorAll('.link-container .hero-link .rollover-active .inter-h3');
-    
-    if (titles.length === 0) return;
-    
-    let mostRestrictiveSize = maxFontSize;
-    let restrictiveTitle = '';
-    
-    titles.forEach(title => {
-        const text = title.textContent.trim();
-        const container = title.parentElement;
-        const containerWidth = container.clientWidth - 50; // Account for padding
-        
-        // Test this specific title in its specific container
-        const requiredSize = calculateRequiredSize(title, containerWidth, maxFontSize, minFontSize);
-        
-        if (requiredSize < mostRestrictiveSize) {
-            mostRestrictiveSize = requiredSize;
-            restrictiveTitle = text;
-        }
-    });
-    
-    // Apply the most restrictive size to all titles
-    titles.forEach(title => {
-        title.style.fontSize = mostRestrictiveSize + 'rem';
-        title.dataset.unifiedSize = mostRestrictiveSize.toFixed(2);
-        title.dataset.restrictedBy = restrictiveTitle;
-    });
-    
-    //console.log(`All titles sized at ${mostRestrictiveSize.toFixed(2)}rem`);
-    //console.log(`Most restrictive title: "${restrictiveTitle}"`);
-    
-    return mostRestrictiveSize;
-}
-
-// Calculate what size is needed for text to fit in container
-function calculateRequiredSize(element, containerWidth, maxSize, minSize) {
-    // Quick estimation based on character count and container width
-    const text = element.textContent.trim();
-    const avgCharWidth = 0.6; // Approximate character width in rem at 1rem font size
-    
-    const estimatedSize = containerWidth / (text.length * avgCharWidth * 16); // Convert to rem
-    const clampedSize = Math.min(Math.max(estimatedSize, minSize), maxSize);
-    
-    // Verify with actual measurement
-    element.style.fontSize = clampedSize + 'rem';
-    
-    if (element.scrollWidth > containerWidth) {
-        return findOptimalSize(element, containerWidth, clampedSize, minSize);
-    }
-    
-    return clampedSize;
-}
-
-// Main setup function
-function setupUnifiedRolloverSizing() {
-    // Wait for fonts to load
-    document.fonts.ready.then(() => {
-        // Initial sizing
-        unifiedRolloverSizingRobust(2.5, 1.2);
-        
-        // Re-size on window resize with debouncing
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                unifiedRolloverSizingRobust(2.5, 1.2);
-            }, 150);
-        });
-    });
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', setupUnifiedRolloverSizing);
-
-// For testing - expose functions globally
-window.testRolloverSizing = {
-    unified: unifiedRolloverSizing,
-    byLength: unifiedRolloverSizingByLength,
-    robust: unifiedRolloverSizingRobust
-};
 </script>
-

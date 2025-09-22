@@ -1,201 +1,221 @@
-/*home_Styles.css - Fixed styles for the home page*/
+/*home_Styles.css - Cleaned and reorganized styles*/
 
 /* ========================================
-   ROLLOVER TYPOGRAPHY CONTROL SECTION
+   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
    ======================================== */
 
-/* Base rollover styling (Desktop 1100px+) */
-@media (min-width: 1100px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid #fff;
-        padding: 15px 0 25px 0;
-        color: #fff;
-        text-transform: uppercase;
-        
-        /* TYPOGRAPHY CONTROLS */
-        font-size: 1.2rem;           
-        line-height: 1.1;            
-        font-weight: 600;            
-        
-        /* Single line enforcement */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+:root {
+    /* Color Palette */
+    --primary-blue: #204b6e;
+    --hover-button-blue: #396686; /* Fixed duplicate - removed #E17F00 */
+    --navy: #224560;
+    --brown: brown;
+    --white: #fff;
+    --gray-light: #fff;
+    --gray-medium: #fff;
+    --gray-dark: #E5E9ED;
+    --text-dark: #2B3652;
+    --text-gray: #4b5563;
+    --text-gray-light: #6b7280;
     
-    /* Add icon styling below text */
-    .link-container .hero-link .rollover-active::after {
-        content: '';
-        display: block;
-        width: 60px;  /* Increased from 40px */
-        height: 60px; /* Increased from 40px */
-        margin: 20px auto 0;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
+    /* Video overlay colors */
+    --video-overlay: rgba(0,0,0,0.2);
+    --video-hover-brightness: 0.4;
+    --rollover-overlay: rgba(0, 0, 0, 0.4);
     
-    /* Specific icons for each rollover */
-    .link-container .hero-link:nth-child(1) .rollover-active::after {
-        background-image: url('/assets/index/cropped-energy.png');
-    }
+    /* Spacing */
+    --section-padding: 40px 25px;
+    --tile-padding: 42px 30px 30px;
+    --border-radius: 5px;
+    --border-radius-lg: 8px;
     
-    .link-container .hero-link:nth-child(2) .rollover-active::after {
-        background-image: url('/assets/index/cropped-maps.png');
-    }
+    /* Typography */
+    --font-inter: "Inter", sans-serif;
+    --font-source-sans: "Source Sans 3", sans-serif;
     
-    .link-container .hero-link:nth-child(3) .rollover-active::after {
-        background-image: url('/assets/index/cropped-community.png');
-    }
+    /* Dimensions */
+    --hero-height-mobile: 400px;
+    --hero-height-tablet: 590px;
+    --hero-height-desktop: 480px;
+    --video-height-desktop: 484px;
+    --tile-height: 349px;
+    --tile-min-height: 350px;
+    --news-card-image-height: 200px;
     
-    .link-container .hero-link:nth-child(4) .rollover-active::after {
-        background-image: url('/assets/index/cropped-water.png');
-    }
-    
-    .link-container .hero-link:nth-child(5) .rollover-active::after {
-        background-image: url('/assets/index/cropped-hazard.png');
-    }
+    /* Grid and Layout */
+    --container-max-width: 90%;
+    --tile-gap: 20px;
+    --section-gap: 40px;
+    --content-max-width: 1600px;
 }
 
-/* Medium desktop screens (1100px - 1399px) */
-@media (min-width: 1100px) and (max-width: 1399px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 1.6rem;           
-        line-height: 1.1;            
-    }
-}
+/* ========================================
+   GLOBAL STYLES
+   ======================================== */
 
-/* Large desktop screens (1400px - 1599px) */
-@media (min-width: 1400px) and (max-width: 1599px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2rem;             
-        line-height: 1.1;            
-    }
-}
-
-/* Extra wide screens (1600px+) */
-@media (min-width: 1600px) {
-    .link-container .hero-link .rollover-active .inter-h3 {
-        font-size: 2.2rem;           
-        line-height: 1.0;            
-    }
-}
-
-/* END ROLLOVER TYPOGRAPHY SECTION */
-
-/* Override global body styles for homepage */
 body {
     margin: 0;
     padding: 0;
     overflow-x: hidden; 
-    background-color: #f9fafb;
+    background-color: var(--gray-light);
 }
 
-/* Typography classes */
+/* ========================================
+   TYPOGRAPHY CLASSES
+   ======================================== */
+
 .inter-h1 {
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-inter);
     font-optical-sizing: auto;
     font-style: normal;
     font-weight: 500;
     font-size: 46px;
     line-height: 50px;
-    color: white !important; 
+    color: var(--white) !important; 
 }
 
 .inter-h2 {
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-inter);
     font-optical-sizing: auto;
     font-weight: 600;
     font-style: normal;
 }
 
+.inter-h3 {
+    font-family: var(--font-inter);
+    font-style: normal;
+}
+
 .inter-button {
-    font-family: "Inter", sans-serif;
+    font-family: var(--font-inter);
     font-optical-sizing: auto;
     font-weight: 700;
     font-style: normal;
 }
 
+.inter-nav {
+    font-family: var(--font-inter);
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.inter-news {
+    font-family: var(--font-inter);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
 .source-sans-3-p {
-    font-family: "Source Sans 3", sans-serif;
+    font-family: var(--font-source-sans);
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
 }
 
 .source-sans-3-p-smaller {
-    font-family: "Source Sans 3", sans-serif;
+    font-family: var(--font-source-sans);
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
     font-size: smaller;
 }
 
-.inter-nav {
-    font-family: "Inter", sans-serif;
+.source-sans-3-p-bigger-bolder {
+    font-family: var(--font-source-sans);
     font-optical-sizing: auto;
-    font-weight: 900;
+    font-weight: 500;
     font-style: normal;
+    font-size: larger;
 }
 
-.inter-news {
-    font-family: "Inter", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-style: normal;
+/* ========================================
+   BUTTON STYLES (CENTRALIZED)
+   ======================================== */
+
+/* Base button styles - applies to all button classes */
+.inter-button,
+.news-view-all-button,
+.social-link {
+    background-color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    border-radius: var(--border-radius);
+    color: var(--white) !important;
+    padding: 10px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
-/* Hero section */
+/* Secondary button variant */
+.inter-button.secondary {
+    background-color: transparent !important;
+    color: var(--primary-blue) !important;
+    border: 2px solid var(--primary-blue);
+}
+
+/* Transparent button variant */
+.inter-button.transparent {
+    background-color: transparent !important;
+    color: var(--white) !important;
+    border: 2px solid var(--white);
+}
+
+/* Social link specific styling */
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 0;
+}
+
+/* News button specific styling */
+.news-view-all-button {
+    padding: 12px 24px;
+}
+
+/* Hover states - consolidated */
+.inter-button:hover,
+.news-view-all-button:hover,
+.social-link:hover {
+    background-color: var(--hover-button-blue);
+    border-color: var(--hover-button-blue);
+}
+
+.inter-button.secondary:hover,
+.inter-button.transparent:hover {
+    background-color: var(--hover-button-blue) !important;
+    color: var(--white) !important;
+    border-color: var(--white);
+}
+
+.news-view-all-button:hover,
+.social-link:hover {
+    transform: translateY(-1px);
+}
+
+.social-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ========================================
+   HERO SECTION
+   ======================================== */
+
 .hero {
     position: relative;
     width: 100%;
-    height: 590px;
+    height: var(--hero-height-tablet);
     overflow: hidden;
     z-index: 2;
-}
-
-/* Add hover dimming effects */
-.hero:hover .video-copy-container {
-    opacity: 0.3;
-    transition: opacity 0.3s ease;
-}
-
-.hero:hover .video-container .video {
-    filter: brightness(0.4);
-    transition: filter 0.3s ease;
-}
-
-/* Reset dimming when not hovering */
-.video-copy-container {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.video-container .video {
-    filter: brightness(1);
-    transition: filter 0.3s ease;
-}
-
-/* Add hover dimming effects */
-.hero:hover .video-copy-container {
-    opacity: 0.3;
-    transition: opacity 0.3s ease;
-}
-
-.hero:hover .video-container .video {
-    filter: brightness(0.4);
-    transition: filter 0.3s ease;
-}
-
-/* Reset dimming when not hovering */
-.video-copy-container {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.video-container .video {
-    filter: brightness(1);
-    transition: filter 0.3s ease;
 }
 
 .hero-container {
@@ -207,8 +227,9 @@ body {
     position: relative;
 }
 
+/* Video container */
 .video-container {
-    height: 590px;
+    height: var(--hero-height-tablet);
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -222,19 +243,54 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    background: rgba(0,0,0,0.2);
+    background: var(--video-overlay);
     z-index: 1;
 }
 
 .video-container .video {
     object-fit: cover;
     position: absolute;
-    height: 590px;
+    height: var(--hero-height-tablet);
     width: 100%;
     top: 0;
     left: 0;
     z-index: 0;
+    filter: brightness(1);
+    transition: filter 0.3s ease;
 }
+
+/* Hero hover effects */
+.hero:hover .video-copy-container {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.hero:hover .video-container .video {
+    filter: brightness(var(--video-hover-brightness));
+    transition: filter 0.3s ease;
+}
+
+.video-copy-container {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    display: none;
+}
+
+/* Hero text content */
+.hero-title,
+.hero-subtitle {
+    color: var(--white) !important;
+}
+
+/* Hero icon fixes */
+.hero-icon {
+    color: white !important;
+    filter: brightness(0) invert(1);
+}
+
+/* ========================================
+   NAVIGATION LINKS (HERO OVERLAY)
+   ======================================== */
 
 .link-container {
     display: grid;
@@ -245,14 +301,14 @@ body {
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 40px);
+    width: calc(100% - 50px);
     max-width: 600px;
     height: auto;
     z-index: 5;
 }
 
 .link-container .hero-link {
-    color: #fff !important; 
+    color: var(--white) !important; 
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -265,6 +321,7 @@ body {
     display: none;
 }
 
+/* Link positioning for mobile */
 .link-container .hero-link:first-child {
     grid-column: 2;
 }
@@ -278,13 +335,9 @@ body {
     grid-row: 2;
 }
 
-.link-container .hero-link:nth-child(4) {
-    grid-row: 3;
-}
-
 .link-container .hero-link:last-child {
+    grid-column: 2;
     grid-row: 3;
-    grid-column: 3;
 }
 
 .link-container a img {
@@ -294,63 +347,88 @@ body {
     padding-bottom: 6px;
 }
 
-.video-copy-container {
-    display: none;
-}
-
 .link-text {
     text-align: center;
-    color: white !important; 
+    color: var(--white) !important; 
 }
 
-/* Section tiles */
+/* Icon fixes for navigation */
+.link-container .hero-link:nth-child(4) img {
+    filter: brightness(0) invert(1);
+    padding-bottom: 5px;
+}
+
+.link-container .hero-link:nth-child(4) .rollover-active::after {
+    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+/* ========================================
+   CONTAINER STYLES
+   ======================================== */
+
+.section-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tile-container {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* ========================================
+   SECTION TILES
+   ======================================== */
+
 .section-tile {
     text-align: center;
     width: 100%;
     margin: 0;
     padding: 0; 
-    background-color: #edf4f6; 
+    background-color: var(--gray-medium); 
 }
 
 .section-tile .tile-heading {
-    padding: 40px 25px 40px; 
+    padding: var(--section-padding); 
 }
 
-.section-tile .tile-heading h2, 
-.section-tile .tile-container .tile h2,
-.tile a {
-    text-transform: uppercase;
-    color: white;
-}
-
-.section-tile .tile-heading h2, 
+.section-tile .tile-heading h2,
 .section-tile .tile-heading p {
-    color: brown;
+    color: var(--brown);
 }
 
 .section-tile .tile-heading .inter-h2 {
     font-weight: 800;
 }
 
-.section-tile .inter-button {
-    border-radius: 5px;
-}
-
-.tile .source-sans-3-p {
-    color: white;
-}
-
+/* Base tile styles */
 .tile {
     background-position: center center;
     background-size: cover;
-    padding: 42px 30px 30px;
+    padding: var(--tile-padding);
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center; 
     align-items: center; 
     text-align: center; 
-    min-height: 350px;
+    min-height: var(--tile-min-height);
+    text-decoration: none;
+    color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.tile .inter-h2,
+.tile .source-sans-3-p {
+    color: var(--white);
 }
 
 .tile-content {
@@ -374,19 +452,23 @@ body {
 }
 
 .tile-text {
-    color: white;
+    color: var(--white);
     padding: 0 0 20px 0 !important;
     flex-grow: 1;
+    font-size: 18px;
     display: flex;
     align-items: center; 
     text-align: center;
 }
 
-.tile-button {
-    margin-top: auto;
-    align-self: center; 
+.rollover-text {
+    color: var(--white);
+    font-size: 17px;
+    align-items: center; 
+    text-align: center;
 }
 
+/* Tile background images */
 .tile.community {
     background-image: url('/src/assets/index/kgs-education.webp');
 }
@@ -399,57 +481,70 @@ body {
     background-image: url('/src/assets/index/kgs-research-tile.webp');
 }
 
+/* ========================================
+   SERVICE SECTION - MATCHING DATA SECTION SPACING WITH FULL-WIDTH BACKGROUND
+   ======================================== */
+
+.service-section {
+    background-color: var(--white);
+    padding: 0;
+    width: 100%;
+    margin: 0;
+}
+
+.service-full-width {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+.service-full-width .tile.service {
+    max-width: none !important;
+    width: 100% !important;
+}
+
 .tile.service {
     background-image: url('/src/assets/index/kgs-service-tile.png');
-    background-position: left;
-}
-
-.section-tile .tile.service .inter-h2 {
-    text-transform: capitalize;
-}
-
-.tile.service {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    width: 100%;
+    min-height: 100%;
     padding: 25px;
     padding-bottom: 40px;
     text-align: left;
     justify-content: flex-start; 
-    align-items: flex-start; 
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
 }
 
 .tile.service .tile-content {
     justify-content: flex-start; 
     align-items: flex-start; 
-    text-align: left; 
+    text-align: left;
+    width: 100%;
 }
 
-.tile.service .tile-button {
-    align-self: flex-start; 
+.tile.service .inter-h2 {
+    text-transform: capitalize;
+    color: var(--white);
 }
 
 .tile.service .source-sans-3-p {
     padding-left: 0;
     padding-bottom: 30px;
-}
-
-.tile a {
-    border: 2px solid white;
-    padding: 10px;
-    text-decoration: none;
-}
-
-.section-tile a:hover, 
-.midsection a:hover,
-.data-container a:hover {
-    background-color: #E17F00;
+    color: var(--white);
 }
 
 .tile.service .youtube-video-container {
     position: relative;
     overflow: hidden;
     width: 100%;
-    max-width: 560px; 
+    border-radius: var(--border-radius);
+    max-width: 560px;
     margin: 25px auto 0; 
-    aspect-ratio: 16/9; 
+    aspect-ratio: 16/9;
 }
 
 .tile.service .youtube-video-container iframe {
@@ -460,31 +555,293 @@ body {
     height: 100%;
 }
 
-/* Midsection */
+/* Desktop layout - full-width background with constrained content */
+@media (min-width: 1100px) {
+    /* Service section gets full-width background */
+    .service-section {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .service-full-width {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .tile.service {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: row;
+        padding: 0; /* Remove padding from background container */
+        align-items: flex-start;
+        justify-content: center; /* Center the content container */
+        margin: 0;
+        max-width: none;
+        /* Background stays full-width */
+        background-position: center;
+        background-size: cover;
+    }
+    
+    .tile.service .service-inner-container {
+        /* This becomes our constrained content container - matching data section */
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--section-gap); /* Match data section gap */
+        max-width: var(--content-max-width);
+        width: 90%; /* Match data section container width */
+        padding: 35px 25px; /* Apply data section padding here instead */
+        margin: 0 auto; /* Center the content container */
+    }
+    
+    .tile.service .service-container {
+        flex: 1;
+        max-width: 50%; /* Match data section proportions */
+        display: flex;
+        flex-direction: column;
+        padding: 0; /* Remove padding */
+    }
+    
+    .tile.service .youtube-video-container {
+        flex: 1;
+        max-width: 50%; /* Match data section proportions */
+        margin: 0;
+        align-self: flex-start;
+        margin-top: 100px; /* Match data section image offset */
+    }
+    
+    /* Typography spacing to match data section exactly */
+    .tile.service .service-container h2 {
+        padding-bottom: 40px; /* Match data section h2 padding */
+        margin-top: 0;
+        color: var(--white);
+    }
+    
+    .tile.service .service-container .source-sans-3-p {
+        padding: 0 0 30px 0; /* Match data section paragraph spacing */
+        color: var(--white);
+    }
+    
+    /* Button positioning */
+    .tile.service .service-button {
+        align-self: flex-start;
+        margin-top: 0; /* Remove extra margin since paragraphs have bottom padding */
+    }
+}
+
+/* Mobile layout - keep existing mobile behavior */
+@media (max-width: 1100px) {
+    .tile.service .service-inner-container {
+        flex-direction: column;
+        padding: 35px 25px; /* Match mobile padding with data section */
+        gap: 20px;
+    }
+    
+    .tile.service .service-container {
+        max-width: 100%;
+        order: 1;
+    }
+    
+    .tile.service .youtube-video-container {
+        max-width: 100%;
+        margin: 0;
+        order: 2;
+    }
+    
+    .tile.service .service-button {
+        position: static;
+        order: 4;
+        margin-top: 0px;
+        margin-bottom: 15px;
+        align-self: flex-start;
+    }
+}
+
+@media (min-width: 1100px) {
+    /* Service section desktop layout - matching data section exactly */
+    
+    /* Remove constraints from tile-container for service */
+    .tile-container.service-full-width {
+        max-width: none !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Make the service tile full-width background container */
+    .tile-container .tile.service {
+        width: 100% !important;
+        max-width: none !important;
+        height: auto;
+        display: block; /* Change from flex to block */
+        padding: 0 !important; /* Remove all padding */
+        margin: 0 !important;
+        /* Background stays full-width */
+    }
+    
+    /* Make service-inner-container behave like data section container */
+    .tile.service .service-inner-container {
+        /* Exact same properties as .section-data .section-container */
+        display: flex !important;
+        flex-direction: row !important;
+        padding: 35px 25px !important;
+        align-items: flex-start !important;
+        gap: var(--section-gap) !important;
+        max-width: var(--content-max-width) !important;
+        width: 90% !important;
+        margin: 0 auto !important;
+        
+        /* Override any existing properties */
+        justify-content: space-between !important;
+    }
+    
+    .tile.service .service-container {
+        flex: 1 !important;
+        max-width: 50% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
+    }
+    
+    .tile.service .youtube-video-container {
+        flex: 1 !important;
+        max-width: 50% !important;
+        margin: 0 !important;
+        align-self: flex-start !important;
+        margin-top: 100px !important; /* Match data section image offset */
+    }
+    
+    /* Typography spacing to match data section */
+    .tile.service .service-container h2 {
+        padding-bottom: 40px !important;
+        margin-top: 0 !important;
+        color: var(--white) !important;
+    }
+    
+    .tile.service .service-container .source-sans-3-p {
+        padding: 0 0 30px 0 !important;
+        color: var(--white) !important;
+    }
+    
+    .tile.service .service-button {
+        align-self: flex-start !important;
+        margin-top: 0 !important;
+    }
+}
+
+/* ========================================
+   MIDSECTION (INTERNSHIPS & CONNECT)
+   ======================================== */
+
 .midsection {
     width: 100%;
     padding: 0;
     margin: 0;
-    background-color: #edf4f6; 
+    background-color: var(--white); 
 }
 
-.section-internships {
-    padding: 40px 25px; 
-    flex: 1; 
-    max-width: 500px; 
+/* Mobile/Tablet: Full width sections with proper padding */
+.midsection .section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    margin: 0;
+    background-color: var(--white);
+    padding: 0;
+    max-width: none; /* Remove width constraint for mobile/tablet */
 }
 
-/* Connect with Us section */
+.section-dynamic {
+    width: 100%;
+    padding: var(--section-padding); 
+    margin: 0;
+    max-width: none; /* Remove width constraint */
+}
+
 .section-connect {
-    padding: 40px 25px;
-    flex: 1;
-    max-width: 600px;
+    width: 100%;
+    padding: var(--section-padding);
+    margin: 0;
+    max-width: none; /* Remove width constraint */
+}
+
+.section-dynamic .inter-h2,
+.section-connect .inter-h2 {
+    color: var(--navy);
 }
 
 .section-connect .inter-h2 {
-    color: navy;
     margin-bottom: 30px;
 }
+
+.section-dynamic .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* Desktop layout - constrain width and use side-by-side layout */
+@media (min-width: 1100px) {
+    /* Midsection layout */
+    .midsection {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .midsection .section-container {
+        display: flex;
+        flex-direction: row; /* Side by side on desktop */
+        gap: var(--section-gap);
+        align-items: flex-start;
+        justify-content: space-between;
+        width: var(--container-max-width); /* Constrain width on desktop */
+        margin: auto;
+        background-color: var(--white);
+        padding: 0 var(--tile-gap);
+        max-width: var(--content-max-width); /* Apply max-width on desktop */
+    }
+    
+    .section-dynamic {
+        width: calc(50% - 20px);
+        margin-left: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
+    }
+    
+    .section-connect {
+        width: calc(50% - 20px);
+        margin-right: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
+    }
+}
+
+.section-dynamic .inter-h2,
+.section-connect .inter-h2 {
+    color: var(--navy);
+}
+
+.section-connect .inter-h2 {
+    margin-bottom: 30px;
+}
+
+.section-dynamic .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* ========================================
+   CONNECT SECTION
+   ======================================== */
 
 .connect-item {
     margin-bottom: 40px;
@@ -496,16 +853,41 @@ body {
 
 .connect-subtitle {
     font-size: 1.2rem !important;
-    color: #2B3652 !important;
+    color: var(--text-dark) !important;
     margin-bottom: 15px !important;
     padding-bottom: 0 !important;
 }
 
+/* Podcast Section */
+.connect-item.podcast {
+    margin-bottom: 40px;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-blue);
+}
+
+.connect-item.podcast .connect-subtitle {
+    font-size: 1.3rem !important;
+    color: var(--text-dark) !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 0 !important;
+    font-weight: 600;
+}
+
 .podcast-player {
-    margin-top: 15px;
-    border-radius: 8px;
+    margin-top: 20px;
+    border-radius: var(--border-radius);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Social Media Section */
+.connect-item.social {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius:  var(--border-radius);
+    border-left: 4px solid var(--primary-blue);
 }
 
 .social-links {
@@ -513,33 +895,14 @@ body {
     flex-wrap: wrap;
     gap: 15px;
     margin-top: 20px;
+    justify-content: flex-start;
 }
 
-.social-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background-color: #58939E;
-    color: white !important;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    border: 2px solid #58939E;
-}
-
-.social-link:hover {
-    background-color: #E17F00;
-    border-color: #E17F00;
-    transform: translateY(-1px);
-}
-
-.social-link svg {
-    width: 18px;
-    height: 18px;
+.social-link img {
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
+    filter: brightness(0) invert(1);
 }
 
 .connect-item .button-container {
@@ -549,62 +912,188 @@ body {
     margin-top: 20px;
 }
 
-.connect-item .inter-button {
-    background-color: #58939E;
-    border-radius: 5px;
-    color: #fff !important;
-    padding: 10px;
-    text-decoration: none;
-    text-transform: uppercase;
+/* ========================================
+   ASK A GEOLOGIST SECTION
+   ======================================== */
+
+.section-ask-geologist {
+    width: 100%;
+    margin: 0;
+    background: #f1f3f4;
+    position: relative;
+    border-top: 3px solid #d1d5db;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.ask-geologist-full {
+    background: none;
+    border-radius: 0;
+    border: none;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.ask-geologist-full .connect-subtitle {
+    font-size: 2rem !important;
+    color: var(--primary-blue) !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 0 !important;
     font-weight: 700;
-    border: 2px solid #58939E;
-    transition: all 0.3s ease;
+    text-align: center;
 }
 
-.connect-item .inter-button:hover {
-    background-color: #E17F00;
-    border-color: #E17F00;
-}
-
-.inter-button.secondary {
-    background-color: transparent !important;
-    color: #58939E !important;
-    border: 2px solid #58939E;
-}
-
-.inter-button.secondary:hover {
-    background-color: #58939E !important;
-    color: white !important;
-}
-
-.section-internships .inter-h2,
-.section-connect .inter-h2 {
-    color: navy;
-}
-
-.section-internships .button-container {
+.ask-geologist-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: 0;
+    background: white;
+    border-radius:  var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
-.section-internships .inter-button, 
-.section-data .inter-button {
-    background-color: #58939E;
-    border-radius: 5px;
-    color: #fff;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    padding: 10px;
+.ask-geologist-content {
+    flex: 1;
+}
+
+.ask-geologist-image {
+    flex: 1;
+    min-height: 300px;
+    background-image: url('/assets/index/AskAGeologist1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    display: none;
+}
+
+.ask-geologist-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(32, 75, 110, 0.1) 0%, rgba(32, 75, 110, 0.05) 100%);
+}
+
+.ask-geologist-intro {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+.email-contact-container {
+    margin-top: 0;
+}
+
+.email-contact-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    background: white;
+    padding: 2rem;
+    border-radius:  var(--border-radius);
+    border: 3px solid var(--primary-blue);
+    box-shadow: 0 4px 20px rgba(32, 75, 110, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.email-contact-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-button-blue) 100%);
+}
+
+.email-contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(32, 75, 110, 0.15);
+}
+
+.email-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--hover-button-blue) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(32, 75, 110, 0.3);
+}
+
+.email-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.email-link {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--hover-button-blue) 100%);
+    border: none;
+    border-radius:  var(--border-radius);
+    color: white !important;
+    padding: 12px 24px;
     text-decoration: none;
     text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(32, 75, 110, 0.2);
 }
+
+.email-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(32, 75, 110, 0.3);
+}
+
+.email-description {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    line-height: 1.6;
+}
+
+.email-description strong {
+    color: var(--primary-blue);
+}
+
+.baselink {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.baselink:hover {
+    color: var(--hover-button-blue);
+    text-decoration: underline;
+}
+
+
+/* ========================================
+   DATA SECTION
+   ======================================== */
 
 .section-data {
     padding: 0; 
     width: 100%;
     margin: 0;
-    background-color: #edf4f6; 
+    background-color: var(--gray-medium); 
 }
 
 .section-data .section-container {
@@ -621,26 +1110,37 @@ body {
     width: 100%;
     height: auto;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: var(--border-radius-lg);
     order: 1; 
     max-height: 300px; 
 }
 
 .section-data .inter-button {
-    display: inline-block;
     margin-top: 20px;
 }
 
-/* News section */
+/* ========================================
+   NEWS SECTION
+   ======================================== */
+
 .section-news {
-    background-color: #E5E9ED;
-    padding: 25px;
+    background-color: var(--gray-dark) !important;
+    padding: 40px 25px !important;
     width: 100%;
     margin: 0;
+    position: relative;
+    border-top: 3px solid #d1d5db;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section-news .section-container {
+    background-color: transparent;
 }
 
 .section-news .inter-h2 {
-    color: #2B3652;
+    color: var(--text-dark);
+    margin-top: 0;
+    padding-top: 10px;
 }
 
 .section-news .news-tile-container {
@@ -651,7 +1151,7 @@ body {
 }
 
 .section-news .news-tile {
-    color: navy;
+    color: var(--navy);
     text-decoration: none;
     width: 175px;
 }
@@ -660,7 +1160,6 @@ body {
     padding-bottom: 10px;
 }
 
-/* View All News button styling */
 .news-view-all-container {
     display: flex;
     justify-content: center;
@@ -669,545 +1168,243 @@ body {
     padding-top: 20px;
 }
 
-.news-view-all-button {
-    background-color: #58939E;
-    border-radius: 5px;
-    color: #fff !important;
-    padding: 12px 24px;
-    text-decoration: none;
-    text-transform: uppercase;
-    font-weight: 700;
-    border: 2px solid #58939E;
-    transition: all 0.3s ease;
-    display: inline-block;
-}
+/* ========================================
+   DESKTOP RESPONSIVE (1100px+)
+   ======================================== */
 
-.news-view-all-button:hover {
-    background-color: #E17F00;
-    border-color: #E17F00;
-    transform: translateY(-1px);
-}
-
-/* NewsGrid component styles */
-.news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.news-card {
-    background: white;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease-in-out;
-    text-decoration: none;
-    color: inherit;
-    max-width: 400px; 
-    margin: 0 auto; 
-}
-
-.news-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-.news-card-image {
-    width: 100%;
-    height: 200px;
-    max-height: 200px; 
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.news-card:hover .news-card-image {
-    transform: scale(1.05);
-}
-
-.news-card-content {
-    padding: 1.5rem;
-}
-
-.news-card-title {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 1.125rem;
-    line-height: 1.4;
-    color: var(--wildcatBlue, #0033A0);
-    margin-bottom: 0.75rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.news-card-excerpt {
-    font-family: 'Source Sans Pro', sans-serif;
-    font-size: 0.875rem;
-    color: #4b5563;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.news-card-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #6b7280;
-}
-
-.news-card-date {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-}
-
-.news-card-category {
-    background-color: var(--sky, #B1C9E8);
-    color: var(--midnight, #1B365D);
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.625rem;
-}
-
-/* News grid responsive adjustments */
-@media (max-width: 640px) {
-    .news-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .news-card-content {
-        padding: 1rem;
-    }
-    
-    .news-card-title {
-        font-size: 1rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .news-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-/* Container fixes */
-.section-container {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-}
-
-.tile-container {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-}
-
-/* Video copy container for hero text */
-.hero-title {
-    color: white !important;
-}
-
-.hero-subtitle {
-    color: white !important;
-}
-
-/* Media queries */
-/* Tablet */
-@media (min-width: 550px) {
-    .video-container {
-        height: 590px;
-    }
-    
-    .video-container .video {
-        height: 590px;
-    }
-    
-    .hero {
-        height: 590px;
-    }
-    
-    .link-container {
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: 80px;
-        gap: 20px;
-        top: 70px;
-        max-width: 800px;
-    }
-    
-    .link-container .hero-link:first-child {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(4) {
-        grid-column: 4;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:last-child {
-        grid-column: 5;
-        grid-row: 1;
-    }
-    
-    .section-tile .tile-heading {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        flex: 1;
-    }
-    
-    .section-tile .tile-heading .inter-h2 {
-        flex: 1;
-        align-content: center;
-        padding-right: 25px;
-    }
-    
-    .section-tile .tile-heading .source-sans-3-p {
-        border-left: 2px solid brown;
-        flex: 2;
-        padding-left: 25px;
-        text-align: left;
-    }
-    
-    .tile .inter-h2 {
-        padding-bottom: 5px;
-    }
-    
-    .tile .source-sans-3-p {
-        padding: 0 110px 30px;
-    }
-    
-    .section-internships .button-container {
-        justify-content: flex-start;
-    }
-    
-    .tile.service .youtube-video-container {
-        width: 100%;
-        max-width: 600px;
-    }
-    
-    .section-news .news-tile {
-        width: 195px;
-    }
-    
-    /* Data section improvements for tablet */
-    .section-data .section-container {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 30px;
-    }
-    
-    .section-data .data-container {
-        flex: 1;
-        order: 1;
-    }
-    
-    .section-data img {
-        flex: 1;
-        order: 2;
-        max-height: 400px;
-        min-height: 300px;
-        object-fit: cover;
-        object-position: center top; 
-    }
-}
-
-/* Desktop */
 @media (min-width: 1100px) {
+    /* Hero adjustments */
     .hero {
-        height: 480px;
+        height: var(--hero-height-desktop);
     }
     
     .video-container {
-        height: 484px;
+        height: var(--video-height-desktop);
     }
     
     .video-container .video {
-        height: 484px;
+        height: var(--video-height-desktop);
     }
     
+    /* Navigation grid for desktop */
     .link-container {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         grid-template-rows: 80px;
-        gap: 40px;
+        gap: 50px;
         padding-top: 10px;
-        max-width: 90%;
+        max-width: var(--content-max-width);
         top: 16px;
-    }
-    
-    .link-container .hero-link .rollover-active {
-        display: block;
-        opacity: 0;
-        padding: 25px;
-        position: absolute;
-        width: 20vw;
-        top: 0; /* Flush with top of video */
-        height: 100vh;
-        
-        /* Ensure proper text containment */
-        box-sizing: border-box;
-        overflow: hidden;
-        
-        /* Center each rollover relative to its hero link */
+        width: 90%;
+        margin: 0 auto;
         left: 50%;
         transform: translateX(-50%);
     }
     
-    /* Position title to align with hero link baseline */
-    .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid #fff;
-        padding: 15px 0 25px 0;
-        color: #fff;
-        text-transform: uppercase;
-        margin-top: 60px; /* Push title down to align with hero link border */
-        margin-bottom: 0;
-        
-        /* TYPOGRAPHY CONTROLS */
-        font-size: 1.2rem;           
-        line-height: 1.1;            
-        font-weight: 600;            
-        
-        /* Single line enforcement */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Hover effect to show rollover */
-    .link-container .hero-link:hover .rollover-active {
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
-
-    .link-container .hero-link .rollover-active p {
-        padding-top: 5px;
-        color: #fff;
-    }
-    
+    /* Reset grid positioning for desktop */
     .link-container .hero-link:first-child {
         grid-column: 1;
         grid-row: 1;
-    }
-    /* Specific positioning for each rollover to align with hero links */
-    .link-container .hero-link:nth-child(1) .rollover-active {
-        background-color: rgba(18, 68, 1, 1);
     }
     
     .link-container .hero-link:nth-child(2) {
         grid-column: 2;
         grid-row: 1;
     }
-    .link-container .hero-link:nth-child(2) .rollover-active {
-        background-color: rgba(0, 118, 168, 1);
-    }
     
     .link-container .hero-link:nth-child(3) {
         grid-column: 3;
         grid-row: 1;
     }
-    .link-container .hero-link:nth-child(3) .rollover-active {
-        background-color: rgba(140, 1, 1, 1);
-    }
     
-    .link-container .hero-link:nth-child(4) {
+    .link-container .hero-link:last-child {
         grid-column: 4;
         grid-row: 1;
     }
-    .link-container .hero-link:nth-child(4) .rollover-active {
-        background-color: rgba(173, 161, 51, 1);
+    
+    /* Desktop link styling */
+    .link-container .hero-link {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: flex-start;
+        border-bottom: 1px solid var(--white);
+        text-decoration: none;
+        position: relative;
     }
     
-    .link-container .hero-link:last-child {
-        grid-column: 5;
-        grid-row: 1;
-    }
-    .link-container .hero-link:last-child .rollover-active {
-        background-color: rgba(78, 30, 116, 1);
+    .hero-link .link-text {
+        padding-bottom: 12px;
+        padding-left: 20px;
+        color: var(--white) !important;
     }
     
+    /* Icon adjustments for desktop */
     .link-container img {
         max-width: 40px;
         height: auto;
         display: block;
     }
     
-    .link-container .hero-link {
-        flex-direction: row;
-        align-items: flex-end;
-        justify-content: flex-start;
-        border-bottom: 1px solid white;
-        text-decoration: none;
-        position: relative; /* Add positioning context for rollover alignment */
+    .link-container .hero-link:nth-child(1) img {
+        padding-bottom: 10px;
     }
     
-    .hero-link .link-text {
+    .link-container .hero-link:nth-child(2) img {
+        padding-bottom: 2px;
+    }
+    
+    .link-container .hero-link:nth-child(3) img {
+        padding-bottom: 15px;
+    }
+    
+    .link-container .hero-link:nth-child(4) img {
         padding-bottom: 5px;
-        padding-left: 24px;
-        color: white !important;
     }
     
-    /* Rollover positioning - full video height */
+    /* Rollover functionality */
     .link-container .hero-link .rollover-active {
         display: block;
         opacity: 0;
-        padding: 25px;
+        padding: 32px;
         position: absolute;
         width: 20vw;
-        top: -25px; /* Start at video container top */
-        height: 484px; /* Full video container height */
+        max-width: 420px;
+        top: -25px;
+        height: var(--video-height-desktop);
         box-sizing: border-box;
         overflow: hidden;
         left: 50%;
         transform: translateX(-50%);
         z-index: 5;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
     
-    /* Title positioning - at the top of rollover */
+    /* Rollover overlays */
+    .link-container .hero-link .rollover-active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        background: transparent;
+    }
+    
+    /* Specific rollover overlays */
+    .link-container .hero-link:nth-child(1) .rollover-active {
+        background-image: url('/assets/index/rollovers/people2.webp');
+    }
+    
+    .link-container .hero-link:nth-child(1) .rollover-active::before {
+        background: rgba(140, 1, 1, 0.65);
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active {
+        background-image: url('/assets/index/rollovers/labs2.webp');
+    }
+    
+    .link-container .hero-link:nth-child(2) .rollover-active::before {
+        background: rgba(0, 118, 168, 0.50);
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active {
+        background-image: url('/assets/index/rollovers/monitor2.webp');
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active::before {
+        background: radial-gradient(circle at center, 
+            rgba(173, 161, 51, 0.5) 20%,
+            rgba(173, 161, 51, 1.0) 100%
+        );
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active {
+        background-image: url('/assets/index/rollovers/news2.webp');
+    }
+    
+    .link-container .hero-link:nth-child(4) .rollover-active::before {
+        background: radial-gradient(circle at center, 
+            rgba(78, 30, 116, 0.5) 90%,
+            rgba(78, 30, 116, 1.0) 100%
+        );
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Rollover text content */
+    .link-container .hero-link .rollover-active > * {
+        position: relative;
+        z-index: 2;
+    }
+    
     .link-container .hero-link .rollover-active .inter-h3 {
-        border-bottom: 1px solid #fff;
-        padding: 15px 0 25px 0;
-        color: #fff;
-        text-transform: uppercase;
-        margin: 0 0 20px 0;
-        
-        /* TYPOGRAPHY CONTROLS */
-        font-size: 1.2rem;           
-        line-height: 1.1;            
-        font-weight: 600;            
-        
-        /* Single line enforcement */
+        margin-top: 40px;
+        border-bottom: 1px solid var(--white);
+        padding-bottom: 10px;
+        color: var(--white);
+        position: relative;
+        z-index: 2;
+        font-size: 1.2em;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    /* Content area - below title */
     .link-container .hero-link .rollover-active p {
         padding: 5px 0 20px 0;
-        color: #fff;
+        color: var(--white);
         margin: 0;
-        line-height: 1.4;
+        line-height: 1.5;
+        position: relative;
+        z-index: 2;
     }
     
-    /* Add icon styling at bottom */
-    .link-container .hero-link .rollover-active::after {
-        content: '';
-        display: block;
-        width: 60px;
-        height: 60px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        position: absolute;
-        bottom: 25px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    /* Show rollover on hover */
     .link-container .hero-link:hover .rollover-active {
         opacity: 1;
         transition: opacity 0.3s ease;
     }
     
-    /* Grid positioning for each link */
-    .link-container .hero-link:first-child {
-        grid-column: 1;
-        grid-row: 1;
+    /* Rollover icons */
+    .link-container .hero-link .rollover-active::after {
+        content: '';
+        display: block;
+        width: 90px;
+        height: 90px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        bottom: 37px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 4;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
     }
     
-    .link-container .hero-link:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:nth-child(4) {
-        grid-column: 4;
-        grid-row: 1;
-    }
-    
-    .link-container .hero-link:last-child {
-        grid-column: 5;
-        grid-row: 1;
-    }
-    
-    /* Background colors for each rollover */
-    .link-container .hero-link:nth-child(1) .rollover-active {
-        background-color: rgba(18, 68, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(2) .rollover-active {
-        background-color: rgba(0, 118, 168, 1);
-    }
-    
-    .link-container .hero-link:nth-child(3) .rollover-active {
-        background-color: rgba(140, 1, 1, 1);
-    }
-    
-    .link-container .hero-link:nth-child(4) .rollover-active {
-        background-color: rgba(173, 161, 51, 1);
-    }
-    
-    .link-container .hero-link:last-child .rollover-active {
-        background-color: rgba(78, 30, 116, 1);
-    }
-    
-    /* Specific icons for each rollover */
     .link-container .hero-link:nth-child(1) .rollover-active::after {
-        background-image: url('/assets/index/cropped-energy.png');
-    }
-    
-    .link-container .hero-link:nth-child(2) .rollover-active::after {
-        background-image: url('/assets/index/cropped-maps.png');
-    }
-    
-    .link-container .hero-link:nth-child(3) .rollover-active::after {
         background-image: url('/assets/index/cropped-community.png');
     }
     
-    .link-container .hero-link:nth-child(4) .rollover-active::after {
+    .link-container .hero-link:nth-child(2) .rollover-active::after {
+        background-image: url('/assets/index/cropped-energy.png');
+    }
+    
+    .link-container .hero-link:nth-child(3) .rollover-active::after {
         background-image: url('/assets/index/cropped-water.png');
     }
     
-    .link-container .hero-link:nth-child(5) .rollover-active::after {
-        background-image: url('/assets/index/cropped-hazard.png');
+    .link-container .hero-link:nth-child(4) .rollover-active::after {
+        background-image: url('/assets/index/bullhorn-regular-full.svg');
     }
     
-    .link-container img {
-        max-width: 40px;
-        height: auto;
-        display: block;
-    }
-    
+    /* Video copy container for desktop */
     .video-copy-container {
         display: block;
-        color: white !important;
+        color: var(--white) !important;
         position: absolute;
         bottom: 100px;
         left: 170px;
@@ -1217,42 +1414,44 @@ body {
     
     .video-copy-container .hero-title {
         padding-bottom: 15px;
-        color: white !important;
+        color: var(--white) !important;
     }
     
     .video-copy-container .hero-subtitle {
-        color: white !important;
+        color: var(--white) !important;
     }
     
+    /* Layout adjustments */
     .section-tile, 
     .midsection, 
     .section-data {
-        background-color: #edf4f6;
+        background-color: var(--white);
     }
     
     .section-container {
-        width: 90%;
+        width: var(--container-max-width);
         margin: auto;
-        background-color: #fff;
+        background-color: var(--white);
+        max-width: var(--content-max-width);
     }
     
-    /* FIXED: Uniform tile display with equal spacing */
+    /* Tile container layout */
     .tile-container {
         display: flex;
         flex-direction: row;
-        justify-content: space-between; /* Changed from space-around for equal spacing */
-        gap: 0; /* Remove gap to control spacing manually */
-        padding: 0 20px; /* Add padding to container for edge spacing */
+        justify-content: space-between;
+        gap: 0;
+        padding: 0 var(--tile-gap);
+        max-width: var(--content-max-width);
+        margin: 0 auto;
     }
     
-    /* FIXED: Make tiles uniform rectangles with proper spacing */
     .tile-container .tile {
-        width: calc(33.333% - 13.33px); /* 3 tiles with even spacing */
-        height: 349px; /* Fixed height to match your requirement */
-        margin: 0 20px; /* Equal margin between tiles */
+        width: calc(33.333% - 13.33px);
+        height: var(--tile-height);
+        margin: 0 var(--tile-gap);
     }
     
-    /* First and last tile margin adjustments for perfect alignment */
     .tile-container .tile:first-child {
         margin-left: 0;
     }
@@ -1265,7 +1464,7 @@ body {
         padding: 0 30px 30px;
     }
     
-    /* FIXED: Align midsection with tiles above */
+    /* Midsection layout */
     .midsection {
         display: flex;
         flex-direction: row;
@@ -1273,52 +1472,78 @@ body {
     
     .midsection .section-container {
         display: flex;
-        gap: 40px; 
-        align-items: flex-start; 
-        justify-content: space-between; /* Changed to match tile alignment */
-        width: 90%; 
-        margin: auto; 
-        background-color: #fff; 
-        padding: 0 20px; /* Match tile container padding */
+        gap: var(--section-gap);
+        align-items: flex-start;
+        justify-content: space-between;
+        width: var(--container-max-width);
+        margin: auto;
+        background-color: var(--white);
+        padding: 0 var(--tile-gap);
+        max-width: var(--content-max-width);
     }
     
-    /* FIXED: Align sections with tile edges */
-    .section-internships {
-        width: calc(50% - 20px); /* Take up half width minus gap */
-        margin-left: 0; /* Align with left edge of tiles */
-        max-width: none; /* Remove max-width constraint */
+    .section-dynamic {
+        width: calc(50% - 20px);
+        margin-left: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
     }
     
     .section-connect {
-        width: calc(50% - 20px); /* Take up half width minus gap */
-        margin-right: 0; /* Align with right edge of tiles */
-        max-width: none; /* Remove max-width constraint */
+        width: calc(50% - 20px);
+        margin-right: 0;
+        max-width: none;
+        padding: 35px 0; /* Remove horizontal padding, keep vertical */
     }
     
+    /* Service tile desktop layout */
     .tile-container .tile.service {
         width: 100%;
-        height: auto; /* Allow service tile to expand vertically */
+        height: auto;
         display: flex;
         flex-direction: row;
-        padding: 40px 95px;
-        align-items: flex-start; 
+        padding: 0;
+        align-items: flex-start;
+        justify-content: center;
+        gap: var(--section-gap);
+        margin: 0;
+        max-width: none;
+    }
+    
+    .tile.service .service-inner-container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
         justify-content: space-between;
-        gap: 40px;
-        margin: 0; /* Reset margin for service tile */
+        gap: var(--section-gap);
+        max-width: var(--content-max-width);
+        width: 100%;
+         padding: 35px 10px; /* Remove horizontal padding, keep vertical */
     }
     
     .tile.service .service-container {
         flex: 1;
         max-width: 50%;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 20px; /* Reduced padding */
     }
     
     .tile.service .youtube-video-container {
         flex: 1;
         max-width: 50%;
-        margin: 0; 
-        align-self: flex-start; 
+        margin: 0;
+        align-self: flex-start;
+        margin-top: 80px; /* Offset to align with paragraph text, not title */
     }
     
+    /* Move button back to service-container and position it properly */
+    .tile.service .service-button {
+        align-self: flex-start;
+        order: 4; /* Ensure it comes after all paragraphs */
+    }
+    
+    /* Data section desktop layout */
     .section-data {
         display: flex;
         flex-direction: row;
@@ -1330,19 +1555,14 @@ body {
         display: flex;
         flex-direction: row-reverse;
         padding: 35px 25px;
-        align-items: flex-start; 
-        gap: 40px;
+        align-items: flex-start;
+        gap: var(--section-gap);
+        max-width: var(--content-max-width);
     }
     
     .section-data .data-container {
-        padding: 0; 
+        padding: 0;
         flex: 1;
-    }
-    
-    .service .service-container h2, 
-    .section-data h2 {
-        padding-bottom: 40px;
-        margin-top: 0; 
     }
     
     .section-data img {
@@ -1351,39 +1571,142 @@ body {
         height: auto;
         object-fit: cover;
         object-position: center top;
-        border-radius: 8px;
+        border-radius: var(--border-radius-lg);
+        align-self: flex-start;
+        margin-top: 100px;
     }
     
-    .section-news {
-        background-color: #edf4f6;
-        padding: 0;
+    .service .service-container h2, 
+    .section-data h2 {
+        padding-bottom: 40px;
+        margin-top: 0;
     }
     
-    .section-news .section-container {
-        padding: 40px 25px;
+    /* Ask a Geologist desktop layout */
+    .section-ask-geologist {
+        padding: 25px 0;
     }
     
-    .section-news h2 {
-        padding-bottom: 25px;
+    .ask-geologist-full .section-container {
+        width: var(--container-max-width);
+        margin: auto;
+        background-color: transparent;
+        max-width: var(--content-max-width);
+        padding: 0 10px; /* Remove horizontal padding, keep vertical */
     }
     
-    .section-news .news-tile {
-        width: 290px;
+    .ask-geologist-container {
+        flex-direction: row;
+        min-height: 500px;
+        margin: 10px 0;
+    }
+    
+    .ask-geologist-content {
+        flex: 1.2;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .ask-geologist-image {
+        display: block;
+        flex: 0.8;
+        min-height: 500px;
+    }
+    
+    .ask-geologist-full .connect-subtitle {
+        text-align: left;
+        font-size: 2.5rem !important;
+        margin-bottom: 25px !important;
+    }
+    
+    .ask-geologist-intro {
+        font-size: 1.2rem;
+        margin-bottom: 35px;
+    }
+    
+    .email-contact-card {
+        padding: 2.5rem;
+    }
+    
+    .email-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+    
+    .email-link {
+        padding: 14px 28px;
+        font-size: 1rem;
+    }
+    
+    .email-description {
+        font-size: 0.95rem;
+    }
+    
+    /* Connect section desktop enhancements */
+    .connect-two-columns {
+        gap: 30px;
+    }
+    
+    .social-links {
+        gap: 18px;
+    }
+    
+    .social-link {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .social-link img {
+        width: 26px;
+        height: 26px;
     }
 }
 
-/* Mobile specific fixes */
-@media (max-width: 549px) {
+/* ========================================
+   TABLET RESPONSIVE (768px - 1099px)
+   ======================================== */
+
+@media (min-width: 768px) and (max-width: 1099px) {
+    
+    .ask-geologist-full .connect-subtitle {
+        font-size: 2.2rem !important;
+    }
+    
+    .ask-geologist-content {
+        padding: 45px;
+    }
+    
+    .ask-geologist-intro {
+        font-size: 1.15rem;
+    }
+    
+    .email-contact-card {
+        padding: 2.25rem;
+    }
+    
+    .ask-geologist-container {
+        margin: 25px 0;
+    }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE (below 1100px)
+   ======================================== */
+
+@media (max-width: 1100px) {
     .hero {
-        height: 400px;
+        height: var(--hero-height-mobile);
     }
     
     .video-container {
-        height: 400px;
+        height: var(--hero-height-mobile);
     }
     
     .video-container .video {
-        height: 400px;
+        height: var(--hero-height-mobile);
         object-fit: cover;
     }
     
@@ -1400,23 +1723,253 @@ body {
     }
     
     .link-text {
-        font-size: 12px;
+        font-size: 1.2em;
     }
     
     .video-copy-container {
         display: none !important;
     }
     
+    /* Mobile service section layout - Text -> Video -> Button */  
+    .tile.service .service-inner-container {
+        flex-direction: column;
+        padding: 35px 10px; /* Remove horizontal padding, keep vertical */
+        gap: 20px;
+    }
+    
+    .tile.service .service-container {
+        max-width: 100%;
+        order: 1;
+    }
+    
     .tile.service .youtube-video-container {
         max-width: 100%;
-        margin: 20px 0 0 0;
+        margin: 0;
+        order: 2;
     }
-
+    
+    /* Position button after video in mobile */
+    .tile.service .service-button {
+        position: static; /* Reset desktop absolute positioning */
+        order: 4;
+        margin-top: 0px;
+        margin-bottom: 15px;
+        align-self: flex-start;
+    }
+    
     .section-data .section-container {
-        padding: 25px; 
+        padding: 25px;
     }
     
     .section-data .data-container {
-        padding: 0 20px; 
+        padding: 0 20px;
+    }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE (below 768px)
+   ======================================== */
+
+@media (max-width: 767px) {
+    .section-ask-geologist {
+        padding: 30px 0;
+    }
+    
+    .ask-geologist-full {
+        margin-top: 0;
+        box-shadow: none;
+    }
+    
+    .ask-geologist-container {
+        border-radius: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+    
+    .ask-geologist-content {
+        padding: 20px 25px;
+        background: transparent;
+    }
+    
+    .ask-geologist-full .connect-subtitle {
+        font-size: 1.8rem !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .ask-geologist-intro {
+        font-size: 1rem;
+        margin-bottom: 25px;
+    }
+    
+    .email-contact-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    .email-icon {
+        margin: 0 auto;
+        width: 65px;
+        height: 65px;
+        font-size: 26px;
+    }
+    
+    .email-content {
+        text-align: center;
+    }
+    
+    .email-link {
+        padding: 12px 24px;
+    }
+    
+    .email-description {
+        font-size: 0.875rem;
+        text-align: left;
+    }
+    
+    .section-news {
+        padding: 35px 25px;
+    }
+}
+
+/* ========================================
+   EXTRA SMALL MOBILE (below 480px)
+   ======================================== */
+
+@media (max-width: 480px) {
+    .section-ask-geologist {
+        padding: 40px 0;
+    }
+    
+    .ask-geologist-content {
+        padding: 25px 20px;
+    }
+    
+    .ask-geologist-full .connect-subtitle {
+        font-size: 1.6rem !important;
+    }
+    
+    .email-contact-card {
+        padding: 1.75rem 1.25rem;
+    }
+    
+    .email-description {
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================
+   DYNAMIC HOMEPAGE SECTION
+   ======================================== */
+
+/* Content formatting for CMS content */
+.section-dynamic .section-content {
+    margin-bottom: 1rem;
+}
+
+.section-dynamic .section-content p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.section-dynamic .section-content p:last-child {
+    margin-bottom: 1rem; /* Keep margin for button spacing */
+}
+
+/* Handle rich text content from CMS */
+.section-dynamic .section-content h1,
+.section-dynamic .section-content h2,
+.section-dynamic .section-content h3,
+.section-dynamic .section-content h4 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.section-dynamic .section-content h1:first-child,
+.section-dynamic .section-content h2:first-child,
+.section-dynamic .section-content h3:first-child,
+.section-dynamic .section-content h4:first-child {
+    margin-top: 0;
+}
+
+.section-dynamic .section-content ul,
+.section-dynamic .section-content ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.section-dynamic .section-content li {
+    margin-bottom: 0.5rem;
+}
+
+.section-dynamic .section-content a {
+    color: var(--primary-blue);
+    text-decoration: underline;
+}
+
+.section-dynamic .section-content a:hover {
+    color: var(--hover-button-blue);
+}
+
+.section-dynamic .section-content strong,
+.section-dynamic .section-content b {
+    font-weight: 600;
+}
+
+.section-dynamic .section-content em,
+.section-dynamic .section-content i {
+    font-style: italic;
+}
+
+/* Button aligned to left */
+.section-dynamic .button-container-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 30px 0;
+}
+
+/* Image centered */
+.section-dynamic .image-container-centered {
+    margin-top: 30px;
+    text-align: center; /* Centers the image */
+}
+
+.section-dynamic .image-container-centered img {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius:  var(--border-radius);
+    margin-bottom: 10px;
+}
+
+/* Caption aligned left under the image */
+.section-dynamic .image-caption-left {
+    text-align: left; /* Overrides center alignment from container */
+    margin: 0;
+}
+
+/* Desktop responsive - maintain same behavior */
+@media (min-width: 1100px) {
+    .section-dynamic .image-container-centered img {
+        max-width: 800px;
+    }
+    
+    .section-dynamic .image-caption-left {
+        max-width: 800px;
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+    .section-dynamic .button-container-left {
+        margin: 20px 0;
+    }
+    
+    .section-dynamic .image-container-centered {
+        margin-top: 20px;
     }
 }

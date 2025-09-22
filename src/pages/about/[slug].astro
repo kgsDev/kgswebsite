@@ -1,0 +1,38 @@
+---
+// SSR approach (for dynamic content - changes when you update the directus content)
+export const prerender = false;
+import Layout from "../../layouts/BaseLayout.astro";
+import directus from "../../../lib/directus";
+import { readItems } from "@directus/sdk";
+
+// Get the slug from URL params
+const { slug } = Astro.params;
+
+// Fetch the page dynamically based on the slug
+let page = null;
+try {
+  const pages = await directus.request(readItems("pages", {
+    filter: {
+      slug: { _eq: slug },
+      status: { _eq: "published" }
+    },
+    limit: 1
+  }));
+  
+  page = pages.length > 0 ? pages[0] : null;
+} catch (error) {
+  console.error("Error fetching page:", error);
+}
+
+// Handle 404 if page not found
+if (!page) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout title={page.title}>
+  <main>
+    <h1>{page.title}</h1>
+    <div set:html={page.content} />
+  </main>
+</Layout>

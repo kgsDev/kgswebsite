@@ -5,110 +5,149 @@ footer {
     color: #fff;
     padding: 25px;
 }
+
+footer p {
+    color: #fff;
+}
+
 footer .footer-address {
     padding: 25px 0;
     font-style: normal;
 }
 
 footer a {
-    color: #fff !important;;
+    color: #fff !important;
     text-decoration: none !important;
 }
 
 footer a:hover {
-  color: var(--river-green) !important;
-  text-decoration: none !important;
+    color: var(--river-green) !important;
+    text-decoration: none !important;
 }
 
+/* Custom arrow styling for mobile/tablet */
 footer details summary {
     font-weight: 700;
-    border-bottom: 1px solid #5C7BAB;
-    margin-left: -15px;
+    border-bottom: 1.5px solid #5C7BAB;
+    margin-left: 5px; /* Adjusted to accommodate left arrow */
+    position: relative;
+    cursor: pointer;
+    list-style: none; /* Remove default arrow */
+    padding-left: 25px; /* Space for left arrow */
+    transition: all 0.3s ease;
 }
+
+/* Hide default browser arrow */
+footer details summary::-webkit-details-marker {
+    display: none;
+}
+
+footer details summary::-moz-list-bullet {
+    list-style-type: none;
+}
+
+/* Custom arrow positioned on the left, pointing right when closed */
+footer details summary::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(270deg);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #fff;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate arrow when open (pointing down) */
+footer details[open] summary::after {
+    transform: translateY(-50%) rotate(360deg);
+}
+
+/* Smooth content animation */
 footer details ul {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+footer details[open] ul {
+    max-height: 500px; /* Adjust based on content */
     padding: 15px 0;
 }
+
 footer details li {
     list-style: none;
-    padding: 2px 0;
+    padding: 6px 0; /* Increased from 2px to 8px for more spacing */
 }
+
 footer details li a img {
     display: inline;
-    margin-bottom: -4px;
+    margin-bottom: 0; /* Remove the negative margin */
+    margin-right: 8px; /* Add some space between icon and text */
+    vertical-align: middle; /* Align with middle of text */
 }
+
 .footer-nav, .footer-blurb {
     text-align: center;
 }
+
 .footer-nav {
     padding: 25px 0;
 }
+
 .footer-blurb a {
     display: block;
     padding: 25px 0;
 }
 
-/* media queries */
-/* tablet */
-
-/* desktop */
+/* Desktop styles */
 @media (min-width: 1100px) {
     .footer-container {
         display: flex;
         flex-direction: row;
         justify-content: space-around;
-    }
-}
-
-/* Desktop footer expansion */
-@media (min-width: 1100px) {
-    .footer-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: flex-start; /* Align items to top */
-        gap: 40px; /* Add spacing between sections */
-        max-width: 1200px; /* Limit maximum width */
-        margin: 0 auto; /* Center the container */
-        padding: 0 20px; /* Add some padding */
+        align-items: flex-start;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
     }
     
-    /* Expand the details sections on desktop */
     footer details {
-        flex: 1; /* Each section takes equal space */
-        min-width: 200px; /* Minimum width for each column */
+        flex: 1;
+        min-width: 200px;
     }
     
-    /* Keep details open on desktop */
-    footer details[open] summary::after,
+    /* Hide arrows on desktop and disable collapse functionality */
     footer details summary::after {
-        display: none; /* Hide the expand/collapse arrow */
+        display: none !important;
     }
     
-    /* Auto-expand all details on desktop */
-    footer details {
-        /* Force details to stay open */
-    }
-    
-    /* Style the summary as a heading on desktop */
+    /* Disable pointer events on summary to prevent collapsing */
     footer details summary {
-        cursor: pointer; /* Keep pointer cursor for interaction */
-        font-weight: 700;
-        border-bottom: 1px solid #5C7BAB;
-        margin-left: 0; /* Reset margin */
+        cursor: default;
+        pointer-events: none;
+        margin-left: 0;
+        padding-left: 0; /* Remove left padding on desktop */
         padding-bottom: 10px;
         margin-bottom: 15px;
     }
     
-    /* Show the content without needing to click */
+    /* Force content to always show on desktop */
     footer details ul {
-        display: block !important; /* Force show the lists */
-        padding: 0;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 0 !important;
         margin: 0;
+        display: block !important;
     }
     
-    /* Logo section styling */
     .footer-logo {
-        flex: 1.2; /* Give logo section slightly more space */
+        flex: 1.2;
         max-width: 300px;
     }
     
