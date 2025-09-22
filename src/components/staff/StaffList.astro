@@ -1,7 +1,7 @@
 ---
 // src/components/StaffList.astro
 // This component displays a list of staff members with their photos, names, titles, and contact information.
-import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam } from '../../lib/badgeUtils.js';
+import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay } from '../../lib/badgeUtils.js';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 const { staff } = Astro.props;
@@ -61,45 +61,23 @@ const { staff } = Astro.props;
             </div>
           )}
 
-          
-          {/* Director/Leadership Badges - Above team badges 
-          {getDirectorBadges(member).length > 0 && (
-            <div class="mt-2 flex flex-wrap gap-1">
-              {getDirectorBadges(member).map(badge => (
-                <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${badge.class}`}>
-                  <i class="fas fa-star mr-1" style="font-size: 0.625rem;"></i>
-                  {badge.label}
-                </span>
-              ))}
-            </div>
-          )}
-          */}
-
-          {/* Team Lead Badge - Only for Geoscience Research teams
-          {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
-            <div class="mt-2 flex flex-wrap gap-1">
-              <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getTeamLeadBadge().class}`}>
-                <i class="fas fa-star mr-1" style="font-size: 0.625rem;"></i>
-                {getTeamLeadBadge().label}
-              </span>
-            </div>
-          )}
-          */}
-
-          {/* Team Badges - Show all teams with subtle styling */}
+          {/* Team Badges - Show teams with proper ordering: leader, primary, then regular */}
           {member.team && member.team.length > 0 && (
             <div class="mt-2 flex flex-wrap gap-1">
-              {member.team.map((team, index) => {
+              {sortTeamsForDisplay(member, member.team).map((team, index) => {
                 // Try multiple potential property names for maximum compatibility
                 const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
                 const isTeamLead = isTeamLeadForTeam(member, team);
+                const isPrimary = isPrimaryTeamForMember(member, team);
                 const isGeoscienceResearch = isGeoscienceResearchTeam(team);
-                const badgeClass = getTeamBadgeClass(isTeamLead, isGeoscienceResearch);
+                const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isGeoscienceResearch);
 
                 return (
                   <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal border ${badgeClass}`}>
-                   <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
+                    <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
                     {displayName}
+                    {isTeamLead && isGeoscienceResearch && <span class="ml-1">(Lead)</span>}
+                    {isPrimary && !(isTeamLead && isGeoscienceResearch) && <span class="ml-1">(Primary)</span>}
                   </span>
                 );
               })}
