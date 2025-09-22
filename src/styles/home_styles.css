@@ -23,11 +23,21 @@
     --video-hover-brightness: 0.4;
     --rollover-overlay: rgba(0, 0, 0, 0.4);
     
+    --peopleRollColor: rgba(140, 1, 1, 0.65); /*people rollover overlay - red */
+    --labsRollColor: rgba(0, 118, 168, 0.65); /*labs rollover overlay - blue */
+    --monitorRollColor: radial-gradient(circle at center, 
+                        rgba(173, 161, 51, 0.65) 20%, 
+                        rgba(173, 161, 51, 1.0) 100%); /*monitor rollover overlay - yellow */
+    --newsRollColor: radial-gradient(circle at center, 
+                    rgba(78, 30, 116, 0.65) 80%,
+                    rgba(78, 30, 116, 1.0) 100%); /*news rollover overlay - purple */
+
     /* Spacing */
     --section-padding: 40px 25px;
     --tile-padding: 42px 30px 30px;
-    --border-radius: 5px;
-    --border-radius-lg: 8px;
+    --border-radius: 0.5rem;
+    --border-radius-lg: 0.5rem;
+    --border-radius-btn: 1rem;
     
     /* Typography */
     --font-inter: "Inter", sans-serif;
@@ -140,7 +150,7 @@ body {
 .social-link {
     background-color: var(--primary-blue);
     border: 2px solid var(--primary-blue);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-btn);
     color: var(--white) !important;
     padding: 10px;
     text-decoration: none;
@@ -464,6 +474,7 @@ body {
 .rollover-text {
     color: var(--white);
     font-size: 17px;
+    font-weight: 500;
     align-items: center; 
     text-align: center;
 }
@@ -1040,7 +1051,6 @@ body {
 .email-link {
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--hover-button-blue) 100%);
     border: none;
-    border-radius:  var(--border-radius);
     color: white !important;
     padding: 12px 24px;
     text-decoration: none;
@@ -1296,9 +1306,9 @@ body {
     .link-container .hero-link:nth-child(1) .rollover-active {
         background-image: url('/assets/index/rollovers/people2.webp');
     }
-    
+  
     .link-container .hero-link:nth-child(1) .rollover-active::before {
-        background: rgba(140, 1, 1, 0.65);
+        background: var(--peopleRollColor);
         box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
     }
     
@@ -1307,7 +1317,7 @@ body {
     }
     
     .link-container .hero-link:nth-child(2) .rollover-active::before {
-        background: rgba(0, 118, 168, 0.50);
+        background: var(--labsRollColor);
         box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
     }
     
@@ -1316,10 +1326,7 @@ body {
     }
     
     .link-container .hero-link:nth-child(3) .rollover-active::before {
-        background: radial-gradient(circle at center, 
-            rgba(173, 161, 51, 0.5) 20%,
-            rgba(173, 161, 51, 1.0) 100%
-        );
+        background: var(--monitorRollColor);
         box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
     }
     
@@ -1328,10 +1335,7 @@ body {
     }
     
     .link-container .hero-link:nth-child(4) .rollover-active::before {
-        background: radial-gradient(circle at center, 
-            rgba(78, 30, 116, 0.5) 90%,
-            rgba(78, 30, 116, 1.0) 100%
-        );
+        background: var(--newsRollColor);
         box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
     }
     
