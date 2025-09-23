@@ -1,7 +1,7 @@
 ---
 // src/components/staff/StaffDetail.astro
 import LabsList from '../labs/LabsList.astro';
-import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam } from '../../lib/badgeUtils.js';
+import { getDirectorBadges, isTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay  } from '../../lib/badgeUtils.js';
 
 // This component displays detailed information about a staff member
 const { member = [] } = Astro.props;
@@ -59,7 +59,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             ))}
             
             {/* Team Lead Badge - Only for Geoscience Research teams */}
-            {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
+            {member.is_team_lead && member.team && member.team.some(team => isTeam(team)) && (
               <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${getTeamLeadBadge().class}`}>
               <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
                 {getTeamLeadBadge().label}
@@ -107,20 +107,21 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                 Teams
               </h5>
               <div class="flex flex-wrap gap-1">
-                {member.team.filter(team => team !== null).map((team) => {
-                  const displayName = team.name || team.description || ``;
+                {sortTeamsForDisplay(member, member.team).map((team, index) => {
+                  // Try multiple potential property names for maximum compatibility
+                  const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
                   const isTeamLead = isTeamLeadForTeam(member, team);
-                  const isGeoscienceResearch = isGeoscienceResearchTeam(team);
-                  const badgeClass = getTeamBadgeClass(isTeamLead, isGeoscienceResearch);
-                  
+                  const isPrimary = isPrimaryTeamForMember(member, team);
+                  const isKGSTeam = isTeam(team);
+                  const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isTeam);
+
                   return (
-                    <div class="relative">
-                      <span class={`inline-flex items-center px-2 py-1 rounded-full text-s font-medium border ${badgeClass}`}>
-                        <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
-                        {displayName}
-                        {isTeamLead && isGeoscienceResearch && <span class="ml-1 text-xs">(Lead)</span>}
-                      </span>
-                    </div>
+                    <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
+                      <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
+                      {displayName}
+                      {isTeamLead && isKGSTeam && <span class="ml-1">(Lead)</span>}
+                      {isPrimary && !(isTeamLead && isKGSTeam) && <span class="ml-1">(Primary)</span>}
+                    </span>
                   );
                 })}
               </div>
@@ -215,7 +216,8 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 {/* Information Sections in a 2-column grid */}
 <div class="grid md:grid-cols-2 gap-6 mb-8">
   {/* Other Contact Info Card - Only shown when profiles are available */}
-  {(member.linkedin_url || member.researchgate_url || member.googlescholar_url || (typeof member.biography_file === 'string' && member.biography_file)) && (
+  {/*(member.linkedin_url || member.researchgate_url || member.googlescholar_url || member.github_url || (typeof member.biography_file === 'string' && member.biography_file)) && (*/}
+  {((typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 flex items-center">
         <i class="fas fa-address-card mr-2 text-blue-800" style="font-size: 1.5rem;"></i>
@@ -225,6 +227,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       <div class="space-y-4">
         {/* Professional Profiles */}
 
+        {/* Cannot display personal website or social media - UKY rules  - keeping in case they change their minds...
         {member.other_url && (
           <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
             <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
@@ -283,6 +286,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             </div>
           </a>
         )}
+        */}
 
         {typeof member.biography_file === 'string' && member.biography_file && (
           <a 

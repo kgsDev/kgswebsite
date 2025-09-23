@@ -38,25 +38,25 @@ export function getDirectorBadges(member) {
 }
 
 /**
- * Check if a team is a Geoscience Research team
- * Teams are geoscience research if they belong to certain divisions
+ * Check if a team exists in a division to be displayed as a "team"
+ * (geoscience research, engagement and communications, information management, facilities, administration)
  */
-export function isGeoscienceResearchTeam(team) {
+export function isTeam(team) {
   if (!team || !team.division) return false;
   
   // Define which divisions are considered "geoscience research"
   // You can customize this list based on your actual division names/IDs
-  const geoscienceResearchDivisions = [
+  const teamDivisions = [
     'geoscience research',
-    'research',
-    'geology',
-    'geophysics',
-    'hydrogeology'
+    'engagement and communications',
+    'information management',
+    'facilities',
+    'administration'
     // Add more division names as needed
   ];
   
   const divisionName = team.division.name?.toLowerCase() || '';
-  return geoscienceResearchDivisions.some(div => divisionName.includes(div));
+  return teamDivisions.some(div => divisionName.includes(div));
 }
 
 /**
@@ -65,7 +65,7 @@ export function isGeoscienceResearchTeam(team) {
 export function getTeamLeadBadge() {
   return {
     label: 'Team Lead',
-    class: 'bg-amber-100 text-amber-800 border-amber-300'
+    class: 'bg-amber-50 text-amber-800 border-amber-300'
   };
 }
 
@@ -74,7 +74,7 @@ export function getTeamLeadBadge() {
  */
 export function getPrimaryTeamBadge() {
   return {
-    class: 'bg-blue-100 text-blue-800 border-blue-300'
+    class: 'bg-blue-50 text-blue-800 border-blue-300'
   };
 }
 
@@ -88,7 +88,7 @@ export function getRegularTeamBadge() {
 }
 
 /**
- * Check if a staff member is a team leader for a specific team
+ * Check if a staff member is a team leader for a specific team (this is set in API by doing a check for team leads in teams or staff tables in directus)
  */
 export function isTeamLeadForTeam(member, team) {
   if (!team || !team.is_team_lead) return false;
@@ -122,8 +122,8 @@ export function isPrimaryTeamForMember(member, team) {
 /**
  * Get team badge class based on role (leader, primary, or regular)
  */
-export function getTeamBadgeClass(isTeamLead, isPrimary, isGeoscienceResearch) {
-  if (isTeamLead && isGeoscienceResearch) {
+export function getTeamBadgeClass(isTeamLead, isPrimary, isTeam) {
+  if (isTeamLead && isTeam) {
     return getTeamLeadBadge().class;
   }
   
@@ -151,16 +151,16 @@ export function sortTeamsForDisplay(member, teams) {
     const bIsLead = isTeamLeadForTeam(member, b);
     const aIsPrimary = isPrimaryTeamForMember(member, a);
     const bIsPrimary = isPrimaryTeamForMember(member, b);
-    const aIsGeoscience = isGeoscienceResearchTeam(a);
-    const bIsGeoscience = isGeoscienceResearchTeam(b);
+    const aIsTeam = isTeam(a);
+    const bIsTeam = isTeam(b);
     
     // Team leads (for geoscience research teams) come first
-    if (aIsLead && aIsGeoscience && !(bIsLead && bIsGeoscience)) return -1;
-    if (bIsLead && bIsGeoscience && !(aIsLead && aIsGeoscience)) return 1;
+    if (aIsLead && aIsTeam && !(bIsLead && bIsTeam)) return -1;
+    if (bIsLead && bIsTeam && !(aIsLead && aIsTeam)) return 1;
     
     // Primary teams come second (but after team leads)
-    if (aIsPrimary && !bIsPrimary && !(bIsLead && bIsGeoscience)) return -1;
-    if (bIsPrimary && !aIsPrimary && !(aIsLead && aIsGeoscience)) return 1;
+    if (aIsPrimary && !bIsPrimary && !(bIsLead && bIsTeam)) return -1;
+    if (bIsPrimary && !aIsPrimary && !(aIsLead && aIsTeam)) return 1;
     
     // Regular teams come last - sort alphabetically
     const aName = a.name || a.description || '';

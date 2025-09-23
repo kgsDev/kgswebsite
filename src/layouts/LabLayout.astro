@@ -21,11 +21,14 @@ const labUrl = lab?.url || `/labs/${labSlug}`;
 const labDescription = lab?.short_description || '';
 const labLogo = lab?.logo || null;
 
+// If no custom lab colors or fonts are set, use better defaults
+const hasCustomBranding = lab?.use_custom_branding || false;
+
 // Get custom font settings if available
 const useCustomFont = lab?.use_custom_font || false;
-const customFontUrl = lab?.custom_font_url || null;
-const customFontFamily = lab?.custom_font_family || null;
-const customFontWeight = lab?.custom_header_font_weight || '700';
+const customFontUrl = useCustomFont ? lab?.custom_font_url : null;
+const customFontFamily = useCustomFont ? lab?.custom_font_family : null;
+const customFontWeight = useCustomFont ? lab?.custom_header_font_weight : '700';
 
 // Generate color variables with automatic contrast checking
 const colors = generateLabColorVariables(lab);
@@ -38,15 +41,11 @@ const textOnPrimary = colors.textOnPrimary;
 const textOnSecondary = colors.textOnSecondary;
 const textOnBackground = colors.textOnBackground;
 
-// Smart color fallbacks for improved defaults
-// If no custom lab colors are set, use better defaults
-const hasCustomColors = lab?.primary_color || lab?.secondary_color || lab?.accent_color;
-
 // Enhanced defaults only when no custom colors exist
-const enhancedPrimary = hasCustomColors ? labPrimaryColor : '#e2e8f0'; // Lighter gray for more contrast
-const enhancedSecondary = hasCustomColors ? labSecondaryColor : '#1e3a8a'; // Much darker blue (blue-800)
-const enhancedAccent = hasCustomColors ? labAccentColor : '#b45309'; // Keep amber for subheadings
-const enhancedTextOnPrimary = hasCustomColors ? textOnPrimary : '#1e293b'; // Dark slate
+const enhancedPrimary = hasCustomBranding ? labPrimaryColor : '#e2e8f0'; // Lighter gray for more contrast
+const enhancedSecondary = hasCustomBranding ? labSecondaryColor : '#1e3a8a'; // Much darker blue (blue-800)
+const enhancedAccent = hasCustomBranding ? labAccentColor : '#b45309'; // Keep amber for subheadings
+const enhancedTextOnPrimary = hasCustomBranding ? textOnPrimary : '#1e293b'; // Dark slate
 
 // Page title format
 const fullPageTitle = pageTitle ? 
