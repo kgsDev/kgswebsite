@@ -177,10 +177,12 @@ export function generateLabColorVariables(lab) {
   const defaultHeaders = '#575757'; // slate for headers
 
   // Get colors from lab or use defaults
-  const primaryColor = lab?.primary_color || defaultPrimary;
-  const secondaryColor = lab?.secondary_color || defaultSecondary;
-  const backgroundColor = lab?.background_color || defaultBackground;
-  const headerColor = lab?.secondary_color || defaultHeaders;
+  const hasCustomColors = lab?.use_custom_branding || false;
+
+  const primaryColor = hasCustomColors && lab?.primary_color ? lab.primary_color : defaultPrimary;
+  const secondaryColor = hasCustomColors && lab?.secondary_color ? lab.secondary_color : defaultSecondary;
+  const backgroundColor = hasCustomColors && lab?.background_color ? lab.background_color : defaultBackground;
+  const headerColor = hasCustomColors && lab?.secondary_color ? lab.secondary_color : defaultHeaders;
 
   // Determine text colors for different backgrounds
   const textOnPrimary = getTextColorForBackground(primaryColor);
@@ -188,7 +190,7 @@ export function generateLabColorVariables(lab) {
   const textOnBackground = getTextColorForBackground(backgroundColor);
   
   // Generate an accent color if none provided (amber for subheadings)
-  const accentColor = lab?.accent_color || '#b45309'; // Amber-700
+  const accentColor = lab?.accent_color && hasCustomColors || '#b45309'; // Amber-700
   
   // Return the color variables
   return {

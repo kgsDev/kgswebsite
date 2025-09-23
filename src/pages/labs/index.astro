@@ -47,42 +47,42 @@ const {
           <a href={`/labs/${lab.slug}`} class="block">
             <div 
               class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"
-              style={lab.primary_color ? `--lab-accent: ${lab.primary_color}` : ''}
+              style={lab.use_custom_branding && lab.primary_color ? `--lab-accent: ${lab.primary_color}` : ''}
             >
               <div 
-                class="h-2 w-full" 
-                style={lab.primary_color ? `background-color: ${lab.primary_color}` : 'background-color: var(--skyBlue)'}
+              class="h-2 w-full" 
+              style={lab.use_custom_branding && lab.primary_color ? `background-color: ${lab.primary_color}` : 'background-color: var(--skyBlue)'}
               ></div>
               
               <div class="p-6">
                 <div class="flex items-center mb-4">
                   {lab.logo ? (
-                    <div class="mr-6 w-24 h-20 flex-shrink-0 flex items-center justify-center">
-                      <img 
-                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${lab.logo}?width=400&quality=100`}
-                        alt={`${lab.name} logo`}
-                        class="max-w-full max-h-full object-contain"
-                      />
-                    </div>
+                  <div class="mr-6 w-24 h-20 flex-shrink-0 flex items-center justify-center">
+                    <img 
+                    src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${lab.logo}?width=400&quality=100`}
+                    alt={`${lab.name} logo`}
+                    class="max-w-full max-h-full object-contain"
+                    />
+                  </div>
                   ) : (
-                    <div 
-                      class="mr-6 w-20 h-20 flex-shrink-0 rounded-full flex items-center justify-center text-white text-xl font-bold"
-                      style={lab.secondary_color ? `background-color: ${lab.secondary_color}` : 'background-color: var(--skyBlue)'}
-                    >
-                      {lab.short_name || lab.name.split(' ').map(word => word[0]).join('')}
-                    </div>
+                  <div 
+                    class="mr-6 w-20 h-20 flex-shrink-0 rounded-full flex items-center justify-center text-white text-xl font-bold"
+                    style={lab.use_custom_branding && lab.secondary_color ? `background-color: ${lab.secondary_color}` : 'background-color: var(--skyBlue)'}
+                  >
+                    {lab.short_name || lab.name.split(' ').map(word => word[0]).join('')}
+                  </div>
                   )}
                   
                   <div class="flex-1 flex flex-col justify-center min-w-0">
-                    <h3 
-                      class="text-xl font-bold leading-tight"
-                      style={lab.secondary_color ? `color: ${lab.secondary_color}` : 'color: var(--midnightBlue)'}
-                    >
-                      {lab.name}
-                    </h3>
-                    {lab.short_name && (
-                      <p class="text-gray-800 text-lg leading-tight mt-1">{lab.short_name}</p>
-                    )}
+                  <h3 
+                    class="text-xl font-bold leading-tight"
+                    style={lab.use_custom_branding && lab.secondary_color ? `color: ${lab.secondary_color}` : 'color: var(--midnightBlue)'}
+                  >
+                    {lab.name}
+                  </h3>
+                  {lab.short_name && (
+                    <p class="font-bold text-gray-500 text-lg leading-tight mt-1">{lab.short_name}</p>
+                  )}
                   </div>
                 </div>
                 
@@ -92,13 +92,13 @@ const {
                 
                 <div class="mt-4 flex justify-end">
                   <span 
-                    class="inline-flex items-center text-sm font-medium hover:underline"
-                    style={lab.accent_color ? `color: ${lab.accent_color}` : 'color: var(--wildcatBlue)'}
+                  class="inline-flex items-center text-sm font-medium hover:underline"
+                  style={lab.use_custom_branding && lab.accent_color ? `color: ${lab.accent_color}` : 'color: var(--wildcatBlue)'}
                   >
-                    Visit Lab
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
+                  Visit Lab
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
                   </span>
                 </div>
               </div>

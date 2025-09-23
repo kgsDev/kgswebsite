@@ -1,7 +1,7 @@
 ---
 // src/components/StaffList.astro
 // This component displays a list of staff members with their photos, names, titles, and contact information.
-import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay } from '../../lib/badgeUtils.js';
+import { getDirectorBadges, isTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay } from '../../lib/badgeUtils.js';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 const { staff } = Astro.props;
@@ -69,15 +69,15 @@ const { staff } = Astro.props;
                 const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
                 const isTeamLead = isTeamLeadForTeam(member, team);
                 const isPrimary = isPrimaryTeamForMember(member, team);
-                const isGeoscienceResearch = isGeoscienceResearchTeam(team);
-                const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isGeoscienceResearch);
+                const isKGSTeam = isTeam(team);
+                const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isTeam);
 
                 return (
                   <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal border ${badgeClass}`}>
                     <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
                     {displayName}
-                    {isTeamLead && isGeoscienceResearch && <span class="ml-1">(Lead)</span>}
-                    {isPrimary && !(isTeamLead && isGeoscienceResearch) && <span class="ml-1">(Primary)</span>}
+                    {isTeamLead && isKGSTeam && <span class="ml-1">(Lead)</span>}
+                    {isPrimary && !(isTeamLead && isKGSTeam) && <span class="ml-1">(Primary)</span>}
                   </span>
                 );
               })}
