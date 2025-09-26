@@ -58,9 +58,13 @@ export async function fetchStaffByDepartment() {
           'department_id.slug',
           'team_primary.id',
           'team_primary.name',
+          'team_primary.team_icon',
           'team_primary.description',
           'team_primary.division.id',
-          'team_primary.division.name'
+          'team_primary.division.name',
+          'team_primary.research.id',
+          'team_primary.research.slug',
+          'team_primary.research.title'
         ],
         filter: JSON.stringify({
           status: {
@@ -148,7 +152,14 @@ export async function fetchStaffByDepartment() {
       let teamData = [];
       if (teamIds.length > 0) {
         teamData = await apiRequest('/items/team', {
-          fields: ['*', 'division.id', 'division.name'],
+          fields: [
+            '*', 
+            'division.id', 
+            'division.name',
+            'research.id',
+            'research.slug', 
+            'research.title'
+          ],
           filter: JSON.stringify({
             id: {
               _in: teamIds
@@ -401,14 +412,17 @@ export async function fetchStaffBySlug(slug) {
       staff = await apiRequest('/items/staff', {
         fields: [
           '*',
-          'department_id.id',
           'department_id.name', 
           'department_id.slug',
           'team_primary.id',
           'team_primary.name',
+          'team_primary.team_icon',
           'team_primary.description',
           'team_primary.division.id',
-          'team_primary.division.name'
+          'team_primary.division.name',
+          'team_primary.research.id',
+          'team_primary.research.slug',
+          'team_primary.research.title'
         ],
         filter: JSON.stringify({
           slug: {
@@ -454,7 +468,14 @@ export async function fetchStaffBySlug(slug) {
     try {
       // Fetch teams for this staff member (membership)
       const teams = await apiRequest('/items/staff_team', {
-        fields: ['team_id.*', 'team_id.division.id', 'team_id.division.name'],
+        fields: [
+          'team_id.*', 
+          'team_id.division.id', 
+          'team_id.division.name',
+          'team_id.research.id',
+          'team_id.research.slug',
+          'team_id.research.title'
+        ],
         filter: JSON.stringify({
           staff_id: {
             _eq: member.id
@@ -464,7 +485,14 @@ export async function fetchStaffBySlug(slug) {
       
       // Also fetch teams where this person is a leader
       const leadershipTeams = await apiRequest('/items/team_staff', {
-        fields: ['team_id.*', 'team_id.division.id', 'team_id.division.name'],
+        fields: [
+          'team_id.*', 
+          'team_id.division.id', 
+          'team_id.division.name',
+          'team_id.research.id',
+          'team_id.research.slug',
+          'team_id.research.title'
+        ],
         filter: JSON.stringify({
           staff_id: {
             _eq: member.id

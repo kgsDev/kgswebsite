@@ -103,13 +103,6 @@ body {
     font-style: normal;
 }
 
-.inter-nav {
-    font-family: var(--font-inter);
-    font-optical-sizing: auto;
-    font-weight: 700;
-    font-style: normal;
-}
-
 .inter-news {
     font-family: var(--font-inter);
     font-optical-sizing: auto;

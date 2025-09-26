@@ -1,6 +1,6 @@
 /* header.css */
 header {
-    background-color: var(--color-white);;
+    background-color: var(--color-white);
 }
 header .logo {
     padding: 2vh 0;
@@ -15,12 +15,12 @@ header .logo {
 
 /* mobile */
 .nav-menu-button {
-    background-color: #2B3652;
+    background-color: var(--primary-blue);
     border: none;
     color: #fff;
     display: flex;
     font-size: 22px;
-    font-weight: 400;
+    font-weight: 600;
     padding-top: 10px;
     padding-bottom: 10px;
     align-items: center;
@@ -34,14 +34,23 @@ header .logo {
     width: 32px;
     margin-right: 5px;
 }
+
+.nav-menu-button:hover {
+    cursor: pointer;
+    background-color: var(--hover-button-blue);
+    border-color: var(--hover-button-blue);
+}
+
 .global-nav input {
     display: none;
 }
 .global-nav ul, .nav-sub-menu ul {
     list-style: none;
     padding: 0;
+    min-width: max-content;
 }
 .nav-menu {
+    cursor:pointer;
     background-color: #ffffff;
     color: #000;
     display: none;
@@ -103,6 +112,7 @@ header .logo {
     margin-left:10px;
     margin-right:40px;
 }
+
 .global-nav ul li {
     border: 0.5px solid #253657;
     border-bottom: 0;
@@ -114,61 +124,151 @@ header .logo {
     border-bottom: none;
 }
 
-/* media queries */
-/* tablet */
+/* Mobile and Tablet hover effects (below 740px) - Match desktop style */
+@media (max-width: 739px) {
+    /* Main menu background to white like desktop */
+    .nav-menu {
+        background-color: #fff;
+    }
+    
+    /* Menu item colors to match desktop */
+    .nav-menu details summary {
+        color: #886D52;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+    
+    /* Hover for devices with mouse/trackpad */
+    .nav-menu details summary:hover {
+        color: #224560;
+    }
+    
+    /* Active/tap state for touch devices */
+    .nav-menu details summary:active {
+        color: #224560;
+        background-color: rgba(123, 123, 123, 0.09);
+    }
+    
+    /* Submenu background to white like desktop */
+    .nav-sub-menu {
+        background-color: #FFFFFF;
+    }
+    
+    /* Submenu item colors and hover */
+    .nav-sub-menu a,
+    .global-nav ul li a {
+        color: #856E56;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    
+    /* Hover state for submenu items */
+    .global-nav ul li:hover {
+        background-color: rgba(123, 123, 123, 0.09);
+    }
+    
+    /* Active/tap state for submenu items on touch devices */
+    .nav-sub-menu a:active,
+    .global-nav ul li a:active {
+        background-color: rgba(123, 123, 123, 0.15);
+        color: #224560;
+    }
+    
+    /* Open state background */
+    .nav-menu details[open] {
+        background-color: #FFFFFF;
+    }
+    
+    /* Improve tap target size for better mobile UX */
+    .nav-menu details summary,
+    .nav-sub-menu a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Remove default tap highlight and add custom one */
+    .nav-menu a,
+    .nav-menu summary {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
 
-/* desktop */
-@media (min-width: 1200px) { 
+/* Tablet - menu below logo */
+@media (min-width: 740px) and (max-width: 1399px) {
     header {
         border-top: 23px solid #B2A495;
         box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
+    }
+    
+    header .header-inner {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
     }
+    
     header .logo {
-        width: 35%;
-        padding-top: 10px;
-        padding-bottom: 12px;
+        width: 100%;
+        max-width: 400px; /* Limit the logo container width */
+
     }
+    
+    .uk-logo, .kgs-logo {
+        max-height: 85px; /* Control the height */
+        width: auto;
+    }
+    
     .global-nav {
-        padding-top: 40px;
+        width: 100%;
+        padding: 0;
     }
+    
     .nav-menu-trigger {
         display: none;
     }
+    
     .nav-menu {
         background-color: #fff;
-        /*color: #B5A798;  too light - not ADA*/ 
-        color:#886D52; /*constrast ratio to #fff is 4.82:1*/
+        color: #886D52;
         display: flex;
-        justify-content: space-between;
-        width: 930px;
+        justify-content: flex-start;
         font-weight: 700;
+        gap: 15px;
+        white-space: nowrap;
+        padding: 10px 20px;
+        flex-wrap: wrap;
     }
-    .nav-menu a {
-        color: #B5A798;
+    
+    .nav-menu summary {
+        white-space: nowrap;
+        padding: 0.5em 0.75em;
     }
-    .nav-menu > * {
-        border-top: none;
-    }
-    .nav-menu.is-open {
-        display: flex;
-        justify-content: space-between;
-        position: static;
-        width: 884px;
-    }
+    
     .nav-menu summary::marker {
         content: none;
     }
+    
+    .nav-menu details summary {
+        border-bottom: 3px solid #FFFFFF;
+    }
+    
+    .nav-menu summary:hover, .nav-menu > a:hover {
+        color: #224560;
+        border-bottom: 3px solid #224560;
+    }
+    
+    .nav-menu details[open] summary {
+        border-bottom: 3px solid #224560;
+        color: #224560;
+    }
+    
     .nav-menu details[open] {
         background-color: #FFFFFF;
-    /* border-bottom: 13px solid #224560; */
     }
-    .nav-menu details:last-of-type .nav-sub-menu{
-        right: 0px;
+    
+    .nav-menu > * {
+        border-top: none;
+        position: relative;
     }
+    
     .nav-sub-menu {
         background-color: #FFFFFF;
         border-top: 7px solid #224560;
@@ -176,44 +276,200 @@ header .logo {
         display: block;
         position: absolute;
         z-index: 6;
+        left: 0;
+        top: 100%;
+        white-space: normal;
+        min-width: 250px;
     }
-    .nav-menu summary:hover, .nav-menu > a:hover {
-    color: #224560;
-    border-bottom: 13px solid #224560;
+    
+    /* Last menu item displays to the left */
+    .nav-menu details:last-of-type .nav-sub-menu {
+        left: auto;
+        right: 0;
     }
-    .nav-menu details summary {
-        border-bottom: 13px solid #FFFFFF;
-    }
-    .nav-menu details[open] summary {
-    border-bottom: 13px solid #224560;
-    color: #224560
-    }
+    
     .global-nav ul li {
         border: 1px solid #B3BFD5;
     }
+    
     .global-nav ul li a {
         font-weight: 700;
         color: #856E56;
     }
+    
     .global-nav ul li:hover {
         background-color: rgba(123, 123, 123, 0.09);
     }
 }
 
-  /* Staging banner styles */
-  .staging-banner {
+/*Desktop mid-size adjustment to keep the last menu from overlapping as little as possible with next one */
+@media (max-width: 1650px) {
+   
+    /* Last menu item displays to the left */
+    .nav-menu details:last-of-type .nav-sub-menu {
+        left: auto;
+        right: 0;
+    }
+}
+
+/* Tablet mid-size adjustment - switch last item back to right alignment */
+@media (min-width: 740px) and (max-width: 1006px) {
+    .nav-menu details:last-of-type .nav-sub-menu {
+        left: 0;
+        right: auto;
+    }
+}
+
+/* desktop */
+@media (min-width: 1400px) { 
+    header {
+        border-top: 23px solid #B2A495;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.14);
+        width: 100%;
+        position: relative;
+    }
+
+    /* Create a flex container wrapper */
+    header .header-inner {
+        display: flex;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-right: 20px;
+        position: relative;
+    }
+    
+    header .logo {
+        padding-top: 10px;
+        padding-bottom: 12px;
+        flex-shrink: 1;
+        margin-left: calc((100vw - 1400px) / -2);
+    }
+    
+    header .logo {
+        width: 100%;
+        max-width: 400px; /* Limit the logo container width */
+        min-width: 200px;
+}
+    
+    .uk-logo, .kgs-logo {
+      max-height: 85px; /* Control the height */
+      width:100%; 
+    }
+
+    .global-nav {
+        padding-top: 40px;
+        padding-left:20px;
+        flex-grow: 1;
+        display: flex;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+    
+    .nav-menu-trigger {
+        display: none;
+    }
+    
+    .nav-menu {
+        background-color: #fff;
+        color:#886D52;
+        display: flex;
+        justify-content: flex-end;
+        font-weight: 700;
+        gap: 15px;
+        white-space: nowrap;
+    }
+    
+    .nav-menu summary {
+        white-space: nowrap;
+    }
+    
+    .nav-menu a {
+        color: #B5A798;
+    }
+    
+    .nav-menu > * {
+        border-top: none;
+        position: relative;
+    }
+    
+    .nav-menu.is-open {
+        display: flex;
+        justify-content: flex-end;
+        position: static;
+    }
+    
+    .nav-menu summary::marker {
+        content: none;
+    }
+    
+    .nav-menu details[open] {
+        background-color: #FFFFFF;
+    }
+    
+    .nav-sub-menu {
+        background-color: #FFFFFF;
+        border-top: 7px solid #224560;
+        border-bottom: 7px solid #224560;
+        display: block;
+        position: absolute;
+        z-index: 6;
+        left: 0;
+        top: 100%;
+        white-space: normal;
+    }
+
+    .nav-menu summary::marker {
+        content: none;
+    }
+    
+    .nav-menu details[open] {
+        background-color: #FFFFFF;
+    }
+   
+   
+    .nav-menu summary:hover, .nav-menu > a:hover {
+      color: #224560;
+      border-bottom: 13px solid #224560;
+    }
+    
+    .nav-menu details summary {
+        border-bottom: 13px solid #FFFFFF;
+    }
+    
+    .nav-menu details[open] summary {
+      border-bottom: 13px solid #224560;
+      color: #224560
+    }
+    
+    .global-nav ul li {
+        border: 1px solid #B3BFD5;
+    }
+    
+    .global-nav ul li a {
+        font-weight: 700;
+        color: #856E56;
+    }
+    
+    .global-nav ul li:hover {
+        background-color: rgba(123, 123, 123, 0.09);
+    }
+}
+
+/* Staging banner styles */
+.staging-banner {
     background: linear-gradient(135deg, #ff6b6b, #ffa500);
     color: white;
     padding: 8px 0;
     text-align: center;
     position: sticky;
     top: 0;
-    z-index: 1001; /* Higher than your nav */
+    z-index: 1001;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-family: system-ui, -apple-system, sans-serif;
-  }
-  
-  .staging-banner-content {
+}
+
+.staging-banner-content {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -221,93 +477,90 @@ header .logo {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-  }
-  
-  .staging-icon {
+}
+
+.staging-icon {
     font-size: 1.2em;
-  }
-  
-  .staging-text {
+}
+
+.staging-text {
     font-size: 14px;
     font-weight: 500;
-  }
-  
-  .production-link {
+}
+
+.production-link {
     color: white;
     text-decoration: underline;
     font-size: 13px;
     opacity: 0.9;
     transition: opacity 0.2s;
-  }
-  
-  .production-link:hover {
+}
+
+.production-link:hover {
     opacity: 1;
-  }
-  
-  @media (max-width: 768px) {
+}
+
+@media (max-width: 768px) {
     .staging-banner-content {
-      flex-direction: column;
-      gap: 4px;
+        flex-direction: column;
+        gap: 4px;
     }
     
     .staging-text {
-      font-size: 13px;
+        font-size: 13px;
     }
-  }
+}
 
-  /* Split logo styles */
-  .logo-split {
+/* Split logo styles */
+.logo-split {
     display: flex;
     align-items: center;
-    gap: 0; /* No gap between logo parts for seamless appearance */
-  }
-  
-  .uk-logo-link,
-  .kgs-logo-link {
+    gap: 0;
+}
+
+.uk-logo-link,
+.kgs-logo-link {
     display: block;
     transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-  
-  .uk-logo-link:hover,
-  .kgs-logo-link:hover {
+}
+
+.uk-logo-link:hover,
+.kgs-logo-link:hover {
     opacity: 0.8;
     transform: translateY(-0.5px);
-  }
-  
-  .uk-logo,
-  .kgs-logo {
+}
+
+.uk-logo,
+.kgs-logo {
     height: auto;
     vertical-align: middle;
     display: block;
-  }
-  
-  /* Ensure logos align properly */
-  .uk-logo-link {
-    border-radius: 4px 0 0 4px; /* Rounded left corners */
-  }
-  
-  .kgs-logo-link {
-    border-radius: 0 4px 4px 0; /* Rounded right corners */
-  }
-  
-  /* Optional: Add subtle hover effects to indicate clickability */
-  .uk-logo-link:hover .uk-logo {
-    filter: brightness(1.1);
-  }
-  
-  .kgs-logo-link:hover .kgs-logo {
-    filter: brightness(1.1);
-  }
-  
-  /* Responsive adjustments for mobile */
-  @media (max-width: 768px) {
-    .uk-logo,.kgs-logo {
-      max-height: 40px; /* Adjust as needed for mobile */
-    }
-  }
+}
 
-  /* External Link Warning Modal Styles */
-  .link-warning-overlay {
+.uk-logo-link {
+    border-radius: 4px 0 0 4px;
+}
+
+.kgs-logo-link {
+    border-radius: 0 4px 4px 0;
+}
+
+.uk-logo-link:hover .uk-logo {
+    filter: brightness(1.1);
+}
+
+.kgs-logo-link:hover .kgs-logo {
+    filter: brightness(1.1);
+}
+
+@media (max-width: 768px) {
+    .uk-logo,.kgs-logo {
+        max-height: 40px;
+    }
+}
+
+/* External Link Warning Modal Styles */
+.link-warning-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -317,16 +570,16 @@ header .logo {
     background: rgba(0, 0, 0, 0.6);
     z-index: 9999;
     backdrop-filter: blur(3px);
-  }
+}
 
-  .link-warning-overlay.show {
+.link-warning-overlay.show {
     display: flex;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.3s ease;
-  }
+}
 
-  .link-warning-modal {
+.link-warning-modal {
     background: white;
     border-radius: 12px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
@@ -334,9 +587,9 @@ header .logo {
     width: 90%;
     margin: 20px;
     animation: slideIn 0.3s ease;
-  }
+}
 
-  .modal-header {
+.modal-header {
     background: linear-gradient(135deg, #1B365D, #0033A0);
     color: white;
     padding: 24px;
@@ -344,51 +597,49 @@ header .logo {
     display: flex;
     align-items: center;
     gap: 12px;
-  }
+}
 
-  .modal-icon {
+.modal-icon {
     flex-shrink: 0;
     width: 24px;
     height: 24px;
-  }
+}
 
-  .modal-alert-title {
+.modal-alert-title {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     line-height: 1.2;
     color: white;
     margin-bottom: 0.5em;
-    font-size: 1.5rem; /* 24px */
-  }
+    font-size: 1.5rem;
+}
 
-
-
-  .modal-body {
+.modal-body {
     padding: 24px;
-  }
+}
 
-  .modal-message {
+.modal-message {
     margin: 0 0 16px 0;
     color: #374151;
     line-height: 1.6;
-  }
+}
 
-  .destination-info {
+.destination-info {
     background: #F3F4F6;
     border-left: 4px solid #0033A0;
     padding: 12px 16px;
     border-radius: 0 8px 8px 0;
     margin: 16px 0;
-  }
+}
 
-  .destination-url {
+.destination-url {
     font-family: monospace;
     font-size: 14px;
     color: #6B7280;
     word-break: break-all;
-  }
+}
 
-  .dont-show-again {
+.dont-show-again {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -397,29 +648,29 @@ header .logo {
     background: #FEF3C7;
     border-radius: 0.5rem;
     border: 1px solid #F59E0B;
-  }
+}
 
-  .dont-show-again input[type="checkbox"] {
+.dont-show-again input[type="checkbox"] {
     width: 18px;
     height: 18px;
     accent-color: #F59E0B;
-  }
+}
 
-  .dont-show-again label {
+.dont-show-again label {
     font-size: 14px;
     color: #92400E;
     cursor: pointer;
     user-select: none;
-  }
+}
 
-  .modal-buttons {
+.modal-buttons {
     padding: 0 24px 24px 24px;
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-  }
+}
 
-  .external-warning-btn {
+.external-warning-btn {
     padding: 10px 20px;
     border-radius: 0.5rem;
     font-size: 14px;
@@ -431,38 +682,38 @@ header .logo {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-  }
+}
 
-  .external-warning-btn-secondary {
+.external-warning-btn-secondary {
     background: #F3F4F6;
     color: #374151;
-  }
+}
 
-  .external-warning-btn-secondary:hover {
+.external-warning-btn-secondary:hover {
     background: #E5E7EB;
-  }
+}
 
-  .external-warning-btn-primary {
+.external-warning-btn-primary {
     background: #0033A0;
     color: white;
-  }
+}
 
-  .external-warning-btn-primary:hover {
+.external-warning-btn-primary:hover {
     background: #1B365D;
-  }
+}
 
-  @keyframes fadeIn {
+@keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
-  }
+}
 
-  @keyframes slideIn {
+@keyframes slideIn {
     from { 
-      opacity: 0; 
-      transform: translateY(-20px) scale(0.95); 
+        opacity: 0; 
+        transform: translateY(-20px) scale(0.95); 
     }
     to { 
-      opacity: 1; 
-      transform: translateY(0) scale(1); 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
     }
-  }
+}

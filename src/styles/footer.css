@@ -18,11 +18,27 @@ footer .footer-address {
 footer a {
     color: #fff !important;
     text-decoration: none !important;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+    position: relative;
 }
 
 footer a:hover {
-    color: var(--river-green) !important;
-    text-decoration: none !important;
+    color: var(--skyBlue) !important; /* Using river-green color */
+    text-decoration: underline !important;
+}
+
+/* Focus state for keyboard navigation - ADA compliance */
+footer a:focus-visible {
+    outline: 3px solid var(--skyBlue);
+    outline-offset: 3px;
+    border-radius: 2px;
+    text-decoration: underline !important;
+}
+
+/* Active/tap state for mobile devices */
+footer a:active {
+    color:  var(--skyBlue) !important;
+    text-decoration: underline !important;
 }
 
 /* Custom arrow styling for mobile/tablet */
@@ -35,6 +51,19 @@ footer details summary {
     list-style: none; /* Remove default arrow */
     padding-left: 25px; /* Space for left arrow */
     transition: all 0.3s ease;
+}
+
+/* Hover state for summary elements */
+footer details summary:hover {
+    color:  var(--skyBlue);
+    border-bottom-color:  var(--skyBlue);
+}
+
+/* Focus state for summary - ADA compliance */
+footer details summary:focus-visible {
+    outline: 3px solid #4CBCC0;
+    outline-offset: 3px;
+    border-radius: 2px;
 }
 
 /* Hide default browser arrow */
@@ -58,7 +87,12 @@ footer details summary::after {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 8px solid #fff;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, border-top-color 0.3s ease;
+}
+
+/* Arrow color change on hover */
+footer details summary:hover::after {
+    border-top-color: var(--skyBlue);
 }
 
 /* Rotate arrow when open (pointing down) */
@@ -84,11 +118,23 @@ footer details li {
     padding: 6px 0; /* Increased from 2px to 8px for more spacing */
 }
 
+/* Improve hover area for list items */
+footer details li a {
+    display: inline-block;
+    padding: 4px 0;
+}
+
 footer details li a img {
     display: inline;
     margin-bottom: 0; /* Remove the negative margin */
     margin-right: 8px; /* Add some space between icon and text */
     vertical-align: middle; /* Align with middle of text */
+    transition: transform 0.2s ease;
+}
+
+/* Icon animation on hover */
+footer details li a:hover img {
+    transform: translateX(1.5px);
 }
 
 .footer-nav, .footer-blurb {
@@ -97,6 +143,11 @@ footer details li a img {
 
 .footer-nav {
     padding: 25px 0;
+}
+
+.footer-nav a {
+    padding: 4px 8px;
+    display: inline-block;
 }
 
 .footer-blurb a {
@@ -135,6 +186,12 @@ footer details li a img {
         padding-left: 0; /* Remove left padding on desktop */
         padding-bottom: 10px;
         margin-bottom: 15px;
+    }
+    
+    /* Re-enable hover effects on summary text for desktop */
+    footer details summary:hover {
+        color: #fff; /* Keep white on desktop since it's not clickable */
+        border-bottom-color: #5C7BAB;
     }
     
     /* Force content to always show on desktop */

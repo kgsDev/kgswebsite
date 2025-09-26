@@ -1,36 +1,145 @@
 ---
-// src/pages/research/index.astro
-export const prerender = false; // Enable SSR for this page
-
+export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import axios from 'axios';
 
-// Define props with defaults specific to news pages
-const { 
-  title = "Research | Kentucky Geological Survey",
-  description = 'Explore research areas at the Kentucky Geological Survey.',
-  showBreadcrumb = true,
-} = Astro.props;
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+async function fetchResearchTeams() {
+  try {
+    const teamsResponse = await axios.get(`${directusUrl}/items/team`, {
+      params: {
+        fields: ['id', 'name', 'description', 'team_image', 'team_icon', 'sort'],
+        filter: JSON.stringify({
+          division: { _eq: 4 },
+          status: { _eq: 'published' }
+        }),
+        sort: 'sort,name'
+      }
+    });
+    
+    const teams = teamsResponse.data.data || [];
+    if (teams.length === 0) return [];
+    
+    const teamIds = teams.map(t => t.id);
+    
+    const teamLeadersResponse = await axios.get(`${directusUrl}/items/team_staff`, {
+      params: {
+        fields: ['team_id', 'staff_id.id', 'staff_id.first_name', 'staff_id.last_name', 'staff_id.slug'],
+        filter: JSON.stringify({ team_id: { _in: teamIds } })
+      }
+    });
+    
+    const teamLeadersData = teamLeadersResponse.data.data || [];
+    
+    let researchPagesData = [];
+    try {
+      const researchPagesResponse = await axios.get(`${directusUrl}/items/research`, {
+        params: {
+          fields: ['Research_Team', 'slug'],
+          filter: JSON.stringify({ Research_Team: { _in: teamIds } })
+        }
+      });
+      researchPagesData = researchPagesResponse.data.data || [];
+    } catch (error) {
+      console.warn('Could not fetch research slugs');
+    }
+    
+    const teamLeadersMap = {};
+    teamLeadersData.forEach(rel => {
+      if (!teamLeadersMap[rel.team_id]) teamLeadersMap[rel.team_id] = [];
+      if (rel.staff_id) teamLeadersMap[rel.team_id].push(rel.staff_id);
+    });
+    
+    const teamSlugsMap = {};
+    researchPagesData.forEach(page => {
+      if (page.Research_Team && page.slug) teamSlugsMap[page.Research_Team] = page.slug;
+    });
+    
+    teams.forEach(team => {
+      team.team_leader = teamLeadersMap[team.id] || [];
+      team.slug = teamSlugsMap[team.id] || null;
+    });
+    
+    return teams;
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
+
+const researchTeams = await fetchResearchTeams();
 ---
-  <BaseLayout 
-    title={title}
-    description={description}
-    activePage="labs"
-    showBreadcrumb={showBreadcrumb}
-  >
-  
-  <!-- Pass head content if needed -->
-  <Fragment slot="head">
-    <slot name="head-meta" />
-  </Fragment>
 
-  <div class="container mx-auto px-4 py-1">
-    <div class="mb-8">
-      <h1>Research</h1>
-      <p class="text-gray-600 mt-2">{description}</p>
+<BaseLayout title="Research | Kentucky Geological Survey" description="Explore research teams at KGS" activePage="research" showBreadcrumb={true}>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold text-blue-900 mb-4">Research at KGS</h1>
+      <p class="text-xl text-gray-700">
+        The Kentucky Geological Survey conducts applied research to understand Kentucky's geological resources, 
+        hazards, and environmental challenges. Our work supports informed decision-making for resource management, 
+        hazard mitigation, and sustainable development across the Commonwealth.
+      </p>
     </div>
-    <div class="text-center py-16 bg-white rounded-lg shadow-md">
-      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">Holding index page for research</h3>
+
+    <h2 class="text-2xl font-bold text-blue-900 mb-6">Research Teams</h2>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {researchTeams.map((team) => {
+        const leaders = team.team_leader || [];
+        const hasImg = team.team_image && typeof team.team_image === 'string';
+        const icon = team.team_icon || 'fa-microscope';
+        const slug = team.slug || team.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        
+        return (
+          <a href={`/research/${slug}`} class="block group">
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all h-full flex flex-col border border-gray-200 overflow-hidden">
+              <div class="h-2 bg-[#0033A0]"></div>
+              
+              {hasImg ? (
+                <div class="h-48 overflow-hidden">
+                  <img 
+                    src={`${directusUrl}/assets/${team.team_image}?width=600&height=400&fit=cover&quality=80`}
+                    alt={team.name}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ) : (
+                <div class="p-6 pb-0">
+                  <div class="p-3 rounded-lg w-fit mb-4">
+                    <i class={`fas ${icon} text-3xl text-[var(--wildcatBlue)]`}></i>
+                  </div>
+                </div>
+              )}
+              
+              <div class={`p-6 ${!hasImg ? 'pt-0' : ''} flex-grow flex flex-col`}>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0033A0] transition-colors">
+                  {team.name}
+                </h3>
+                
+                {team.description && (
+                  <p class="text-gray-600 mb-4 flex-grow">{team.description}</p>
+                )}
+                
+                {leaders.length > 0 && (
+                  <div class="mt-auto pt-4 border-t">
+                    <p class="text-sm text-gray-500 mb-2">Team Lead{leaders.length > 1 ? 's' : ''}:</p>
+                    <div class="flex flex-wrap gap-2">
+                      {leaders.map((leader) => (
+                        <span class="text-sm text-[#0033A0] hover:text-[#1B365D] hover:underline">
+                          {leader.first_name} {leader.last_name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
 </BaseLayout>
