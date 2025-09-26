@@ -1,68 +1,100 @@
 ---
 // src/components/digital/SimpleHeader.astro
-// Simple header for digital display - just logo, no navigation
+// Compact header for digital display with Staff Directory title and QR code
 ---
 
 <header class="digital-header">
   <div class="header-container">
-    <div class="logo-section">
-      <!-- Combined logo linking to home -->
+    <div class="flex items-center justify-between">
       <a href="/" class="logo-link">
         <img 
           src="/assets/index/uk-kgs-logo-final.webp" 
-          alt="University of Kentucky - Kentucky Geological Survey" 
+          alt="University of Kentucky - Kentucky Geological Survey"
           class="combined-logo"
         />
       </a>
+      
+      <div class="text-center flex-grow">
+        <h1 class="text-2xl font-bold text-blue-800">Staff Directory</h1>
+      </div>
+      
+      <div class="qr-section flex flex-col items-center">
+        <div class="qr-code-placeholder bg-gray-200 border-2 border-gray-300 rounded flex items-center justify-center">
+          <!-- Replace this placeholder with actual QR code image -->
+          <img 
+            src="/assets/qr-staff-directory.png" 
+            alt="QR Code - Full Staff Directory"
+            class="w-full h-full object-contain"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+          />
+          <div class="qr-placeholder-text hidden flex-col items-center justify-center text-center p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+            </svg>
+            <span class="text-xs text-gray-500">QR Code</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-600 mt-1">Full Directory</p>
+      </div>
     </div>
   </div>
 </header>
 
 <style>
   .digital-header {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
   }
-    
+  
+  .header-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
   .logo-link {
     display: inline-block;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease;
   }
   
   .logo-link:hover {
-    transform: translateY(-2px);
     opacity: 0.9;
   }
   
   .combined-logo {
-    height: 70px;
+    height: 48px;
     width: auto;
     max-width: 100%;
     object-fit: contain;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
+  .qr-code-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .qr-placeholder-text {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* For very large vertical displays */
+  @media (min-height: 3000px) {
     .digital-header {
       padding: 1rem 0;
     }
     
-    .header-container {
-      padding: 0 1rem;
+    .combined-logo {
+      height: 64px;
     }
     
-    .combined-logo {
-      height: 60px;
-    }
-  }
-  
-  /* For large displays like 55" monitors */
-  @media (min-height: 3000px) {
-    .digital-header {
-      padding: 2.5rem 0;
+    h1 {
+      font-size: 2rem;
     }
     
-    .combined-logo {
-      height: 120px;
+    .qr-code-placeholder {
+      width: 100px;
+      height: 100px;
     }
   }
 </style>
