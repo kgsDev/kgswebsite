@@ -29,7 +29,8 @@ try {
       'parent_page.title',
       'Research_Team.id',
       'Research_Team.name',
-      'Research_Team.description'
+      'Research_Team.description',
+      'Research_Team.team_icon'
     ],
     filter: { slug: { _eq: slug } },
     limit: 1
@@ -96,7 +97,31 @@ try {
         
         teamStaff.coreMembers = primaryMembers
           .filter(Boolean)
-          .filter(staff => staff && staff.id && !leaderIds.includes(staff.id));
+          .filter(staff => staff && staff.id && !leaderIds.includes(staff.id))
+            .sort((a: any, b: any) => {
+            // Define a rank for working titles
+            function getGeologistRank(staff: any): number {
+              const title = (staff.working_title || '').toLowerCase();
+              if (title.includes('geologist i')) return 1;
+              if (title.includes('geologist ii')) return 2;
+              if (title.includes('geologist iii')) return 3;
+              if (title.includes('geologist iv')) return 4;
+              if (title.includes('geologist v')) return 5;
+              return 99; // Non-geologists or unranked titles
+            }
+
+            const rankA = getGeologistRank(a);
+            const rankB = getGeologistRank(b);
+
+            if (rankA !== rankB) {
+              return rankA - rankB;
+            }
+
+            // If same rank, sort by last name, then first name
+            const nameA = `${a.last_name}, ${a.first_name}`.toLowerCase();
+            const nameB = `${b.last_name}, ${b.first_name}`.toLowerCase();
+            return nameA.localeCompare(nameB);
+          });
       }
 
       // Fetch other team members through staff_team junction table  
@@ -109,11 +134,15 @@ try {
           'staff_id.working_title',
           'staff_id.email',
           'staff_id.phone',
-          'staff_id.photo'
-        ],
+          'staff_id.photo',
+          'staff_id.kgs_staff',
+          'staff_id.kgs_faculty'
+         ],
         filter: {
           team_id: { _eq: page.Research_Team.id }
-        }
+        },
+        // Sort by kgs_staff DESC, then kgs_faculty DESC, then last_name ASC, then first_name ASC
+        sort: ['-staff_id.kgs_staff', '-staff_id.kgs_faculty', 'staff_id.last_name']
       }));
 
       // Get core member IDs for filtering
@@ -228,7 +257,14 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
 
 <Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
   <main>
-    <h1>{page.title}</h1>
+    <h1 class="flex items-center gap-3">
+      {page.Research_Team?.team_icon && (
+        <span class="p-3 rounded-lg">
+          <i class={`fas ${page.Research_Team.team_icon} text-3xl`}></i>
+        </span>
+      )}
+      <span>{page.title}</span>
+    </h1>
     
     <!-- Main content -->
     <div set:html={page.content} />
@@ -250,13 +286,13 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
             <!-- Team Leaders -->
             {teamStaff.leaders.length > 0 && (
               <div>
-                <h3 class="text-lg font-bold mb-4 text-blue-800 flex items-center">
-                  <i class="fas fa-compass mr-2 text-amber-600"></i>
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                  <i class="fas fa-compass mr-2"></i>
                   Team Leader{teamStaff.leaders.length > 1 ? 's' : ''}
                 </h3>
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid md:grid-cols-2 gap-4 ">
                   {teamStaff.leaders.map(leader => (
-                    <div class="bg-white border-l-4 border-amber-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-white border-l-4 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow leader-card">
                       <div class="flex items-start space-x-4">
                         {leader.photo && (
                           <img 
@@ -272,7 +308,7 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
                                 {leader.first_name} {leader.last_name}
                               </a>
                             </h4>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                               Team Lead
                             </span>
                           </div>
@@ -300,13 +336,13 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
             <!-- Core Team Members (Primary Members) -->
             {teamStaff.coreMembers.length > 0 && (
               <div>
-                <h3 class="text-lg font-bold mb-4 text-blue-800 flex items-center">
-                  <i class="fas fa-user-friends mr-2 text-blue-600"></i>
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                  <i class="fas fa-user-friends mr-2"></i>
                   Core Team Members
                 </h3>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {teamStaff.coreMembers.map(member => (
-                    <div class="bg-white border-l-4 border-blue-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-white border-l-4 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow core-member-card">
                       <div class="flex items-start space-x-3">
                         {member.photo && (
                           <img 
@@ -322,9 +358,6 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
                                 {member.first_name} {member.last_name}
                               </a>
                             </h4>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-800 border border-blue-300">
-                              Core
-                            </span>
                           </div>
                           <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
                             {member.working_title}
@@ -344,11 +377,11 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
               </div>
             )}
 
-            <!-- Regular Team Members -->
+            <!-- Other Team Members -->
             {teamStaff.regularMembers.length > 0 && (
               <div>
                 <h3 class="text-lg font-bold mb-4 text-blue-800 flex items-center">
-                  <i class="fas fa-users mr-2 text-gray-600"></i>
+                  <i class="fas fa-users mr-2"></i>
                   Team Members
                 </h3>
                 <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -429,11 +462,11 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
   
   /* Enhanced border styling for different member types */
   .leader-card {
-    border-left: 4px solid #f59e0b; /* amber-500 */
+    border-left: 4px solid var(--sunsetOrange); /* amber-500 */
   }
   
   .core-member-card {
-    border-left: 4px solid #3b82f6; /* blue-500 */
+    border-left: 4px solid var(--wildcatBlue); /* blue-500 */
   }
   
   .regular-member-card {

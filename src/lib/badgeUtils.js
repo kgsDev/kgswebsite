@@ -38,25 +38,20 @@ export function getDirectorBadges(member) {
 }
 
 /**
- * Check if a team exists in a division to be displayed as a "team"
- * (geoscience research, engagement and communications, information management, facilities, administration)
+ * Check if a team is a Geoscience Research team
  */
-export function isTeam(team) {
+export function isGeoscienceResearchTeam(team) {
   if (!team || !team.division) return false;
   
-  // Define which divisions are considered "geoscience research"
-  // You can customize this list based on your actual division names/IDs
-  const teamDivisions = [
-    'geoscience research',
-    'engagement and communications',
-    'information management',
-    'facilities',
-    'administration'
-    // Add more division names as needed
-  ];
-  
   const divisionName = team.division.name?.toLowerCase() || '';
-  return teamDivisions.some(div => divisionName.includes(div));
+  return divisionName.includes('geoscience research');
+}
+
+/**
+ * Check if a team is an informal team (not Geoscience Research)
+ */
+export function isInformalTeam(team) {
+  return !isGeoscienceResearchTeam(team);
 }
 
 /**
@@ -88,7 +83,7 @@ export function getRegularTeamBadge() {
 }
 
 /**
- * Check if a staff member is a team leader for a specific team (this is set in API by doing a check for team leads in teams or staff tables in directus)
+ * Check if a staff member is a team leader for a specific team
  */
 export function isTeamLeadForTeam(member, team) {
   if (!team || !team.is_team_lead) return false;
@@ -97,12 +92,11 @@ export function isTeamLeadForTeam(member, team) {
 
 /**
  * Check if a team is the primary team for a staff member
- * Updated to handle both the old logic and the new is_primary_team property
  */
 export function isPrimaryTeamForMember(member, team) {
   if (!team) return false;
   
-  // First check the new is_primary_team property (added by our API fix)
+  // First check the new is_primary_team property
   if (team.is_primary_team === true) {
     return true;
   }
@@ -110,7 +104,6 @@ export function isPrimaryTeamForMember(member, team) {
   // Fallback to old logic for backwards compatibility
   if (!member.team_primary) return false;
   
-  // Handle both direct ID comparison and nested object comparison
   const primaryTeamId = typeof member.team_primary === 'object' 
     ? member.team_primary.id 
     : member.team_primary;
@@ -122,8 +115,8 @@ export function isPrimaryTeamForMember(member, team) {
 /**
  * Get team badge class based on role (leader, primary, or regular)
  */
-export function getTeamBadgeClass(isTeamLead, isPrimary, isTeam) {
-  if (isTeamLead && isTeam) {
+export function getTeamBadgeClass(isTeamLead, isPrimary) {
+  if (isTeamLead) {
     return getTeamLeadBadge().class;
   }
   
@@ -135,13 +128,64 @@ export function getTeamBadgeClass(isTeamLead, isPrimary, isTeam) {
 }
 
 /**
- * Sort teams for display: leaders first, then primary, then regular
- * Note: A team should only appear once, even if someone is both leader and has it as primary
+ * Get research page URL from team's research slug
+ * Handles various possible data structures from the API
  */
-export function sortTeamsForDisplay(member, teams) {
+export function getResearchUrl(team) {
+  if (!team) return null;
+  
+  // Handle if research is an array with objects
+  if (Array.isArray(team.research) && team.research.length > 0) {
+    const research = team.research[0];
+    // If it's an object with slug
+    if (typeof research === 'object' && research.slug) {
+      return `/research/${research.slug}`;
+    }
+    // If it's just an ID, we can't create a link (need to update API)
+    return null;
+  }
+  
+  // Handle if research is a direct object
+  if (team.research?.slug) {
+    return `/research/${team.research.slug}`;
+  }
+  
+  // Try other possible paths
+  const slug = team.research_id?.slug || team.research_slug || null;
+  
+  if (!slug) return null;
+  return `/research/${slug}`;
+}
+
+/**
+ * Separate teams into Geoscience Research teams and informal teams
+ */
+export function separateTeams(teams) {
+  if (!teams || !Array.isArray(teams)) {
+    return { researchTeams: [], informalTeams: [] };
+  }
+  
+  const researchTeams = [];
+  const informalTeams = [];
+  
+  teams.forEach(team => {
+    if (isGeoscienceResearchTeam(team)) {
+      researchTeams.push(team);
+    } else {
+      informalTeams.push(team);
+    }
+  });
+  
+  return { researchTeams, informalTeams };
+}
+
+/**
+ * Sort Geoscience Research teams for display: leaders first, then primary, then regular
+ */
+export function sortResearchTeams(member, teams) {
   if (!teams || !Array.isArray(teams)) return [];
   
-  // Remove duplicates first (in case a team appears multiple times)
+  // Remove duplicates first
   const uniqueTeams = teams.filter((team, index, array) => 
     array.findIndex(t => t.id === team.id) === index
   );
@@ -151,18 +195,29 @@ export function sortTeamsForDisplay(member, teams) {
     const bIsLead = isTeamLeadForTeam(member, b);
     const aIsPrimary = isPrimaryTeamForMember(member, a);
     const bIsPrimary = isPrimaryTeamForMember(member, b);
-    const aIsTeam = isTeam(a);
-    const bIsTeam = isTeam(b);
     
-    // Team leads (for geoscience research teams) come first
-    if (aIsLead && aIsTeam && !(bIsLead && bIsTeam)) return -1;
-    if (bIsLead && bIsTeam && !(aIsLead && aIsTeam)) return 1;
+    // Team leads come first
+    if (aIsLead && !bIsLead) return -1;
+    if (bIsLead && !aIsLead) return 1;
     
-    // Primary teams come second (but after team leads)
-    if (aIsPrimary && !bIsPrimary && !(bIsLead && bIsTeam)) return -1;
-    if (bIsPrimary && !aIsPrimary && !(aIsLead && aIsTeam)) return 1;
+    // Primary teams come second
+    if (aIsPrimary && !bIsPrimary) return -1;
+    if (bIsPrimary && !aIsPrimary) return 1;
     
-    // Regular teams come last - sort alphabetically
+    // Sort alphabetically
+    const aName = a.name || a.description || '';
+    const bName = b.name || b.description || '';
+    return aName.localeCompare(bName);
+  });
+}
+
+/**
+ * Sort informal teams alphabetically
+ */
+export function sortInformalTeams(teams) {
+  if (!teams || !Array.isArray(teams)) return [];
+  
+  return [...teams].sort((a, b) => {
     const aName = a.name || a.description || '';
     const bName = b.name || b.description || '';
     return aName.localeCompare(bName);

@@ -1,147 +1,181 @@
 ---
-// src/components/StaffList.astro
-// This component displays a list of staff members with their photos, names, titles, and contact information.
-import { getDirectorBadges, isTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay } from '../../lib/badgeUtils.js';
+// src/components/staff/StaffList.astro
+import { 
+  getTeamBadgeClass, 
+  isTeamLeadForTeam, 
+  isPrimaryTeamForMember, 
+  getResearchUrl,
+  separateTeams,
+  sortResearchTeams,
+  sortInformalTeams
+} from '../../lib/badgeUtils.js';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 const { staff } = Astro.props;
 ---
 
-<!-- Add Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="staff-list grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-8">
-  {staff.map((member) => (
-    <a 
-      href={`/staff/${member.slug}`} 
-      class="staff-card-container group" 
-      data-name={`${member.first_name} ${member.last_name}`}
-      data-title={member.working_title || ''}
-      data-expertise={member.expertise || ''}
-      data-teams={member.teamNames || ''}
-    >
-      <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 h-full flex flex-col">
-        {/* Image Container - Taller portrait ratio to better show faces */}
-        <div class="relative overflow-hidden bg-gray-100" style="padding-top: 125%;">
-          {typeof member.photo === 'string' && member.photo ? (
-            <img 
-              src={`${directusUrl}assets/${member.photo}?width=480&height=600&quality=90`} 
-              alt={`${member.first_name} ${member.last_name}`}
-              class="absolute inset-0 w-full h-full object-contain bg-gray-100 transition duration-500"
-              style="transform: scale(1); transition: transform 0.5s;"
-              onmouseover="this.style.transform='scale(1.05)'"
-              onmouseout="this.style.transform='scale(1)'"
-              loading="eager"
-            />
-          ) : (
-            <div class="absolute inset-0 flex items-center justify-center bg-gray-200">
-              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <span class="text-base font-semibold text-blue-800">
-                  {member.first_name.charAt(0)}{member.last_name.charAt(0)}
-                </span>
-              </div>
-            </div>
-          )}
-          
-          {/* Department indicator - Moved to left side for consistency with profile */}
-          <div class={`absolute top-0 left-0 h-full w-1 border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
-        </div>
-        
-        <div class="p-3 flex-grow">
-          <h4>
-            {member.first_name} {member.last_name}
-          </h4>
-          <p class="text-gray-600 font-medium line-clamp-2 text-sm">{member.working_title}</p>
-          
-          {member.expertise && (
-            <div class="mt-1">
-              <p class="text-xs text-gray-500 line-clamp-2">
-                <span class="font-medium">Expertise:</span> {member.expertise}
-              </p>
-            </div>
-          )}
-
-          {/* Team Badges - Show teams with proper ordering: leader, primary, then regular */}
-          {member.team && member.team.length > 0 && (
-            <div class="mt-2 flex flex-wrap gap-1">
-              {sortTeamsForDisplay(member, member.team).map((team, index) => {
-                // Try multiple potential property names for maximum compatibility
-                const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
-                const isTeamLead = isTeamLeadForTeam(member, team);
-                const isPrimary = isPrimaryTeamForMember(member, team);
-                const isKGSTeam = isTeam(team);
-                const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isTeam);
-
-                return (
-                  <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal border ${badgeClass}`}>
-                    <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
-                    {displayName}
-                    {isTeamLead && isKGSTeam && <span class="ml-1">(Lead)</span>}
-                    {isPrimary && !(isTeamLead && isKGSTeam) && <span class="ml-1">(Primary)</span>}
+<div class="staff-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+  {staff.map((member) => {
+    const { researchTeams, informalTeams } = separateTeams(member.team);
+    const sortedResearchTeams = sortResearchTeams(member, researchTeams);
+    const sortedInformalTeams = sortInformalTeams(informalTeams);
+    
+    return (
+      <div 
+        class="staff-card-container group cursor-pointer" 
+        data-name={`${member.first_name} ${member.last_name}`}
+        data-title={member.working_title || ''}
+        data-expertise={member.expertise || ''}
+        data-teams={member.teamNames || ''}
+        onclick={`window.location.href='/staff/${member.slug}'`}
+      >
+        <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 h-full flex flex-col">
+          <div class="relative overflow-hidden bg-gray-100" style="padding-top: 125%;">
+            {typeof member.photo === 'string' && member.photo ? (
+              <img 
+                src={`${directusUrl}assets/${member.photo}?width=480&height=600&quality=90`} 
+                alt={`${member.first_name} ${member.last_name}`}
+                class="absolute inset-0 w-full h-full object-contain bg-gray-100 transition duration-500"
+                style="transform: scale(1); transition: transform 0.5s;"
+                onmouseover="this.style.transform='scale(1.05)'"
+                onmouseout="this.style.transform='scale(1)'"
+                loading="eager"
+              />
+            ) : (
+              <div class="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="text-base font-semibold text-blue-800">
+                    {member.first_name.charAt(0)}{member.last_name.charAt(0)}
                   </span>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        
-        <div class="px-3 pb-3 mt-auto">
-          <div class="border-t pt-2 flex flex-col gap-1">
-            {member.email && (
-              <div class="flex items-center text-gray-600 text-xs">
-                <span class="text-blue-500 mr-2 flex-shrink-0">
-                  <i class="fas fa-envelope" style="font-size: 0.875rem;"></i>
-                </span>
-                <span class="truncate">{member.email}</span>
+                </div>
               </div>
             )}
+            <div class={`absolute top-0 left-0 h-full w-1 border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
+          </div>
+          
+          <div class="p-3 flex-grow">
+            <h4>{member.first_name} {member.last_name}</h4>
+            <p class="text-gray-600 font-medium line-clamp-2 text-sm">{member.working_title}</p>
             
-            {member.phone && (
-              <div class="flex items-center text-gray-600 text-xs">
-                <span class="text-blue-500 mr-2 flex-shrink-0">
-                  <i class="fas fa-phone" style="font-size: 0.875rem;"></i>
-                </span>
-                <span class="truncate">{member.phone}</span>
+            {member.expertise && (
+              <div class="mt-1">
+                <p class="text-xs text-gray-500 line-clamp-2">
+                  <span class="font-medium">Expertise:</span> {member.expertise}
+                </p>
+              </div>
+            )}
+
+            {sortedResearchTeams.length > 0 && (
+              <div class="mt-2 flex flex-wrap gap-1">
+                {sortedResearchTeams.map((team, index) => {
+                  const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                  const isTeamLead = isTeamLeadForTeam(member, team);
+                  const isPrimary = isPrimaryTeamForMember(member, team);
+                  const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary);
+                  const researchUrl = getResearchUrl(team);
+
+                  return researchUrl ? (
+                    <a
+                      href={researchUrl}
+                      class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal border ${badgeClass} hover:opacity-80 transition`}
+                      onclick="event.stopPropagation()"
+                    >
+                      <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                      {displayName}
+                      {isTeamLead && <span class="ml-1">(Lead)</span>}
+                      {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                    </a>
+                  ) : (
+                    <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-normal border ${badgeClass}`}>
+                      <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                      {displayName}
+                      {isTeamLead && <span class="ml-1">(Lead)</span>}
+                      {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {sortedInformalTeams.length > 0 && (
+              <div class="mt-2">
+                <ul class="text-xs text-gray-600 space-y-0.5">
+                  {sortedInformalTeams.map((team, index) => {
+                    const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                    return (
+                      <li class="flex items-center">
+                        <span class="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
+                        {displayName}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             )}
           </div>
           
-          <div class="mt-2 text-right">
-            <span class="inline-block text-blue-900 font-medium text-sm">
-              View Profile 
-              <i class="fas fa-arrow-right ml-1"></i>
-            </span>
+          <div class="px-3 pb-3 mt-auto">
+            <div class="border-t pt-2 flex flex-col gap-1">
+              {member.email && (
+                <a 
+                  href={`mailto:${member.email}`}
+                  class="flex items-center text-gray-600 text-xs hover:underline hover:text-blue-600"
+                  onclick="event.stopPropagation()"
+                >
+                  <span class="text-blue-500 mr-2 flex-shrink-0">
+                    <i class="fas fa-envelope" style="font-size: 0.875rem;"></i>
+                  </span>
+                  <span class="truncate">{member.email.toLowerCase()}</span>
+                </a>
+              )}
+              
+              {member.phone && (
+                <div class="flex items-center text-gray-600 text-xs">
+                  <span class="text-blue-500 mr-2 flex-shrink-0">
+                    <i class="fas fa-phone" style="font-size: 0.875rem;"></i>
+                  </span>
+                  <span class="truncate">{member.phone}</span>
+                </div>
+              )}
+            </div>
+            
+            <div class="mt-2 text-right">
+              <a 
+                href={`/staff/${member.slug}`}
+                class="inline-flex items-center text-blue-900 font-medium text-sm hover:underline hover:text-blue-700"
+                onclick="event.stopPropagation()"
+              >
+                View Profile
+                <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </a>
-  ))}
+    );
+  })}
 </div>
 
 <style>
-  /* Add some extra styles to handle aspects that Tailwind would normally cover */
   .staff-card-container:hover .text-blue-800 {
-    color: #2563eb; /* blue-600 color */
+    color: #2563eb;
   }
   
   .staff-card-container:hover .text-blue-600 {
     text-decoration: underline;
   }
   
-  /* Ensure Font Awesome icons are properly sized */
-  .fa-star {
-    color: #d97706; /* amber-600 for team leads */
-  }
-  
   .fa-users {
-    color: #64748b; /* slate-500 for subtle team badges */
+    color: #64748b;
   }
   
   .fa-envelope, .fa-phone {
-    color: #3b82f6; /* blue-500 */
+    color: #3b82f6;
   }
   
   .fa-arrow-right {
-    color: #1e3a8a; /* blue-900 */
+    color: #1e3a8a;
   }
 </style>

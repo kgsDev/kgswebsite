@@ -12,6 +12,19 @@
 
 /* KGS Brand Colors as CSS Variables */
 :root {
+  /* Color Palette */
+  --primary-blue: #204b6e;
+  --hover-button-blue: #396686; /* Fixed duplicate - removed #E17F00 */
+  --navy: #224560;
+  --brown: brown;
+  --white: #fff;
+  --gray-light: #fff;
+  --gray-medium: #fff;
+  --gray-dark: #E5E9ED;
+  --text-dark: #2B3652;
+  --text-gray: #4b5563;
+  --text-gray-light: #6b7280;
+
   --wildcatBlue: #0033A0;
   --skyBlue: #B1C9E8;
   --midnightBlue: #1B365D;
@@ -402,4 +415,20 @@ a:focus-visible {
 #back-to-top:hover {
   background-color: var(--riverGreen);
   transform: translateY(-3px);
+}
+
+@media (min-width: 500px) and (max-width: 770px) {
+  .staff-photo-container {
+    max-height: 220px;
+  }
+}
+
+@media (min-width: 500px) and (max-width: 770px) {
+  .staff-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .staff-list .relative.overflow-hidden {
+    padding-top: 60% !important; /* Reduces height even more */
+  }
 }

@@ -1,25 +1,38 @@
 ---
 // src/components/staff/StaffDetail.astro
 import LabsList from '../labs/LabsList.astro';
-import { getDirectorBadges, isTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam, isPrimaryTeamForMember, sortTeamsForDisplay  } from '../../lib/badgeUtils.js';
+import { 
+  getDirectorBadges, 
+  getTeamLeadBadge, 
+  getTeamBadgeClass, 
+  isTeamLeadForTeam, 
+  isPrimaryTeamForMember, 
+  getResearchUrl,
+  separateTeams,
+  sortResearchTeams,
+  sortInformalTeams,
+  isGeoscienceResearchTeam,
+} from '../../lib/badgeUtils.js';
 
 // This component displays detailed information about a staff member
 const { member = [] } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Debug output to help diagnose what's in the member object
-// console.log("Staff member detail:", JSON.stringify(member, null, 2));
+// Separate and sort teams
+const { researchTeams, informalTeams } = separateTeams(member.team);
+const sortedResearchTeams = sortResearchTeams(member, researchTeams);
+const sortedInformalTeams = sortInformalTeams(informalTeams);
 ---
 
 <!-- Add Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="max-w-5xl mx-auto">
-  <!-- Staff Member Header - More compact design -->
+  <!-- Staff Member Header -->
   <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
   <div class="md:flex">
-    <!-- Photo Section - Better height handling -->
-    <div class="md:w-1/3 relative">
+    <!-- Photo Section -->
+    <div class="sm:w-1/2 md:w-1/2 lg:w-1/2 xl:w-1/2 relative">
       {typeof member.photo === 'string' && member.photo ? (
         <div class="relative h-full md:min-h-full">
           <img 
@@ -41,7 +54,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       )}
     </div>
     
-    <!-- Info Section - Essential info only -->
+    <!-- Info Section -->
     <div class="md:w-2/3 p-6 md:p-8">
       <div class="mb-6">
         <div class="flex items-start justify-between mb-2">
@@ -59,7 +72,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             ))}
             
             {/* Team Lead Badge - Only for Geoscience Research teams */}
-            {member.is_team_lead && member.team && member.team.some(team => isTeam(team)) && (
+            {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
               <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${getTeamLeadBadge().class}`}>
               <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
                 {getTeamLeadBadge().label}
@@ -76,14 +89,14 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       </div>
     
       <div class="space-y-4">
-        {/* Essential Contact Information in main card */}
+        {/* Essential Contact Information */}
         <div class="flex flex-wrap gap-4">
           {member.email && (
             <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
               <div class="mr-2 p-1 bg-blue-100 rounded-full">
                 <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
               </div>
-              {member.email}
+                {member.email.toLowerCase()}
             </a>
           )}
           
@@ -97,38 +110,68 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           )}
         </div>
         
-        {/* Teams and locations in main card, side by side */}
+        {/* Teams and locations grid */}
         <div class="grid md:grid-cols-2 gap-3 mt-4">
           {/* Teams Section */}
-          {member.team && member.team.length > 0 && (
+          {(sortedResearchTeams.length > 0 || sortedInformalTeams.length > 0) && (
             <div class="bg-blue-50 p-3 rounded-lg">
               <h5 class="text-m font-semibold mb-2 flex items-center">
                 <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
                 Teams
               </h5>
-              <div class="flex flex-wrap gap-1">
-                {sortTeamsForDisplay(member, member.team).map((team, index) => {
-                  // Try multiple potential property names for maximum compatibility
-                  const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
-                  const isTeamLead = isTeamLeadForTeam(member, team);
-                  const isPrimary = isPrimaryTeamForMember(member, team);
-                  const isKGSTeam = isTeam(team);
-                  const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary, isTeam);
+              
+              {/* Geoscience Research Teams with Links */}
+              {sortedResearchTeams.length > 0 && (
+                <div class="flex flex-wrap gap-1 mb-2">
+                  {sortedResearchTeams.map((team, index) => {
+                    const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                    const isTeamLead = isTeamLeadForTeam(member, team);
+                    const isPrimary = isPrimaryTeamForMember(member, team);
+                    const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary);
+                    const researchUrl = getResearchUrl(team);
 
-                  return (
-                    <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
-                      <i class="fas fa-users mr-1" style="font-size: 0.625rem;"></i>
-                      {displayName}
-                      {isTeamLead && isKGSTeam && <span class="ml-1">(Lead)</span>}
-                      {isPrimary && !(isTeamLead && isKGSTeam) && <span class="ml-1">(Primary)</span>}
-                    </span>
-                  );
-                })}
-              </div>
+                    return researchUrl ? (
+                      <a 
+                        href={researchUrl}
+                        class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass} hover:opacity-80 transition`}
+                      >
+                        <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                        {displayName}
+                        {isTeamLead && <span class="ml-1">(Lead)</span>}
+                        {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                      </a>
+                    ) : (
+                      <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
+                        <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                        {displayName}
+                        {isTeamLead && <span class="ml-1">(Lead)</span>}
+                        {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Informal Teams as Bullets */}
+              {sortedInformalTeams.length > 0 && (
+                <div class={sortedResearchTeams.length > 0 ? "mt-3 pt-2 border-t border-blue-200" : ""}>
+                  <ul class="text-sm text-gray-700 space-y-1">
+                    {sortedInformalTeams.map((team, index) => {
+                      const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                      return (
+                        <li class="flex items-center">
+                          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
+                          {displayName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Locations Section - With Interactive Links */}
+          {/* Locations Section */}
           {member.location && member.location.length > 0 && (
             <div class="bg-blue-50 p-3 rounded-lg">
               <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
@@ -138,11 +181,9 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
               <div class="flex flex-col gap-2">
                 {member.location.map((location) => {
-                  // Try to find the best property to display
                   const displayName = location.name || `Location #${location.id || '?'}`;
                   const slug = location.slug || `location-${location.id}`;
                   
-                  // Format address components for map link
                   const hasDetails = location.city && location.state;
                   const addressParts = [];
                   if (location.address) addressParts.push(location.address);
@@ -158,7 +199,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                   
                   return (
                     <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
-                      {/* Location Name and Basic Info */}
                       <div class="p-3">
                         <div class="font-medium text-green-800">
                           {location.slug ? (
@@ -180,19 +220,29 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                         {location.description && (
                           <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
                         )}
+
                       </div>
                       
-                      {/* Action Links */}
                       {(location.slug || mapUrl) && (
                         <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
                           {mapUrl && (
-                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs baselink flex items-center" aria-label={`View map for ${displayName}`}>
-                              <i class="fas fa-map mr-1" style="font-size: 0.75rem;"></i>
+                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View map for ${displayName}`}>
+                              <i class="fas fa-map mr-1" style="font-size: 1rem;"></i>
                               Map
                             </a>
                           )}
                         </div>
                       )}
+
+                      {location.url && (
+                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                          <a href={location.url} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View website for ${displayName}`}>
+                            <i class="fas fa-link mr-1" style="font-size: 1rem;"></i>
+                            Website
+                          </a>
+                        </div>
+                      )}
+
                     </div>
                   );
                 })}
@@ -201,22 +251,17 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
           )}
         </div>
 
-        <!--labs affiliation -->
         <LabsList labs={member.labs} directusUrl={directusUrl} />
-        
     </div>
   </div>
-
       </div>
     </div>
   </div>
 </div>
   
-  
-{/* Information Sections in a 2-column grid */}
+{/* Information Sections */}
 <div class="grid md:grid-cols-2 gap-6 mb-8">
-  {/* Other Contact Info Card - Only shown when profiles are available */}
-  {/*(member.linkedin_url || member.researchgate_url || member.googlescholar_url || member.github_url || (typeof member.biography_file === 'string' && member.biography_file)) && (*/}
+  {/* Other Contact Info Card */}
   {((typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 flex items-center">
@@ -225,69 +270,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       </h5>
       
       <div class="space-y-4">
-        {/* Professional Profiles */}
-
-        {/* Cannot display personal website or social media - UKY rules  - keeping in case they change their minds...
-        {member.other_url && (
-          <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fas fa-home" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-blue-800 font-medium">Website</p>
-            </div>
-          </a>
-        )}
-
-        {member.linkedin_url && (
-          <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-linkedin" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">LinkedIn</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.researchgate_url && (
-          <a href={member.researchgate_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-researchgate" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">ResearchGate</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.googlescholar_url && (
-          <a href={member.googlescholar_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fas fa-graduation-cap" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Google Scholar</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.github_url && (
-          <a href={member.github_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-github" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">GitHub</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        */}
-
         {typeof member.biography_file === 'string' && member.biography_file && (
           <a 
             href={`${directusUrl}assets/${member.biography_file}`}
@@ -321,55 +303,51 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   )}
 </div>
   
-  {/* Biography Section - Full width, below other info */}
-  {member.bio_writeup && (
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
-      <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
-        <i class="fas fa-user mr-2" style="font-size: 1.5rem;"></i>
-        Biography
-      </h3>
-      <div class="text-gray-700 prose max-w-none whitespace-pre-line">
-        <div set:html={member.bio_writeup} />
-      </div>
+{/* Biography Section */}
+{member.bio_writeup && (
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
+    <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
+      <i class="fas fa-user mr-2" style="font-size: 1.5rem;"></i>
+      Biography
+    </h3>
+    <div class="text-gray-700 prose max-w-none whitespace-pre-line">
+      <div set:html={member.bio_writeup} />
     </div>
-  )}
-  
-  
-  <!-- Back to Directory Button -->
-  <div class="mb-12 text-center">
-    <a 
-      href="/staff" 
-      class="btn btn-primary btn-md"
-    >
-      <i class="fas fa-arrow-left mr-2" style="font-size: 1.25rem;"></i>
-      Back to Employee Directory
-    </a>
   </div>
+)}
+  
+<!-- Back to Directory Button -->
+<div class="mb-12 text-center">
+  <a 
+    href="/staff" 
+    class="btn btn-primary btn-md"
+  >
+    <i class="fas fa-arrow-left mr-2" style="font-size: 1.25rem;"></i>
+    Back to Employee Directory
+  </a>
 </div>
 
 <style>
-  /* Font Awesome icon colors to match new design */
   .fa-star {
-    color: #d97706; /* amber-600 - consistent for all star badges */
+    color: #d97706;
   }
   
   .fa-users {
-    color: #64748b; /* slate-500 - subtle for team badges */
+    color: #64748b;
   }
   
   .fa-envelope, .fa-phone {
-    color: #3b82f6; /* blue-500 */
+    color: #3b82f6;
   }
   
   .fa-building, .fa-map-marker-alt, .fa-address-card, .fa-lightbulb, .fa-user {
-    color: #1e40af; /* blue-800 */
+    color: #1e40af;
   }
   
   .fa-arrow-left {
     color: currentColor;
   }
   
-  /* Social media brand colors */
   .fa-linkedin {
     color: #0077b5;
   }
@@ -383,10 +361,10 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   }
   
   .fa-graduation-cap {
-    color: #4285f4; /* Google Scholar blue */
+    color: #4285f4;
   }
   
   .fa-home, .fa-file-pdf {
-    color: #3b82f6; /* blue-500 */
+    color: #3b82f6;
   }
 </style>
