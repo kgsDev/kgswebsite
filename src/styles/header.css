@@ -93,6 +93,10 @@ header .logo {
     position: absolute;
     width: 100vw;
     z-index: 6;
+    /* Add shadow and border to make it stand out */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15),
+                0 4px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 4px solid #253657;
 }
 .nav-sub-menu-trigger:before {
     border-left: 0.5px solid black;
