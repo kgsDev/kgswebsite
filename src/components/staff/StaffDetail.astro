@@ -14,254 +14,246 @@ import {
   isGeoscienceResearchTeam,
 } from '../../lib/badgeUtils.js';
 
-// This component displays detailed information about a staff member
 const { member = [] } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Separate and sort teams
 const { researchTeams, informalTeams } = separateTeams(member.team);
 const sortedResearchTeams = sortResearchTeams(member, researchTeams);
 const sortedInformalTeams = sortInformalTeams(informalTeams);
 ---
 
-<!-- Add Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="max-w-5xl mx-auto">
   <!-- Staff Member Header -->
   <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
-  <div class="md:flex">
-    <!-- Photo Section -->
-    <div class="sm:w-1/2 md:w-1/2 lg:w-1/2 xl:w-1/2 relative">
-      {typeof member.photo === 'string' && member.photo ? (
-        <div class="relative h-full md:min-h-full">
-          <img 
-            src={`${directusUrl}assets/${member.photo}?quality=90&height=650&fit=cover`} 
-            alt={`${member.first_name} ${member.last_name}`}
-            class="w-full h-full object-cover md:absolute md:inset-0"
-            style="object-position: top center; min-height: 350px;"
-          />
-          <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
-        </div>
-      ) : (
-        <div class="bg-gray-200 flex items-center justify-center" style="min-height: 350px;">
-          <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
-            <span class="text-4xl font-semibold text-blue-800">
-              {member.first_name.charAt(0)}{member.last_name.charAt(0)}
-            </span>
+    <div class="flex flex-col md:flex-row">
+      <!-- Photo Section - Fixed aspect ratio approach -->
+      <div class="w-full sm:w-96 md:w-80 lg:w-96 flex-shrink-0">
+        {typeof member.photo === 'string' && member.photo ? (
+          <div class="relative w-full" style="padding-bottom: 133.33%;"> <!-- 3:4 aspect ratio -->
+            <img 
+              src={`${directusUrl}assets/${member.photo}?quality=90&width=800&height=1067&fit=cover`} 
+              alt={`${member.first_name} ${member.last_name}`}
+              class="absolute inset-0 w-full h-full object-cover"
+              style="object-position: top center;"
+            />
+            <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
           </div>
-        </div>
-      )}
-    </div>
-    
-    <!-- Info Section -->
-    <div class="md:w-2/3 p-6 md:p-8">
-      <div class="mb-6">
-        <div class="flex items-start justify-between mb-2">
-          <h3 class="text-3xl font-bold text-blue-800">
-            {member.first_name} {member.last_name}
-          </h3>
-          
-          <!-- Role Badges -->
-          <div class="flex flex-col gap-2 ml-4">
-            {/* Director Badges */}
-            {getDirectorBadges(member).map(badge => (
-              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${badge.class}`}>
-                {badge.label}
-              </span>
-            ))}
+        ) : (
+          <div class="w-full bg-gray-200 flex items-center justify-center" style="padding-bottom: 133.33%;">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
+                <span class="text-4xl font-semibold text-blue-800">
+                  {member.first_name.charAt(0)}{member.last_name.charAt(0)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <!-- Info Section - Takes remaining space -->
+      <div class="flex-1 p-6 md:p-8">
+        <div class="mb-6">
+          <div class="flex items-start justify-between mb-2 gap-4">
+            <h3 class="text-3xl font-bold text-blue-800 flex-1 min-w-0">
+              {member.first_name} {member.last_name}
+            </h3>
             
-            {/* Team Lead Badge - Only for Geoscience Research teams */}
-            {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
-              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${getTeamLeadBadge().class}`}>
-              <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
-                {getTeamLeadBadge().label}
-              </span>
+            <!-- Role Badges -->
+            <div class="flex flex-col gap-2 flex-shrink-0">
+              {getDirectorBadges(member).map(badge => (
+                <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${badge.class}`}>
+                  {badge.label}
+                </span>
+              ))}
+              
+              {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
+                <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${getTeamLeadBadge().class}`}>
+                  <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
+                  {getTeamLeadBadge().label}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
+          <p class="text-gray-500 flex items-center">
+            <i class="fas fa-building mr-2 text-blue-500" style="font-size: 1.25rem;"></i>
+            {member.department}
+          </p>
+        </div>
+      
+        <div class="space-y-4">
+          {/* Essential Contact Information */}
+          <div class="flex flex-wrap gap-4">
+            {member.email && (
+              <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
+                <div class="mr-2 p-1 bg-blue-100 rounded-full">
+                  <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
+                </div>
+                {member.email.toLowerCase()}
+              </a>
+            )}
+            
+            {member.phone && (
+              <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
+                <div class="mr-2 p-1 bg-blue-100 rounded-full">
+                  <i class="fas fa-phone text-blue-500" style="font-size: 1rem;"></i>
+                </div>
+                {member.phone}
+              </a>
             )}
           </div>
-        </div>
-        
-        <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
-        <p class="text-gray-500 flex items-center">
-          <i class="fas fa-building mr-2 text-blue-500" style="font-size: 1.25rem;"></i>
-          {member.department}
-        </p>
-      </div>
-    
-      <div class="space-y-4">
-        {/* Essential Contact Information */}
-        <div class="flex flex-wrap gap-4">
-          {member.email && (
-            <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
-              </div>
-                {member.email.toLowerCase()}
-            </a>
-          )}
           
-          {member.phone && (
-            <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <i class="fas fa-phone text-blue-500" style="font-size: 1rem;"></i>
-              </div>
-              {member.phone}
-            </a>
-          )}
-        </div>
-        
-        {/* Teams and locations grid */}
-        <div class="grid md:grid-cols-2 gap-3 mt-4">
-          {/* Teams Section */}
-          {(sortedResearchTeams.length > 0 || sortedInformalTeams.length > 0) && (
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <h5 class="text-m font-semibold mb-2 flex items-center">
-                <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
-                Teams
-              </h5>
-              
-              {/* Geoscience Research Teams with Links */}
-              {sortedResearchTeams.length > 0 && (
-                <div class="flex flex-wrap gap-1 mb-2">
-                  {sortedResearchTeams.map((team, index) => {
-                    const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
-                    const isTeamLead = isTeamLeadForTeam(member, team);
-                    const isPrimary = isPrimaryTeamForMember(member, team);
-                    const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary);
-                    const researchUrl = getResearchUrl(team);
+          {/* Teams and locations grid */}
+          <div class="grid lg:grid-cols-2 gap-3 mt-4">
+            {/* Teams Section */}
+            {(sortedResearchTeams.length > 0 || sortedInformalTeams.length > 0) && (
+              <div class="bg-blue-50 p-3 rounded-lg">
+                <h5 class="text-m font-semibold mb-2 flex items-center">
+                  <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
+                  Teams
+                </h5>
+                
+                {sortedResearchTeams.length > 0 && (
+                  <div class="flex flex-wrap gap-1 mb-2">
+                    {sortedResearchTeams.map((team, index) => {
+                      const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                      const isTeamLead = isTeamLeadForTeam(member, team);
+                      const isPrimary = isPrimaryTeamForMember(member, team);
+                      const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary);
+                      const researchUrl = getResearchUrl(team);
 
-                    return researchUrl ? (
-                      <a 
-                        href={researchUrl}
-                        class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass} hover:opacity-80 transition`}
-                      >
-                        <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
-                        {displayName}
-                        {isTeamLead && <span class="ml-1">(Lead)</span>}
-                        {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
-                      </a>
-                    ) : (
-                      <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
-                        <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
-                        {displayName}
-                        {isTeamLead && <span class="ml-1">(Lead)</span>}
-                        {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
-                      </span>
+                      return researchUrl ? (
+                        <a 
+                          href={researchUrl}
+                          class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass} hover:opacity-80 transition`}
+                        >
+                          <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                          {displayName}
+                          {isTeamLead && <span class="ml-1">(Lead)</span>}
+                          {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                        </a>
+                      ) : (
+                        <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
+                          <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                          {displayName}
+                          {isTeamLead && <span class="ml-1">(Lead)</span>}
+                          {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {sortedInformalTeams.length > 0 && (
+                  <div class={sortedResearchTeams.length > 0 ? "mt-3 pt-2 border-t border-blue-200" : ""}>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                      {sortedInformalTeams.map((team, index) => {
+                        const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                        return (
+                          <li class="flex items-center">
+                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
+                            {displayName}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Locations Section */}
+            {member.location && member.location.length > 0 && (
+              <div class="bg-blue-50 p-3 rounded-lg">
+                <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2" style="font-size: 1.25rem;"></i>
+                  Locations
+                </h5>
+
+                <div class="flex flex-col gap-2">
+                  {member.location.map((location) => {
+                    const displayName = location.name || `Location #${location.id || '?'}`;
+                    const slug = location.slug || `location-${location.id}`;
+                    
+                    const hasDetails = location.city && location.state;
+                    const addressParts = [];
+                    if (location.address) addressParts.push(location.address);
+                    if (location.city) addressParts.push(location.city);
+                    if (location.state) addressParts.push(location.state);
+                    if (location.zip) addressParts.push(location.zip);
+                    if (location.country) addressParts.push(location.country);
+                    
+                    const formattedAddress = addressParts.join(', ');
+                    const mapUrl = formattedAddress ? 
+                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}` : 
+                      null;
+                    
+                    return (
+                      <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
+                        <div class="p-3">
+                          <div class="font-medium text-green-800">
+                            {location.slug ? (
+                              <a href={`/about/locations#${slug}`} class="baselink">
+                                {displayName}
+                              </a>
+                            ) : (
+                              <span>{displayName}</span>
+                            )}
+                          </div>
+                          
+                          {hasDetails && (
+                            <div class="text-gray-600 text-sm mt-1">
+                              {location.city}, {location.state}
+                              {location.zip && <span> {location.zip}</span>}
+                            </div>
+                          )}
+                          
+                          {location.description && (
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
+                          )}
+                        </div>
+                        
+                        {(location.slug || mapUrl) && (
+                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                            {mapUrl && (
+                              <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View map for ${displayName}`}>
+                                <i class="fas fa-map mr-1" style="font-size: 1rem;"></i>
+                                Map
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {location.url && (
+                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                            <a href={location.url} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View website for ${displayName}`}>
+                              <i class="fas fa-link mr-1" style="font-size: 1rem;"></i>
+                              Website
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
-              )}
-
-              {/* Informal Teams as Bullets */}
-              {sortedInformalTeams.length > 0 && (
-                <div class={sortedResearchTeams.length > 0 ? "mt-3 pt-2 border-t border-blue-200" : ""}>
-                  <ul class="text-sm text-gray-700 space-y-1">
-                    {sortedInformalTeams.map((team, index) => {
-                      const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
-                      return (
-                        <li class="flex items-center">
-                          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
-                          {displayName}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Locations Section */}
-          {member.location && member.location.length > 0 && (
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
-                <i class="fas fa-map-marker-alt mr-2" style="font-size: 1.25rem;"></i>
-                Locations
-              </h5>
-
-              <div class="flex flex-col gap-2">
-                {member.location.map((location) => {
-                  const displayName = location.name || `Location #${location.id || '?'}`;
-                  const slug = location.slug || `location-${location.id}`;
-                  
-                  const hasDetails = location.city && location.state;
-                  const addressParts = [];
-                  if (location.address) addressParts.push(location.address);
-                  if (location.city) addressParts.push(location.city);
-                  if (location.state) addressParts.push(location.state);
-                  if (location.zip) addressParts.push(location.zip);
-                  if (location.country) addressParts.push(location.country);
-                  
-                  const formattedAddress = addressParts.join(', ');
-                  const mapUrl = formattedAddress ? 
-                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}` : 
-                    null;
-                  
-                  return (
-                    <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
-                      <div class="p-3">
-                        <div class="font-medium text-green-800">
-                          {location.slug ? (
-                            <a href={`/about/locations#${slug}`} class="baselink">
-                              {displayName}
-                            </a>
-                          ) : (
-                            <span>{displayName}</span>
-                          )}
-                        </div>
-                        
-                        {hasDetails && (
-                          <div class="text-gray-600 text-sm mt-1">
-                            {location.city}, {location.state}
-                            {location.zip && <span> {location.zip}</span>}
-                          </div>
-                        )}
-                        
-                        {location.description && (
-                          <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
-                        )}
-
-                      </div>
-                      
-                      {(location.slug || mapUrl) && (
-                        <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
-                          {mapUrl && (
-                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View map for ${displayName}`}>
-                              <i class="fas fa-map mr-1" style="font-size: 1rem;"></i>
-                              Map
-                            </a>
-                          )}
-                        </div>
-                      )}
-
-                      {location.url && (
-                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
-                          <a href={location.url} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View website for ${displayName}`}>
-                            <i class="fas fa-link mr-1" style="font-size: 1rem;"></i>
-                            Website
-                          </a>
-                        </div>
-                      )}
-
-                    </div>
-                  );
-                })}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        <LabsList labs={member.labs} directusUrl={directusUrl} />
-    </div>
-  </div>
+          <LabsList labs={member.labs} directusUrl={directusUrl} />
+        </div>
       </div>
     </div>
   </div>
 </div>
-  
+
+{/* Rest of your component remains the same... */}
 {/* Information Sections */}
 <div class="grid md:grid-cols-2 gap-6 mb-8">
-  {/* Other Contact Info Card */}
   {((typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 flex items-center">
@@ -289,7 +281,6 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
     </div>
   )}
 
-  {/* Expertise Card */}
   {member.expertise && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
@@ -303,7 +294,6 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
   )}
 </div>
   
-{/* Biography Section */}
 {member.bio_writeup && (
   <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
     <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
@@ -316,7 +306,6 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
   </div>
 )}
   
-<!-- Back to Directory Button -->
 <div class="mb-12 text-center">
   <a 
     href="/staff" 
