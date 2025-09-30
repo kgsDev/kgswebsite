@@ -8,8 +8,9 @@ const organizations = await fetchAssociatedOrganizations();
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Group organizations by type in the desired order
-const typeOrder = ['kentucky', 'national', 'international'];
+const typeOrder = ['uk','kentucky', 'national', 'international'];
 const typeDisplayNames = {
+  'uk': 'University of Kentucky',
   'kentucky': 'Kentucky',
   'national': 'National', 
   'international': 'International'
@@ -62,7 +63,7 @@ Object.keys(groupedOrganizations).forEach(type => {
 >
   <div class="max-w-6xl mx-auto">
     <!-- Page Header -->
-    <div class="text-center mb-12">
+    <div class="text-center mb-8">
       <h1 class="text-4xl font-bold text-blue-900 mb-4">
         Associated Organizations & Partners
       </h1>
@@ -72,10 +73,33 @@ Object.keys(groupedOrganizations).forEach(type => {
       </p>
     </div>
 
+    <!-- Search Bar -->
+    <div class="bg-white p-4 rounded-lg shadow mb-8 max-w-2xl mx-auto">
+      <div class="relative">
+        <input 
+          type="text" 
+          id="org-search" 
+          placeholder="Search organizations by name or description..." 
+          class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="absolute left-3 top-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- No Results Message (hidden by default) -->
+    <div id="no-results" class="hidden py-8 text-center mb-8">
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <h3 class="text-xl font-medium text-gray-700">No organizations found</h3>
+        <p class="text-gray-500 mt-2">Try adjusting your search terms</p>
+      </div>
+    </div>
+
     {Object.keys(groupedOrganizations).length > 0 ? (
-      <div class="space-y-12">
+      <div class="space-y-12" id="organizations-container">
         {Object.entries(groupedOrganizations).map(([type, orgsInType]) => (
-          <div class="organization-type-section">
+          <div class="organization-type-section" data-type={type}>
             <!-- Type Header -->
             <div class="mb-8">
               <h2 class="text-3xl font-bold text-blue-800 mb-2 pb-2 border-b-2 border-blue-500">
@@ -86,7 +110,12 @@ Object.keys(groupedOrganizations).forEach(type => {
             <!-- Organizations Grid -->
             <div class="grid gap-8">
               {orgsInType.map((org) => (
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div 
+                  class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 org-card"
+                  data-name={org.name.toLowerCase()}
+                  data-description={org.description ? org.description.toLowerCase().replace(/<[^>]*>/g, '') : ''}
+                  data-type={type}
+                >
                   <div class="flex flex-col lg:flex-row">
                     
                     <!-- Organization Logo/Image (if available) -->
@@ -249,3 +278,65 @@ Object.keys(groupedOrganizations).forEach(type => {
     background-color: rgba(177, 201, 232, 0.02); /* Very subtle sky blue tint */
   }
 </style>
+
+<script>
+  // Search functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('org-search');
+    const organizationsContainer = document.getElementById('organizations-container');
+    const noResults = document.getElementById('no-results');
+    const orgCards = document.querySelectorAll('.org-card');
+    const typeSections = document.querySelectorAll('.organization-type-section');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let hasVisibleOrgs = false;
+        
+        // If search is empty, show everything
+        if (searchTerm === '') {
+          orgCards.forEach(card => card.classList.remove('hidden'));
+          typeSections.forEach(section => section.classList.remove('hidden'));
+          if (noResults) noResults.classList.add('hidden');
+          if (organizationsContainer) organizationsContainer.classList.remove('hidden');
+          return;
+        }
+        
+        // Filter organizations
+        typeSections.forEach(section => {
+          let visibleInSection = 0;
+          const cardsInSection = section.querySelectorAll('.org-card');
+          
+          cardsInSection.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const description = card.getAttribute('data-description') || '';
+            
+            if (name.includes(searchTerm) || description.includes(searchTerm)) {
+              card.classList.remove('hidden');
+              visibleInSection++;
+              hasVisibleOrgs = true;
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+          
+          // Hide section if no visible organizations
+          if (visibleInSection === 0) {
+            section.classList.add('hidden');
+          } else {
+            section.classList.remove('hidden');
+          }
+        });
+        
+        // Toggle no results message
+        if (hasVisibleOrgs) {
+          if (noResults) noResults.classList.add('hidden');
+          if (organizationsContainer) organizationsContainer.classList.remove('hidden');
+        } else {
+          if (noResults) noResults.classList.remove('hidden');
+          if (organizationsContainer) organizationsContainer.classList.add('hidden');
+        }
+      });
+    }
+  });
+</script>
