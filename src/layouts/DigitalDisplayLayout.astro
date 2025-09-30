@@ -1,6 +1,6 @@
 ---
 // src/layouts/DigitalDisplayLayout.astro
-// Simple layout for digital directory display with floating QR code
+// Simple layout for digital directory display with watermark notice option
 import '../styles/global.css';
 import SimpleHeader from '../components/digital/SimpleHeader.astro';
 import SimpleFooter from '../components/digital/SimpleFooter.astro';
@@ -8,11 +8,13 @@ import SimpleFooter from '../components/digital/SimpleFooter.astro';
 export interface Props {
   title: string;
   description?: string;
+  noticeStyle?: 'banner' | 'watermark' | 'both';
 }
 
 const { 
   title = 'Digital Directory',
-  description = 'Kentucky Geological Survey digital staff directory display.'
+  description = 'Kentucky Geological Survey digital staff directory display.',
+  noticeStyle = 'banner' // Options: 'banner', 'watermark', 'both'
 } = Astro.props;
 ---
 
@@ -28,9 +30,6 @@ const {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Auto-refresh for digital display (optional - remove if not needed) -->
-    <!-- <meta http-equiv="refresh" content="3600"> --> <!-- Refresh every hour -->
-    
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col bg-gray-50">
@@ -42,6 +41,26 @@ const {
       <slot />
     </main>
     
+    <!-- Watermark Notice (diagonal, semi-transparent) -->
+    {(noticeStyle === 'watermark' || noticeStyle === 'both') && (
+      <div class="watermark-notice">
+        <div class="watermark-content">
+          <div class="watermark-line">DISPLAY ONLY</div>
+          <div class="watermark-subline">Scan QR Code for Interactive Directory</div>
+        </div>
+      </div>
+    )}
+    
+    <!-- Banner Notice (top center) -->
+    {(noticeStyle === 'banner' || noticeStyle === 'both') && (
+      <div class="display-notice">
+        <svg xmlns="http://www.w3.org/2000/svg" class="notice-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="notice-text">Display Only Screen • Scan QR Code for Interactive Directory</span>
+      </div>
+    )}
+
     <!-- Floating QR Code - Bottom Right -->
     <div class="floating-qr-code">
       <div class="qr-content">
@@ -54,7 +73,7 @@ const {
         <div class="qr-fallback hidden">
           <img src="/assets/kgs-staffqr.png" alt="KGS staff QR Code to KGS staff directory" class="fallback-image" />
         </div>
-        <p class="qr-label">Scan for Full Directory</p>
+        <p class="qr-label">Digital Display Only<br>Scan for Interactive Directory</p>
       </div>
     </div>
     
@@ -75,10 +94,78 @@ const {
     min-height: calc(100vh - 200px);
   }
   
+  /* Watermark Notice - Diagonal, semi-transparent overlay */
+  .watermark-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .watermark-content {
+    transform: rotate(-45deg);
+    opacity: 0.08;
+    user-select: none;
+  }
+  
+  .watermark-line {
+    font-size: 6rem;
+    font-weight: 900;
+    color: #1e3a8a;
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+  
+  .watermark-subline {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1e3a8a;
+    text-align: center;
+    margin-top: 1rem;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Display Notice Banner */
+  .display-notice {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(59, 130, 246, 0.95);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 999;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .notice-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+  
+  .notice-text {
+    white-space: nowrap;
+  }
+  
   /* Floating QR Code Styles */
   .floating-qr-code {
     position: fixed;
-    bottom: 100px; /* Adjust based on your footer height */
+    bottom: 100px;
     right: 2rem;
     z-index: 1000;
     background: white;
@@ -132,6 +219,25 @@ const {
       font-size: 18px;
     }
     
+    .watermark-line {
+      font-size: 8rem;
+    }
+    
+    .watermark-subline {
+      font-size: 2.5rem;
+    }
+    
+    .display-notice {
+      top: 120px;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+    
+    .notice-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    
     .floating-qr-code {
       bottom: 120px;
       right: 3rem;
@@ -160,6 +266,14 @@ const {
   
   /* Extra large displays */
   @media (min-width: 2560px) {
+    .watermark-line {
+      font-size: 10rem;
+    }
+    
+    .watermark-subline {
+      font-size: 3rem;
+    }
+    
     .floating-qr-code {
       bottom: 140px;
       right: 4rem;
