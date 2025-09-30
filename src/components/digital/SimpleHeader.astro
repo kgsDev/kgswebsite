@@ -1,68 +1,71 @@
 ---
 // src/components/digital/SimpleHeader.astro
-// Simple header for digital display - just logo, no navigation
+// Compact header for digital display with Staff Directory title (QR code moved to bottom right)
 ---
 
 <header class="digital-header">
   <div class="header-container">
-    <div class="logo-section">
-      <!-- Combined logo linking to home -->
+    <div class="flex items-center justify-between">
       <a href="/" class="logo-link">
         <img 
           src="/assets/index/uk-kgs-logo-final.webp" 
-          alt="University of Kentucky - Kentucky Geological Survey" 
+          alt="University of Kentucky - Kentucky Geological Survey"
           class="combined-logo"
         />
       </a>
+      
+      <div class="text-center flex-grow">
+        <h1 class="text-2xl font-bold text-blue-800">KGS Staff and Affiliates Directory</h1>
+      </div>
+      
+      <!-- Spacer to balance the layout where QR code used to be -->
+      <div style="width: 100px;"></div>
     </div>
   </div>
 </header>
 
 <style>
   .digital-header {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
   }
-    
+  
+  .header-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 0;
+  }
+  
   .logo-link {
     display: inline-block;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease;
   }
   
   .logo-link:hover {
-    transform: translateY(-2px);
     opacity: 0.9;
   }
   
   .combined-logo {
-    height: 70px;
+    height: 80px;
     width: auto;
     max-width: 100%;
     object-fit: contain;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
+  /* For very large vertical displays */
+  @media (min-height: 3000px) {
     .digital-header {
       padding: 1rem 0;
     }
     
-    .header-container {
-      padding: 0 1rem;
+    .combined-logo {
+      height: 84px;
     }
     
-    .combined-logo {
-      height: 60px;
-    }
-  }
-  
-  /* For large displays like 55" monitors */
-  @media (min-height: 3000px) {
-    .digital-header {
-      padding: 2.5rem 0;
-    }
-    
-    .combined-logo {
-      height: 120px;
+    h1 {
+      font-size: 3rem;
+      margin:0 0 0 0;
+      padding:0 0 0 0;
     }
   }
 </style>

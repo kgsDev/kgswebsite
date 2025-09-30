@@ -125,25 +125,66 @@ const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== '
 
   <!-- Department Sections -->
   <div id="staff-container" class="space-y-12">
-    {Object.entries(staffByDepartment).map(([department, staff]) => (
-      <div class="department-section" data-department={department}>
-        {/* Consistent blue styling for all sections including leadership */}
-        {department === 'State Geologist and Directors' ? (
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold mb-2 pb-2 border-b-2 border-blue-500 text-blue-900">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="inline mr-2 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-              {department}
-            </h2>
-            <p class="text-gray-600 text-sm mb-4">Leadership of the Kentucky Geological Survey</p>
-          </div>
-        ) : (
-          <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
-        )}
+{Object.entries(staffByDepartment).map(([department, staff]) => (
+  <div class="department-section" data-department={department}>
+    {department === 'State Geologist and Directors' ? (
+      <>
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold mb-2 pb-2 border-b-2 border-blue-500 text-blue-900">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="inline mr-2 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            {department}
+          </h2>
+          <p class="text-gray-600 text-sm mb-4">Leadership of the Kentucky Geological Survey</p>
+        </div>
         <StaffList staff={staff} />
-      </div>
-    ))}
+      </>
+    ) : department === 'Geoscience Research' ? (
+      <>
+        <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
+        
+        {(() => {
+          const teamLeads = staff.filter(member => 
+            member.team_leader && Array.isArray(member.team_leader) && member.team_leader.length > 0
+          );
+          const researchers = staff.filter(member => 
+            !member.team_leader || !Array.isArray(member.team_leader) || member.team_leader.length === 0
+          );
+          
+          return (
+            <>
+              {teamLeads.length > 0 && (
+                <div class="mb-8">
+                  <h3 class="text-xl font-semibold mb-3 text-blue-800 flex items-center">
+                    <i class="fas fa-compass mr-2"></i>
+                    Research Team Leads
+                  </h3>
+                  <StaffList staff={teamLeads} />
+                </div>
+              )}
+              
+              {researchers.length > 0 && (
+                <div>
+                  <h3 class="text-xl font-semibold mb-3 text-blue-800 flex items-center">
+                    <i class="fas fa-flask mr-2"></i>
+                    Researchers
+                  </h3>
+                  <StaffList staff={researchers} />
+                </div>
+              )}
+            </>
+          );
+        })()}
+      </>
+    ) : (
+      <>
+        <h2 class="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-500 text-blue-900">{department}</h2>
+        <StaffList staff={staff} />
+      </>
+    )}
+  </div>
+))}
   </div>
 
   <!-- No Results Message (hidden by default) -->

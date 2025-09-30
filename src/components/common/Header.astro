@@ -27,112 +27,133 @@ const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
 )}
 
 <header>
-  <div class="logo">
-    <!-- Split logo into two clickable parts -->
-    <div class="logo-split">
-      <a href="https://uky.edu" class="uk-logo-link" target="_blank" rel="noopener">
-        <img src="/assets/index/uk-logo-final.png" alt="University of Kentucky" class="uk-logo" />
-      </a>
-      <a href="/" class="kgs-logo-link">
-        <img src="/assets/index/kgs-logo-final.png" alt="Kentucky Geological Survey" class="kgs-logo" />
-      </a>
-    </div>
+    <div class="header-inner">
+      <div class="logo">
+        <!-- Split logo into two clickable parts -->
+        <div class="logo-split">
+          <a href="https://uky.edu" aria-label="University of Kentucky Home" class="uk-logo-link" target="_blank" rel="noopener">
+            <img src="/assets/index/uk-logo-final.png" alt="University of Kentucky" class="uk-logo" />
+          </a>
+          <a href="/" class="kgs-logo-link" arial-label="Kentucky Geological Survey Home">
+            <img src="/assets/index/kgs-logo-final.png" alt="Kentucky Geological Survey" class="kgs-logo" />
+          </a>
+        </div>
+      </div>
+
+      <nav class="global-nav inter-nav">
+        <div class="nav-menu-trigger">
+          <button class="nav-menu-button" aria-label="Menu">
+            <svg><image href="/assets/index/hamburger-button.svg" x="0" y="0" width="100%" height="100%"/></svg>Menu
+          </button> 
+        </div>
+        <div class="nav-menu">
+          <details name="nav">
+            <summary>Research</summary>
+              <ul class="nav-sub-menu">
+                <li><a href="/research/geophysics/">Earthquakes & Geophysics</a></li>
+                <li><a href="/research/envirogeo/">Environmental Geology</a></li>
+                <li><a href="/research/energy/">Fossil Energy & Subsurface Geology</a></li>
+                <li><a href="/research/minerals/">Critical Minerals & Geochemistry</a></li>    
+                <li><a href="/research/geohealth/">GeoHealth</a></li>
+                <li><a href="/research/hydro/">Hydrogeology & Karst</a></li>
+                <li><a href="/research/lem/">Landscape Evolution & Mapping</a></li>
+                <li><a href="/research/landslides/">Landslides & Engineering Geology</a></li>
+                <li><hr></li>
+                <li><a href="/research/lab/">Analytical & Lab</a></li>
+                <li><a href="/labs/">Research Labs</a></li>
+                <!--<li><a href="/funding/">Sponsored Projects</a></li> -->
+              </ul> 
+          </details>
+
+          <details name="nav">
+            <summary>Monitoring</summary>
+              <ul class="nav-sub-menu">
+                <li><a href="/monitoring/">KGS Monitoring Networks</a></li>    
+                <li><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">Groundwater Monitoring</a></li>    
+                <li><a href="https://www.uky.edu/KGS/landslide/">Landslide Monitoring</a></li>
+                <li><a href="https://www.uky.edu/KGS/earthquake/">Seismic Monitoring</a></li>
+              </ul> 
+          </details>
+
+          <details name="nav">
+            <summary>Maps &amp; Data</summary>
+              <ul class="nav-sub-menu">
+                <li><a href="https://kgs.uky.edu/geomap">Geologic Map Service</a></li>
+                <li><a href="https://kgs.uky.edu/kygeode/">KyGeode - Portal to KGS Maps and Data</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kygeode/services/oilgas/">Oil &amp; Gas Data</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kgsweb/DataSearching/watersearch.asp">Groundwater Data</a></li>
+                <li><a href="https://kgs.uky.edu/kgsmap/KGSWater/viewer.asp">Water Wells & Springs Map</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kgsweb/DataSearching/coalsearch.asp">Coal Data</a></li>
+                <li><a href="https://kgs.uky.edu/kgsmap/kcrim/">Coal Resource Information Map</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kylimestone/">Limestone Resources Map</a></li>
+                <li><a href="https://kgs.uky.edu/KYMineral/">Mineral Resources Map</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kygeode/services/cslib/">Rock Core Inventory</a></li>
+                <li><a href="https://kgs.uky.edu/kygeode/services/thins/">Thin Section Inventory</a></li>
+                <li><a href="https://kgs.uky.edu/kygeode/earl/">Rock Core and Sample Holdings Map</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/kgsmap/kytcLinks.asp">Geotechnical Data</a></li>
+                <li><a href="https://www.uky.edu/KGS/earthquake">Seismic Recordings</a></li>
+                <li><hr></li>
+                <li><a href="https://kgs.uky.edu/storymap/">Geologic Story Maps & Tours</a></li> 
+                <li><a href="https://kgs.uky.edu/kgsweb/CoordConversionTool.asp">Coordinate Conversion Tools</a></li>
+              </ul> 
+
+
+
+          </details>
+          <details name="nav">
+            <summary>Pubs &amp; Collections </summary>
+              <ul class="nav-sub-menu">
+                <li><a href="https://kgs.uky.edu/kygeode/services/pubs/">Publications Catalog</a></li>    
+                <li><a href="https://kgs.uky.edu/kygeode/services/cslib/">Rock Core &amp; Photos</a></li>
+                <li><a href="https://kgs.uky.edu/kygeode/services/thins/">Thin Sections</a></li>
+                <li><a href="https://kgs.uky.edu/kgsweb/newgeology/image_search.asp">Photo &amp; Images</a></li>
+                <li><a href="https://www.uky.edu/KGS/education/factsheet.php">KGS Fact Sheets</a></li>
+                <li><a href="https://www.uky.edu/KGS/aboutKGS/annual-report-list.php">KGS Annual Reports</a></li>
+              </ul> 
+          </details>
+
+          <details name="nav">
+            <summary>Kentucky Geology</summary>
+              <ul class="nav-sub-menu">
+                <li><a href="https://www.uky.edu/KGS/education/">Educational Resources</a></li>
+                <li><hr></li>
+                <li><a href="https://www.uky.edu/KGS/geoky/">General Geology</a></li>    
+                <li><a href="https://www.uky.edu/KGS/coal/">Coal</a></li>
+                <li><a href="https://www.uky.edu/KGS/fossils/">Fossils</a></li>
+                <li><a href="https://kgs.uky.edu/arches/">Natural Arches</a></li>
+                <li><a href="https://www.uky.edu/KGS/rocksmineral/">Rocks &amp; Minerals</a></li>
+                <li><hr></li>
+                <li><a href="https://www.uky.edu/KGS/earthquake/earthquake_information.php">Earthquakes</a>
+                <li><a href="https://www.uky.edu/KGS/karst/">Karst and Sinkholes</a></li>
+                <li><a href="https://www.uky.edu/KGS/landslide/">Landslides</a></li>
+                <li><a href="https://www.uky.edu/KGS/radon/">Radon</a></li>
+              </ul> 
+          </details>
+
+          <details name="nav">
+            <summary>About Us</summary>
+              <ul class="nav-sub-menu">
+                <li><a href="/about/">About KGS</a></li>
+                <li><a href="/about/mission/">Misson, Vision, &amp; Values</a></li>
+                <li><a href="/contact">Contact KGS</a></li>    
+                <li><a href="/staff/">KGS Staff &amp; Affiliates</a></li>
+                <li><a href="/news/">News &amp; Announcements</a></li>
+                <li><a href="/about/dmp/">Data Management Policy</a></li>
+                <li><a href="/about/jobs/">Employment Opportunities</a></li>
+                <li><a href="https://uky.edu/kgs/intern">Internships</a></li>
+                <li><a href="/about/orgs/">Associated Organizations</a></li>
+                <li><a href="/about/board/">Advisory Board</a></li>
+              </ul> 
+          </details>
+        </div>
+      </nav>
   </div>
-  <nav class="global-nav inter-nav">
-    <div class="nav-menu-trigger">
-      <button class="nav-menu-button inter-button" aria-label="Menu">
-        <svg><image href="/assets/index/hamburger-button.svg" x="0" y="0" width="100%" height="100%"/></svg>Menu
-      </button> 
-    </div>
-    <div class="nav-menu">
-      <details name="nav">
-        <summary>Research</summary>
-          <ul class="nav-sub-menu">
-            <li><a href="/research/geophysics/">Earthquakes & Geophysics</a></li>
-            <li><a href="/research/envirogeo/">Environmental Geology</a></li>
-            <li><a href="/research/energy/">Fossil Energy & Subsurface Geology</a></li>
-            <li><a href="/research/minerals/">Geochemistry & Mineralogy</a></li>    
-            <li><a href="/research/geohealth/">GeoHealth</a></li>
-            <li><a href="/research/hydro/">Hydrogeology & Karst</a></li>
-            <li><a href="/research/lem/">Landscape Evolution & Mapping</a></li>
-            <li><a href="/research/landslides/">Landslides & Engineering Geology</a></li>
-            <li><hr></li>
-            <li><a href="/research/lab/">Analytical & Lab</a></li>
-            <li><a href="/labs/">Research Labs</a></li>
-            <li><a href="/funding/">Sponsored Projects</a></li>
-          </ul> 
-      </details>
-
-      <details name="nav">
-        <summary>Monitoring</summary>
-          <ul class="nav-sub-menu">
-            <li><a href="/monitoring/">KGS Monitoring Networks</a></li>    
-            <li><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">Groundwater Monitoring</a></li>    
-            <li><a href="https://www.uky.edu/KGS/landslide/">Landslide Monitoring</a></li>
-            <li><a href="https://www.uky.edu/KGS/earthquake/">Seismic Monitoring</a></li>
-          </ul> 
-      </details>
-
-      <details name="nav">
-        <summary>Maps &amp; Data</summary>
-          <ul class="nav-sub-menu">
-            <li><a href="https://kgs.uky.edu/geomap">Geologic Map Service</a></li>    
-            <li><a href="https://kgs.uky.edu/kygeode/services/oilgas/">Oil &amp; Gas Data</a></li>
-            <li><a href="https://kgs.uky.edu/kgsweb/DataSearching/watersearch.asp">Groundwater Data</a></li>
-            <li><a href="https://kgs.uky.edu/kgsweb/DataSearching/coalsearch.asp">Coal Data</a></li>
-            <li><a href="https://kgs.uky.edu/kgsmap/kytcLinks.asp">Geotechnical Data</a></li>
-            <li><a href="https://www.uky.edu/KGS/earthquake">Seismic Recordings</a></li>
-            <li><a href="https://kgs.uky.edu/kygeode/">KyGeode - Portal to KGS Maps and Data</a></li>
-          </ul> 
-      </details>
-      <details name="nav">
-        <summary>Pubs &amp; Collections </summary>
-          <ul class="nav-sub-menu">
-            <li><a href="https://kgs.uky.edu/kygeode/services/pubs/">Publications Catalog</a></li>    
-            <li><a href="https://kgs.uky.edu/kygeode/services/cslib/">Rock Core &amp; Photos</a></li>
-            <li><a href="https://kgs.uky.edu/kygeode/services/thins/">Thin Sections</a></li>
-            <li><a href="https://kgs.uky.edu/kgsweb/newgeology/image_search.asp">Photo &amp; Images</a></li>
-            <li><a href="https://www.uky.edu/KGS/education/factsheet.php">KGS Fact Sheets</a></li>
-            <li><a href="https://www.uky.edu/KGS/aboutKGS/annual-report-list.php">KGS Annual Reports</a></li>
-          </ul> 
-      </details>
-
-      <details name="nav">
-        <summary>Kentucky Geology</summary>
-          <ul class="nav-sub-menu">
-            <li><a href="https://www.uky.edu/KGS/education/">Educational Resources</a></li>
-            <li><hr></li>
-            <li><a href="https://www.uky.edu/KGS/geoky/">General Geology</a></li>    
-            <li><a href="https://www.uky.edu/KGS/coal/">Coal</a></li>
-            <li><a href="https://www.uky.edu/KGS/fossils/">Fossils</a></li>
-            <li><a href="https://www.uky.edu/KGS/rocksmineral/">Rocks &amp; Minerals</a></li>
-            <li><hr></li>
-            <li><a href="https://www.uky.edu/KGS/earthquake/earthquake_information.php">Earthquakes</a>
-            <li><a href="https://www.uky.edu/KGS/karst/">Karst and Sinkholes</a></li>
-            <li><a href="https://www.uky.edu/KGS/landslide/">Landslides</a></li>
-            <li><a href="https://www.uky.edu/KGS/radon/">Radon</a></li>
-          </ul> 
-      </details>
-
-      <details name="nav">
-        <summary>About Us</summary>
-          <ul class="nav-sub-menu">
-            <li><a href="/about/">About KGS</a></li>
-            <li><a href="/contact">Contact KGS</a></li>    
-            <li><a href="/about/locations">Locations &amp; Facilities</a></li> 
-            <li><a href="/news/">News &amp; Announcements</a></li>
-            <li><a href="/about/mission/">Misson, Vision, &amp; Values</a></li>
-            <li><a href="/about/dmp/">Data Management Policy</a></li>
-            <li><a href="/about/jobs/">Employment Opportunities</a></li>
-            <li><a href="/intern/">Internships</a></li>
-            <li><a href="/about/orgs/">Associated Organizations</a></li>
-            <li><a href="/about/board/">Advisory Board</a></li>
-            <li><a href="/staff/">KGS Staff &amp; Affiliates</a></li>
-          </ul> 
-      </details>
-      <input type="search" placeholder="Search..." class="search-bar">
-    </div>
-  </nav>
 </header>
 
 <!-- External Link Warning Modal -->
@@ -172,280 +193,6 @@ const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
     </div>
   </div>
 </div>
-
-<style>
-  /* Staging banner styles */
-  .staging-banner {
-    background: linear-gradient(135deg, #ff6b6b, #ffa500);
-    color: white;
-    padding: 8px 0;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 1001; /* Higher than your nav */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-  
-  .staging-banner-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
-  .staging-icon {
-    font-size: 1.2em;
-  }
-  
-  .staging-text {
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .production-link {
-    color: white;
-    text-decoration: underline;
-    font-size: 13px;
-    opacity: 0.9;
-    transition: opacity 0.2s;
-  }
-  
-  .production-link:hover {
-    opacity: 1;
-  }
-  
-  @media (max-width: 768px) {
-    .staging-banner-content {
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .staging-text {
-      font-size: 13px;
-    }
-  }
-
-  /* Split logo styles */
-  .logo-split {
-    display: flex;
-    align-items: center;
-    gap: 0; /* No gap between logo parts for seamless appearance */
-  }
-  
-  .uk-logo-link,
-  .kgs-logo-link {
-    display: block;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-  
-  .uk-logo-link:hover,
-  .kgs-logo-link:hover {
-    opacity: 0.8;
-    transform: translateY(-0.5px);
-  }
-  
-  .uk-logo,
-  .kgs-logo {
-    height: auto;
-    vertical-align: middle;
-    display: block;
-  }
-  
-  /* Ensure logos align properly */
-  .uk-logo-link {
-    border-radius: 4px 0 0 4px; /* Rounded left corners */
-  }
-  
-  .kgs-logo-link {
-    border-radius: 0 4px 4px 0; /* Rounded right corners */
-  }
-  
-  /* Optional: Add subtle hover effects to indicate clickability */
-  .uk-logo-link:hover .uk-logo {
-    filter: brightness(1.1);
-  }
-  
-  .kgs-logo-link:hover .kgs-logo {
-    filter: brightness(1.1);
-  }
-  
-  /* Responsive adjustments for mobile */
-  @media (max-width: 768px) {
-    .logo-split {
-      justify-content: center;
-    }
-    
-    .uk-logo,
-    .kgs-logo {
-      max-height: 40px; /* Adjust as needed for mobile */
-    }
-  }
-
-  /* External Link Warning Modal Styles */
-  .link-warning-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    backdrop-filter: blur(3px);
-  }
-
-  .link-warning-overlay.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.3s ease;
-  }
-
-  .link-warning-modal {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    max-width: 500px;
-    width: 90%;
-    margin: 20px;
-    animation: slideIn 0.3s ease;
-  }
-
-  .modal-header {
-    background: linear-gradient(135deg, #1B365D, #0033A0);
-    color: white;
-    padding: 24px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .modal-icon {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-  }
-
-  .modal-alert-title {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 700;
-    line-height: 1.2;
-    color: white;
-    margin-bottom: 0.5em;
-    font-size: 1.5rem; /* 24px */
-  }
-
-
-
-  .modal-body {
-    padding: 24px;
-  }
-
-  .modal-message {
-    margin: 0 0 16px 0;
-    color: #374151;
-    line-height: 1.6;
-  }
-
-  .destination-info {
-    background: #F3F4F6;
-    border-left: 4px solid #0033A0;
-    padding: 12px 16px;
-    border-radius: 0 8px 8px 0;
-    margin: 16px 0;
-  }
-
-  .destination-url {
-    font-family: monospace;
-    font-size: 14px;
-    color: #6B7280;
-    word-break: break-all;
-  }
-
-  .dont-show-again {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 20px 0 0 0;
-    padding: 16px;
-    background: #FEF3C7;
-    border-radius: 8px;
-    border: 1px solid #F59E0B;
-  }
-
-  .dont-show-again input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #F59E0B;
-  }
-
-  .dont-show-again label {
-    font-size: 14px;
-    color: #92400E;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .modal-buttons {
-    padding: 0 24px 24px 24px;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-  }
-
-  .external-warning-btn {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .external-warning-btn-secondary {
-    background: #F3F4F6;
-    color: #374151;
-  }
-
-  .external-warning-btn-secondary:hover {
-    background: #E5E7EB;
-  }
-
-  .external-warning-btn-primary {
-    background: #0033A0;
-    color: white;
-  }
-
-  .external-warning-btn-primary:hover {
-    background: #1B365D;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideIn {
-    from { 
-      opacity: 0; 
-      transform: translateY(-20px) scale(0.95); 
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0) scale(1); 
-    }
-  }
-</style>
 
 <script>
   class KGSExternalLinkWarning {

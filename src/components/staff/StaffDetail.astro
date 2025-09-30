@@ -1,221 +1,260 @@
 ---
 // src/components/staff/StaffDetail.astro
 import LabsList from '../labs/LabsList.astro';
-import { getDirectorBadges, isGeoscienceResearchTeam, getTeamLeadBadge, getTeamBadgeClass, isTeamLeadForTeam } from '../../lib/badgeUtils.js';
+import { 
+  getDirectorBadges, 
+  getTeamLeadBadge, 
+  getTeamBadgeClass, 
+  isTeamLeadForTeam, 
+  isPrimaryTeamForMember, 
+  getResearchUrl,
+  separateTeams,
+  sortResearchTeams,
+  sortInformalTeams,
+  isGeoscienceResearchTeam,
+} from '../../lib/badgeUtils.js';
 
-// This component displays detailed information about a staff member
 const { member = [] } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Debug output to help diagnose what's in the member object
-// console.log("Staff member detail:", JSON.stringify(member, null, 2));
+const { researchTeams, informalTeams } = separateTeams(member.team);
+const sortedResearchTeams = sortResearchTeams(member, researchTeams);
+const sortedInformalTeams = sortInformalTeams(informalTeams);
 ---
 
-<!-- Add Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="max-w-5xl mx-auto">
-  <!-- Staff Member Header - More compact design -->
+  <!-- Staff Member Header -->
   <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
-  <div class="md:flex">
-    <!-- Photo Section - Better height handling -->
-    <div class="md:w-1/3 relative">
-      {typeof member.photo === 'string' && member.photo ? (
-        <div class="relative h-full md:min-h-full">
-          <img 
-            src={`${directusUrl}assets/${member.photo}?quality=90&height=650&fit=cover`} 
-            alt={`${member.first_name} ${member.last_name}`}
-            class="w-full h-full object-cover md:absolute md:inset-0"
-            style="object-position: top center; min-height: 350px;"
-          />
-          <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
-        </div>
-      ) : (
-        <div class="bg-gray-200 flex items-center justify-center" style="min-height: 350px;">
-          <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
-            <span class="text-4xl font-semibold text-blue-800">
-              {member.first_name.charAt(0)}{member.last_name.charAt(0)}
-            </span>
+    <div class="flex flex-col md:flex-row">
+      <!-- Photo Section - Fixed aspect ratio approach -->
+      <div class="w-full sm:w-96 md:w-80 lg:w-96 flex-shrink-0">
+        {typeof member.photo === 'string' && member.photo ? (
+          <div class="relative w-full" style="padding-bottom: 133.33%;"> <!-- 3:4 aspect ratio -->
+            <img 
+              src={`${directusUrl}assets/${member.photo}?quality=90&width=800&height=1067&fit=cover`} 
+              alt={`${member.first_name} ${member.last_name}`}
+              class="absolute inset-0 w-full h-full object-cover"
+              style="object-position: top center;"
+            />
+            <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
           </div>
-        </div>
-      )}
-    </div>
-    
-    <!-- Info Section - Essential info only -->
-    <div class="md:w-2/3 p-6 md:p-8">
-      <div class="mb-6">
-        <div class="flex items-start justify-between mb-2">
-          <h3 class="text-3xl font-bold text-blue-800">
-            {member.first_name} {member.last_name}
-          </h3>
-          
-          <!-- Role Badges -->
-          <div class="flex flex-col gap-2 ml-4">
-            {/* Director Badges */}
-            {getDirectorBadges(member).map(badge => (
-              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${badge.class}`}>
-                {badge.label}
-              </span>
-            ))}
+        ) : (
+          <div class="w-full bg-gray-200 flex items-center justify-center" style="padding-bottom: 133.33%;">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
+                <span class="text-4xl font-semibold text-blue-800">
+                  {member.first_name.charAt(0)}{member.last_name.charAt(0)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <!-- Info Section - Takes remaining space -->
+      <div class="flex-1 p-6 md:p-8">
+        <div class="mb-6">
+          <div class="flex items-start justify-between mb-2 gap-4">
+            <h3 class="text-3xl font-bold text-blue-800 flex-1 min-w-0">
+              {member.first_name} {member.last_name}
+            </h3>
             
-            {/* Team Lead Badge - Only for Geoscience Research teams */}
-            {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
-              <span class={`inline-flex items-center px-3 py-1 rounded-full text-s font-medium border ${getTeamLeadBadge().class}`}>
-              <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
-                {getTeamLeadBadge().label}
-              </span>
+            <!-- Role Badges -->
+            <div class="flex flex-col gap-2 flex-shrink-0">
+              {getDirectorBadges(member).map(badge => (
+                <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${badge.class}`}>
+                  {badge.label}
+                </span>
+              ))}
+              
+              {member.is_team_lead && member.team && member.team.some(team => isGeoscienceResearchTeam(team)) && (
+                <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${getTeamLeadBadge().class}`}>
+                  <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
+                  {getTeamLeadBadge().label}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
+          <p class="text-gray-500 flex items-center">
+            <i class="fas fa-building mr-2 text-blue-500" style="font-size: 1.25rem;"></i>
+            {member.department}
+          </p>
+        </div>
+      
+        <div class="space-y-4">
+          {/* Essential Contact Information */}
+          <div class="flex flex-wrap gap-4">
+            {member.email && (
+              <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
+                <div class="mr-2 p-1 bg-blue-100 rounded-full">
+                  <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
+                </div>
+                {member.email.toLowerCase()}
+              </a>
+            )}
+            
+            {member.phone && (
+              <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
+                <div class="mr-2 p-1 bg-blue-100 rounded-full">
+                  <i class="fas fa-phone text-blue-500" style="font-size: 1rem;"></i>
+                </div>
+                {member.phone}
+              </a>
             )}
           </div>
-        </div>
-        
-        <p class="text-xl text-gray-600 mb-1">{member.working_title}</p>
-        <p class="text-gray-500 flex items-center">
-          <i class="fas fa-building mr-2 text-blue-500" style="font-size: 1.25rem;"></i>
-          {member.department}
-        </p>
-      </div>
-    
-      <div class="space-y-4">
-        {/* Essential Contact Information in main card */}
-        <div class="flex flex-wrap gap-4">
-          {member.email && (
-            <a href={`mailto:${member.email}`} class="inline-flex items-center baselink">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <i class="fas fa-envelope text-blue-500" style="font-size: 1rem;"></i>
-              </div>
-              {member.email}
-            </a>
-          )}
           
-          {member.phone && (
-            <a href={`tel:${member.phone.replace(/[^0-9]/g, '')}`} class="inline-flex items-center baselink">
-              <div class="mr-2 p-1 bg-blue-100 rounded-full">
-                <i class="fas fa-phone text-blue-500" style="font-size: 1rem;"></i>
-              </div>
-              {member.phone}
-            </a>
-          )}
-        </div>
-        
-        {/* Teams and locations in main card, side by side */}
-        <div class="grid md:grid-cols-2 gap-3 mt-4">
-          {/* Teams Section */}
-          {member.team && member.team.length > 0 && (
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <h5 class="text-m font-semibold mb-2 flex items-center">
-                <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
-                Teams
-              </h5>
-              <div class="flex flex-wrap gap-1">
-                {member.team.filter(team => team !== null).map((team) => {
-                  const displayName = team.name || team.description || ``;
-                  const isTeamLead = isTeamLeadForTeam(member, team);
-                  const isGeoscienceResearch = isGeoscienceResearchTeam(team);
-                  const badgeClass = getTeamBadgeClass(isTeamLead, isGeoscienceResearch);
-                  
-                  return (
-                    <div class="relative">
-                      <span class={`inline-flex items-center px-2 py-1 rounded-full text-s font-medium border ${badgeClass}`}>
-                        <i class="fas fa-users mr-1" style="font-size: 0.75rem;"></i>
-                        {displayName}
-                        {isTeamLead && isGeoscienceResearch && <span class="ml-1 text-xs">(Lead)</span>}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {/* Teams and locations grid */}
+          <div class="grid lg:grid-cols-2 gap-3 mt-4">
+            {/* Teams Section */}
+            {(sortedResearchTeams.length > 0 || sortedInformalTeams.length > 0) && (
+              <div class="bg-blue-50 p-3 rounded-lg">
+                <h5 class="text-m font-semibold mb-2 flex items-center">
+                  <i class="fas fa-users mr-2 text-blue-800" style="font-size: 1.25rem;"></i>
+                  Teams
+                </h5>
+                
+                {sortedResearchTeams.length > 0 && (
+                  <div class="flex flex-wrap gap-1 mb-2">
+                    {sortedResearchTeams.map((team, index) => {
+                      const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                      const isTeamLead = isTeamLeadForTeam(member, team);
+                      const isPrimary = isPrimaryTeamForMember(member, team);
+                      const badgeClass = getTeamBadgeClass(isTeamLead, isPrimary);
+                      const researchUrl = getResearchUrl(team);
 
-          {/* Locations Section - With Interactive Links */}
-          {member.location && member.location.length > 0 && (
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
-                <i class="fas fa-map-marker-alt mr-2" style="font-size: 1.25rem;"></i>
-                Locations
-              </h5>
+                      return researchUrl ? (
+                        <a 
+                          href={researchUrl}
+                          class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass} hover:opacity-80 transition`}
+                        >
+                          <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                          {displayName}
+                          {isTeamLead && <span class="ml-1">(Lead)</span>}
+                          {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                        </a>
+                      ) : (
+                        <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-normal border ${badgeClass}`}>
+                          <i class={`fas ${team.team_icon} mr-1`} style="font-size: 0.8rem;"></i>
+                          {displayName}
+                          {isTeamLead && <span class="ml-1">(Lead)</span>}
+                          {isPrimary && !isTeamLead && <span class="ml-1">(Primary)</span>}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
 
-              <div class="flex flex-col gap-2">
-                {member.location.map((location) => {
-                  // Try to find the best property to display
-                  const displayName = location.name || `Location #${location.id || '?'}`;
-                  const slug = location.slug || `location-${location.id}`;
-                  
-                  // Format address components for map link
-                  const hasDetails = location.city && location.state;
-                  const addressParts = [];
-                  if (location.address) addressParts.push(location.address);
-                  if (location.city) addressParts.push(location.city);
-                  if (location.state) addressParts.push(location.state);
-                  if (location.zip) addressParts.push(location.zip);
-                  if (location.country) addressParts.push(location.country);
-                  
-                  const formattedAddress = addressParts.join(', ');
-                  const mapUrl = formattedAddress ? 
-                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}` : 
-                    null;
-                  
-                  return (
-                    <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
-                      {/* Location Name and Basic Info */}
-                      <div class="p-3">
-                        <div class="font-medium text-green-800">
-                          {location.slug ? (
-                            <a href={`/about/locations#${slug}`} class="baselink">
-                              {displayName}
-                            </a>
-                          ) : (
-                            <span>{displayName}</span>
+                {sortedInformalTeams.length > 0 && (
+                  <div class={sortedResearchTeams.length > 0 ? "mt-3 pt-2 border-t border-blue-200" : ""}>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                      {sortedInformalTeams.map((team, index) => {
+                        const displayName = team.name || team.team_name || team.description || team.title || `Team ${index+1}`;
+                        return (
+                          <li class="flex items-center">
+                            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
+                            {displayName}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Locations Section */}
+            {member.location && member.location.length > 0 && (
+              <div class="bg-blue-50 p-3 rounded-lg">
+                <h5 class="text-m font-semibold text-blue-800 mb-2 flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2" style="font-size: 1.25rem;"></i>
+                  Locations
+                </h5>
+
+                <div class="flex flex-col gap-2">
+                  {member.location.map((location) => {
+                    const displayName = location.name || `Location #${location.id || '?'}`;
+                    const slug = location.slug || `location-${location.id}`;
+                    
+                    const hasDetails = location.city && location.state;
+                    const addressParts = [];
+                    if (location.address) addressParts.push(location.address);
+                    if (location.city) addressParts.push(location.city);
+                    if (location.state) addressParts.push(location.state);
+                    if (location.zip) addressParts.push(location.zip);
+                    if (location.country) addressParts.push(location.country);
+                    
+                    const formattedAddress = addressParts.join(', ');
+                    const mapUrl = formattedAddress ? 
+                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formattedAddress)}` : 
+                      null;
+                    
+                    return (
+                      <div class="bg-white rounded-lg border border-green-200 overflow-hidden">
+                        <div class="p-3">
+                          <div class="font-medium text-green-800">
+                            {location.slug ? (
+                              <a href={`/about/locations#${slug}`} class="baselink">
+                                {displayName}
+                              </a>
+                            ) : (
+                              <span>{displayName}</span>
+                            )}
+                          </div>
+                          
+                          {hasDetails && (
+                            <div class="text-gray-600 text-sm mt-1">
+                              {location.city}, {location.state}
+                              {location.zip && <span> {location.zip}</span>}
+                            </div>
+                          )}
+                          
+                          {location.description && (
+                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
                           )}
                         </div>
                         
-                        {hasDetails && (
-                          <div class="text-gray-600 text-sm mt-1">
-                            {location.city}, {location.state}
-                            {location.zip && <span> {location.zip}</span>}
+                        {(location.slug || mapUrl) && (
+                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                            {mapUrl && (
+                              <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View map for ${displayName}`}>
+                                <i class="fas fa-map mr-1" style="font-size: 1rem;"></i>
+                                Map
+                              </a>
+                            )}
                           </div>
                         )}
-                        
-                        {location.description && (
-                          <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
+
+                        {location.url && (
+                          <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
+                            <a href={location.url} target="_blank" rel="noopener noreferrer" class="text-sm baselink flex items-center" aria-label={`View website for ${displayName}`}>
+                              <i class="fas fa-link mr-1" style="font-size: 1rem;"></i>
+                              Website
+                            </a>
+                          </div>
                         )}
                       </div>
-                      
-                      {/* Action Links */}
-                      {(location.slug || mapUrl) && (
-                        <div class="bg-gray-50 px-3 py-2 flex gap-3 border-t border-gray-100">
-                          {mapUrl && (
-                            <a href={mapUrl} target="_blank" rel="noopener noreferrer" class="text-xs baselink flex items-center" aria-label={`View map for ${displayName}`}>
-                              <i class="fas fa-map mr-1" style="font-size: 0.75rem;"></i>
-                              Map
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <LabsList labs={member.labs} directusUrl={directusUrl} />
         </div>
-
-        <!--labs affiliation -->
-        <LabsList labs={member.labs} directusUrl={directusUrl} />
-        
-    </div>
-  </div>
-
       </div>
     </div>
   </div>
 </div>
-  
-  
-{/* Information Sections in a 2-column grid */}
+
+{/* Rest of your component remains the same... */}
+{/* Information Sections */}
 <div class="grid md:grid-cols-2 gap-6 mb-8">
-  {/* Other Contact Info Card - Only shown when profiles are available */}
-  {(member.linkedin_url || member.researchgate_url || member.googlescholar_url || (typeof member.biography_file === 'string' && member.biography_file)) && (
+  {((typeof member.biography_file === 'string' && member.biography_file)) && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 flex items-center">
         <i class="fas fa-address-card mr-2 text-blue-800" style="font-size: 1.5rem;"></i>
@@ -223,67 +262,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       </h5>
       
       <div class="space-y-4">
-        {/* Professional Profiles */}
-
-        {member.other_url && (
-          <a href={member.other_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fas fa-home" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-blue-800 font-medium">Website</p>
-            </div>
-          </a>
-        )}
-
-        {member.linkedin_url && (
-          <a href={member.linkedin_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-linkedin" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">LinkedIn</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.researchgate_url && (
-          <a href={member.researchgate_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-researchgate" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">ResearchGate</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.googlescholar_url && (
-          <a href={member.googlescholar_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fas fa-graduation-cap" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Google Scholar</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-        
-        {member.github_url && (
-          <a href={member.github_url} target="_blank" rel="noopener" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition">
-            <div class="mr-3 p-2 bg-blue-100 rounded-full text-blue-600">
-              <i class="fab fa-github" style="font-size: 1.25rem;"></i>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">GitHub</p>
-              <p class="text-blue-800 font-medium">View Profile</p>
-            </div>
-          </a>
-        )}
-
         {typeof member.biography_file === 'string' && member.biography_file && (
           <a 
             href={`${directusUrl}assets/${member.biography_file}`}
@@ -303,7 +281,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     </div>
   )}
 
-  {/* Expertise Card */}
   {member.expertise && (
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
       <h5 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
@@ -317,55 +294,49 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   )}
 </div>
   
-  {/* Biography Section - Full width, below other info */}
-  {member.bio_writeup && (
-    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
-      <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
-        <i class="fas fa-user mr-2" style="font-size: 1.5rem;"></i>
-        Biography
-      </h3>
-      <div class="text-gray-700 prose max-w-none whitespace-pre-line">
-        <div set:html={member.bio_writeup} />
-      </div>
+{member.bio_writeup && (
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8 p-6">
+    <h3 class="text-xl font-bold mb-4 text-blue-800 flex items-center">
+      <i class="fas fa-user mr-2" style="font-size: 1.5rem;"></i>
+      Biography
+    </h3>
+    <div class="text-gray-700 prose max-w-none whitespace-pre-line">
+      <div set:html={member.bio_writeup} />
     </div>
-  )}
-  
-  
-  <!-- Back to Directory Button -->
-  <div class="mb-12 text-center">
-    <a 
-      href="/staff" 
-      class="btn btn-primary btn-md"
-    >
-      <i class="fas fa-arrow-left mr-2" style="font-size: 1.25rem;"></i>
-      Back to Employee Directory
-    </a>
   </div>
+)}
+  
+<div class="mb-12 text-center">
+  <a 
+    href="/staff" 
+    class="btn btn-primary btn-md"
+  >
+    <i class="fas fa-arrow-left mr-2" style="font-size: 1.25rem;"></i>
+    Back to Employee Directory
+  </a>
 </div>
 
 <style>
-  /* Font Awesome icon colors to match new design */
   .fa-star {
-    color: #d97706; /* amber-600 - consistent for all star badges */
+    color: #d97706;
   }
   
   .fa-users {
-    color: #64748b; /* slate-500 - subtle for team badges */
+    color: #64748b;
   }
   
   .fa-envelope, .fa-phone {
-    color: #3b82f6; /* blue-500 */
+    color: #3b82f6;
   }
   
   .fa-building, .fa-map-marker-alt, .fa-address-card, .fa-lightbulb, .fa-user {
-    color: #1e40af; /* blue-800 */
+    color: #1e40af;
   }
   
   .fa-arrow-left {
     color: currentColor;
   }
   
-  /* Social media brand colors */
   .fa-linkedin {
     color: #0077b5;
   }
@@ -379,10 +350,10 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   }
   
   .fa-graduation-cap {
-    color: #4285f4; /* Google Scholar blue */
+    color: #4285f4;
   }
   
   .fa-home, .fa-file-pdf {
-    color: #3b82f6; /* blue-500 */
+    color: #3b82f6;
   }
 </style>

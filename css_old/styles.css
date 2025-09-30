@@ -290,7 +290,7 @@ svg {
     font-weight: 800;
 }
 .section-tile .inter-button {
-    border-radius: 5px;
+    border-radius: 0.5rem;
 }
 .tile .source-sans-3-p {
     color: white;
@@ -378,7 +378,7 @@ svg {
 }
 .section-internships .inter-button, .section-data .inter-button {
     background-color: #58939E;
-    border-radius: 5px;
+    border-radius: 0.5rem;
     color: #fff;
     margin-top: 15px;
     margin-bottom: 15px;
@@ -421,23 +421,6 @@ footer {
     color: #fff;
     padding: 25px;
 }
-/* footer img {
-    padding-bottom: 25px;
-}
-
-.footer-social-container {
-    height: 60px;
-    display: flex;
-    flex-flow: row nowrap;
-    gap: 25px;
-    margin-top: 25px;
-}
-.social {
-    background-color: #586D7F;
-    border-radius: 5px;
-    fill: #fff;
-    padding: 10px; 
-} */
 
 /* media queries */
 /* tablet */
@@ -532,6 +515,7 @@ footer {
         display: none;
     }
     .nav-menu {
+        cursor:pointer;
         background-color: #fff;
         display: flex;
         justify-content: space-between;

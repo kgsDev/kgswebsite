@@ -99,6 +99,7 @@ export async function fetchAllLabs(request = null) {
         'slug',
         'short_description',
         'logo',
+        'use_custom_branding',
         'accent_color',
         'primary_color',
         'background_color',
