@@ -254,7 +254,6 @@ function createHierarchicalBreadcrumbs(page: any) {
 
 const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
 ---
-
 <Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
   <main>
     <h1 class="flex items-center gap-3">
@@ -267,7 +266,7 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
     </h1>
     
     <!-- Main content -->
-    <div set:html={page.content} />
+    <div class="research-content" set:html={page.content} />
 
     <!-- Research Team Section (only for top-level pages with teams) -->
     {!page.parent_page && page.Research_Team && (teamStaff.leaders.length > 0 || teamStaff.coreMembers.length > 0 || teamStaff.regularMembers.length > 0) && (
@@ -428,6 +427,10 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
     <LightboxEnhancer />
   </main>
 </Layout>
+
+<style is:global>
+  @import '../../styles/research-styles.css';
+</style>
 
 <style>
   /* Enhanced styling for team member cards */
