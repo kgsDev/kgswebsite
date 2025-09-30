@@ -1,6 +1,6 @@
 ---
 // src/layouts/DigitalDisplayLayout.astro
-// Simple layout for digital directory display
+// Simple layout for digital directory display with floating QR code
 import '../styles/global.css';
 import SimpleHeader from '../components/digital/SimpleHeader.astro';
 import SimpleFooter from '../components/digital/SimpleFooter.astro';
@@ -42,6 +42,22 @@ const {
       <slot />
     </main>
     
+    <!-- Floating QR Code - Bottom Right -->
+    <div class="floating-qr-code">
+      <div class="qr-content">
+        <img 
+          src="/assets/qr-staff-directory.png" 
+          alt="QR Code - Full Staff Directory"
+          class="qr-image"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+        />
+        <div class="qr-fallback hidden">
+          <img src="/assets/kgs-staffqr.png" alt="KGS staff QR Code to KGS staff directory" class="fallback-image" />
+        </div>
+        <p class="qr-label">Scan for Full Directory</p>
+      </div>
+    </div>
+    
     <!-- Simple Footer -->
     <SimpleFooter />
   </body>
@@ -51,18 +67,122 @@ const {
   /* Digital display optimizations */
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    overflow-x: hidden; /* Prevent horizontal scroll on displays */
+    overflow-x: hidden;
   }
   
   /* Ensure content is always visible */
   main {
-    min-height: calc(100vh - 200px); /* Adjust based on header/footer height */
+    min-height: calc(100vh - 200px);
+  }
+  
+  /* Floating QR Code Styles */
+  .floating-qr-code {
+    position: fixed;
+    bottom: 100px; /* Adjust based on your footer height */
+    right: 2rem;
+    z-index: 1000;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 2px solid #e5e7eb;
+  }
+  
+  .qr-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .qr-image {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  
+  .qr-fallback {
+    width: 180px;
+    height: 180px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+  }
+  
+  .fallback-image {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+  }
+  
+  .qr-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+    margin: 0;
   }
   
   /* Optimize for large displays */
   @media (min-width: 1920px) {
     html {
-      font-size: 18px; /* Larger base font for big displays */
+      font-size: 18px;
+    }
+    
+    .floating-qr-code {
+      bottom: 120px;
+      right: 3rem;
+      padding: 1.5rem;
+    }
+    
+    .qr-image {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .qr-fallback {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .fallback-image {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .qr-label {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Extra large displays */
+  @media (min-width: 2560px) {
+    .floating-qr-code {
+      bottom: 140px;
+      right: 4rem;
+      padding: 2rem;
+    }
+    
+    .qr-image {
+      width: 260px;
+      height: 260px;
+    }
+    
+    .qr-fallback {
+      width: 260px;
+      height: 260px;
+    }
+    
+    .fallback-image {
+      width: 240px;
+      height: 240px;
+    }
+    
+    .qr-label {
+      font-size: 1.125rem;
     }
   }
   
@@ -82,5 +202,9 @@ const {
   .digital-display {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  
+  .hidden {
+    display: none;
   }
 </style>
