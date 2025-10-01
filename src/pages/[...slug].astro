@@ -1,0 +1,99 @@
+---
+// This catches all routes that don't match existing pages
+// and serves the 404 content without changing the URL
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const pageData = {
+  title: 'Page Not Found',
+  description: 'The page you are looking for could not be found.',
+  showBreadcrumb: false,
+};
+
+// Get the attempted URL
+const attemptedUrl = Astro.url.pathname;
+
+// Set 404 status
+Astro.response.status = 404;
+---
+
+<BaseLayout {...pageData}>
+  <div class="max-w-4xl mx-auto text-center py-16">
+    <!-- 404 Icon -->
+    <div class="mb-8">
+      <i class="fa-regular fa-face-frown text-blue-300" style="font-size: 8rem;"></i>
+    </div>
+
+    <!-- Error Message -->
+    <h1 class="text-6xl font-bold text-blue-900 mb-4">404</h1>
+    <h2 class="text-3xl font-semibold text-gray-800 mb-4">Page Not Found</h2>
+    
+    <p class="text-xl text-gray-600 mb-2">
+      Sorry, these aren't the rocks you're looking for.
+    </p>
+    
+    <!-- Show the attempted URL -->
+    <div class="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-8 inline-block max-w-2xl">
+      <p class="text-sm text-gray-500 mb-1">You tried to visit:</p>
+      <code class="text-blue-700 font-mono break-all text-sm">{attemptedUrl}</code>
+    </div>
+
+    <!-- Helpful Links -->
+    <div class="mt-12 space-y-4">
+      <p class="text-gray-700 mb-6 text-xl">Here are some helpful links instead:</p>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <!-- Home -->
+        <a 
+          href="/" 
+          class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500"
+        >
+          <i class="fa-solid fa-house text-blue-600 mb-3" style="font-size: 2.5rem;"></i>
+          <h3 class="font-semibold text-blue-900">Home</h3>
+          <p class="text-sm text-gray-600 mt-1">Return to homepage</p>
+        </a>
+
+        <!-- Staff Directory -->
+        <a 
+          href="/staff" 
+          class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500"
+        >
+          <i class="fa-solid fa-users text-blue-600 mb-3" style="font-size: 2.5rem;"></i>
+          <h3 class="font-semibold text-blue-900">Staff Directory</h3>
+          <p class="text-sm text-gray-600 mt-1">Find our team</p>
+        </a>
+
+        <!-- Research -->
+        <a 
+          href="/research" 
+          class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500"
+        >
+          <i class="fa-solid fa-flask text-blue-600 mb-3" style="font-size: 2.5rem;"></i>
+          <h3 class="font-semibold text-blue-900">Research</h3>
+          <p class="text-sm text-gray-600 mt-1">Explore our work</p>
+        </a>
+
+        <!-- Contact -->
+        <a 
+          href="/contact" 
+          class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500"
+        >
+          <i class="fa-solid fa-envelope text-blue-600 mb-3" style="font-size: 2.5rem;"></i>
+          <h3 class="font-semibold text-blue-900">Contact Us</h3>
+          <p class="text-sm text-gray-600 mt-1">Get in touch</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-12">
+      <button 
+        onclick="history.back()" 
+        class="btn btn-primary btn-lg" style="cursor: pointer;"
+      >
+        <i class="fa-solid fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+</BaseLayout>
