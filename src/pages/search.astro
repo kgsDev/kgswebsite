@@ -1,0 +1,266 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const pageData = {
+  title: 'Search',
+  description: 'Search the Kentucky Geological Survey website',
+  activePage: 'search'
+};
+---
+
+<BaseLayout {...pageData}>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-blue-900 mb-8">Search Our Site</h1>
+    
+    <!-- Search Input -->
+    <div class="mb-8">
+      <div class="relative">
+        <input 
+          id="search-input"
+          type="search" 
+          placeholder="Search for staff, research, labs, locations, and more..." 
+          class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-12"
+        />
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
+      </div>
+    </div>
+
+    <!-- Filter by Category -->
+    <div class="mb-6">
+      <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter by category:</label>
+      <select 
+        id="category-filter" 
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="">All Categories</option>
+        <option value="Staff Directory">Staff</option>
+        <option value="Research">Research</option>
+        <option value="Research Labs">Labs</option>
+        <option value="Locations">Locations</option>
+        <option value="Intern Program">Interns</option>
+        <option value="Organizations">Organizations</option>
+        <option value="Monitoring Networks">Monitoring</option>
+        <option value="Advisory Board">Advisory Board</option>
+      </select>
+    </div>
+
+    <!-- Search Results -->
+    <div id="search-results"></div>
+
+    <!-- Loading State -->
+    <div id="search-loading" class="hidden text-center py-8">
+      <i class="fa-solid fa-spinner fa-spin text-blue-600 text-4xl"></i>
+      <p class="text-gray-600 mt-4">Searching...</p>
+    </div>
+
+    <!-- No Results -->
+    <div id="no-results" class="hidden text-center py-8">
+      <i class="fa-regular fa-face-frown text-gray-300 text-6xl mb-4"></i>
+      <p class="text-xl text-gray-600">No results found</p>
+      <p class="text-gray-500 mt-2">Try different keywords or check your spelling</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  let searchIndex = [];
+  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+  // Load search index
+  async function loadSearchIndex() {
+    try {
+      const response = await fetch('/js/search-index.json');
+      searchIndex = await response.json();
+      console.log(`Loaded ${searchIndex.length} searchable items`);
+    } catch (error) {
+      console.error('Failed to load search index:', error);
+    }
+  }
+
+  // Simple search function
+  function searchContent(query, category = '') {
+    const lowerQuery = query.toLowerCase();
+    return searchIndex.filter(item => {
+      const matchesQuery = 
+        item.content.toLowerCase().includes(lowerQuery) ||
+        item.title.toLowerCase().includes(lowerQuery);
+      
+      const matchesCategory = !category || item.category === category;
+      
+      return matchesQuery && matchesCategory;
+    });
+  }
+
+  // Get icon for content type
+  function getIcon(type) {
+    const icons = {
+      staff: 'fa-user',
+      research: 'fa-flask',
+      lab: 'fa-microscope',
+      location: 'fa-location-dot',
+      organization: 'fa-building',
+      monitoring: 'fa-chart-line',
+      board: 'fa-users',
+      faq: 'fa-circle-question',
+      intern_project: 'fa-graduation-cap',
+      intern_year: 'fa-calendar',
+      page: 'fa-file-lines'
+    };
+    return icons[type] || 'fa-file';
+  }
+
+  // Initialize search
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadSearchIndex();
+
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const searchResults = document.getElementById('search-results');
+    const searchLoading = document.getElementById('search-loading');
+    const noResults = document.getElementById('no-results');
+
+    // Get query from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    
+    if (query) {
+      searchInput.value = query;
+      performSearch(query);
+    }
+
+    // Search on input
+    let debounceTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      const query = e.target.value.trim();
+      
+      if (query.length < 2) {
+        searchResults.innerHTML = '';
+        noResults.classList.add('hidden');
+        return;
+      }
+
+      // Update URL
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('q', query);
+      window.history.pushState({}, '', newUrl);
+
+      debounceTimer = setTimeout(() => {
+        performSearch(query, categoryFilter.value);
+      }, 300);
+    });
+
+    // Filter by category
+    categoryFilter.addEventListener('change', () => {
+      const query = searchInput.value.trim();
+      if (query.length >= 2) {
+        performSearch(query, categoryFilter.value);
+      }
+    });
+
+    function performSearch(query, category = '') {
+      searchLoading.classList.remove('hidden');
+      searchResults.innerHTML = '';
+      noResults.classList.add('hidden');
+
+      setTimeout(() => {
+        const results = searchContent(query, category);
+        searchLoading.classList.add('hidden');
+
+        if (results.length === 0) {
+          noResults.classList.remove('hidden');
+          return;
+        }
+
+        // Group by category
+        const grouped = results.reduce((acc, result) => {
+          const cat = result.category || 'Other';
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push(result);
+          return acc;
+        }, {});
+
+        // Display results grouped by category
+        const resultsHTML = Object.entries(grouped).map(([category, items]) => {
+          const itemsHTML = items.map(result => {
+            const excerpt = createExcerpt(result.content, query, 150);
+            
+            return `
+              <a href="${result.url}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500 mb-4">
+                <div class="flex items-start">
+                  ${result.image ? `
+                    <img 
+                      src="${directusUrl}/assets/${result.image}?width=80&height=80&fit=cover" 
+                      alt="${result.title}"
+                      class="w-20 h-20 rounded-lg object-cover mr-4"
+                    />
+                  ` : `
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <i class="fa-solid ${getIcon(result.type)} text-blue-600 text-2xl"></i>
+                    </div>
+                  `}
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${result.category}</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-blue-900 mb-1">${highlightText(result.title, query)}</h3>
+                    ${result.subtitle ? `<p class="text-sm text-gray-500 mb-2">${result.subtitle}</p>` : ''}
+                    ${result.address ? `<p class="text-sm text-gray-500 mb-2"><i class="fa-solid fa-location-dot mr-1"></i>${result.address}</p>` : ''}
+                    <p class="text-gray-600 mb-2">${excerpt}</p>
+                    <span class="text-sm text-blue-600 hover:underline">
+                      <i class="fa-solid fa-arrow-right mr-1"></i>
+                      View details
+                    </span>
+                  </div>
+                </div>
+              </a>
+            `;
+          }).join('');
+
+          return `
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-blue-500 pb-2">
+                ${category} (${items.length})
+              </h2>
+              ${itemsHTML}
+            </div>
+          `;
+        }).join('');
+
+        searchResults.innerHTML = `
+          <div class="mb-4 text-gray-600">
+            Found ${results.length} result${results.length !== 1 ? 's' : ''}
+          </div>
+          ${resultsHTML}
+        `;
+      }, 100);
+    }
+
+    function createExcerpt(text, query, length) {
+      // Strip HTML tags
+      const textOnly = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      
+      const lowerText = textOnly.toLowerCase();
+      const lowerQuery = query.toLowerCase();
+      const index = lowerText.indexOf(lowerQuery);
+      
+      if (index === -1) {
+        return textOnly.substring(0, length) + '...';
+      }
+      
+      const start = Math.max(0, index - 50);
+      const end = Math.min(textOnly.length, index + query.length + 100);
+      
+      let excerpt = textOnly.substring(start, end);
+      if (start > 0) excerpt = '...' + excerpt;
+      if (end < textOnly.length) excerpt = excerpt + '...';
+      
+      return highlightText(excerpt, query);
+    }
+
+    function highlightText(text, query) {
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+    }
+  });
+</script>

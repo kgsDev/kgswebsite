@@ -25,11 +25,11 @@ export interface Props {
   canonicalUrl?: string;
 }
 
-// ✅ DEFAULT SEO VALUES
+// DEFAULT SEO VALUES
 const DEFAULT_SITE_NAME = 'Kentucky Geological Survey';
 const DEFAULT_DESCRIPTION = 'The Kentucky Geological Survey conducts research and provides services related to the mineral, energy, and water resources of Kentucky, and investigates geologic hazards affecting the Commonwealth.';
 
-// ✅ Use your Directus asset with optimal sizing for social media
+//Use your Directus asset with optimal sizing for social media
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://kygs.uky.edu/directus';
 const DEFAULT_IMAGE = `${DIRECTUS_URL}/assets/cdb9b4f8-0575-4bae-a2e9-203c63a0a4d7?quality=90`;
 
@@ -201,12 +201,14 @@ const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(currentUrl, title);
     )}
     
     <!-- Main Content -->
-    <main class="container mx-auto my-8 px-4 flex-grow">
+    <main class="container mx-auto my-8 px-4 flex-grow" data-pagefind-body>
       <slot />
     </main>
     
     <!-- Footer -->
-    <Footer />
+     <div data-pagefind-ignore>
+      <Footer />
+    </div>
     
     <!-- Back to Top Button -->
     <BackToTop />
