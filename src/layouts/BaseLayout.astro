@@ -14,27 +14,59 @@ export interface Props {
   activePage?: string;
   showBreadcrumb?: boolean;
   bodyBackgroundColor?: string;
-  customBreadcrumbs?: Array<{label: string, href?: string}>; // Optional custom breadcrumbs
+  customBreadcrumbs?: Array<{label: string, href?: string}>;
+  image?: string;
+  imageAlt?: string;
+  type?: string;
+  publishedDate?: string;
+  modifiedDate?: string;
+  authors?: string[];
+  keywords?: string[];
+  canonicalUrl?: string;
 }
 
+// ✅ DEFAULT SEO VALUES
+const DEFAULT_SITE_NAME = 'Kentucky Geological Survey';
+const DEFAULT_DESCRIPTION = 'The Kentucky Geological Survey conducts research and provides services related to the mineral, energy, and water resources of Kentucky, and investigates geologic hazards affecting the Commonwealth.';
+
+// ✅ Use your Directus asset with optimal sizing for social media
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://kygs.uky.edu/directus';
+const DEFAULT_IMAGE = `${DIRECTUS_URL}/assets/cdb9b4f8-0575-4bae-a2e9-203c63a0a4d7?quality=90`;
+
+const DEFAULT_IMAGE_ALT = 'Kentucky Geological Survey at the University of Kentucky';
+const DEFAULT_KEYWORDS = [
+  'Kentucky Geological Survey',
+  'KGS',
+  'University of Kentucky',
+  'geology',
+  'geological research',
+  'mineral resources',
+  'energy resources',
+  'water resources',
+  'Kentucky geology'
+];
+
 const { 
-  title = 'Kentucky Geological Survey',
-  description = 'Kentucky Geological Survey at the University of Kentucky',
+  title = DEFAULT_SITE_NAME,
+  description = DEFAULT_DESCRIPTION,
   activePage = '',
   showBreadcrumb = true,
-  bodyBackgroundColor = '#f9fafb', // Default background color
+  bodyBackgroundColor = '#f9fafb',
   customBreadcrumbs,
-  image,
-  imageAlt,
+  image = DEFAULT_IMAGE,
+  imageAlt = DEFAULT_IMAGE_ALT,
   type = "website",
   publishedDate,
   modifiedDate,
   authors,
-  keywords,
-  canonicalUrl
+  keywords = DEFAULT_KEYWORDS,
+  canonicalUrl = Astro.url.href // ✅ Auto-generate from current URL
 } = Astro.props;
 
-//✅ For the staging banner
+// ✅ Create a full title with site name (unless it's the homepage)
+const fullTitle = title === DEFAULT_SITE_NAME ? title : `${title} - ${DEFAULT_SITE_NAME}`;
+
+// ✅ For the staging banner
 const isStaging = import.meta.env.PUBLIC_ENV === 'staging';
 
 // Generate breadcrumbs automatically from URL
@@ -72,7 +104,7 @@ function generateBreadcrumbs(url: URL, pageTitle: string) {
         label = segmentMap[segment];
       } else {
         // For dynamic routes (like staff/john-doe), use the page title
-        label = pageTitle !== 'Kentucky Geological Survey' ? pageTitle : formatSegment(segment);
+        label = pageTitle !== DEFAULT_SITE_NAME ? pageTitle : formatSegment(segment);
       }
     } else {
       // For intermediate segments, use mapped name or format the segment
@@ -107,7 +139,7 @@ const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(currentUrl, title);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <title>{title} - Kentucky Geological Survey</title>
+    <title>{fullTitle}</title>
     <!-- Import Inter and Source Sans Pro fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,7 +157,7 @@ const breadcrumbs = customBreadcrumbs || generateBreadcrumbs(currentUrl, title);
 
     <!-- Include the SEO component with the provided props -->
     <SEOHead
-      title={title}
+      title={fullTitle}
       description={description}
       image={image}
       imageAlt={imageAlt}

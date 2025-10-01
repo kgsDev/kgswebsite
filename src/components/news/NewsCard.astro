@@ -151,12 +151,12 @@ const displayImage = article.tile_image || article.main_image;
       {/* For events, show event date range */}
       {article.category === "event" && (article.event_date || article.event_end) ? (
         <div class="text-gray-600 text-md flex items-center">
-          <i class="fas fa-regular fa-calendar mr-1"></i>
+          <i class="fas fa-regular fa-calendar mr-1" style="margin-right: 0.25rem;"></i>
           <span>{formatDateRange(article.event_date, article.event_end)}</span>
         </div>
       ) : (
         <div class="text-gray-600 text-md flex items-center">
-          <i class="fas fa-regular fa-calendar mr-1"></i>
+          <i class="fas fa-regular fa-calendar mr-1" style="margin-right: 0.25rem;"></i>
           <time datetime={article.publication_date}>{formatDate(article.publication_date)}</time>
         </div>
       )}
