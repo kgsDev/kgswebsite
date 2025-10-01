@@ -13,21 +13,42 @@ import BackToTop from '../components/common/BackToTop.astro';
 
 const currentYear = new Date().getFullYear();
 
+// DEFAULT SEO VALUES
+const DEFAULT_SITE_NAME = 'Kentucky Geological Survey';
+const DEFAULT_DESCRIPTION = 'The Kentucky Geological Survey conducts research and provides services related to the mineral, energy, and water resources of Kentucky, and investigates geologic hazards affecting the Commonwealth.';
+
+//Use your Directus asset with optimal sizing for social media
+const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL || 'https://kygs.uky.edu/directus';
+const DEFAULT_IMAGE = `${DIRECTUS_URL}/assets/cdb9b4f8-0575-4bae-a2e9-203c63a0a4d7?quality=90`;
+
+const DEFAULT_IMAGE_ALT = 'Kentucky Geological Survey at the University of Kentucky';
+const DEFAULT_KEYWORDS = [
+  'Kentucky Geological Survey',
+  'KGS',
+  'University of Kentucky',
+  'geology',
+  'geological research',
+  'mineral resources',
+  'energy resources',
+  'water resources',
+  'Kentucky geology'
+];
+
 const { 
-  title = 'Kentucky Geological Survey',
-  description = 'Kentucky Geological Survey at the University of Kentucky',
+  title = DEFAULT_SITE_NAME,
+  description = DEFAULT_DESCRIPTION,
   activePage = '',
   showBreadcrumb = true,
-  bodyBackgroundColor = '#f9fafb', // Default background color
+  bodyBackgroundColor = '#f9fafb',
   customBreadcrumbs,
-  image,
-  imageAlt,
+  image = DEFAULT_IMAGE,
+  imageAlt = DEFAULT_IMAGE_ALT,
   type = "website",
   publishedDate,
   modifiedDate,
   authors,
-  keywords,
-  canonicalUrl
+  keywords = DEFAULT_KEYWORDS,
+  canonicalUrl = Astro.url.href // ✅ Auto-generate from current URL
 } = Astro.props;
 
 ---
