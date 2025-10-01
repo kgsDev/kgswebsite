@@ -6,8 +6,8 @@ import { fetchRecentNews } from '../../lib/api_news';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Fetch recent news - show more items for the large display
-const { articles } = await fetchRecentNews(12, 1);
+// Fetch top 8 recent news items for full display
+const { articles } = await fetchRecentNews(6, 1);
 
 // Format date for display
 const formatDate = (dateString) => {
@@ -15,7 +15,7 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'short',
+    month: 'long',
     day: 'numeric'
   });
 };
@@ -25,7 +25,7 @@ const formatDateRange = (startDate, endDate) => {
   if (!startDate) return '';
   
   const start = new Date(startDate);
-  const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
+  const startMonth = start.toLocaleDateString('en-US', { month: 'long' });
   const startDay = start.getDate();
   const startYear = start.getFullYear();
   
@@ -35,7 +35,7 @@ const formatDateRange = (startDate, endDate) => {
   }
   
   const end = new Date(endDate);
-  const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
+  const endMonth = end.toLocaleDateString('en-US', { month: 'long' });
   const endDay = end.getDate();
   const endYear = end.getFullYear();
   
@@ -75,7 +75,7 @@ const getCategoryInfo = (article) => {
     };
   } else if (article.category === "event") {
     return {
-      label: isEventPast(article.event_end) ? "Past Event" : "Event",
+      label: isEventPast(article.event_end) ? "Past Event" : "Upcoming Event",
       color: isEventPast(article.event_end) ? "bg-gray-100 text-gray-700" : "bg-purple-100 text-purple-800",
       icon: "fa-calendar"
     };
@@ -91,22 +91,19 @@ const getCategoryInfo = (article) => {
 
 <DigitalDisplayLayout 
   title="Digital News Display"
+  headerTitle="Latest News & Announcements"
   description="Kentucky Geological Survey recent news and announcements."
-  noticeStyle="both">
+  noticeStyle="both"
+  qrCodeUrl="/assets/qr-news.png"
+  qrCodeLabel="Scan for Full<br>News Articles"
+  bannerText="" // No banner text for news display
+  watermarkText="NEWS DISPLAY"
+  watermarkSubtext="Scan QR Code for Full Articles">
 
-  <div class="digital-news-display" style="font-size: 0.7rem; line-height: 1.2;">
+  <div class="digital-news-display">
     
-    <div class="mb-3">
-      <h2 class="text-lg font-bold text-blue-800 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-        </svg>
-        Recent News & Announcements
-      </h2>
-    </div>
-
-    <div class="grid grid-cols-4 gap-3">
-      {articles.map((article) => {
+    <div class="grid grid-cols-2 gap-10" style="margin-top: 8rem;">
+      {articles.map((article, index) => {
         const displayImage = article.tile_image || article.main_image;
         const categoryInfo = getCategoryInfo(article);
         const displayDate = article.category === "event" && article.event_date 
@@ -114,82 +111,91 @@ const getCategoryInfo = (article) => {
           : formatDate(article.publication_date);
         
         return (
-          <div class="news-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-            {/* Image Section */}
-            <div class="news-image-container">
-              {displayImage ? (
-                <img 
-                  src={`${directusUrl}assets/${displayImage}?width=500&height=280&quality=80&fit=cover`} 
-                  alt={article.title}
-                  class="news-image"
-                />
-              ) : (
-                <div class="news-image-placeholder">
-                  <i class="fas fa-image text-2xl text-gray-400"></i>
+          <div class="news-card-full bg-white border-2 border-gray-200 rounded-lg overflow-hidden shadow-md">
+            <div class="flex flex-col h-full">
+              {/* Image Section - Top */}
+              <div class="news-image-container-full flex-shrink-0">
+                {displayImage ? (
+                  <img 
+                    src={`${directusUrl}assets/${displayImage}?width=800&height=533&quality=85&fit=cover`} 
+                    alt={article.title}
+                    class="news-image-full"
+                  />
+                ) : (
+                  <div class="news-image-placeholder-full">
+                    <i class="fas fa-image text-5xl text-gray-400"></i>
+                  </div>
+                )}
+                
+                {/* Category Badge Overlay */}
+                <div class="absolute top-3 left-3">
+                  <span class={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg ${categoryInfo.color}`}>
+                    <i class={`fas ${categoryInfo.icon} mr-2`}></i>
+                    {categoryInfo.label}
+                  </span>
                 </div>
-              )}
-              
-              {/* Category Badge Overlay */}
-              <div class="absolute top-1 left-1">
-                <span class={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${categoryInfo.color}`}>
-                  <i class={`fas ${categoryInfo.icon} mr-1`} style="font-size: 0.6rem;"></i>
-                  {categoryInfo.label}
-                </span>
+                
+                {/* Past Event Badge */}
+                {article.category === "event" && isEventPast(article.event_end) && (
+                  <div class="absolute top-3 right-3 bg-gray-700 text-white text-sm font-bold px-3 py-1.5 rounded-md shadow-lg">
+                    PAST
+                  </div>
+                )}
+                
               </div>
               
-              {/* Past Event Badge */}
-              {article.category === "event" && isEventPast(article.event_end) && (
-                <div class="absolute top-1 right-1 bg-gray-700 text-white text-xs font-bold px-1.5 py-0.5 rounded">
-                  PAST
+              {/* Content Section - Bottom */}
+              <div class="p-5 flex flex-col flex-grow">
+                {/* Date */}
+                <div class="mb-3 flex items-center text-gray-600 text-base">
+                  <i class="fas fa-calendar mr-2 text-blue-500"></i>
+                  <span class="font-medium">{displayDate}</span>
                 </div>
-              )}
-            </div>
-            
-            {/* Content Section */}
-            <div class="p-3">
-              {/* Date */}
-              <div class="mb-1.5 flex items-center text-gray-600 text-xs">
-                <i class="fas fa-calendar mr-1" style="font-size: 0.6rem;"></i>
-                <span>{displayDate}</span>
+                
+                {/* Title */}
+                <h3 class="font-bold text-blue-900 text-lg mb-3 leading-tight">
+                  {article.title}
+                </h3>
+                
+                {/* Excerpt - Full text, no truncation */}
+                {article.excerpt && (
+                  <p class="text-gray-700 text-base leading-relaxed mb-4 flex-grow">
+                    {article.excerpt}
+                  </p>
+                )}
+                
+                {/* Additional Details Section */}
+                <div class="mt-auto space-y-3">
+                  {/* Event Location for Events */}
+                  {article.category === "event" && article.event_location && (
+                    <div class="flex items-start text-sm text-gray-600 bg-purple-50 p-3 rounded-md">
+                      <i class="fas fa-map-marker-alt mr-2 mt-0.5 flex-shrink-0 text-purple-600"></i>
+                      <span>{article.event_location}</span>
+                    </div>
+                  )}
+                  
+                  {/* Event Time for Events */}
+                  {article.category === "event" && article.event_time && (
+                    <div class="flex items-center text-sm text-gray-600 bg-purple-50 p-3 rounded-md">
+                      <i class="fas fa-clock mr-2 text-purple-600"></i>
+                      <span>{article.event_time}</span>
+                    </div>
+                  )}
+                  
+                  {/* Tags */}
+                  {article.tags && article.tags.length > 0 && (
+                    <div class="pt-3 border-t border-gray-200">
+                      <div class="flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                          <span class="inline-block px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-700 font-medium">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              {/* Title */}
-              <h3 class="font-bold text-blue-900 text-sm mb-2 leading-tight line-clamp-3">
-                {article.title}
-              </h3>
-              
-              {/* Excerpt */}
-              {article.excerpt && (
-                <p class="text-gray-700 text-xs leading-snug line-clamp-4 mb-2">
-                  {article.excerpt}
-                </p>
-              )}
-              
-              {/* Event Location for Events */}
-              {article.category === "event" && article.event_location && (
-                <div class="mt-2 pt-2 border-t border-gray-100">
-                  <div class="flex items-start text-xs text-gray-600">
-                    <i class="fas fa-map-marker-alt mr-1 mt-0.5 flex-shrink-0" style="font-size: 0.6rem;"></i>
-                    <span class="line-clamp-2">{article.event_location}</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Tags if available */}
-              {article.tags && article.tags.length > 0 && (
-                <div class="mt-2 pt-2 border-t border-gray-100">
-                  <div class="flex flex-wrap gap-1">
-                    {article.tags.slice(0, 3).map((tag) => (
-                      <span class="inline-block px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
-                        #{tag}
-                      </span>
-                    ))}
-                    {article.tags.length > 3 && (
-                      <span class="text-xs text-gray-500">+{article.tags.length - 3}</span>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -197,9 +203,9 @@ const getCategoryInfo = (article) => {
     </div>
     
     {articles.length === 0 && (
-      <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
-        <i class="fas fa-newspaper text-4xl text-gray-300 mb-3"></i>
-        <p class="text-gray-500 text-sm">No recent news articles available</p>
+      <div class="text-center py-20 bg-white rounded-lg border-2 border-gray-200">
+        <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
+        <p class="text-gray-500 text-lg">No recent news articles available</p>
       </div>
     )}
   </div>
@@ -209,32 +215,33 @@ const getCategoryInfo = (article) => {
 
 <style>
   .digital-news-display {
-    max-width: none;
-    padding: 0.75rem 1.5rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.5rem 4rem;
   }
   
-  .news-card {
+  .news-card-full {
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
   
-  .news-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  .news-card-full:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
   
-  /* 16:9 aspect ratio for news images */
-  .news-image-container {
+  /* 3:2 aspect ratio for images */
+  .news-image-container-full {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 66.67%; /* 3:2 aspect ratio */
     overflow: hidden;
     background: #f3f4f6;
   }
   
-  .news-image {
+  .news-image-full {
     position: absolute;
     top: 0;
     left: 0;
@@ -243,7 +250,7 @@ const getCategoryInfo = (article) => {
     object-fit: cover;
   }
   
-  .news-image-placeholder {
+  .news-image-placeholder-full {
     position: absolute;
     top: 0;
     left: 0;
@@ -253,26 +260,5 @@ const getCategoryInfo = (article) => {
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-  }
-  
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .line-clamp-4 {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 </style>

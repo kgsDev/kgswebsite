@@ -1,6 +1,7 @@
 ---
 // src/components/digital/SimpleHeader.astro
 // Compact header for digital display with centered title
+const { title = "KGS Staff and Affiliates Directory" } = Astro.props;
 ---
 
 <header class="digital-header">
@@ -15,7 +16,7 @@
       </a>
       
       <div class="title-wrapper">
-        <h1 class="page-title">KGS Staff and Affiliates Directory</h1>
+        <h1 class="page-title">{title}</h1>
       </div>
       
       <!-- Spacer to balance the layout -->
