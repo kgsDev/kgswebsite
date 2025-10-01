@@ -26,9 +26,7 @@ const formatDate = (dateString) => {
       {viewAllLink && (
         <a href="/news" class="text-blue-600 hover:underline flex items-center text-sm">
           View All
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          <i class="fas fa-arrow-right ml-1"></i>
         </a>
       )}
     </div>
@@ -49,9 +47,7 @@ const formatDate = (dateString) => {
               />
             ) : (
               <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <i class="fas fa-image text-gray-400"></i>
               </div>
             )}
           </div>
@@ -63,9 +59,7 @@ const formatDate = (dateString) => {
             </h3>
             
             <div class="text-xs text-gray-500 flex items-center mb-1">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.75rem; height: 0.75rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <i class="fas fa-regular fa-calendar mr-1"></i>
               {formatDate(article.published_date)}
             </div>
             
@@ -78,9 +72,7 @@ const formatDate = (dateString) => {
           
           <!-- Arrow indicator -->
           <div class="flex items-center text-blue-600">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
+            <i class="fas fa-chevron-right ml-1"></i>
           </div>
         </a>
       ))}
