@@ -72,7 +72,6 @@ header .logo {
     border-top: none;
 }
 .nav-menu a {
-    color: #000;
     display: block;
     padding: 0.75em;
     text-decoration: none;
@@ -128,6 +127,23 @@ header .logo {
     border-bottom: none;
 }
 
+/* Search Link Base Styles */
+.nav-search-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75em;
+    color: #886D52;
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-search-link i {
+    font-size: 1.1em;
+}
+
 /* Mobile and Tablet hover effects (below 740px) - Match desktop style */
 @media (max-width: 739px) {
     /* Main menu background to white like desktop */
@@ -140,7 +156,7 @@ header .logo {
         color: #886D52;
         transition: color 0.2s ease, background-color 0.2s ease;
     }
-    
+
     /* Hover for devices with mouse/trackpad */
     .nav-menu details summary:hover {
         color: #224560;
@@ -193,6 +209,25 @@ header .logo {
     .nav-menu a,
     .nav-menu summary {
         -webkit-tap-highlight-color: transparent;
+    }
+
+    /* UPDATED: Search link styling to match other menu items */
+    .nav-search-link {
+        border-top: 0.5px solid #253657;
+        color: #886D52; /* Match the summary items */
+        opacity: 0.85; /* Add slight transparency for faded look */
+        transition: color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+    }
+    
+    .nav-search-link:hover {
+        color: #224560;
+        opacity: 1;
+    }
+    
+    .nav-search-link:active {
+        color: #224560;
+        background-color: rgba(123, 123, 123, 0.09);
+        opacity: 1;
     }
 }
 
@@ -303,6 +338,17 @@ header .logo {
     
     .global-nav ul li:hover {
         background-color: rgba(123, 123, 123, 0.09);
+    }
+
+    .nav-search-link {
+        border-bottom: 3px solid #FFFFFF;
+        padding: 0.5em 0.75em;
+        white-space: nowrap;
+    }
+    
+    .nav-search-link:hover {
+        color: #224560;
+        border-bottom: 3px solid #224560;
     }
 }
 
@@ -457,6 +503,17 @@ header .logo {
     
     .global-nav ul li:hover {
         background-color: rgba(123, 123, 123, 0.09);
+    }
+
+    .nav-search-link {
+        border-bottom: 13px solid #FFFFFF;
+        padding: 0.5em 0.75em;
+        white-space: nowrap;
+    }
+    
+    .nav-search-link:hover {
+        color: #224560;
+        border-bottom: 13px solid #224560;
     }
 }
 
