@@ -38,6 +38,7 @@ const pageData = {
         <option value="Research Labs">Labs</option>
         <option value="Locations">Locations</option>
         <option value="Intern Program">Interns</option>
+        <option value="News">News</option>
         <option value="Organizations">Organizations</option>
         <option value="Monitoring Networks">Monitoring</option>
         <option value="Advisory Board">Advisory Board</option>
@@ -59,24 +60,229 @@ const pageData = {
       <p class="text-xl text-gray-600">No results found</p>
       <p class="text-gray-500 mt-2">Try different keywords or check your spelling</p>
     </div>
+
+    <!-- Other Search Services Section -->
+    <div id="other-services" class="mt-16 mb-8">
+      <div class="border-t-2 border-gray-200 pt-8">
+        <h2 class="text-3xl font-bold text-blue-900 mb-4">Specialized Search Services</h2>
+        <p class="text-gray-600 mb-6">Looking for specific data, maps, or publications? Try our specialized search tools:</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <!-- Maps & Geospatial Data -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i>
+              Maps & Geospatial Data
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/geomap" class="text-blue-600 hover:underline flex items-center">
+
+                  Geologic Map Service
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/" class="text-blue-600 hover:underline flex items-center">
+
+                  KyGeode - Portal to KGS Maps and Data
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/storymap/" class="text-blue-600 hover:underline flex items-center">
+
+                  Geologic Story Maps & Tours
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Publications & Collections -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-book text-green-600 mr-2"></i>
+              Publications & Collections
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/services/pubs/" class="text-blue-600 hover:underline flex items-center">
+
+                  Publications Catalog
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kgsweb/newgeology/image_search.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Photos & Images
+                </a>
+              </li>
+              <li>
+                <a href="https://www.uky.edu/KGS/education/factsheet.php" class="text-blue-600 hover:underline flex items-center">
+
+                  KGS Fact Sheets
+                </a>
+              </li>
+              <li>
+                <a href="https://www.uky.edu/KGS/aboutKGS/annual-report-list.php" class="text-blue-600 hover:underline flex items-center">
+
+                  KGS Annual Reports
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Water Resources -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-cyan-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-droplet text-cyan-600 mr-2"></i>
+              Water Resources
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/kgsweb/DataSearching/watersearch.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Groundwater Data
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kgsmap/KGSWater/viewer.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Water Wells & Springs Map
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Energy & Mineral Resources -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-amber-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-gem text-amber-600 mr-2"></i>
+              Energy & Mineral Resources
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/services/oilgas/" class="text-blue-600 hover:underline flex items-center">
+
+                  Oil & Gas Data
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kgsweb/DataSearching/coalsearch.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Coal Data
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kgsmap/kcrim/" class="text-blue-600 hover:underline flex items-center">
+
+                  Coal Resource Information Map
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kylimestone/" class="text-blue-600 hover:underline flex items-center">
+
+                  Limestone Resources Map
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/KYMineral/" class="text-blue-600 hover:underline flex items-center">
+
+                  Mineral Resources Map
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Physical Collections -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-box-archive text-purple-600 mr-2"></i>
+              Physical Collections
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/services/cslib/" class="text-blue-600 hover:underline flex items-center">
+
+                  Rock Core Inventory & Photos
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/services/thins/" class="text-blue-600 hover:underline flex items-center">
+
+                  Thin Section Inventory
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kygeode/earl/" class="text-blue-600 hover:underline flex items-center">
+
+                  Rock Core and Sample Holdings Map
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Geotechnical & Seismic Data -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-600">
+            <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
+              <i class="fa-solid fa-chart-line text-red-600 mr-2"></i>
+              Geotechnical & Seismic Data
+            </h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="https://kgs.uky.edu/kgsmap/kytcLinks.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Geotechnical Data
+                </a>
+              </li>
+              <li>
+                <a href="https://www.uky.edu/KGS/earthquake" class="text-blue-600 hover:underline flex items-center">
+
+                  Seismic Recordings
+                </a>
+              </li>
+              <li>
+                <a href="https://kgs.uky.edu/kgsweb/CoordConversionTool.asp" class="text-blue-600 hover:underline flex items-center">
+
+                  Coordinate Conversion Tools
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
+          <p class="text-sm text-gray-700">
+            <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i>
+            <strong>Need help?</strong> Can't find what you're looking for? 
+            <a href="/contact" class="text-blue-600 hover:underline">Contact us</a> for assistance with your search.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
 <script>
   let searchIndex = [];
   const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
-
+  
   // Load search index
   async function loadSearchIndex() {
     try {
-      const response = await fetch('/js/search-index.json');
+      // Version updates every hour: YYYYMMDDHH
+      const now = new Date();
+      const version = now.getFullYear() + 
+                    String(now.getMonth() + 1).padStart(2, '0') + 
+                    String(now.getDate()).padStart(2, '0') +
+                    String(now.getHours()).padStart(2, '0');
+      
+      const response = await fetch(`/js/search-index.json?v=${version}`);
       searchIndex = await response.json();
-      console.log(`Loaded ${searchIndex.length} searchable items`);
     } catch (error) {
       console.error('Failed to load search index:', error);
     }
   }
-
+  
   // Simple search function
   function searchContent(query, category = '') {
     const lowerQuery = query.toLowerCase();
@@ -100,6 +306,7 @@ const pageData = {
       location: 'fa-location-dot',
       organization: 'fa-building',
       monitoring: 'fa-chart-line',
+      news: 'fa-newspaper',
       board: 'fa-users',
       faq: 'fa-circle-question',
       intern_project: 'fa-graduation-cap',
@@ -118,6 +325,7 @@ const pageData = {
     const searchResults = document.getElementById('search-results');
     const searchLoading = document.getElementById('search-loading');
     const noResults = document.getElementById('no-results');
+    const otherServicesSection = document.getElementById('other-services'); 
 
     // Get query from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -137,8 +345,12 @@ const pageData = {
       if (query.length < 2) {
         searchResults.innerHTML = '';
         noResults.classList.add('hidden');
+        otherServicesSection.classList.remove('hidden');
         return;
       }
+
+      // Hide services when searching
+      otherServicesSection.classList.add('hidden');
 
       // Update URL
       const newUrl = new URL(window.location);
@@ -236,6 +448,8 @@ const pageData = {
       }, 100);
     }
 
+
+    
     function createExcerpt(text, query, length) {
       // Strip HTML tags
       const textOnly = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
