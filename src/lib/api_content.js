@@ -110,14 +110,14 @@ export async function fetchInternFAQs() {
 
 // ===== INTERN FINAL PROJECT DETAILS =====
 export async function fetchInternFinalProjects() {
-  return await apiRequest('/items/intern_final_project_details', {
+  return await apiRequest('/items/intern_final_projects_details', {
     fields: ['*'],
     sort: '-project_year'
   });
 }
 
 export async function fetchInternFinalProjectByYear(year) {
-  const projects = await apiRequest('/items/intern_final_project_details', {
+  const projects = await apiRequest('/items/intern_final_projects_details', {
     fields: ['*'],
     filter: JSON.stringify({ project_year: { _eq: year } }),
     limit: 1
@@ -158,4 +158,24 @@ export async function fetchLabBySlug(slug) {
     limit: 1
   });
   return labs[0] || null;
+}
+
+//News
+export async function fetchAllNews() {
+  return await apiRequest('/items/articles', {
+    fields: ['*'],
+    filter: JSON.stringify({
+      status: { _eq: 'published' }  // Only fetch published articles
+    }),
+    sort: '-publication_date'
+  });
+}
+
+export async function fetchNewsBySlug(slug) {
+  const news = await apiRequest('/items/articles', {
+    fields: ['*'],
+    filter: JSON.stringify({ slug: { _eq: slug } }),
+    limit: 1
+  });
+  return news[0] || null;
 }

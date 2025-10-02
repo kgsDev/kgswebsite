@@ -10,7 +10,9 @@ import {
   fetchInternFAQs,
   fetchInternFinalProjects,
   fetchAllInternProjects,
-  fetchAllLabs
+  fetchAllLabs,
+  fetchAllNews,
+  fetchNewsBySlug
 } from '../../lib/api_content';
 
 export async function GET() {
@@ -20,7 +22,7 @@ export async function GET() {
   try {
     const staffByDepartment = await fetchStaffByDepartment();
     const allStaff = Object.values(staffByDepartment).flat();
-    
+
     allStaff.forEach(member => {
       searchIndex.push({
         title: `${member.first_name} ${member.last_name}`,
@@ -51,7 +53,7 @@ export async function GET() {
     pages.forEach(page => {
       searchIndex.push({
         title: page.title,
-        url: page.url || `/pages/${page.slug}`, // adjust URL structure as needed
+        url: page.url || `/${page.slug}`, // adjust URL structure as needed
         content: [
           page.title,
           page.content || ''
@@ -255,10 +257,56 @@ export async function GET() {
     console.error('Error indexing intern final projects:', error);
   }
 
+  // ===== NEWS =====
+  try {
+    const news = await fetchAllNews();
+    
+    news.forEach(article => {
+      // Create searchable text from multiple sources
+      const searchableText = [
+        article.title || '',
+        article.excerpt || '',
+        // Strip HTML and decode entities from content
+        (article.content || '')
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#039;/g, "'")
+          .replace(/\s+/g, ' ')
+          .trim(),
+        article.category || ''
+      ].filter(Boolean).join(' ');
+      
+      searchIndex.push({
+        title: article.title,
+        url: `/news/${article.slug}`,
+        content: searchableText,
+        type: 'news',
+        category: 'News',
+        subtitle: article.publication_date 
+          ? `Published: ${new Date(article.publication_date).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}`
+          : null,
+        image: article.tile_image || article.main_image || null,
+        // Add these for better filtering if needed
+        publicationDate: article.publication_date,
+        articleCategory: article.category
+      });
+    });
+  } catch (error) {
+    console.error('Error indexing news:', error);
+  }
+
   return new Response(JSON.stringify(searchIndex), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600'// Cache for 1 hour
     }
   });
 }
