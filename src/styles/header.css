@@ -133,7 +133,6 @@ header .logo {
     align-items: center;
     gap: 0.5rem;
     padding: 0.75em;
-    color: #886D52;
     text-decoration: none;
     font-weight: 700;
     text-transform: uppercase;
@@ -434,9 +433,6 @@ header .logo {
         white-space: nowrap;
     }
     
-    .nav-menu a {
-        color: #B5A798;
-    }
     
     .nav-menu > * {
         border-top: none;
