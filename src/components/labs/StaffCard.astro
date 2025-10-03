@@ -83,6 +83,7 @@ const isExternal = isCollaborator && member.external_url;
     <div class="flex justify-end mt-4">
       <a 
         href={profileUrl}
+        aria-label={`View profile of ${member.first_name} ${member.last_name}`}
         target={isExternal ? "_blank" : null}
         class="inline-flex items-center text-sm font-medium lab-secondary-text hover:lab-primary-text transition-all duration-300 group-hover:translate-x-1"
       >
