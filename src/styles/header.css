@@ -566,6 +566,22 @@ header .logo {
     .staging-text {
         font-size: 13px;
     }
+
+    /* When menu is open, prevent body scroll */
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    /* Smooth scrolling within the menu */
+    .nav-menu {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    /* Style adjustments for better mobile UX */
+    .nav-sub-menu {
+      max-height: none !important;
+    }
 }
 
 /* Split logo styles */
