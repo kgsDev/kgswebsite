@@ -790,3 +790,36 @@ header .logo {
         transform: translateY(0) scale(1); 
     }
 }
+
+/* Mobile menu improvements */
+@media (max-width: 739px) {
+  .nav-menu.is-open {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw !important;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 9999 !important;
+    padding-top: 70px;
+    padding-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  body.menu-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+  }
+  
+  .menu-open .nav-menu-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+  }
+}
