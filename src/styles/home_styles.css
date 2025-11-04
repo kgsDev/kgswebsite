@@ -262,6 +262,88 @@ body {
     transition: filter 0.3s ease;
 }
 
+/* Subtle Video Control Button - Minimal Frosted Style with Font Awesome */
+.video-control-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.video-control-button:hover {
+    background: rgba(0, 51, 160, 0.85); /* UK Wildcat Blue */
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.video-control-button:focus {
+    outline: 2.5px solid rgba(255, 220, 0, 0.85); /* UK Goldenrod */
+    outline-offset: 2px;
+    background: rgba(0, 51, 160, 0.9);
+}
+
+.video-control-button:active {
+    transform: scale(0.98);
+}
+
+/* Font Awesome Icon styles */
+.control-icon {
+    font-size: 16px;
+    color: white;
+    transition: opacity 0.3s ease;
+}
+
+/* Show pause icon by default (video autoplays) */
+.video-control-button .play-icon {
+    display: none;
+}
+
+.video-control-button .pause-icon {
+    display: block;
+}
+
+/* When paused, show play icon */
+.video-control-button.paused .play-icon {
+    display: block;
+}
+
+.video-control-button.paused .pause-icon {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-control-button {
+        bottom: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .control-icon {
+        font-size: 14px;
+    }
+}
+
+/* Ensure parent container has relative positioning */
+.video-container {
+    position: relative;
+}
+
 /* Hero hover effects */
 .hero:hover .video-copy-container {
     opacity: 0.3;
