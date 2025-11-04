@@ -99,7 +99,27 @@ const fallbackDynamicData = {
                         <h2 class="hero-title inter-h2">Kentucky Geological Survey</h2>
                         <h1 class="hero-subtitle inter-h1">Understanding Earth's Resources for our Commonwealth</h1>
                     </div>
-                    <video class="video" src="/assets/index/video-icon-background.mp4" loop autoplay muted></video>
+                    <video 
+                        id="hero-video"
+                        class="video" 
+                        src="/assets/index/video-icon-background.mp4" 
+                        loop 
+                        autoplay 
+                        muted
+                        aria-label="Background video showing geological research"
+                    ></video>
+
+                    <!-- Subtle Video Controls with Font Awesome -->
+                    <button 
+                        id="video-control-btn"
+                        class="video-control-button"
+                        aria-label="Pause background video"
+                        aria-pressed="false"
+                        title="Pause/Play video"
+                    >
+                        <i class="fa-solid fa-play control-icon play-icon" aria-hidden="true"></i>
+                        <i class="fa-solid fa-pause control-icon pause-icon" aria-hidden="true"></i>
+                    </button>
                 </div>
             </div>
         </section>
@@ -307,100 +327,72 @@ const fallbackDynamicData = {
 
     <!-- Use your Astro Footer component -->
     <Footer />
-</body>
-<script>
-    // Simple client-side newsletter registration
-// Add this script to your index.astro page
-
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('.newsletter-form');
-    const emailInput = document.querySelector('.newsletter-input');
-    const submitButton = document.querySelector('.newsletter-button');
-
-    // Handle form submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('hero-video');
+        const controlBtn = document.getElementById('video-control-btn');
         
-        const email = emailInput.value.trim();
-        
-        // Basic email validation
-        if (!isValidEmail(email)) {
-            showMessage('Please enter a valid email address.', 'error');
+        if (!video || !controlBtn) {
+            console.warn('Video or control button not found');
             return;
         }
-
-        // Store in localStorage for now
-        const subscribers = getStoredSubscribers();
         
-        // Check if email already exists
-        if (subscribers.includes(email)) {
-            showMessage('You are already subscribed!', 'info');
-            return;
-        }
-
-        // Add to subscribers
-        subscribers.push(email);
-        localStorage.setItem('kgs_newsletter_subscribers', JSON.stringify(subscribers));
-        
-        // Show success message
-        showMessage('Thank you for subscribing! We\'ll keep you updated on KGS research and events.', 'success');
-        emailInput.value = '';
-        
-        // Optional: Send to a webhook or API endpoint
-        // await sendToBackend(email);
-    });
-
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-
-    function getStoredSubscribers() {
-        const stored = localStorage.getItem('kgs_newsletter_subscribers');
-        return stored ? JSON.parse(stored) : [];
-    }
-
-    function showMessage(message, type) {
-        // Remove existing message
-        const existingMessage = document.querySelector('.newsletter-message');
-        if (existingMessage) {
-            existingMessage.remove();
-        }
-
-        // Create message element
-        const messageEl = document.createElement('div');
-        messageEl.className = `newsletter-message ${type}`;
-        messageEl.textContent = message;
-        
-        // Insert after form
-        form.parentNode.insertBefore(messageEl, form.nextSibling);
-        
-        // Remove after 5 seconds
-        setTimeout(() => {
-            messageEl.remove();
-        }, 5000);
-    }
-
-    // Optional: Send to backend/webhook
-    async function sendToBackend(email) {
-        try {
-            // Example webhook URL (you'd replace this with your actual endpoint)
-            const response = await fetch('/api/newsletter-signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email })
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to subscribe');
+        // Toggle video playback
+        function toggleVideo() {
+            if (video.paused) {
+                video.play();
+                controlBtn.classList.remove('paused');
+                controlBtn.setAttribute('aria-label', 'Pause background video');
+                controlBtn.setAttribute('aria-pressed', 'false');
+            } else {
+                video.pause();
+                controlBtn.classList.add('paused');
+                controlBtn.setAttribute('aria-label', 'Play background video');
+                controlBtn.setAttribute('aria-pressed', 'true');
             }
-        } catch (error) {
-            console.error('Failed to send to backend:', error);
-            // Still show success to user since we stored locally
         }
-    }
-});
+        
+        // Click event
+        controlBtn.addEventListener('click', toggleVideo);
+        
+        // Keyboard support (Space and Enter)
+        controlBtn.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                toggleVideo();
+            }
+        });
+        
+        // Optional: Pause video when user navigates away from tab
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !video.paused) {
+                video.pause();
+                controlBtn.classList.add('paused');
+                controlBtn.setAttribute('aria-label', 'Play background video');
+                controlBtn.setAttribute('aria-pressed', 'true');
+            }
+        });
+        
+        // Respect user's motion preferences
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        
+        if (prefersReducedMotion.matches) {
+            video.pause();
+            controlBtn.classList.add('paused');
+            controlBtn.setAttribute('aria-label', 'Play background video');
+            controlBtn.setAttribute('aria-pressed', 'true');
+        }
+        
+        // Listen for changes in motion preference
+        prefersReducedMotion.addEventListener('change', (e) => {
+            if (e.matches && !video.paused) {
+                video.pause();
+                controlBtn.classList.add('paused');
+                controlBtn.setAttribute('aria-label', 'Play background video');
+                controlBtn.setAttribute('aria-pressed', 'true');
+            }
+        });
+    });
 </script>
+</body>
 </html>
