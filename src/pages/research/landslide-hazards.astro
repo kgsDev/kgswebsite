@@ -1,0 +1,562 @@
+---
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const {
+    title = 'Landslide Hazards & Engineering Geology',
+    description = 'Research on landslide hazards, susceptibility mapping, and engineering geology at the Kentucky Geological Survey.',
+    showBreadcrumb = true,
+} = Astro.props;
+---
+
+<BaseLayout title={title}>
+  
+  <style>
+    /* Accordion styles */
+    .accordion-content {
+      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      overflow: hidden;
+    }
+    
+    .accordion-content ul li {
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+    
+    .accordion-content ul li:last-child {
+      margin-bottom: 0;
+    }
+
+    .accordion-trigger:focus {
+      outline: 2px solid #0033A0;
+      outline-offset: 2px;
+    }
+
+    /* Sidebar styles */
+    .sidebar-section {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-section h3 {
+      color: #0033A0;
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-section h3 i {
+      margin-right: 0.5rem;
+    }
+
+    /* Two column layout */
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+      .content-wrapper {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    /* Accordion section styling */
+    .accordion-section {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: #f8f9fa;
+      transition: background-color 0.2s;
+      text-align: left;
+      border: none;
+      cursor: pointer;
+    }
+
+    .accordion-trigger:hover {
+      background: #e9ecef;
+    }
+
+    .accordion-trigger h3 {
+      color: #0033A0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .accordion-trigger h3 i {
+      margin-right: 0.75rem;
+      color: #0033A0;
+    }
+
+    .accordion-content {
+      padding: 0 1.5rem;
+      background: white;
+    }
+
+    .accordion-content.open {
+      padding: 1.5rem;
+    }
+
+    .accordion-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .accordion-content figcaption {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .accordion-content ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      color: #374151;
+    }
+
+    /* Introduction section */
+    .intro-section {
+      font-size: 1.125rem;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+
+    .intro-section p {
+      margin-bottom: 1rem;
+    }
+
+    /* Sidebar links */
+    .sidebar-link {
+      color: #0033A0;
+      text-decoration: none;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-link:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar-link i {
+      margin-right: 0.5rem;
+      width: 1rem;
+    }
+
+    /* Publication links */
+    .publication-item {
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .publication-item a {
+      color: #0033A0;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .publication-item a:hover {
+      text-decoration: underline;
+    }
+
+    .publication-meta {
+      color: #6b7280;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Contact info */
+    .contact-info {
+      font-size: 0.875rem;
+    }
+
+    .contact-info p {
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-info a {
+      color: #0033A0;
+      text-decoration: none;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-info i {
+      color: #0033A0;
+      margin-right: 0.5rem;
+      width: 1rem;
+    }
+
+    .contact-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .contact-section:not(:last-child) {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .contact-name {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+
+    .contact-title {
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+
+  <h1>Landslide Hazards & Engineering Geology Team</h1>
+  
+  <div class="intro-section">
+    <p>
+      The KGS Landslide Hazards & Engineering Geology Team works to further understand landslide hazards, 
+      collect and disseminate landslide data and research results, and foster collaboration with regional 
+      hazards groups, government, industry, and other stakeholders, with the goal of reducing risk from 
+      landslides in the Commonwealth.
+    </p>
+    
+    <p>
+      The objective of the program is to excel in three priority areas: (1) research and funding 
+      (2) hazard response and outreach and (3) partnerships and engagement. These objectives aim to 
+      sustain KGS as the primary source of landslide hazard information for the Commonwealth.
+    </p>
+  </div>
+
+  <div class="content-wrapper">
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <h2 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Research Areas</h2>
+      
+      <!-- Landslide Inventory -->
+      <div class="accordion-section">
+        <button 
+          class="accordion-trigger"
+          aria-expanded="false"
+          data-accordion="inventory"
+        >
+          <h3>
+            <i class="fas fa-mountain"></i>
+            Landslide Inventory
+          </h3>
+          <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
+        </button>
+        <div class="accordion-content" data-accordion-content="inventory">
+          <figure>
+            <img 
+              src="../assets/research/ls/inventory-image.jpg" 
+              alt="Landslide inventory mapping"
+            />
+            <figcaption>[Add image caption here]</figcaption>
+          </figure>
+          
+          <ul>
+            <li>Collect, document, and maintain new and historical landslide data to expand and improve the KGS inventory database.</li>
+            <li>Assess inventory mapping techniques, inventory database structure, feature mapping, database attributes, and quality control. Connect with other agencies who do landslide mapping and explore standardization possibilities.</li>
+            <li>Map landslides with lidar, ortho imagery, lidar-based elevation differencing, and other remote sensing techniques, supporting hazard assessment as well as prioritizing response and informing stakeholders in the case of a landslide event.</li>
+            <li>Leverage unmanned aerial vehicle (UAV) lidar and terrestrial lidar systems for landslide characterization and repeat elevation surveys.</li>
+            <li>Evaluate and use AI/object identification techniques for landslide mapping.</li>
+            <li>Leverage and research other remote sensing time series data and techniques such as InSAR, satellite data (for NDVI), and photogrammetry for landslide mapping.</li>
+            <li>Explore research opportunities to establish the ages of historic and paleo landslides using geochronology techniques.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Landslide Susceptibility -->
+      <div class="accordion-section">
+        <button 
+          class="accordion-trigger"
+          aria-expanded="false"
+          data-accordion="susceptibility"
+        >
+          <h3>
+            <i class="fas fa-chart-area"></i>
+            Landslide Susceptibility
+          </h3>
+          <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
+        </button>
+        <div class="accordion-content" data-accordion-content="susceptibility">
+          <figure>
+            <img 
+              src="/assets/research/ls/susceptibility-image.jpg" 
+              alt="Landslide susceptibility mapping"
+            />
+            <figcaption>[Add image caption here]</figcaption>
+          </figure>
+          
+          <ul>
+            <li>Geomorphic statistics-based machine learning landslide susceptibility modeling.</li>
+            <li>Data-driven model inputs and spatial statistics to bolster landslide susceptibility efforts.</li>
+            <li>Keep up to date with other landslide susceptibility and hazard modeling methods, including physics-based models.</li>
+            <li>Evaluation of landslide occurrence and mechanical deformation related to geology, structure, lithologic control, kinematic evolution, and geomorphology.</li>
+            <li>Analyze landslide types and their relationships to susceptibility and potential impact.</li>
+            <li>Explore methods of debris flow hazard assessment including landslide runout and debris flow modeling, evaluating conditions for debris flows initiation and the percentage of existing landslides that meet those conditions (e.g., evaluating which landslides move but do not runout).</li>
+            <li>Incorporate KGS landslide inventories and susceptibility maps with the U.S. Geological Survey national Landslide Inventory and Susceptibility Map and other products.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Landslide Risk -->
+      <div class="accordion-section">
+        <button 
+          class="accordion-trigger"
+          aria-expanded="false"
+          data-accordion="risk"
+        >
+          <h3>
+            <i class="fas fa-exclamation-triangle"></i>
+            Landslide Risk
+          </h3>
+          <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
+        </button>
+        <div class="accordion-content" data-accordion-content="risk">
+          <figure>
+            <img 
+              src="/assets/research/ls/risk-image.jpg" 
+              alt="Landslide risk assessment"
+            />
+            <figcaption>[Add image caption here]</figcaption>
+          </figure>
+          
+          <ul>
+            <li>Approaches and methodologies for risk modeling and mapping.</li>
+            <li>Explore how KGS susceptibility and hazard maps can be used for risk modeling.</li>
+            <li>Analyze exposure, asset, and vulnerability data for elements at risk of landslides.</li>
+            <li>Establish landslide damage and loss information.</li>
+            <li>Establish methods and protocols for risk communication (see Hazard Response).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Monitoring, Weather, and Climate Science -->
+      <div class="accordion-section">
+        <button 
+          class="accordion-trigger"
+          aria-expanded="false"
+          data-accordion="monitoring"
+        >
+          <h3>
+            <i class="fas fa-cloud-sun-rain"></i>
+            Monitoring, Weather, and Climate Science
+          </h3>
+          <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
+        </button>
+        <div class="accordion-content" data-accordion-content="monitoring">
+          <figure>
+            <img 
+              src="/assets/research/ls/monitoring-image.jpg" 
+              alt="Hydrologic monitoring and weather analysis"
+            />
+            <figcaption>[Add image caption here]</figcaption>
+          </figure>
+          
+          <ul>
+            <li>Maintain the current EPSCoR CLIMBS Project 5 hydrologic monitoring network.</li>
+            <li>Leverage CLIMBS hydrologic monitoring data for landslide hazard research including hydrologic data for scenario-based modeling, landslide forecasting, slope stability modeling, and other hazard mapping approaches.</li>
+            <li>Connect landslide occurrence and weather, establish rainfall thresholds and weather context for landslides, leverage and improve inventory of landslides with known failure dates.</li>
+            <li>Explore trends in climate science related to landslides, supporting solutions for climate resiliency.</li>
+            <li>Evaluate UAV-based monitoring techniques (such as SFM models and lidar acquisition) and terrestrial handheld lidar of specific significant landslides in Kentucky.</li>
+            <li>Engage with state NWS offices, the Kentucky Climate Center, and other weather-related groups to evaluate early warning communication.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Other Endeavors -->
+      <div class="accordion-section">
+        <button 
+          class="accordion-trigger"
+          aria-expanded="false"
+          data-accordion="other"
+        >
+          <h3>
+            <i class="fas fa-flask"></i>
+            Other Landslide Hazard and Engineering Geology Endeavors
+          </h3>
+          <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
+        </button>
+        <div class="accordion-content" data-accordion-content="other">
+          <figure>
+            <img 
+              src="/assets/research/ls/engineering-image.jpg" 
+              alt="Engineering geology fieldwork"
+            />
+            <figcaption>[Add image caption here]</figcaption>
+          </figure>
+          
+          <ul>
+            <li>Explore landslide hazard and physics-based slope stability models, analyzing spatiotemporal data needs and scale questions.</li>
+            <li>Work with the University of Kentucky Department of Civil Engineering to support laboratory testing and geotechnical analysis of soils and rock.</li>
+            <li>Use and evaluate the use of shallow geophysics techniques such as electrical resistivity and seismic to investigate landslides.</li>
+            <li>Explore leveraging KGS databases (e.g., coal borehole database) for support of landslide connections to specific lithologies, soil types, and soil thickness.</li>
+            <li>Explore opportunities to address mine subsidence, this could include inventory, mapping, and mine subsidence hazard assessment.</li>
+            <li>Leverage KGS laboratory services to better integrate the Team research and the lab capabilities (e.g. XRD or XRF for clay mineralogy analysis).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      
+      <!-- Contact Information -->
+      <div class="sidebar-section">
+        <h3>
+          <i class="fas fa-address-card"></i>
+          Contact Information
+        </h3>
+        <div class="contact-info">
+          <div class="contact-section">
+            <p class="contact-name">Team Lead</p>
+            <p class="contact-title">[Name]</p>
+            <p>
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:email@uky.edu">email@uky.edu</a>
+            </p>
+            <p>
+              <i class="fas fa-phone"></i>
+              (859) XXX-XXXX
+            </p>
+          </div>
+          
+          <div class="contact-section">
+            <p class="contact-name">General Inquiries</p>
+            <p>
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:kgs@uky.edu">kgs@uky.edu</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Publications -->
+      <div class="sidebar-section">
+        <h3>
+          <i class="fas fa-book"></i>
+          Related Publications
+        </h3>
+        <div>
+          <div class="publication-item">
+            <a href="#">Publication Title Here (2024)</a>
+            <p class="publication-meta">Author(s). Series/Report info.</p>
+          </div>
+          <div class="publication-item">
+            <a href="#">Another Publication Title (2023)</a>
+            <p class="publication-meta">Author(s). Series/Report info.</p>
+          </div>
+          <div class="publication-item">
+            <a href="#">Research Report Title (2023)</a>
+            <p class="publication-meta">Author(s). Series/Report info.</p>
+          </div>
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+            <a href="/publications?topic=landslides" class="sidebar-link" style="font-weight: 600;">
+              View all publications
+              <i class="fas fa-arrow-right" style="margin-left: auto;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="sidebar-section">
+        <h3>
+          <i class="fas fa-link"></i>
+          Quick Links
+        </h3>
+        <div>
+          <a href="#" class="sidebar-link">
+            <i class="fas fa-map"></i>
+            Interactive Landslide Map
+          </a>
+          <a href="#" class="sidebar-link">
+            <i class="fas fa-database"></i>
+            Landslide Database
+          </a>
+          <a href="#" class="sidebar-link">
+            <i class="fas fa-file-alt"></i>
+            Report a Landslide
+          </a>
+          <a href="#" class="sidebar-link">
+            <i class="fas fa-graduation-cap"></i>
+            Educational Resources
+          </a>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const triggers = document.querySelectorAll('.accordion-trigger');
+    
+    // Initialize all accordions as closed
+    document.querySelectorAll('.accordion-content').forEach(content => {
+      content.style.maxHeight = '0';
+      content.style.opacity = '0';
+    });
+    
+    triggers.forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const accordionId = trigger.dataset.accordion;
+        const content = document.querySelector(`[data-accordion-content="${accordionId}"]`);
+        const chevron = trigger.querySelector('.fa-chevron-down');
+        const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+          // Close accordion
+          trigger.setAttribute('aria-expanded', 'false');
+          content.style.maxHeight = '0';
+          content.style.opacity = '0';
+          content.classList.remove('open');
+          chevron.style.transform = 'rotate(0deg)';
+        } else {
+          // Open accordion
+          trigger.setAttribute('aria-expanded', 'true');
+          content.style.maxHeight = content.scrollHeight + 'px';
+          content.style.opacity = '1';
+          content.classList.add('open');
+          chevron.style.transform = 'rotate(180deg)';
+        }
+      });
+
+      // Keyboard navigation
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          trigger.click();
+        }
+      });
+    });
+  });
+</script>
+
+</BaseLayout>
