@@ -1,0 +1,263 @@
+---
+// src/components/research/ResearchTeam.astro
+// Reusable component for displaying research team members
+
+interface TeamMember {
+  id: string | number;
+  slug: string;
+  first_name: string;
+  last_name: string;
+  working_title: string;
+  email?: string;
+  phone?: string;
+  photo?: string;
+}
+
+interface Props {
+  teamName?: string;
+  teamDescription?: string;
+  leaders?: TeamMember[];
+  coreMembers?: TeamMember[];
+  kgsMembers?: TeamMember[];
+  affiliates?: TeamMember[];
+  directusUrl?: string;
+}
+
+const { 
+  teamName,
+  teamDescription,
+  leaders = [], 
+  coreMembers = [], 
+  kgsMembers = [], 
+  affiliates = [],
+  directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL
+} = Astro.props;
+
+// Check if we have any members to display
+const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.length > 0 || affiliates.length > 0;
+---
+
+{hasMembers && (
+  <div class="mt-12 mb-8">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+      <h2 class="text-2xl font-bold mb-6 text-blue-800">Research Team</h2>
+      
+      {teamName && (
+        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div class="prose max-w-none text-gray-700 text-lg font-bold" set:html={teamName} />
+        </div>
+      )}
+
+      {teamDescription && (
+        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div class="prose max-w-none text-gray-700" set:html={teamDescription} />
+        </div>
+      )}
+
+      <div class="space-y-8">
+        
+        <!-- Team Leaders -->
+        {leaders.length > 0 && (
+          <div>
+            <h3 class="text-lg font-bold mb-4 flex items-center">
+              <i class="fas fa-compass mr-2"></i>
+              Team Leader{leaders.length > 1 ? 's' : ''}
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              {leaders.map(leader => (
+                <div class="bg-white border-l-4 border-amber-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div class="flex items-start space-x-4">
+                    {leader.photo && (
+                      <img 
+                        src={`${directusUrl}assets/${leader.photo}?width=80&height=80&fit=cover&quality=90`} 
+                        alt={`${leader.first_name} ${leader.last_name}`}
+                        class="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                      />
+                    )}
+                    <div class="flex-1">
+                      <div class="flex items-center mb-2">
+                        <h4 class="font-bold text-lg mr-2">
+                          <a href={`/staff/${leader.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                            {leader.first_name} {leader.last_name}
+                          </a>
+                        </h4>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                          Team Lead
+                        </span>
+                      </div>
+                      <p class="text-gray-600 mb-2">{leader.working_title}</p>
+                      <div class="space-y-1 text-sm">
+                        {leader.email && (
+                          <p>
+                            <a href={`mailto:${leader.email}`} class="text-blue-600 hover:underline">
+                              {leader.email}
+                            </a>
+                          </p>
+                        )}
+                        {leader.phone && (
+                          <p class="text-gray-600">📞 {leader.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Core Team Members -->
+        {coreMembers.length > 0 && (
+          <div>
+            <h3 class="text-lg font-bold mb-4 flex items-center">
+              <i class="fas fa-user-friends mr-2"></i>
+              Core KGS Team Members
+            </h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {coreMembers.map(member => (
+                <div class="bg-white border-l-4 border-blue-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div class="flex items-start space-x-3">
+                    {member.photo && (
+                      <img 
+                        src={`${directusUrl}assets/${member.photo}?width=60&height=60&fit=cover&quality=90`} 
+                        alt={`${member.first_name} ${member.last_name}`}
+                        class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                    )}
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-medium text-base">
+                        <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                          {member.first_name} {member.last_name}
+                        </a>
+                      </h4>
+                      <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
+                        {member.working_title}
+                      </p>
+                      {member.email && (
+                        <p class="text-xs">
+                          <a href={`mailto:${member.email}`} class="text-blue-600 hover:underline truncate block">
+                            {member.email}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- KGS Team Members -->
+        {kgsMembers.length > 0 && (
+          <div>
+            <h3 class="text-lg font-bold mb-4 text-blue-800 flex items-center">
+              <i class="fas fa-users mr-2"></i>
+              KGS Team Members
+            </h3>
+            <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {kgsMembers.map(member => (
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div class="flex items-start space-x-3">
+                    {member.photo && (
+                      <img 
+                        src={`${directusUrl}assets/${member.photo}?width=60&height=60&fit=cover&quality=90`} 
+                        alt={`${member.first_name} ${member.last_name}`}
+                        class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                    )}
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-medium text-base">
+                        <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                          {member.first_name} {member.last_name}
+                        </a>
+                      </h4>
+                      <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
+                        {member.working_title}
+                      </p>
+                      {member.email && (
+                        <p class="text-xs">
+                          <a href={`mailto:${member.email}`} class="text-blue-600 hover:underline truncate block">
+                            {member.email}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Associated Affiliates and Students -->
+        {affiliates.length > 0 && (
+          <div>
+            <h3 class="text-lg font-bold mb-4 text-blue-800 flex items-center">
+              <i class="fas fa-chart-network mr-2"></i>
+              Associated Affiliates and Students
+            </h3>
+            <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {affiliates.map(member => (
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div class="flex items-start space-x-3">
+                    {member.photo && (
+                      <img 
+                        src={`${directusUrl}assets/${member.photo}?width=60&height=60&fit=cover&quality=90`} 
+                        alt={`${member.first_name} ${member.last_name}`}
+                        class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                    )}
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-medium text-base">
+                        <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
+                          {member.first_name} {member.last_name}
+                        </a>
+                      </h4>
+                      <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
+                        {member.working_title}
+                      </p>
+                      {member.email && (
+                        <p class="text-xs">
+                          <a href={`mailto:${member.email}`} class="text-blue-600 hover:underline truncate block">
+                            {member.email}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  /* Enhanced styling for team member cards */
+  .bg-white {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .bg-white:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Ensure proper text truncation */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

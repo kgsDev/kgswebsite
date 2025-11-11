@@ -1,12 +1,125 @@
 ---
 export const prerender = true;
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
+import ResearchTeam from '../../components/research/ResearchTeam.astro';
+import directus from "../../../lib/directus";
+import { readItems } from "@directus/sdk";
 
 const {
     title = 'Landslide Hazards & Engineering Geology',
     description = 'Research on landslide hazards, susceptibility mapping, and engineering geology at the Kentucky Geological Survey.',
     showBreadcrumb = true,
 } = Astro.props;
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Fetch team data from Directus
+let teamStaff = {
+  leaders: [],
+  coreMembers: [],
+  kgsMembers: [],
+  affiliates: []
+};
+
+try {
+  // Replace 'TEAM_ID' with your actual landslide team ID from Directus
+  const LANDSLIDE_TEAM_ID = 6; // ← landslide team ID
+  
+  // Fetch team leaders
+  const teamWithLeaders = await directus.request(readItems("team", {
+    fields: [
+      'id',
+      'team_leader.staff_id.id',
+      'team_leader.staff_id.slug',
+      'team_leader.staff_id.first_name',
+      'team_leader.staff_id.last_name',
+      'team_leader.staff_id.working_title',
+      'team_leader.staff_id.email',
+      'team_leader.staff_id.phone',
+      'team_leader.staff_id.photo'
+    ],
+    filter: { id: { _eq: LANDSLIDE_TEAM_ID } },
+    limit: 1
+  }));
+
+  if (teamWithLeaders.length > 0 && teamWithLeaders[0].team_leader) {
+    const leaders = Array.isArray(teamWithLeaders[0].team_leader) 
+      ? teamWithLeaders[0].team_leader 
+      : [teamWithLeaders[0].team_leader];
+    
+    teamStaff.leaders = leaders
+      .map(leader => leader.staff_id)
+      .filter(Boolean)
+      .filter(staff => staff && staff.id);
+  }
+
+  // Fetch core team members
+  const teamWithPrimaryMembers = await directus.request(readItems("team", {
+    fields: [
+      'staff_primary.id',
+      'staff_primary.slug',
+      'staff_primary.first_name',
+      'staff_primary.last_name',
+      'staff_primary.working_title',
+      'staff_primary.email',
+      'staff_primary.phone',
+      'staff_primary.photo'
+    ],
+    filter: { id: { _eq: LANDSLIDE_TEAM_ID } },
+    limit: 1
+  }));
+
+  const leaderIds = teamStaff.leaders.map(leader => leader.id).filter(Boolean);
+
+  if (teamWithPrimaryMembers.length > 0 && teamWithPrimaryMembers[0].staff_primary) {
+    const primaryMembers = Array.isArray(teamWithPrimaryMembers[0].staff_primary) 
+      ? teamWithPrimaryMembers[0].staff_primary 
+      : [teamWithPrimaryMembers[0].staff_primary];
+    
+    teamStaff.coreMembers = primaryMembers
+      .filter(Boolean)
+      .filter(staff => staff && staff.id && !leaderIds.includes(staff.id));
+  }
+
+  // Fetch all team members through staff_team junction table
+  const allTeamMembers = await directus.request(readItems("staff_team", {
+    fields: [
+      'staff_id.id',
+      'staff_id.slug',
+      'staff_id.first_name',
+      'staff_id.last_name',
+      'staff_id.working_title',
+      'staff_id.email',
+      'staff_id.phone',
+      'staff_id.photo',
+      'staff_id.kgs_staff',
+      'staff_id.kgs_faculty'
+    ],
+    filter: {
+      team_id: { _eq: LANDSLIDE_TEAM_ID }
+    },
+    sort: ['-staff_id.kgs_staff', '-staff_id.kgs_faculty', 'staff_id.last_name']
+  }));
+
+  const excludeIds = [
+    ...leaderIds,
+    ...teamStaff.coreMembers.map(member => member.id).filter(Boolean)
+  ];
+  
+  if (allTeamMembers && allTeamMembers.length > 0) {
+    const filteredMembers = allTeamMembers
+      .map(item => item.staff_id)
+      .filter(Boolean)
+      .filter(staff => staff && staff.id && !excludeIds.includes(staff.id));
+
+    teamStaff.kgsMembers = filteredMembers.filter(staff => staff.kgs_staff === true);
+    teamStaff.affiliates = filteredMembers.filter(staff => staff.kgs_staff !== true);
+  }
+
+} catch (error) {
+  console.error("Error fetching team data:", error);
+}
 ---
 
 <BaseLayout title={title}>
@@ -32,13 +145,25 @@ const {
       outline-offset: 2px;
     }
 
-    /* Sidebar styles */
+    /* Sidebar styles - Updated with light background */
+    .sidebar {
+      background: #e8f5f6; /* Light tint of riverGreen */
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #b3e0e2;
+      box-shadow: 0 2px 8px rgba(76, 188, 192, 0.1);
+    }
+
     .sidebar-section {
-      background: #f8f9fa;
+      background: white;
       padding: 1.5rem;
       border-radius: 0.5rem;
       border: 1px solid #e5e7eb;
       margin-bottom: 1.5rem;
+    }
+
+    .sidebar-section:last-child {
+      margin-bottom: 0;
     }
 
     .sidebar-section h3 {
@@ -54,7 +179,7 @@ const {
       margin-right: 0.5rem;
     }
 
-    /* Two column layout */
+    /* Two column layout for all content below banner */
     .content-wrapper {
       display: grid;
       grid-template-columns: 1fr;
@@ -64,7 +189,8 @@ const {
 
     @media (min-width: 1024px) {
       .content-wrapper {
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 3.5fr 1fr;
+        align-items: start;
       }
     }
 
@@ -140,7 +266,7 @@ const {
     /* Introduction section */
     .intro-section {
       font-size: 1.125rem;
-      line-height: 1.75;
+      line-height: 1.6;
       margin-bottom: 2rem;
     }
 
@@ -232,29 +358,140 @@ const {
       color: #6b7280;
       margin-bottom: 0.5rem;
     }
+
+    /* Hero Banner Responsive Styles */
+    @media (max-width: 768px) {
+      .hero-banner {
+        margin: 0 -1rem 2rem -1rem !important;
+      }
+      
+    .hero-banner img {
+        height: 400px !important;
+     }
+      
+      .hero-title {
+        font-size: 1.75rem !important;
+        padding: 1rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-banner img {
+        height: 250px !important;
+      }
+      
+      .hero-title {
+        font-size: 1.5rem !important;
+      }
+    }
   </style>
 
-  <h1>Landslide Hazards & Engineering Geology Team</h1>
-  
-  <div class="intro-section">
-    <p>
-      The KGS Landslide Hazards & Engineering Geology Team works to further understand landslide hazards, 
-      collect and disseminate landslide data and research results, and foster collaboration with regional 
-      hazards groups, government, industry, and other stakeholders, with the goal of reducing risk from 
-      landslides in the Commonwealth.
-    </p>
+  <!-- Hero Banner with Title Overlay (Full Width) -->
+  <div class="hero-banner" style="position: relative; margin: 0 -2rem 2rem -2rem; overflow: hidden; border-radius: 0.5rem;">
+    <!-- Banner Image -->
+    <img 
+      src="/assets/research/ls/banner_Thigpen_drone_pic.png" 
+      alt="Aerial view of landslide terrain in Kentucky"
+      loading="eager"
+      style="width: 100%; height: 60vh; object-fit: cover; object-position:bottom;display: block;"
+    />
     
-    <p>
-      The objective of the program is to excel in three priority areas: (1) research and funding 
-      (2) hazard response and outreach and (3) partnerships and engagement. These objectives aim to 
-      sustain KGS as the primary source of landslide hazard information for the Commonwealth.
-    </p>
+    <!-- Dark Overlay for Text Readability -->
+    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 20%);"></div>
+    
+    <!-- Title Overlay -->
+    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-start; padding: 2rem 3rem;">
+      <h1 class="hero-title" 
+      style="text-align: left; font-size: 2.5rem; font-weight: 700; color:var(--goldenrodYellow); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); margin: 0; line-height: 1.2; max-width: 600px;">
+        Landslide Hazards and Engineering Geology
+      </h1>
+    </div>
+    
+    <!-- Photo Credit (Bottom Right) -->
+    <div style="position: absolute; bottom: 0.75rem; right: 1rem; color: white; font-size: 0.75rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
+      Photo: Sarah Johnson, KGS
+    </div>
   </div>
-
+  
+  <!-- Content with Sidebar -->
   <div class="content-wrapper">
     
-    <!-- Main Content -->
+    <!-- Main Content Column -->
     <div class="main-content">
+      
+      <!-- Introduction -->
+      <div class="intro-section">
+        <p>
+          The KGS Landslide Hazards & Engineering Geology Team works to further understand landslide hazards, 
+          collect and disseminate landslide data and research results, and foster collaboration with regional 
+          hazards groups, government, industry, and other stakeholders, with the goal of reducing risk from 
+          landslides in the Commonwealth.
+        </p>
+        
+        <p>
+          The objective of the program is to excel in three priority areas: (1) research and funding 
+          (2) hazard response and outreach and (3) partnerships and engagement. These objectives aim to 
+          sustain KGS as the primary source of landslide hazard information for the Commonwealth.
+        </p>
+      </div>
+
+      <!-- Visual Introduction: NASA Animation and Example Images -->
+      <div style="margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 0.5rem;" data-gallery="true">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: center;">
+          <figure style="text-align: center;">
+            <img 
+              src="/assets/research/ls/NASA_tumblr_540.gif" 
+              alt="NASA landslide animation showing mass movement"
+              loading="lazy"
+              style="max-width: 540px; width: 100%; height: auto; border-radius: 0.5rem;"
+            />
+            <figcaption style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+              Landslide dynamics visualization. Credit: NASA
+            </figcaption>
+          </figure>
+        </div>
+        
+        <!-- 4-image grid of Kentucky landslide examples -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+          <figure>
+            <img 
+              src="/assets/research/ls/Hickman_stabilization.jpg" 
+              alt="Landslide stabilization work in Hickman"
+              loading="lazy"
+              style="width: 100%; height: 300px; object-fit: cover; border-radius: 0.5rem;"
+            />
+            <figcaption style="font-size: 0.75rem; margin-top: 0.5rem; text-align: center;">Stabilization efforts, Hickman</figcaption>
+          </figure>
+          <figure>
+            <img 
+              src="/assets/research/ls/Debris_flow_BellCo.jpg" 
+              alt="Debris flow in Bell County"
+              loading="lazy"
+              style="width: 100%; height: 300px; object-fit: cover; border-radius: 0.5rem;"
+            />
+            <figcaption style="font-size: 0.75rem; margin-top: 0.5rem; text-align: center;">Debris flow, Bell County</figcaption>
+          </figure>
+          <figure>
+            <img 
+              src="/assets/research/ls/BreathittCo.jpg" 
+              alt="Landslide in Breathitt County"
+              loading="lazy"
+              style="width: 100%; height: 300px; object-fit: cover; object-position:left bottom; border-radius: 0.5rem;"
+            />
+            <figcaption style="font-size: 0.75rem; margin-top: 0.5rem; text-align: center;">Landslide feature, Breathitt County</figcaption>
+          </figure>
+          <figure>
+            <img 
+              src="/assets/research/ls/FloydCo.jpg" 
+              alt="Landslide in Floyd County"
+              loading="lazy"
+              style="width: 100%; height: 300px; object-fit: cover; border-radius: 0.5rem;"
+            />
+            <figcaption style="font-size: 0.75rem; margin-top: 0.5rem; text-align: center;">Landslide impact, Floyd County</figcaption>
+          </figure>
+        </div>
+      </div>
+      
       <h2 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Research Areas</h2>
       
       <!-- Landslide Inventory -->
@@ -270,14 +507,27 @@ const {
           </h3>
           <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
         </button>
-        <div class="accordion-content" data-accordion-content="inventory">
+        <div class="accordion-content" data-accordion-content="inventory" data-gallery="true">
           <figure>
             <img 
-              src="../assets/research/ls/inventory-image.jpg" 
-              alt="Landslide inventory mapping"
+              src="/assets/research/ls/state_point_inventory.png" 
+              alt="Kentucky landslide inventory point locations"
+              loading="lazy"
             />
-            <figcaption>[Add image caption here]</figcaption>
+            <figcaption>Statewide point inventory of mapped landslides</figcaption>
           </figure>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <figure>
+              <img src="/assets/research/ls/landslide_FloydCo.gif" alt="Floyd County landslide animation" loading="lazy" />
+              <figcaption>Landslide mapping animation, Floyd County</figcaption>
+            </figure>
+            <figure>
+              <img src="/assets/research/ls/LittleLeatherwood_debrisflow.gif" alt="Little Leatherwood debris flow" loading="lazy" />
+              <figcaption>Little Leatherwood debris flow analysis</figcaption>
+            </figure>
+          </div>
+
           
           <ul>
             <li>Collect, document, and maintain new and historical landslide data to expand and improve the KGS inventory database.</li>
@@ -285,6 +535,11 @@ const {
             <li>Map landslides with lidar, ortho imagery, lidar-based elevation differencing, and other remote sensing techniques, supporting hazard assessment as well as prioritizing response and informing stakeholders in the case of a landslide event.</li>
             <li>Leverage unmanned aerial vehicle (UAV) lidar and terrestrial lidar systems for landslide characterization and repeat elevation surveys.</li>
             <li>Evaluate and use AI/object identification techniques for landslide mapping.</li>
+            <!-- Deep learning visualization -->
+            <figure style="margin: 1rem 0;">
+              <img src="/assets/research/ls/deep_learning.png" alt="Deep learning for landslide detection" loading="lazy" style="max-width: 600px;" />
+              <figcaption>Machine learning application for automated landslide detection</figcaption>
+            </figure>
             <li>Leverage and research other remote sensing time series data and techniques such as InSAR, satellite data (for NDVI), and photogrammetry for landslide mapping.</li>
             <li>Explore research opportunities to establish the ages of historic and paleo landslides using geochronology techniques.</li>
           </ul>
@@ -304,13 +559,14 @@ const {
           </h3>
           <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
         </button>
-        <div class="accordion-content" data-accordion-content="susceptibility">
+        <div class="accordion-content" data-accordion-content="susceptibility" data-gallery="true">
           <figure>
             <img 
-              src="/assets/research/ls/susceptibility-image.jpg" 
-              alt="Landslide susceptibility mapping"
+              src="/assets/research/ls/susceptibility_map.png" 
+              alt="Landslide susceptibility map of Kentucky"
+              loading="lazy"
             />
-            <figcaption>[Add image caption here]</figcaption>
+            <figcaption>Landslide susceptibility mapping for Kentucky showing areas of varying landslide potential</figcaption>
           </figure>
           
           <ul>
@@ -338,13 +594,14 @@ const {
           </h3>
           <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
         </button>
-        <div class="accordion-content" data-accordion-content="risk">
+        <div class="accordion-content" data-accordion-content="risk" data-gallery="true">
           <figure>
             <img 
-              src="/assets/research/ls/risk-image.jpg" 
-              alt="Landslide risk assessment"
+              src="/assets/research/ls/front_yard_FloydCo.JPG" 
+              alt="Landslide impact on residential property in Floyd County"
+              loading="lazy"
             />
-            <figcaption>[Add image caption here]</figcaption>
+            <figcaption>Landslide affecting residential property in Floyd County, demonstrating real-world risk to infrastructure</figcaption>
           </figure>
           
           <ul>
@@ -370,14 +627,57 @@ const {
           </h3>
           <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
         </button>
-        <div class="accordion-content" data-accordion-content="monitoring">
-          <figure>
-            <img 
-              src="/assets/research/ls/monitoring-image.jpg" 
-              alt="Hydrologic monitoring and weather analysis"
-            />
-            <figcaption>[Add image caption here]</figcaption>
-          </figure>
+        <div class="accordion-content" data-accordion-content="monitoring" data-gallery="true">
+          <!-- Drone monitoring images -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <figure>
+              <img 
+                src="/assets/research/ls/Drone_1.JPG" 
+                alt="UAV aerial survey of landslide site"
+                loading="lazy"
+                style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.5rem;"
+              />
+              <figcaption style="font-size: 0.75rem; margin-top: 0.5rem;">UAV-based landslide monitoring</figcaption>
+            </figure>
+            <figure>
+              <img 
+                src="/assets/research/ls/Drone_2_photo_by_SummerBrown.jpg" 
+                alt="Drone survey of hillslope"
+                loading="lazy"
+                style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.5rem;"
+              />
+              <figcaption style="font-size: 0.75rem; margin-top: 0.5rem;">Aerial survey by Summer Brown</figcaption>
+            </figure>
+            <figure>
+              <img 
+                src="/assets/research/ls/Drone_3.jpg" 
+                alt="Drone-captured landslide feature"
+                loading="lazy"
+                style="width: 100%; height: 200px; object-fit: cover; border-radius: 0.5rem;"
+              />
+              <figcaption style="font-size: 0.75rem; margin-top: 0.5rem;">High-resolution landslide imagery</figcaption>
+            </figure>
+          </div>
+          
+          <!-- Monitoring equipment and data -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <figure>
+              <img 
+                src="/assets/research/ls/SiteMap10-29.png" 
+                alt="Monitoring site map"
+                loading="lazy"
+              />
+              <figcaption style="font-size: 0.85rem;">Hydrologic monitoring site locations</figcaption>
+            </figure>
+            <figure>
+              <img 
+                src="/assets/research/ls/slope_hydro_plot.png" 
+                alt="Slope hydrology data plot"
+                loading="lazy"
+              />
+              <figcaption style="font-size: 0.85rem;">Slope stability and hydrology monitoring data</figcaption>
+            </figure>
+          </div>
           
           <ul>
             <li>Maintain the current EPSCoR CLIMBS Project 5 hydrologic monitoring network.</li>
@@ -403,14 +703,26 @@ const {
           </h3>
           <i class="fas fa-chevron-down" style="transition: transform 0.3s; color: #0033A0;" aria-hidden="true"></i>
         </button>
-        <div class="accordion-content" data-accordion-content="other">
-          <figure>
-            <img 
-              src="/assets/research/ls/engineering-image.jpg" 
-              alt="Engineering geology fieldwork"
-            />
-            <figcaption>[Add image caption here]</figcaption>
-          </figure>
+        <div class="accordion-content" data-accordion-content="other" data-gallery="true">
+          <!-- Engineering geology fieldwork -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <figure>
+              <img 
+                src="/assets/research/ls/LetcherCo.jpg" 
+                alt="Field investigation in Letcher County"
+                loading="lazy"
+              />
+              <figcaption style="font-size: 0.85rem;">Engineering geology fieldwork in Letcher County</figcaption>
+            </figure>
+            <figure>
+              <img 
+                src="/assets/research/ls/Slade_2025.jpg" 
+                alt="Geological assessment at Slade site"
+                loading="lazy"
+              />
+              <figcaption style="font-size: 0.85rem;">Site investigation at Slade, 2025</figcaption>
+            </figure>
+          </div>
           
           <ul>
             <li>Explore landslide hazard and physics-based slope stability models, analyzing spatiotemporal data needs and scale questions.</li>
@@ -436,14 +748,28 @@ const {
         <div class="contact-info">
           <div class="contact-section">
             <p class="contact-name">Team Lead</p>
-            <p class="contact-title">[Name]</p>
+            <p class="contact-title">
+              {teamStaff.leaders[0] ? (
+                <a href={`/staff/${teamStaff.leaders[0].slug}`}>
+                  {teamStaff.leaders[0].first_name} {teamStaff.leaders[0].last_name}
+                </a>
+              ) : (
+                'Leader TBD'
+              )}
+            </p>
             <p>
               <i class="fas fa-envelope"></i>
-              <a href="mailto:email@uky.edu">email@uky.edu</a>
+               {teamStaff.leaders[0] ? (
+                <a href={`mailto:/staff/${teamStaff.leaders[0].email}`}>
+                  {teamStaff.leaders[0].email}
+                </a>
+              ) : (
+                ''
+              )}
             </p>
             <p>
               <i class="fas fa-phone"></i>
-              (859) XXX-XXXX
+              {teamStaff.leaders[0].phone}
             </p>
           </div>
           
@@ -451,7 +777,7 @@ const {
             <p class="contact-name">General Inquiries</p>
             <p>
               <i class="fas fa-envelope"></i>
-              <a href="mailto:kgs@uky.edu">kgs@uky.edu</a>
+              <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a>
             </p>
           </div>
         </div>
@@ -477,7 +803,7 @@ const {
             <p class="publication-meta">Author(s). Series/Report info.</p>
           </div>
           <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-            <a href="/publications?topic=landslides" class="sidebar-link" style="font-weight: 600;">
+            <a href="https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=landslides" class="sidebar-link" style="font-weight: 600;">
               View all publications
               <i class="fas fa-arrow-right" style="margin-left: auto;"></i>
             </a>
@@ -492,27 +818,34 @@ const {
           Quick Links
         </h3>
         <div>
-          <a href="#" class="sidebar-link">
+          <a href="https://kgs.uky.edu/kygeode/geomap/?layoutid=25" class="sidebar-link">
             <i class="fas fa-map"></i>
-            Interactive Landslide Map
+            Landslide Information Map
           </a>
-          <a href="#" class="sidebar-link">
-            <i class="fas fa-database"></i>
-            Landslide Database
-          </a>
-          <a href="#" class="sidebar-link">
+          <a href="https://www.uky.edu/KGS/landslide/" class="sidebar-link">
             <i class="fas fa-file-alt"></i>
             Report a Landslide
           </a>
-          <a href="#" class="sidebar-link">
-            <i class="fas fa-graduation-cap"></i>
-            Educational Resources
+          <a href="https://www.uky.edu/KGS/education/factsheet/landslide_factsheet.pdf" class="sidebar-link">
+            <i class="fas fa-file-pdf"></i>
+            Landslide Factsheet
           </a>
         </div>
       </div>
 
     </aside>
+
   </div>
+
+ <!-- Research Team Section - Add this before closing script tag -->
+  <ResearchTeam 
+    teamName="Landslide Hazards & Engineering Geology Team"
+    leaders={teamStaff.leaders}
+    coreMembers={teamStaff.coreMembers}
+    kgsMembers={teamStaff.kgsMembers}
+    affiliates={teamStaff.affiliates}
+    directusUrl={directusUrl}
+  />
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -559,4 +892,6 @@ const {
   });
 </script>
 
+    <!-- Add lightbox functionality to any page that has galleries -->
+    <LightboxEnhancer />
 </BaseLayout>
