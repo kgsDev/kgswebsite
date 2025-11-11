@@ -556,15 +556,15 @@ body {
 
 /* Tile background images */
 .tile.community {
-    background-image: url('/src/assets/index/kgs-education.webp');
+    background-image: url('/assets/index/kgs-education.webp');
 }
 
 .tile.openings {
-    background-image: url('/src/assets/index/kgs-current-openings.webp');
+    background-image: url('/assets/index/kgs-current-openings.webp');
 }
 
 .tile.research {
-    background-image: url('/src/assets/index/kgs-research-tile.webp');
+    background-image: url('/assets/index/kgs-research-tile.webp');
 }
 
 /* ========================================
@@ -590,7 +590,7 @@ body {
 }
 
 .tile.service {
-    background-image: url('/src/assets/index/kgs-service-tile.png');
+    background-image: url('/assets/index/kgs-service-tile.png');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
