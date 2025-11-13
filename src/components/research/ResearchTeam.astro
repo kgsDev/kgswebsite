@@ -40,7 +40,7 @@ const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.le
 {hasMembers && (
   <div class="mt-12 mb-8">
     <div class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
-      <h2 class="text-2xl font-bold mb-6 text-blue-800">Research Team</h2>
+      <h2 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;">Research Team</h3>
       
       {teamName && (
         <div class="mb-6 p-4 bg-blue-50 rounded-lg">
@@ -78,7 +78,7 @@ const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.le
                       <div class="flex items-center mb-2">
                         <h4 class="font-bold text-lg mr-2">
                           <a href={`/staff/${leader.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
-                            {leader.first_name} {leader.last_name}
+                            {`${leader.first_name} ${leader.last_name}`}
                           </a>
                         </h4>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
@@ -127,7 +127,7 @@ const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.le
                     <div class="flex-1 min-w-0">
                       <h4 class="font-medium text-base">
                         <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
-                          {member.first_name} {member.last_name}
+                          {`${member.first_name} ${member.last_name}`}
                         </a>
                       </h4>
                       <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
@@ -169,7 +169,7 @@ const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.le
                     <div class="flex-1 min-w-0">
                       <h4 class="font-medium text-base">
                         <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
-                          {member.first_name} {member.last_name}
+                          {`${member.first_name} ${member.last_name}`}
                         </a>
                       </h4>
                       <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>
@@ -211,7 +211,7 @@ const hasMembers = leaders.length > 0 || coreMembers.length > 0 || kgsMembers.le
                     <div class="flex-1 min-w-0">
                       <h4 class="font-medium text-base">
                         <a href={`/staff/${member.slug}`} class="text-blue-800 hover:text-blue-900 hover:underline">
-                          {member.first_name} {member.last_name}
+                          {`${member.first_name} ${member.last_name}`}
                         </a>
                       </h4>
                       <p class="text-sm text-gray-600 truncate mb-2" title={member.working_title}>

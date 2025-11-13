@@ -228,3 +228,241 @@
         font-size: 1.3em;
     }
 }
+
+/*Styles for custom pages - with accordins and sidebar*/
+ /* Accordion styles */
+ .accordion-content {
+    transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+    overflow: hidden;
+}
+
+.accordion-content p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.accordion-content ul li {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.accordion-content i {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+    vertical-align: middle;
+}
+
+.sidebar-section i{
+    padding-right: 1.5rem;
+    font-size: 1.25rem;
+    vertical-align: middle;
+}
+
+.accordion-content ul li:last-child {
+    margin-bottom: 0;
+}
+
+.accordion-trigger:focus {
+    outline: 2px solid #0033A0;
+    outline-offset: 2px;
+}
+
+/* Sidebar styles - Updated with light background */
+.sidebar {
+    background: #e8f5f6; /* Light tint of riverGreen */
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #b3e0e2;
+    box-shadow: 0 2px 8px rgba(76, 188, 192, 0.1);
+}
+
+.sidebar-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-section:last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-section h3 {
+    color: #0033A0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-section h3 i {
+    margin-right: 0.5rem;
+}
+
+/* Two column layout for all content below banner */
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .content-wrapper {
+    grid-template-columns: 3.5fr 1fr;
+    align-items: start;
+    }
+}
+
+/* Accordion section styling */
+.accordion-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+.accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    transition: background-color 0.2s;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+}
+
+.accordion-trigger:hover {
+    background: #e9ecef;
+}
+
+.accordion-trigger h3 {
+    color: #0033A0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.accordion-trigger h3 i {
+    margin-right: 0.75rem;
+    color: #0033A0;
+}
+
+.accordion-content {
+    padding: 0 1.5rem;
+    background: white;
+}
+
+.accordion-content.open {
+    padding: 1.5rem;
+}
+
+.accordion-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: .25rem;
+}
+
+.accordion-content figcaption {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.accordion-content ul {
+    list-style: none;
+    padding-left: 1.5rem;
+    color: #374151;
+}
+
+.accordion-content li a {
+    text-decoration: none;
+}
+
+.accordion-content li a:hover {
+    text-decoration: underline;
+}
+
+/* Introduction section */
+.intro-section {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.intro-section p {
+    margin-bottom: 1rem;
+}
+
+/* Sidebar links */
+.sidebar-link {
+    color: #0033A0;
+    text-decoration: none;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.sidebar-link:hover {
+    text-decoration: underline;
+}
+
+.sidebar-link i {
+    margin-right: 0.5rem;
+    width: 1rem;
+}
+
+/* Contact info */
+.contact-info {
+    font-size: 0.875rem;
+}
+
+.contact-info p {
+    margin-bottom: 0.5rem;
+}
+
+.contact-info a {
+    color: #0033A0;
+    text-decoration: none;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+.contact-info i {
+    color: #0033A0;
+    margin-right: 0.5rem;
+    width: 1rem;
+}
+
+.contact-section {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+}
+
+.contact-section:not(:last-child) {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.contact-name {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.contact-title {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}

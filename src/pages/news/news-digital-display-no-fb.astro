@@ -1,0 +1,264 @@
+---
+// src/pages/news/digital-display.astro
+export const prerender = false;
+import DigitalDisplayLayout from '../../layouts/DigitalDisplayLayout.astro';
+import { fetchRecentNews } from '../../lib/api_news';
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+// Fetch top 8 recent news items for full display
+const { articles } = await fetchRecentNews(6, 1);
+
+// Format date for display
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Format date range for events
+const formatDateRange = (startDate, endDate) => {
+  if (!startDate) return '';
+  
+  const start = new Date(startDate);
+  const startMonth = start.toLocaleDateString('en-US', { month: 'long' });
+  const startDay = start.getDate();
+  const startYear = start.getFullYear();
+  
+  if (!endDate || startDate === endDate || 
+      (new Date(endDate)).toDateString() === start.toDateString()) {
+    return `${startMonth} ${startDay}, ${startYear}`;
+  }
+  
+  const end = new Date(endDate);
+  const endMonth = end.toLocaleDateString('en-US', { month: 'long' });
+  const endDay = end.getDate();
+  const endYear = end.getFullYear();
+  
+  if (startMonth === endMonth && startYear === endYear) {
+    return `${startMonth} ${startDay}–${endDay}, ${startYear}`;
+  }
+  
+  if (startYear === endYear) {
+    return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${startYear}`;
+  }
+  
+  return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`;
+};
+
+// Check if event is past
+const isEventPast = (endDate) => {
+  if (!endDate) return false;
+  const end = new Date(endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return end < today;
+};
+
+// Get category info
+const getCategoryInfo = (article) => {
+  if (article.category === "press") {
+    return {
+      label: "Press Release",
+      color: "bg-blue-100 text-blue-800",
+      icon: "fa-newspaper"
+    };
+  } else if (article.category === "research") {
+    return {
+      label: "Research",
+      color: "bg-green-100 text-green-800",
+      icon: "fa-flask"
+    };
+  } else if (article.category === "event") {
+    return {
+      label: isEventPast(article.event_end) ? "Past Event" : "Upcoming Event",
+      color: isEventPast(article.event_end) ? "bg-gray-100 text-gray-700" : "bg-purple-100 text-purple-800",
+      icon: "fa-calendar"
+    };
+  } else {
+    return {
+      label: "News",
+      color: "bg-gray-100 text-gray-800",
+      icon: "fa-bullhorn"
+    };
+  }
+};
+---
+
+<DigitalDisplayLayout 
+  title="Digital News Display"
+  headerTitle="Latest News & Announcements"
+  description="Kentucky Geological Survey recent news and announcements."
+  noticeStyle="both"
+  qrCodeUrl="/assets/qr-news.png"
+  qrCodeLabel="Scan for Full<br>News Articles"
+  bannerText="" // No banner text for news display
+  watermarkText="NEWS DISPLAY"
+  watermarkSubtext="Scan QR Code for Full Articles">
+
+  <div class="digital-news-display">
+    
+    <div class="grid grid-cols-2 gap-10" style="margin-top: 8rem;">
+      {articles.map((article, index) => {
+        const displayImage = article.tile_image || article.main_image;
+        const categoryInfo = getCategoryInfo(article);
+        const displayDate = article.category === "event" && article.event_date 
+          ? formatDateRange(article.event_date, article.event_end)
+          : formatDate(article.publication_date);
+        
+        return (
+          <div class="news-card-full bg-white border-2 border-gray-200 rounded-lg overflow-hidden shadow-md">
+            <div class="flex flex-col h-full">
+              {/* Image Section - Top */}
+              <div class="news-image-container-full flex-shrink-0">
+                {displayImage ? (
+                  <img 
+                    src={`${directusUrl}assets/${displayImage}?width=800&height=533&quality=85&fit=cover`} 
+                    alt={article.title}
+                    class="news-image-full"
+                  />
+                ) : (
+                  <div class="news-image-placeholder-full">
+                    <i class="fas fa-image text-5xl text-gray-400"></i>
+                  </div>
+                )}
+                
+                {/* Category Badge Overlay */}
+                <div class="absolute top-3 left-3">
+                  <span class={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg ${categoryInfo.color}`}>
+                    <i class={`fas ${categoryInfo.icon} mr-2`}></i>
+                    {categoryInfo.label}
+                  </span>
+                </div>
+                
+                {/* Past Event Badge */}
+                {article.category === "event" && isEventPast(article.event_end) && (
+                  <div class="absolute top-3 right-3 bg-gray-700 text-white text-sm font-bold px-3 py-1.5 rounded-md shadow-lg">
+                    PAST
+                  </div>
+                )}
+                
+              </div>
+              
+              {/* Content Section - Bottom */}
+              <div class="p-5 flex flex-col flex-grow">
+                {/* Date */}
+                <div class="mb-3 flex items-center text-gray-600 text-base">
+                  <i class="fas fa-calendar mr-2 text-blue-500"></i>
+                  <span class="font-medium">{displayDate}</span>
+                </div>
+                
+                {/* Title */}
+                <h3 class="font-bold text-blue-900 text-lg mb-3 leading-tight">
+                  {article.title}
+                </h3>
+                
+                {/* Excerpt - Full text, no truncation */}
+                {article.excerpt && (
+                  <p class="text-gray-700 text-base leading-relaxed mb-4 flex-grow">
+                    {article.excerpt}
+                  </p>
+                )}
+                
+                {/* Additional Details Section */}
+                <div class="mt-auto space-y-3">
+                  {/* Event Location for Events */}
+                  {article.category === "event" && article.event_location && (
+                    <div class="flex items-start text-sm text-gray-600 bg-purple-50 p-3 rounded-md">
+                      <i class="fas fa-map-marker-alt mr-2 mt-0.5 flex-shrink-0 text-purple-600"></i>
+                      <span>{article.event_location}</span>
+                    </div>
+                  )}
+                  
+                  {/* Event Time for Events */}
+                  {article.category === "event" && article.event_time && (
+                    <div class="flex items-center text-sm text-gray-600 bg-purple-50 p-3 rounded-md">
+                      <i class="fas fa-clock mr-2 text-purple-600"></i>
+                      <span>{article.event_time}</span>
+                    </div>
+                  )}
+                  
+                  {/* Tags */}
+                  {article.tags && article.tags.length > 0 && (
+                    <div class="pt-3 border-t border-gray-200">
+                      <div class="flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                          <span class="inline-block px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-700 font-medium">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    
+    {articles.length === 0 && (
+      <div class="text-center py-20 bg-white rounded-lg border-2 border-gray-200">
+        <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
+        <p class="text-gray-500 text-lg">No recent news articles available</p>
+      </div>
+    )}
+  </div>
+</DigitalDisplayLayout>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  .digital-news-display {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.5rem 4rem;
+  }
+  
+  .news-card-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .news-card-full:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* 3:2 aspect ratio for images */
+  .news-image-container-full {
+    position: relative;
+    width: 100%;
+    padding-top: 66.67%; /* 3:2 aspect ratio */
+    overflow: hidden;
+    background: #f3f4f6;
+  }
+  
+  .news-image-full {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .news-image-placeholder-full {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  }
+</style>
