@@ -19,7 +19,7 @@ class KGSExternalLinkWarning {
           },
           oldSite: {
             domains: ['www.uky.edu', 'uky.edu'],
-            pathPattern: /\/KGS(?!web|map)/i,
+            pathPattern: /^\/KGS(\/|$)/i,  // Must start with /KGS followed by / or end of path
             storageKey: 'kgs_old_site_warning_disabled',
             title: 'You\'re leaving the new KGS site',
             message: 'You\'re about to visit a page on our previous website. We\'re actively working to migrate all content to this new site, so some information and features may differ.',
@@ -108,10 +108,14 @@ class KGSExternalLinkWarning {
           if (siteType === 'otherSite') continue;
 
           // Check if domain matches
-          const domainMatches = config.domains.some(targetDomain => 
-            domain === targetDomain.toLowerCase() || 
-            domain.endsWith('.' + targetDomain.toLowerCase())
-          );
+          const domainMatches = config.domains.some(targetDomain => {
+            // For oldSite, we want exact matches only (not subdomains)
+            if (siteType === 'oldSite') {
+              return domain === targetDomain.toLowerCase();
+            }
+            return domain === targetDomain.toLowerCase() || 
+                  domain.endsWith('.' + targetDomain.toLowerCase());
+          });
 
           if (domainMatches) {
             // If there's a path pattern, check if it matches
