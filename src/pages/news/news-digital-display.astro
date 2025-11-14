@@ -7,7 +7,7 @@ import { fetchRecentNews } from '../../lib/api_news';
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Fetch top 4 recent news items (leaving room for Facebook feed)
-const { articles } = await fetchRecentNews(4, 1);
+const { articles } = await fetchRecentNews(6, 1);
 
 // Your existing helper functions stay the same...
 const formatDate = (dateString) => {
@@ -102,7 +102,7 @@ const facebookPageName = "KGSNews";
 
   <div class="digital-news-display">
     
-    <div class="grid grid-cols-3 gap-8" style="margin-top: 8rem;">
+    <div class="grid grid-cols-3 gap-5" style="margin-top: 5rem;">
       
       {/* Facebook Feed - Left column */}
       <div class="facebook-feed-column">
@@ -114,9 +114,9 @@ const facebookPageName = "KGSNews";
         
         <div class="facebook-plugin-container">
           <iframe 
-            src={`https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F${facebookPageName}&tabs=timeline&width=450&height=2200&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false&appId`}
-            width="450" 
-            height="2200" 
+            src={`https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F${facebookPageName}&tabs=timeline&width=500&height=2800&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false&appId`}
+            width="500" 
+            height="2800" 
             style="border:none;overflow:hidden;border-radius:8px;background:white;"
             scrolling="no" 
             frameborder="0"
@@ -245,7 +245,7 @@ const facebookPageName = "KGSNews";
 
 <style>
   .digital-news-display {
-    max-width: 1600px;
+    max-width: 2200px;
     margin: 0 auto;
     padding: 1.5rem 4rem;
   }
@@ -305,4 +305,27 @@ const facebookPageName = "KGSNews";
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
+
+/* Facebook Feed Styling */
+.facebook-feed-column {
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.facebook-plugin-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* Container dimensions after scaling */
+  width: 100%;
+  height: 2800px; /* 2800 * 0.8 */
+}
+
+.facebook-plugin-container iframe {
+  transform: scale(1.3);
+  transform-origin: top left;
+}
+
 </style>
