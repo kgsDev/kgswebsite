@@ -1,25 +1,22 @@
 ---
-// src/pages/factsheets/index.astro
+// src/pages/pubs/annual-reports.astro
 export const prerender = false; // Enable SSR for this page
 
 import { 
-  fetchAllFactsheets, 
-  getFactsheetCategories,
+  fetchAllAnnualReports, 
   getPublicationYears,
-  categorizeFactsheet
-} from '../../lib/api_factsheets';
+} from '../../lib/api_annual-reports.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import FactsheetCard from '../../components/pubs/FactsheetCard.astro';
+import AnnualReportCard from '../../components/pubs/AnnualReportCard.astro';
 
-// Fetch all fact sheets
-const factsheets = await fetchAllFactsheets(Astro.request);
-const categories = getFactsheetCategories(factsheets);
-const years = getPublicationYears(factsheets);
+// Fetch all annual reports
+const annualReports = await fetchAllAnnualReports(Astro.request);
+const years = getPublicationYears(annualReports);
 
 // Define props
 const { 
-  title = "KGS Fact Sheets",
-  description = 'Informational fact sheets about Kentucky geology, natural resources, and geologic hazards.',
+  title = "KGS Annual Reports",
+  description = 'Annual reports from the Kentucky Geological Survey.',
   showBreadcrumb = true,
 } = Astro.props;
 ---
@@ -27,7 +24,7 @@ const {
 <BaseLayout 
   title={title}
   description={description}
-  activePage="factsheets"
+  activePage="annual-reports"
   showBreadcrumb={showBreadcrumb}
 >
   
@@ -37,10 +34,10 @@ const {
 
   <div class="container mx-auto px-4 py-1">
     <div class="mb-8">
-      <h1><i class="fas fa-info-circle"></i> KGS Fact Sheets</h1>
+      <h1><i class="fas fa-newspaper"></i> KGS Annual Reports</h1>
       <p class="text-gray-600 mt-2">{description}</p>
       <p class="text-sm text-gray-500 mt-1">
-        {factsheets.length} fact sheets available
+        {annualReports.length} annual reports available
       </p>
     </div>
   
@@ -50,7 +47,7 @@ const {
         <!-- Search Input -->
         <div class="md:col-span-2">
           <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
-            Search Fact Sheets
+            Search Annual Reports
           </label>
           <div class="relative">
             <input 
@@ -62,23 +59,7 @@ const {
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
           </div>
         </div>
-        
-        <!-- Category Filter -->
-        <div>
-          <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <select 
-            id="category" 
-            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-        
+                
         <!-- Year Filter -->
         <div>
           <label for="year" class="block text-sm font-medium text-gray-700 mb-1">
@@ -110,7 +91,6 @@ const {
             <option value="year-asc">Oldest First</option>
             <option value="title-asc">Title (A-Z)</option>
             <option value="title-desc">Title (Z-A)</option>
-            <option value="category-asc">Category (A-Z)</option>
           </select>
         </div>
         
@@ -171,32 +151,31 @@ const {
       
       <!-- Results Count -->
       <div class="mt-4 text-sm text-gray-600" id="results-count">
-        Showing <span id="showing-count">{factsheets.length}</span> of <span id="total-count">{factsheets.length}</span> fact sheets
+        Showing <span id="showing-count">{annualReports.length}</span> of <span id="total-count">{annualReports.length}</span> annual reports
       </div>
     </div>
 
-    <!-- Factsheets Container -->
-    <div id="factsheets-container">
-      {factsheets.length === 0 ? (
+    <!-- Annual Reports Container -->
+    <div id="annual-reports-container">
+      {annualReports.length === 0 ? (
         <div class="text-center py-16 bg-white rounded-lg shadow-md">
           <i class="fas fa-file-alt text-4xl text-gray-400 mb-4"></i>
-          <h3 class="text-xl font-medium text-gray-900">No fact sheets found</h3>
+          <h3 class="text-xl font-medium text-gray-900">No annual reports found</h3>
           <p class="mt-1 text-sm text-gray-500">Please check back later for updates.</p>
         </div>
       ) : (
-        <div id="factsheets-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {factsheets.map(factsheet => (
+        <div id="annual-reports-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {annualReports.map(annualReport => (
             <div 
-              class="factsheet-item"
-              data-title={factsheet.title.toLowerCase()}
-              data-category={categorizeFactsheet(factsheet)}
-              data-year={factsheet.publication_year}
-              data-authors={factsheet.author_id.map(a => 
+              class="annual-report-item"
+              data-title={annualReport.title.toLowerCase()}
+              data-year={annualReport.publication_year}
+              data-authors={annualReport.author_id.map(a => 
                 `${a.authors_id.first_name} ${a.authors_id.last_name}`.toLowerCase()
               ).join(' ')}
-              data-comments={(factsheet.comments || '').toLowerCase()}
+              data-comments={(annualReport.comments || '').toLowerCase()}
             >
-              <FactsheetCard factsheet={factsheet} />
+              <AnnualReportCard annualReport={annualReport} />
             </div>
           ))}
         </div>
@@ -211,7 +190,7 @@ const {
     <!-- No Results Message (hidden by default) -->
     <div id="no-results" class="hidden py-16 text-center bg-white rounded-lg shadow-md">
       <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
-      <h3 class="text-xl font-medium text-gray-700">No fact sheets found</h3>
+      <h3 class="text-xl font-medium text-gray-700">No annual reports found</h3>
       <p class="text-gray-500 mt-2">Try adjusting your search criteria or filters</p>
     </div>
   </div>
@@ -221,12 +200,11 @@ const {
   // Client-side search, filtering, and pagination functionality
   document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search');
-    const categorySelect = document.getElementById('category');
     const yearSelect = document.getElementById('year');
     const sortSelect = document.getElementById('sort');
     const perPageSelect = document.getElementById('perPage');
-    const factsheetsContainer = document.getElementById('factsheets-container');
-    const factsheetsGrid = document.getElementById('factsheets-grid');
+    const annualReportsContainer = document.getElementById('annual-reports-container');
+    const annualReportsGrid = document.getElementById('annual-reports-grid');
     const noResults = document.getElementById('no-results');
     const activeFilters = document.getElementById('active-filters');
     const gridViewBtn = document.getElementById('grid-view');
@@ -247,7 +225,7 @@ const {
       gridViewBtn.classList.remove('text-gray-600');
       listViewBtn.classList.remove('bg-[#0033A0]', 'text-white');
       listViewBtn.classList.add('text-gray-600');
-      factsheetsGrid.className = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6';
+      annualReportsGrid.className = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6';
     });
     
     listViewBtn.addEventListener('click', () => {
@@ -256,13 +234,12 @@ const {
       listViewBtn.classList.remove('text-gray-600');
       gridViewBtn.classList.remove('bg-[#0033A0]', 'text-white');
       gridViewBtn.classList.add('text-gray-600');
-      factsheetsGrid.className = 'space-y-4';
+      annualReportsGrid.className = 'space-y-4';
     });
     
     // Reset filters
     resetBtn.addEventListener('click', () => {
       searchInput.value = '';
-      categorySelect.value = '';
       yearSelect.value = '';
       sortSelect.value = 'year-desc';
       perPageSelect.value = '12';
@@ -276,7 +253,6 @@ const {
       
       const filters = [
         { element: searchInput, label: 'Search', type: 'search' },
-        { element: categorySelect, label: 'Category', type: 'category' },
         { element: yearSelect, label: 'Year', type: 'year' }
       ];
       
@@ -305,17 +281,15 @@ const {
     // Function to filter, sort, and paginate
     function filterAndDisplay() {
       const searchTerm = searchInput.value.toLowerCase();
-      const selectedCategory = categorySelect.value;
       const selectedYear = yearSelect.value;
       const sortBy = sortSelect.value;
       const perPage = perPageSelect.value;
       
-      const items = Array.from(document.querySelectorAll('.factsheet-item'));
+      const items = Array.from(document.querySelectorAll('.annual-report-item'));
       
       // Filter items
       filteredItems = items.filter(item => {
         const title = item.getAttribute('data-title') || '';
-        const category = item.getAttribute('data-category') || '';
         const year = item.getAttribute('data-year') || '';
         const authors = item.getAttribute('data-authors') || '';
         const comments = item.getAttribute('data-comments') || '';
@@ -326,10 +300,9 @@ const {
           authors.includes(searchTerm) ||
           comments.includes(searchTerm);
           
-        const matchesCategory = selectedCategory === '' || category === selectedCategory;
         const matchesYear = selectedYear === '' || year === selectedYear;
         
-        return matchesSearch && matchesCategory && matchesYear;
+        return matchesSearch && matchesYear;
       });
       
       // Sort filtered items
@@ -338,8 +311,6 @@ const {
         const titleB = b.getAttribute('data-title') || '';
         const yearA = parseInt(a.getAttribute('data-year')) || 0;
         const yearB = parseInt(b.getAttribute('data-year')) || 0;
-        const categoryA = a.getAttribute('data-category') || '';
-        const categoryB = b.getAttribute('data-category') || '';
         
         switch (sortBy) {
           case 'year-asc':
@@ -350,8 +321,6 @@ const {
             return titleA.localeCompare(titleB);
           case 'title-desc':
             return titleB.localeCompare(titleA);
-          case 'category-asc':
-            return categoryA.localeCompare(categoryB);
           default:
             return yearB - yearA;
         }
@@ -379,7 +348,7 @@ const {
       
       // Reorder and display items
       pageItems.forEach(item => {
-        factsheetsGrid.appendChild(item);
+        annualReportsGrid.appendChild(item);
         item.style.display = 'block';
       });
       
@@ -395,11 +364,11 @@ const {
       
       // Toggle no results message
       if (filteredItems.length === 0) {
-        factsheetsContainer.style.display = 'none';
+        annualReportsContainer.style.display = 'none';
         noResults.classList.remove('hidden');
         paginationContainer.innerHTML = '';
       } else {
-        factsheetsContainer.style.display = 'block';
+        annualReportsContainer.style.display = 'block';
         noResults.classList.add('hidden');
       }
     }
@@ -494,10 +463,6 @@ const {
     
     // Add event listeners
     searchInput.addEventListener('input', () => {
-      currentPage = 1;
-      filterAndDisplay();
-    });
-    categorySelect.addEventListener('change', () => {
       currentPage = 1;
       filterAndDisplay();
     });

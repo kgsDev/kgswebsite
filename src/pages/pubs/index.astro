@@ -1,0 +1,128 @@
+---
+// src/pages/pubs/index.astro
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = "KGS Publications";
+const description = "Browse our collection of geological publications, maps, reports, and research documents.";
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="publications"
+  showBreadcrumb={true}
+>
+  
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </Fragment>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">KGS Publications</h1>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        {description}
+      </p>
+    </div>
+
+    <!-- Publication Collections Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      
+      <!-- Full Publications Catalog -->
+      <a 
+        href="https://kgs.uky.edu/kygeode/services/pubs/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-t-4 border-[#0033A0]"
+      >
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 flex items-center justify-center h-48">
+          <i class="fas fa-book-open text-6xl text-[#0033A0] group-hover:scale-110 transition-transform duration-300"></i>
+        </div>
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#0033A0] transition-colors">
+            Full Publications and Maps Catalog
+          </h2>
+          <p class="text-gray-600 mb-4">
+            Search our complete catalog of maps, reports, information circulars, and more.
+          </p>
+          <div class="flex items-center text-[#0033A0] font-medium">
+            Search Catalog
+            <i class="fas fa-external-link-alt ml-2 group-hover:translate-x-1 transition-transform"></i>
+          </div>
+        </div>
+      </a>
+
+      <!-- Annual Reports -->
+      <a 
+        href="/pubs/annual-reports"
+        class="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-t-4 border-blue-600"
+      >
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex items-center justify-center h-48">
+          <i class="fas fa-newspaper text-6xl text-blue-600 group-hover:scale-110 transition-transform duration-300"></i>
+        </div>
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+            Annual Reports
+          </h2>
+          <p class="text-gray-600 mb-4">
+            Yearly reports documenting KGS research activities, accomplishments, and findings.
+          </p>
+          <div class="flex items-center text-blue-600 font-medium">
+            Browse Reports
+            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+          </div>
+        </div>
+      </a>
+
+      <!-- Fact Sheets -->
+      <a 
+        href="/pubs/factsheets"
+        class="group bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-t-4 border-green-600"
+      >
+        <div class="bg-gradient-to-br from-green-50 to-green-100 p-8 flex items-center justify-center h-48">
+          <i class="fas fa-info-circle text-6xl text-green-600 group-hover:scale-110 transition-transform duration-300"></i>
+        </div>
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors">
+            Fact Sheets
+          </h2>
+          <p class="text-gray-600 mb-4">
+            Concise, informative documents covering Kentucky's geology, resources, and geological hazards.
+          </p>
+          <div class="flex items-center text-green-600 font-medium">
+            Browse Fact Sheets
+            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="mt-16 max-w-4xl mx-auto">
+      <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg">
+        <div class="flex items-start">
+          <i class="fas fa-info-circle text-2xl text-blue-600 mr-4 mt-1"></i>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">About Our Publications</h3>
+            <p class="text-gray-700">
+              The Kentucky Geological Survey has been publishing research findings and geological data since 1854. 
+              Our publications include technical reports, maps, fact sheets, and annual reports that document 
+              Kentucky's geological resources, hazards, and research activities. Many of our publications are 
+              available for free download or can be viewed online.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Smooth hover transitions */
+  a.group {
+    will-change: transform;
+  }
+</style>

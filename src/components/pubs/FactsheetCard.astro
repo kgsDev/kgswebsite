@@ -19,8 +19,6 @@ const coverUrl = getCoverImageUrl(factsheet.cover);
 // Clean title by removing ": KGS Fact Sheet" suffix if present
 const cleanTitle = factsheet.title
   .replace(/:\s*KGS\s*(Fact\s*Sheet|Factsheet|Pamphlet)\s*$/i, '')
-  .replace(/\s*\(color\)\s*$/i, '')
-  .replace(/\s*\(black and white\)\s*$/i, '')
   .trim();
 
 // Color mappings for Tailwind classes

@@ -1,0 +1,145 @@
+--- 
+//src/components/pubs/AnnualReportCard.astro
+
+import { 
+  formatAuthors,
+  getCoverImageUrl 
+} from '../../lib/api_annual-reports.js';
+
+const { annualReport } = Astro.props;
+
+const authors = formatAuthors(annualReport.author_id);
+const coverUrl = getCoverImageUrl(annualReport.cover);
+const publicationUrl = `https://kgs.uky.edu/kygeode/services/pubs/pub.htm?id=${annualReport.id}`;
+
+// Determine if download should be prominent (when no webpage link exists)
+const downloadIsProminent = !annualReport.url_webpage && annualReport.url_download;
+
+// Define fallback styling
+const colors = {
+  bg: 'bg-blue-100',
+  border: 'border-blue-500',
+  icon: 'text-blue-600'
+};
+const categoryIcon = 'fa-file-alt';
+--- 
+
+<div 
+  class={`annual-report-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-t-4 ${colors.border} h-full flex flex-col`}
+  data-title={annualReport.title}
+  data-year={annualReport.publication_year}
+  data-date={annualReport.publication_year}
+>
+  <!-- Image or Icon Header - Clickable -->
+  <a 
+    href={publicationUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="relative block"
+  >
+    {coverUrl ? (
+      <div class="w-full h-48 bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+        <img 
+          src={coverUrl} 
+          alt={annualReport.title}
+          class="max-w-full max-h-full object-contain"
+          loading="lazy"
+        />
+      </div>
+    ) : (
+      <div class={`w-full h-48 ${colors.bg} flex items-center justify-center hover:opacity-80 transition-opacity`}>
+        <i class={`fas ${categoryIcon} text-5xl ${colors.icon}`}></i>
+      </div>
+    )}
+    
+    <!-- Year Badge - Prominent -->
+    <div class="absolute top-3 left-3 pointer-events-none">
+      <span class="inline-flex items-center px-3 py-2 rounded-lg bg-[#0033A0] text-white text-lg font-bold shadow-lg">
+        <i class="fas fa-calendar-alt mr-2"></i>
+        {annualReport.publication_year}
+      </span>
+    </div>
+  </a>
+
+  <!-- Content Section -->
+  <div class="p-5 flex flex-col flex-grow">
+    <!-- Title -->
+    <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">
+      {annualReport.title}
+    </h3>
+    
+    <!-- Authors -->
+    {authors && (
+      <p class="text-sm text-gray-600 mb-3">
+        <i class="fas fa-user-edit mr-1"></i>
+        {authors}
+      </p>
+    )}
+    
+    <!-- Spacer to push buttons to bottom -->
+    <div class="flex-grow"></div>
+    
+    <!-- Action Buttons -->
+    <div class="mt-auto pt-4 border-t border-gray-100">
+      <div class="flex flex-wrap gap-2">
+        {annualReport.url_webpage && (
+          <a 
+            href={annualReport.url_webpage}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-4 py-2 bg-[#0033A0] text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            <i class="fas fa-external-link-alt mr-2"></i>
+            View Online
+          </a>
+        )}
+        
+        {annualReport.url_download && (
+          <a 
+            href={annualReport.url_download}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+              downloadIsProminent 
+                ? 'bg-[#0033A0] text-white hover:bg-blue-700' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <i class="fas fa-download mr-2"></i>
+            Download PDF
+          </a>
+        )}
+        
+        {annualReport.doi && (
+          <a 
+            href={`https://doi.org/${annualReport.doi}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+          >
+            <i class="fas fa-link mr-2"></i>
+            DOI
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Series/Issue Info Footer -->
+  {(annualReport.series || annualReport.issue) && (
+    <div class="bg-gray-50 px-5 py-3 text-xs text-gray-500 border-t">
+      {annualReport.series && <span>Series {annualReport.series}</span>}
+      {annualReport.series && annualReport.issue && <span class="mx-1">•</span>}
+      {annualReport.issue && <span>Issue {annualReport.issue}</span>}
+    </div>
+  )}
+</div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
