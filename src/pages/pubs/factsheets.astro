@@ -186,8 +186,9 @@ const {
       ) : (
         <div id="factsheets-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {factsheets.map(factsheet => (
-            <div 
-              class="factsheet-item"
+            <div
+              id={`fact-${factsheet.id}`}
+              class="factsheet-item scroll-mt-24"
               data-title={factsheet.title.toLowerCase()}
               data-category={categorizeFactsheet(factsheet)}
               data-year={factsheet.publication_year}
@@ -240,6 +241,33 @@ const {
     let currentPage = 1;
     let filteredItems = [];
     
+
+    // Handle anchor link on page load
+    function handleAnchorScroll() {
+      const hash = window.location.hash;
+      if (hash) {
+        const targetId = hash.substring(1); // Remove the #
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          // First, make sure all items are visible (set "Show All")
+          perPageSelect.value = 'all';
+          filterAndDisplay();
+          
+          // Wait a moment for the DOM to update, then scroll
+          setTimeout(() => {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Add a highlight effect
+            targetElement.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+            setTimeout(() => {
+              targetElement.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50');
+            }, 2000);
+          }, 100);
+        }
+      }
+    }
+
     // View toggle functionality
     gridViewBtn.addEventListener('click', () => {
       currentView = 'grid';
@@ -513,5 +541,8 @@ const {
     
     // Initialize
     filterAndDisplay();
+    
+    // Handle anchor scroll after page is ready
+    handleAnchorScroll();
   });
 </script>

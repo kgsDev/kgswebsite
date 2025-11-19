@@ -45,7 +45,6 @@ async function loadSearchIndex() {
     
     const response = await fetch(`/js/search-index.json?v=${version}`);
     searchIndex = await response.json();
-    console.log(`Loaded ${searchIndex.length} items from custom search index`);
   } catch (error) {
     console.error('Failed to load search index:', error);
   }

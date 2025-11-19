@@ -312,7 +312,7 @@ export async function GET() {
     annualReports.forEach(report => {
       searchIndex.push({
         title: report.title,
-        url: `/pubs/annual-reports`, // They'll search and filter on the page itself
+        url: `/pubs/annual-reports#report-${report.id || report.slug}`, // Add unique anchor
         content: [
           report.title,
           report.author_id?.map(a => `${a.authors_id.first_name} ${a.authors_id.last_name}`).join(' ') || '',
@@ -335,7 +335,7 @@ export async function GET() {
     factsheets.forEach(sheet => {
       searchIndex.push({
         title: sheet.title,
-        url: `/pubs/factsheets`,
+        url: `/pubs/factsheets#fact-${sheet.id || sheet.slug}`, // Add unique anchor
         content: [
           sheet.title,
           sheet.author || '',
