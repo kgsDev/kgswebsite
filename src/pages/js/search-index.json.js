@@ -1,3 +1,6 @@
+// astro/src/pages/js/search-index.json.js
+// Generates a search index JSON for search page using various API functions
+
 import { fetchStaffByDepartment } from '../../lib/api_staff';
 import {
   fetchAllPages,
@@ -6,14 +9,14 @@ import {
   fetchAllMonitoringNetworks,
   fetchAllAdvisoryBoard,
   fetchAllLocations,
-  fetchInternDetails,
   fetchInternFAQs,
   fetchInternFinalProjects,
   fetchAllInternProjects,
   fetchAllLabs,
   fetchAllNews,
-  fetchNewsBySlug
-} from '../../lib/api_content';
+} from '../../lib/api_search_content';
+import { fetchAllAnnualReports } from '../../lib/api_annual-reports';
+import { fetchAllFactsheets } from '../../lib/api_factsheets';
 
 export async function GET() {
   const searchIndex = [];
@@ -302,6 +305,53 @@ export async function GET() {
   } catch (error) {
     console.error('Error indexing news:', error);
   }
+
+  // ===== ANNUAL REPORTS =====
+  try {
+    const annualReports = await fetchAllAnnualReports();
+    annualReports.forEach(report => {
+      searchIndex.push({
+        title: report.title,
+        url: `/pubs/annual-reports`, // They'll search and filter on the page itself
+        content: [
+          report.title,
+          report.author_id?.map(a => `${a.authors_id.first_name} ${a.authors_id.last_name}`).join(' ') || '',
+          report.comments || '',
+          report.publication_year
+        ].join(' '),
+        type: 'annual_report',
+        category: 'Annual Reports',
+        subtitle: `Annual Report ${report.publication_year}`,
+        image: report.tile_image || null
+      });
+    });
+  } catch (error) {
+    console.error('Error indexing annual reports:', error);
+  }
+
+  // ===== FACTSHEETS =====
+  try {
+    const factsheets = await fetchAllFactsheets();
+    factsheets.forEach(sheet => {
+      searchIndex.push({
+        title: sheet.title,
+        url: `/pubs/factsheets`,
+        content: [
+          sheet.title,
+          sheet.author || '',
+          sheet.series_number || '',
+          sheet.publication_year
+        ].join(' '),
+        type: 'factsheet',
+        category: 'Fact Sheets',
+        subtitle: `Fact Sheet ${sheet.series_number || ''}`,
+        image: sheet.tile_image || null
+      });
+    });
+  } catch (error) {
+    console.error('Error indexing factsheets:', error);
+  }
+
 
   return new Response(JSON.stringify(searchIndex), {
     headers: {

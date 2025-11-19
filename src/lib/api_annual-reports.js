@@ -32,8 +32,7 @@ export async function fetchAllAnnualReports(request) {
     'limit': '-1',
     'meta': '*',
     'filter[_and][0][status][_eq]': 'published',
-    'filter[_and][1][comments][_icontains]': 'kgs annual report',
-    'filter[_and][2][type][_eq]': 'ar'
+    'filter[_and][1][comments][_icontains]': 'kgs annual report'
     });
 
     fields.forEach(field => {

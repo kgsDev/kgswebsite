@@ -1,4 +1,4 @@
-// src/lib/api_content.js
+// src/lib/api_search_content.js
 import axios from 'axios';
 
 const api = axios.create({
