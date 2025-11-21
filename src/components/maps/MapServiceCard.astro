@@ -1,0 +1,328 @@
+---
+// src/components/maps/MapServiceCard.astro
+import { formatCategoryName, getCategoryIcon, getCategoryColor, getBrowseGraphicUrl } from '../../lib/api_mapservices';
+
+const { mapService } = Astro.props;
+
+// Get the browse graphic URL using helper function
+const browseGraphicUrl = getBrowseGraphicUrl(mapService.browse_graphic);
+
+const categoryColor = getCategoryColor(mapService.category);
+const categoryIcon = getCategoryIcon(mapService.category);
+const categoryName = formatCategoryName(mapService.category);
+
+// Generate a unique ID for this modal
+const modalId = `modal-${mapService.id}`;
+---
+
+<div class="map-service-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+  <!-- Browse Graphic -->
+  {browseGraphicUrl && (
+    <div 
+      class="relative aspect-[4/3] overflow-hidden bg-gray-100 cursor-pointer"
+      data-modal-target={modalId}
+    >
+      <img 
+        src={browseGraphicUrl}
+        alt={`Preview of ${mapService.title}`}
+        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+        loading="lazy"
+      />
+      <!-- Category Badge Overlay -->
+      <div class="absolute top-3 left-3">
+        <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${categoryColor} shadow-md`}>
+          <i class={`fas ${categoryIcon} mr-1.5`}></i>
+          {categoryName}
+        </span>
+      </div>
+      <!-- Click indicator -->
+      <div class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+        <div class="bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-900">
+          <i class="fas fa-expand-alt mr-2"></i>
+          View Details
+        </div>
+      </div>
+    </div>
+  )}
+  
+  <!-- Content -->
+  <div class="p-5 flex-1 flex flex-col">
+    <!-- Title -->
+    <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2 hover:text-[#0033A0] transition-colors">
+      {mapService.title}
+    </h3>
+    
+    <!-- Description -->
+    <p 
+      class="text-sm text-gray-600 mb-4 line-clamp-3 flex-1 cursor-pointer hover:text-gray-800 transition-colors"
+      data-modal-target={modalId}
+    >
+      {mapService.description}
+    </p>
+    
+    <!-- Actions -->
+    <div class="flex flex-col gap-2 mt-auto">
+      <a 
+        href={mapService.map_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="w-full px-4 py-2.5 bg-[#0033A0] text-white text-center rounded-lg hover:bg-[#1B365D] transition-colors font-medium flex items-center justify-center"
+      >
+        <i class="fas fa-external-link-alt mr-2"></i>
+        Launch Map Service
+      </a>
+      
+      {mapService.help_url && (
+        <a 
+          href={mapService.help_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full px-4 py-2.5 bg-gray-100 text-gray-700 text-center rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center justify-center"
+        >
+          <i class="fas fa-question-circle mr-2"></i>
+          Help & Documentation
+        </a>
+      )}
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div 
+  id={modalId}
+  class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+  data-modal
+>
+  <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+      <div class="flex items-center gap-3">
+        <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${categoryColor}`}>
+          <i class={`fas ${categoryIcon} mr-1.5`}></i>
+          {categoryName}
+        </span>
+        <h2 class="text-2xl font-bold text-gray-900">
+          {mapService.title}
+        </h2>
+      </div>
+      <button 
+        class="modal-close text-gray-400 hover:text-gray-600 transition-colors p-2"
+        aria-label="Close modal"
+      >
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="p-6">
+      <!-- Browse Graphic -->
+      {browseGraphicUrl && (
+        <div class="mb-4 rounded-lg overflow-hidden shadow-md">
+          <img 
+            src={browseGraphicUrl}
+            alt={`Preview of ${mapService.title}`}
+            class="w-3/4 h-auto object-cover mx-auto"
+          />
+        </div>
+      )}
+      
+      <!-- Full Description -->
+      <div class="prose max-w-none mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+        <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+          {mapService.description}
+        </p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+        <a 
+          href={mapService.map_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex-1 px-6 py-3 bg-[#0033A0] text-white text-center rounded-lg hover:bg-[#1B365D] transition-colors font-medium flex items-center justify-center"
+        >
+          <i class="fas fa-external-link-alt mr-2"></i>
+          Launch Map Service
+        </a>
+        
+        {mapService.help_url && (
+          <a 
+            href={mapService.help_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 text-center rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center justify-center"
+          >
+            <i class="fas fa-question-circle mr-2"></i>
+            Help & Documentation
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+   /* List view styles */
+    :global(.list-mode) .map-service-card {
+    flex-direction: row;
+    max-height: 200px;
+    }
+
+    :global(.list-mode) .map-service-card > div:first-child {
+    width: 280px;
+    min-width: 280px;
+    aspect-ratio: auto;
+    height: 100%;
+    }
+
+    :global(.list-mode) .map-service-card > div:first-child img {
+    height: 100%;
+    object-fit: cover;
+    }
+
+    :global(.list-mode) .map-service-card .p-5 {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    }
+
+    :global(.list-mode) .map-service-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    }
+
+    :global(.list-mode) .map-service-card p {
+    margin-bottom: 0;
+    }
+
+    /* Group title and description together */
+    :global(.list-mode) .map-service-card .p-5 > h3,
+    :global(.list-mode) .map-service-card .p-5 > p {
+    flex: none;
+    }
+
+    :global(.list-mode) .map-service-card .p-5 {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.25rem 1rem;
+    }
+
+    :global(.list-mode) .map-service-card .p-5 h3 {
+    grid-column: 1;
+    grid-row: 1;
+    }
+
+    :global(.list-mode) .map-service-card .p-5 p {
+    grid-column: 1;
+    grid-row: 2;
+    }
+
+    :global(.list-mode) .map-service-card .flex.flex-col.gap-2 {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    flex-direction: column;
+    margin-top: 0;
+    min-width: fit-content;
+    align-self: center;
+    }
+
+    /* Hide list view changes on mobile */
+    @media (max-width: 767px) {
+    :global(.list-mode) .map-service-card {
+        flex-direction: column;
+        max-height: none;
+    }
+    
+    :global(.list-mode) .map-service-card > div:first-child {
+        width: 100%;
+        min-width: 100%;
+        aspect-ratio: 4/3;
+    }
+    
+    :global(.list-mode) .map-service-card .p-5 {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    :global(.list-mode) .map-service-card h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    :global(.list-mode) .map-service-card .flex.flex-col.gap-2 {
+        flex-direction: column;
+    }
+    }
+</style>
+
+<script>
+  // Modal functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    // Open modal when clicking on image or description
+    document.querySelectorAll('[data-modal-target]').forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        const modalId = trigger.getAttribute('data-modal-target');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+      });
+    });
+    
+    // Close modal with X button
+    document.querySelectorAll('.modal-close').forEach(closeBtn => {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const modal = closeBtn.closest('[data-modal]');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          document.body.style.overflow = ''; // Restore scrolling
+        }
+      });
+    });
+    
+    // Close modal when clicking on backdrop
+    document.querySelectorAll('[data-modal]').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          document.body.style.overflow = ''; // Restore scrolling
+        }
+      });
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('[data-modal]').forEach(modal => {
+          if (!modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+          }
+        });
+      }
+    });
+  });
+</script>

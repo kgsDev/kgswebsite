@@ -1,0 +1,423 @@
+---
+// src/pages/maps/index.astro
+export const prerender = false;
+
+import { 
+  fetchAllMapServices, 
+  getMapServiceCategories,
+  formatCategoryName
+} from '../../lib/api_mapservices';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MapServiceCard from '../../components/maps/MapServiceCard.astro';
+
+// Fetch all map services
+const mapServices = await fetchAllMapServices();
+const categories = getMapServiceCategories(mapServices);
+
+const title = "KGS Interactive Map Services";
+const description = "Explore Kentucky's geology through our collection of interactive web mapping applications featuring geologic maps, water resources, coal data, oil and gas wells, and more.";
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="maps"
+  showBreadcrumb={true}
+>
+  
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </Fragment>
+
+  <!-- Hero Banner Section -->
+    <div class="relative bg-gradient-to-br from-[#0033A0] via-[#1B365D] to-[#0033A0] mb-8 overflow-hidden">
+    <!-- Background Image -->
+    <div class="absolute inset-0 opacity-45">
+        <img src="/assets/maps/geomap_banner.png" alt="Clip from the detailed geologic map of Kentucky for the banner image" class="w-full h-full object-cover" />
+    </div>
+    
+    <div class="container mx-auto px-4 py-12 relative z-10">
+      <div class="max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center drop-shadow-lg" style="color: var(--ivory)">
+        <i class="fas fa-globe-americas mr-4"></i>
+        Interactive Map Services
+        </h1>
+        <p class="text-xl text-white mb-8 drop-shadow-lg" style="color: var(--ivory)">
+        {description}
+        </p>
+        
+        <!-- Stats -->
+        <div class="flex flex-wrap gap-6 text-sm drop-shadow-lg" style="color: var(--ivory)">
+          <div class="flex items-center">
+            <i class="fas fa-map-marked-alt text-2xl mr-2"></i>
+            <div>
+              <div class="font-bold text-lg">{mapServices.length}</div>
+              <div>Map Services</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-1">
+    
+    <!-- Resource Links Section -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <!-- Geospatial Data Library -->
+      <a href="https://www.uky.edu/KGS/gis/kgs_gis.htm" 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-200 hover:border-blue-400"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0 bg-[#0033A0] text-white p-4 rounded-lg group-hover:scale-110 transition-transform">
+            <i class="fas fa-database text-3xl"></i>
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-xl font-bold text-gray-900 mb-2 flex items-center">
+              Geospatial Data Library
+              <i class="fas fa-external-link-alt ml-2 text-sm text-gray-500 group-hover:text-[#0033A0]"></i>
+            </h3>
+            <p class="text-gray-700 mb-3">
+              Download non-KGS GIS data, shapefiles, and geodatabases for use in your own mapping applications and analysis. 
+              The KGS Geologic Map Service (find below) and the KGS Publications Catalog (menu above) are currently the best sources for finding downloadable KGS GIS data.
+            </p>
+            <div class="flex items-center text-[#0033A0] font-medium">
+              <span>Browse Data Downloads</span>
+              <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Desktop GIS Instructions -->
+      <a 
+        href="/maps/desktop-gis-connection" 
+        rel="noopener noreferrer"
+        class="group bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-green-200 hover:border-green-400"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0 bg-green-700 text-white p-4 rounded-lg group-hover:scale-110 transition-transform">
+            <i class="fas fa-desktop text-3xl"></i>
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-xl font-bold text-gray-900 mb-2 flex items-center">
+              Connect to Desktop GIS
+              <i class="fas fa-external-link-alt ml-2 text-sm text-gray-500 group-hover:text-green-700"></i>
+            </h3>
+            <p class="text-gray-700 mb-3">
+              Learn how to connect our map services directly to ArcGIS Pro, ArcMap, QGIS, and other desktop GIS applications.
+            </p>
+            <div class="flex items-center text-green-700 font-medium">
+              <span>View Connection Guide</span>
+              <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  
+    <!-- Search and Filter Controls -->
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+      <div class="grid md:grid-cols-3 gap-4 mb-4">
+        <!-- Search Input -->
+        <div class="md:col-span-2">
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+            Search Map Services
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              id="search" 
+              placeholder="Search by title, description, or keywords..." 
+              class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+        </div>
+        
+        <!-- Category Filter -->
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
+            Filter by Category
+          </label>
+          <select 
+            id="category" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option value={category}>{formatCategoryName(category)}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-4 gap-4">
+        <!-- Sort Options -->
+        <div>
+          <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">
+            Sort By
+          </label>
+          <select 
+            id="sort" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="sort-asc">Featured</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="title-desc">Title (Z-A)</option>
+            <option value="category-asc">Category (A-Z)</option>
+          </select>
+        </div>
+        
+        <!-- View Toggle -->
+        <div class="flex items-end">
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button 
+              id="grid-view" 
+              class="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-[#0033A0] text-white"
+              title="Grid View"
+            >
+              <i class="fas fa-th-large"></i>
+              <span class="ml-1 hidden sm:inline">Grid</span>
+            </button>
+            <button 
+              id="list-view" 
+              class="px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-800"
+              title="List View"
+            >
+              <i class="fas fa-list"></i>
+              <span class="ml-1 hidden sm:inline">List</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Reset Filters -->
+        <div class="flex items-end md:col-span-2">
+          <button 
+            id="reset-filters"
+            class="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+          >
+            <i class="fas fa-undo mr-2"></i>
+            Reset Filters
+          </button>
+        </div>
+      </div>
+      
+      <!-- Active Filters Display -->
+      <div class="mt-4 flex flex-wrap gap-2" id="active-filters"></div>
+      
+      <!-- Results Count -->
+      <div class="mt-4 text-sm text-gray-600" id="results-count">
+        Showing <span id="showing-count">{mapServices.length}</span> of <span id="total-count">{mapServices.length}</span> map services
+      </div>
+    </div>
+
+    <!-- Map Services Container -->
+    <div id="mapservices-container">
+      {mapServices.length === 0 ? (
+        <div class="text-center py-16 bg-white rounded-lg shadow-md">
+          <i class="fas fa-map text-4xl text-gray-400 mb-4"></i>
+          <h3 class="text-xl font-medium text-gray-900">No map services found</h3>
+          <p class="mt-1 text-sm text-gray-500">Please check back later for updates.</p>
+        </div>
+      ) : (
+        <div id="mapservices-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mapServices.map(mapService => (
+            <div
+            class="mapservice-item"
+            data-title={mapService.title.toLowerCase()}
+            data-sort-title={mapService.sort_title.toLowerCase()}
+            data-sort={mapService.sort}
+            data-category={mapService.category}
+            data-description={(mapService.description || '').toLowerCase()}
+            >
+            <MapServiceCard mapService={mapService} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- No Results Message (hidden by default) -->
+    <div id="no-results" class="hidden py-16 text-center bg-white rounded-lg shadow-md">
+      <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+      <h3 class="text-xl font-medium text-gray-700">No map services found</h3>
+      <p class="text-gray-500 mt-2">Try adjusting your search criteria or filters</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search');
+    const categorySelect = document.getElementById('category');
+    const sortSelect = document.getElementById('sort');
+    const mapservicesContainer = document.getElementById('mapservices-container');
+    const mapservicesGrid = document.getElementById('mapservices-grid');
+    const noResults = document.getElementById('no-results');
+    const activeFilters = document.getElementById('active-filters');
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    const resetBtn = document.getElementById('reset-filters');
+    const showingCount = document.getElementById('showing-count');
+    const totalCount = document.getElementById('total-count');
+    
+    let currentView = 'grid';
+    let filteredItems = [];
+
+    // View toggle functionality
+    gridViewBtn.addEventListener('click', () => {
+        currentView = 'grid';
+        gridViewBtn.classList.add('bg-[#0033A0]', 'text-white');
+        gridViewBtn.classList.remove('text-gray-600');
+        listViewBtn.classList.remove('bg-[#0033A0]', 'text-white');
+        listViewBtn.classList.add('text-gray-600');
+        mapservicesGrid.className = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6';
+        mapservicesGrid.classList.remove('list-mode');
+    });
+
+    listViewBtn.addEventListener('click', () => {
+        currentView = 'list';
+        listViewBtn.classList.add('bg-[#0033A0]', 'text-white');
+        listViewBtn.classList.remove('text-gray-600');
+        gridViewBtn.classList.remove('bg-[#0033A0]', 'text-white');
+        gridViewBtn.classList.add('text-gray-600');
+        mapservicesGrid.className = 'space-y-4 list-mode';
+    });
+    
+    // Reset filters
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      categorySelect.value = '';
+      sortSelect.value = 'sort-asc';
+      filterAndDisplay();
+    });
+    
+    // Function to update active filter pills
+    function updateActiveFilters() {
+      activeFilters.innerHTML = '';
+      
+      const filters = [
+        { element: searchInput, label: 'Search', type: 'search' },
+        { element: categorySelect, label: 'Category', type: 'category' }
+      ];
+      
+      filters.forEach(filter => {
+        if (filter.element.value) {
+          const pill = document.createElement('div');
+          pill.className = 'px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm flex items-center';
+          pill.innerHTML = `
+            <span>${filter.label}: ${filter.element.value}</span>
+            <button class="ml-2 text-blue-600 hover:text-blue-800" data-filter="${filter.type}">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          activeFilters.appendChild(pill);
+          
+          pill.querySelector('button').addEventListener('click', () => {
+            filter.element.value = '';
+            filterAndDisplay();
+          });
+        }
+      });
+    }
+    
+    // Function to filter and sort
+    function filterAndDisplay() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categorySelect.value;
+      const sortBy = sortSelect.value;
+      
+      const items = Array.from(document.querySelectorAll('.mapservice-item'));
+      
+      // Filter items
+      filteredItems = items.filter(item => {
+        const title = item.getAttribute('data-title') || '';
+        const category = item.getAttribute('data-category') || '';
+        const description = item.getAttribute('data-description') || '';
+        
+        const matchesSearch = 
+          searchTerm === '' || 
+          title.includes(searchTerm) || 
+          description.includes(searchTerm);
+          
+        const matchesCategory = selectedCategory === '' || category === selectedCategory;
+        
+        return matchesSearch && matchesCategory;
+      });
+      
+        // Sort filtered items
+      filteredItems.sort((a, b) => {
+        const sortTitleA = a.getAttribute('data-sort-title') || a.getAttribute('data-title') || '';
+        const sortTitleB = b.getAttribute('data-sort-title') || b.getAttribute('data-title') || '';
+        const categoryA = a.getAttribute('data-category') || '';
+        const categoryB = b.getAttribute('data-category') || '';
+        
+        // Get sort values
+        const sortAttr = a.getAttribute('data-sort');
+        const sortA = sortAttr && sortAttr !== 'null' ? parseInt(sortAttr) : null;
+        const sortBAttr = b.getAttribute('data-sort');
+        const sortB = sortBAttr && sortBAttr !== 'null' ? parseInt(sortBAttr) : null;
+        
+        switch (sortBy) {
+            case 'sort-asc':
+            if (sortA !== null && sortB !== null) {
+                if (sortA !== sortB) {
+                return sortA - sortB;
+                }
+                return sortTitleA.localeCompare(sortTitleB);
+            }
+            if (sortA !== null && sortB === null) return -1;
+            if (sortA === null && sortB !== null) return 1;
+            return sortTitleA.localeCompare(sortTitleB);
+            
+            case 'title-asc':
+            return sortTitleA.localeCompare(sortTitleB);
+            case 'title-desc':
+            return sortTitleB.localeCompare(sortTitleA);
+            case 'category-asc':
+            return categoryA.localeCompare(categoryB);
+            default:
+            return sortTitleA.localeCompare(sortTitleB);
+        }
+      });
+
+      // Hide all items first
+      items.forEach(item => {
+        item.style.display = 'none';
+      });
+      
+      // Reorder and display filtered items
+      filteredItems.forEach(item => {
+        mapservicesGrid.appendChild(item);
+        item.style.display = 'block';
+      });
+      
+      // Update counts
+      showingCount.textContent = filteredItems.length;
+      totalCount.textContent = items.length;
+      
+      // Update active filters
+      updateActiveFilters();
+      
+      // Toggle no results message
+      if (filteredItems.length === 0) {
+        mapservicesContainer.style.display = 'none';
+        noResults.classList.remove('hidden');
+      } else {
+        mapservicesContainer.style.display = 'block';
+        noResults.classList.add('hidden');
+      }
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterAndDisplay);
+    categorySelect.addEventListener('change', filterAndDisplay);
+    sortSelect.addEventListener('change', filterAndDisplay);
+    
+    // Initialize
+    filterAndDisplay();
+  });
+</script>

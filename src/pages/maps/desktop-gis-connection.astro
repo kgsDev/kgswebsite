@@ -1,0 +1,834 @@
+---
+// src/pages/maps/desktop-gis-connection.astro
+export const prerender = true;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = "Connect to KGS Map Services using Desktop GIS";
+const description = "Learn how to connect to Kentucky Geological Survey map services using ArcGIS Pro, ArcMap, QGIS, and other desktop GIS applications.";
+
+// Service directory data
+const services = [
+  {
+    name: "KY_Geo",
+    datum: "NAD 83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KY_Geo/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KY_Geo/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KY_Geo/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KY_Geo/MapServer/kml/mapImage.kmz",
+    description: "Displays the 1:500,000-scale geologic map of Kentucky at scales smaller than 1:100,000, and 1:24,000-scale geological quadrangle data at larger scales. Includes karst potential and dominant lithology layers derived from geologic formations."
+  },
+  {
+    name: "KYGeo_WGS84",
+    datum: "WGS 1984",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYGeo_WGS84/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYGeo_WGS84/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYGeo_WGS84/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYGeo_WGS84/MapServer/kml/mapImage.kmz",
+    description: "Same geologic map data as KY_Geo but projected in WGS84 for use with ArcGIS Online basemaps and other WGS84-based clients."
+  },
+  {
+    name: "KYCoalBorehole",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalBorehole/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYCoal/KYCoalBorehole/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalBorehole/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalBorehole/MapServer/kml/mapImage.kmz",
+    description: "Locations of coal exploration boreholes in Kentucky. Dynamically updated from the KGS borehole database."
+  },
+  {
+    name: "KYCoalThickness",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalThickness/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYCoal/KYCoalThickness/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalThickness/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYCoal/KYCoalThickness/MapServer/kml/mapImage.kmz",
+    description: "Coal thickness measurements in Kentucky including measurement locations, total coal, and total parting thematic maps."
+  },
+  {
+    name: "KYOilGasWells_SZ",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYOilGasWells_SZ/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYOilGas/KYOilGasWells_SZ/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYOilGasWells_SZ/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYOilGasWells_SZ/MapServer/kml/mapImage.kmz",
+    description: "Kentucky oil and gas well record locations from the KGS Data Repository. Scale-dependent symbology shows well types at larger scales."
+  },
+  {
+    name: "KYDeviatedWells_public",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYDeviatedWells_public/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYOilGas/KYDeviatedWells_public/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYDeviatedWells_public/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KYDeviatedWells_public/MapServer/kml/mapImage.kmz",
+    description: "Line traces of non-vertical oil and gas wells in Kentucky approved for permits since 2006. Includes deviated well traces and inflection points."
+  },
+  {
+    name: "KY_OilGasFields",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KY_OilGasFields/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYOilGas/KY_OilGasFields/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KY_OilGasFields/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYOilGas/KY_OilGasFields/MapServer/kml/mapImage.kmz",
+    description: "Petroleum field outlines digitized from 1:250,000-scale oil and gas maps of Kentucky. Fields are named and identified by dominant fuel type."
+  },
+  {
+    name: "KYSinkholes",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSinkholes/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYWater/KYSinkholes/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSinkholes/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSinkholes/MapServer/kml/mapImage.kmz",
+    description: "Digital GIS sinkhole coverage for Kentucky. Polygons represent the highest elevation closed topographic contour of each mapped sinkhole."
+  },
+  {
+    name: "KYSprings",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSprings/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYWater/KYSprings/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSprings/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYSprings/MapServer/kml/mapImage.kmz",
+    description: "Springs in Kentucky from the Kentucky Groundwater Data Repository. Scale-dependent symbology shows spring types at larger scales."
+  },
+  {
+    name: "KYWaterWells",
+    datum: "NAD83 / KY Single Zone",
+    serviceUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYWaterWells/MapServer",
+    wmsUrl: "https://kgs.uky.edu/arcgis/services/KYWater/KYWaterWells/MapServer/WMSServer?request=GetCapabilities&service=WMS",
+    arcmapUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYWaterWells/MapServer?f=lyr&v=9.3",
+    googleEarthUrl: "https://kgs.uky.edu/arcgis/rest/services/KYWater/KYWaterWells/MapServer/kml/mapImage.kmz",
+    description: "Water wells in Kentucky from the Kentucky Groundwater Data Repository. Scale-dependent symbology shows well primary use at larger scales."
+  }
+];
+---
+
+<BaseLayout 
+  title={title}
+  description={description}
+  activePage="maps"
+  showBreadcrumb={true}
+>
+  
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </Fragment>
+
+  <!-- Hero Banner Section -->
+  <div class="relative bg-gradient-to-br from-[#0033A0] via-[#1B365D] to-[#0033A0] mb-8 overflow-hidden">
+    <div class="container mx-auto px-4 py-12 relative">
+      <div class="max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center drop-shadow-lg" style="color: var(--ivory)">
+          <i class="fas fa-desktop mr-4"></i>
+          Connect to Desktop GIS
+        </h1>
+        <p class="text-xl mb-6 drop-shadow-lg" style="color: var(--ivory)">
+          {description}
+        </p>
+        <a 
+          href="/maps/"
+          class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
+        >
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back to Map Services
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-1 max-w-6xl">
+    
+    <!-- Introduction -->
+    <div class="bg-blue-50 border-l-4 border-[#0033A0] p-6 rounded-r-lg mb-8">
+      <p class="text-gray-700 leading-relaxed">
+        Kentucky Geological Survey map services can be accessed directly in desktop GIS applications like 
+        <strong>ArcGIS Pro</strong>, <strong>ArcMap</strong>, <strong>QGIS</strong>, and other 
+        <a href="https://www.opengeospatial.org/" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">OGC-compliant</a> 
+        clients without downloading large datasets. The data is symbolized and labeled for quick use, allowing you to 
+        overlay your own data on Kentucky geologic map data.
+      </p>
+      <p class="text-gray-700 leading-relaxed mt-3">
+        <strong>Note:</strong> These services are for <em>viewing and querying</em> data only. 
+        You cannot download data or change symbology from these services. The <a href="https://kgs.uky.edu/geomap" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">KGS Geologic Map Service</a> (see below) and the 
+        <a href="https://kgs.uky.edu/pubs" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">KGS Publications Catalog</a> are the best sources for finding downloadable KGS GIS data. 
+        For non-KGS downloadable GIS data, visit our <a href="https://www.uky.edu/KGS/gis/kgs_gis.htm" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">Geospatial Data Library</a>.
+      </p>
+    </div>
+
+    <!-- ArcGIS Pro Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <button 
+          class="accordion-header w-full flex items-center justify-between p-5 text-left bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+          data-accordion="arcgis-pro"
+        >
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-[#0033A0] rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-globe text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">ArcGIS Pro</h2>
+              <p class="text-gray-500 text-sm mt-0.5">Recommended for new projects</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down accordion-icon text-gray-400 text-lg transition-transform duration-300"></i>
+        </button>
+        
+        <div class="accordion-content" id="arcgis-pro-content">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Adding KGS ArcGIS Server Services in ArcGIS Pro</h3>
+            
+            <ol class="space-y-4 text-gray-700">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div>Open <strong>ArcGIS Pro</strong> and your project (or create a new one).</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div>Click the <strong>Insert</strong> tab on the ribbon.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div>Click the <strong>Connections</strong> dropdown and select <strong>New ArcGIS Server</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">4</span>
+                <div>
+                  In the <strong>Server URL</strong> box, enter:
+                  <div class="mt-2 bg-gray-100 p-3 rounded-lg font-mono text-sm break-all">
+                    https://kgs.uky.edu/arcgis/services
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">5</span>
+                <div>Leave authentication blank (KGS services are publicly accessible) and click <strong>OK</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">6</span>
+                <div>The server connection now appears under <strong>Servers</strong> in the Catalog pane.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">7</span>
+                <div>Expand the server connection to browse available map services. Right-click a service and select <strong>Add to Current Map</strong> to add it to your project.</div>
+              </li>
+            </ol>
+
+            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div class="flex items-start">
+                <i class="fas fa-lightbulb text-amber-500 mt-1 mr-3"></i>
+                <div>
+                  <strong class="text-amber-800">Pro Tip:</strong>
+                  <span class="text-amber-700"> For basemaps that use WGS84 (like ArcGIS Online basemaps), use the <code class="bg-amber-100 px-1 rounded">KYGeo_WGS84</code> service to ensure proper alignment.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ArcMap Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <button 
+          class="accordion-header w-full flex items-center justify-between p-5 text-left bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+          data-accordion="arcmap"
+        >
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-map text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">ArcMap (ArcGIS Desktop)</h2>
+              <p class="text-gray-500 text-sm mt-0.5">Legacy application</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down accordion-icon text-gray-400 text-lg transition-transform duration-300"></i>
+        </button>
+        
+        <div class="accordion-content hidden" id="arcmap-content">
+          <div class="p-6">
+            <div class="mb-4 p-4 bg-gray-100 border border-gray-300 rounded-lg">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-gray-500 mt-1 mr-3"></i>
+                <div class="text-gray-600">
+                  <strong>Note:</strong> ArcMap has been retired by Esri. For new projects, we recommend using ArcGIS Pro.
+                </div>
+              </div>
+            </div>
+            
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Adding KGS ArcGIS Server Services in ArcMap</h3>
+            
+            <ol class="space-y-4 text-gray-700">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div>Open <strong>ArcMap</strong>. Click <strong>Add Data</strong> button.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div>In the Add Data dialog box, from the "Look In" drop-down menu, select <strong>GIS Servers</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div>Double-click <strong>Add ArcGIS Server</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">4</span>
+                <div>Keep the selection "Use GIS Services". Click <strong>Next</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">5</span>
+                <div>
+                  Enter the Server URL:
+                  <div class="mt-2 bg-gray-100 p-3 rounded-lg font-mono text-sm break-all">
+                    https://kgs.uky.edu/arcgis/services
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">6</span>
+                <div>Click <strong>Finish</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold mr-3">7</span>
+                <div>Double-click the server name on the "Add Data" menu to browse and select services.</div>
+              </li>
+            </ol>
+
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="flex items-start">
+                <i class="fas fa-download text-blue-500 mt-1 mr-3"></i>
+                <div>
+                  <strong class="text-blue-800">Quick Add:</strong>
+                  <span class="text-blue-700"> You can also add services directly by clicking the "View in ArcMap" links in the Service Directory below to download a layer file (.lyr).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QGIS Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <button 
+          class="accordion-header w-full flex items-center justify-between p-5 text-left bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+          data-accordion="qgis"
+        >
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-700 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-leaf text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">QGIS</h2>
+              <p class="text-gray-500 text-sm mt-0.5">Free and open source GIS</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down accordion-icon text-gray-400 text-lg transition-transform duration-300"></i>
+        </button>
+        
+        <div class="accordion-content hidden" id="qgis-content">
+          <div class="p-6">
+            <p class="text-gray-700 mb-4">
+              <a href="https://www.qgis.org/" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">QGIS</a> 
+              is a free, open source desktop GIS application that can connect directly to KGS ArcGIS REST services. 
+              This allows you to view and query KGS map data without needing Esri software.
+            </p>
+            
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Adding KGS Services via ArcGIS REST Server Connection</h3>
+            
+            <ol class="space-y-4 text-gray-700">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div>Open <strong>QGIS</strong> and locate the <strong>Browser</strong> panel (usually on the left side). If you don't see it, go to <strong>View → Panels → Browser</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div>In the Browser panel, find <strong>ArcGIS REST Servers</strong>, right-click on it, and select <strong>New Connection</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div>
+                  In the connection dialog, enter:
+                  <ul class="mt-2 ml-4 space-y-1">
+                    <li><strong>Name:</strong> <code class="bg-gray-100 px-2 py-0.5 rounded text-sm">Kentucky Geological Survey</code></li>
+                    <li><strong>URL:</strong> <code class="bg-gray-100 px-2 py-0.5 rounded text-sm break-all">https://kgs.uky.edu/arcgis/rest/services</code></li>
+                  </ul>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">4</span>
+                <div>Leave authentication fields blank (KGS services are publicly accessible) and click <strong>OK</strong>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">5</span>
+                <div>Expand the new <strong>Kentucky Geological Survey</strong> connection in the Browser panel to see available service folders.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold mr-3">6</span>
+                <div>Browse into a folder and expand a MapServer to see available layers. Double-click a layer or drag it onto the map canvas to add it to your project.</div>
+              </li>
+            </ol>
+
+            <h4 class="text-md font-semibold text-gray-900 mt-6 mb-3">Alternative: Using WMS in QGIS</h4>
+            <p class="text-gray-700 mb-3">
+              You can also add KGS services as WMS layers, which may be preferable for some use cases:
+            </p>
+            <ol class="space-y-2 text-gray-700 ml-4">
+              <li>1. In the Browser panel, right-click <strong>WMS/WMTS</strong> and select <strong>New Connection</strong></li>
+              <li>2. Enter a name and paste a WMS URL from the Service Directory below</li>
+              <li>3. <strong>Important:</strong> Remove <code class="bg-gray-100 px-1 rounded text-sm">?request=GetCapabilities&service=WMS</code> from the end of the URL</li>
+              <li>4. Click <strong>OK</strong>, then expand the connection and add layers to your map</li>
+            </ol>
+
+            <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-green-600 mt-1 mr-3"></i>
+                <div>
+                  <strong class="text-green-800">Note:</strong>
+                  <span class="text-green-700"> ArcGIS REST connections provide direct access to the service layers. For WGS84-based projects or when using online basemaps, connect to services in the <code class="bg-green-100 px-1 rounded">KYGeo_WGS84</code> folder for proper alignment.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WMS Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <button 
+          class="accordion-header w-full flex items-center justify-between p-5 text-left bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+          data-accordion="wms"
+        >
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-700 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-layer-group text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Web Map Services (WMS)</h2>
+              <p class="text-gray-500 text-sm mt-0.5">OGC standard for any WMS-compatible client</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down accordion-icon text-gray-400 text-lg transition-transform duration-300"></i>
+        </button>
+        
+        <div class="accordion-content hidden" id="wms-content">
+          <div class="p-6">
+            <p class="text-gray-700 mb-4">
+              <a href="https://en.wikipedia.org/wiki/Web_Map_Service" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">WMS (Web Map Service)</a> 
+              is an OGC standard supported by most KGS-hosted ArcGIS Server services. WMS can be used in 
+              MapInfo, Global Mapper, and other OGC-compliant mapping applications.
+            </p>
+            
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Using WMS Services</h3>
+            
+            <ol class="space-y-4 text-gray-700">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div>Get the WMS URL from the Service Directory below, or browse the <a href="https://kgs.uky.edu/arcgis/rest/services" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">full service directory</a>.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div>If WMS is supported, "WMS" will appear in the "Supported Interfaces" list on the service page.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div>In your GIS application, add a new WMS connection using the WMS URL.</div>
+              </li>
+            </ol>
+
+            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-amber-500 mt-1 mr-3"></i>
+                <div>
+                  <strong class="text-amber-800">Important:</strong>
+                  <span class="text-amber-700"> For many WMS clients, you may need to remove the <code class="bg-amber-100 px-1 rounded">?request=GetCapabilities&service=WMS</code> portion from the end of the WMS URL.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Google Earth Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <button 
+          class="accordion-header w-full flex items-center justify-between p-5 text-left bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+          data-accordion="google-earth"
+        >
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-amber-600 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-earth-americas text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Google Earth</h2>
+              <p class="text-gray-500 text-sm mt-0.5">View data on a 3D globe</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down accordion-icon text-gray-400 text-lg transition-transform duration-300"></i>
+        </button>
+        
+        <div class="accordion-content hidden" id="google-earth-content">
+          <div class="p-6">
+            <p class="text-gray-700 mb-4">
+              KGS map services can be viewed in <a href="https://earth.google.com/" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">Google Earth</a> 
+              using KML/KMZ files. This allows you to view Kentucky geologic data overlaid on satellite imagery and terrain.
+            </p>
+            
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Adding KGS Data in Google Earth</h3>
+            
+            <ol class="space-y-4 text-gray-700">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div>Click the "Google Earth" link for a service in the Service Directory below to download a KMZ file.</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div>Open the downloaded KMZ file in Google Earth (it should open automatically if Google Earth is installed).</div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div>The layer will appear in your "Places" panel and display on the globe.</div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Finding Layer URLs Section -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div class="p-6 bg-blue-50 border-b border-blue-200">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-[#0033A0] rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-link text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Layer URLs and Data Downloads in the Geologic Map Service</h2>
+              <p class="text-gray-600 text-sm mt-0.5">How to get the service URL and data download links (if available) for individual map layers</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <p class="text-gray-700 mb-4">
+            You can find the direct service URL and data download links (if available) for any layer in the KGS Geologic Map Service by using the layer list and clicking the info icon. 
+            This is useful when you want to connect to or add a specific layer in your desktop GIS application.
+          </p>
+          
+          <ol class="space-y-4 text-gray-700 mb-6">
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">1</span>
+              <div>Open the <a href="https://kgs.uky.edu/geomap" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline font-medium">KGS Geologic Map Service</a> in your browser.</div>
+            </li>
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">2</span>
+              <div>In the layer list panel, find the layer you're interested in.</div>
+            </li>
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">3</span>
+              <div>Click the dots (...) next to the layer name to expand the info and download (if available) options.</div>
+            </li>
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">4</span>
+              <div>Click the "<i class="fas fa-info-circle text-[#0033A0]"></i> Layer information" to open the map service details.</div>
+            </li>
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">5</span>
+              <div>You can also click the <strong>info icon</strong> <i class="fas fa-info-circle text-[#0033A0]"></i> next to a layer name to open the individual layer details.</div>
+            </li>
+            <li class="flex items-start">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-[#0033A0] rounded-full flex items-center justify-center font-bold mr-3">6</span>
+              <div>The map service URL for that layer will be displayed. Copy this URL to use in your GIS application.</div>
+            </li>
+          </ol>
+          <div class="flex justify-center">
+            <div class="max-w-4xl">
+              <div class="relative group gif-container">
+                <img 
+                  src="/assets/maps/layer-url-workflow.gif" 
+                  alt="Finding layer URLs in the Geologic Map Service" 
+                  class="rounded-lg shadow-md w-full cursor-pointer" 
+                  data-enlarge
+                  data-gif
+                />
+                <button 
+                  class="gif-toggle absolute bottom-3 right-3 bg-black/70 hover:bg-black/90 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-2"
+                  aria-label="Pause animation"
+                >
+                  <i class="fas fa-pause"></i>
+                  <span>Pause</span>
+                </button>
+              </div>
+              <p class="text-sm text-gray-500 mt-2 text-center">
+                <i class="fas fa-search-plus mr-1"></i>Click image to enlarge
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Service Directory -->
+    <section class="mb-6">
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div class="p-6 bg-gray-100 border-b border-gray-200">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-folder-open text-white text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Service Directory</h2>
+              <p class="text-gray-600 text-sm mt-0.5">Browse available KGS map services with direct links. Listed below are the most popular services.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p class="text-gray-600 text-md">
+              <strong>Full directory:</strong> 
+              <a href="https://kgs.uky.edu/arcgis/rest/services" target="_blank" rel="noopener" class="text-[#0033A0] hover:underline">
+                https://kgs.uky.edu/arcgis/rest/services
+              </a>
+            </p>
+            <p>Check the full directory for many more KGS services.</p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="p-4 text-left font-semibold text-gray-900 border-b-2 border-gray-300">Service Name & Links</th>
+                  <th class="p-4 text-left font-semibold text-gray-900 border-b-2 border-gray-300 hidden md:table-cell">Datum/Projection</th>
+                  <th class="p-4 text-left font-semibold text-gray-900 border-b-2 border-gray-300 hidden lg:table-cell">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {services.map((service, index) => (
+                  <tr class={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td class="p-4 border-b border-gray-200">
+                      <div class="font-bold text-gray-900 mb-2">{service.name}</div>
+                      <div class="space-y-1 text-sm">
+                        <a href={service.serviceUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                          <i class="fas fa-server mr-1"></i> ArcGIS Server URL
+                        </a>
+                        <a href={service.wmsUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                          <i class="fas fa-layer-group mr-1"></i> WMS
+                        </a>
+                        <a href={service.arcmapUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                          <i class="fas fa-map mr-1"></i> View in ArcMap
+                        </a>
+                        <a href={service.googleEarthUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                          <i class="fas fa-earth-americas mr-1"></i> Google Earth
+                        </a>
+                      </div>
+                      <div class="md:hidden mt-2 text-xs text-gray-500">{service.datum}</div>
+                      <div class="lg:hidden mt-2 text-sm text-gray-600">{service.description}</div>
+                    </td>
+                    <td class="p-4 border-b border-gray-200 text-gray-600 hidden md:table-cell whitespace-nowrap">
+                      {service.datum}
+                    </td>
+                    <td class="p-4 border-b border-gray-200 text-gray-600 text-sm hidden lg:table-cell">
+                      {service.description}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Need Help Section -->
+    <section class="mb-8">
+      <div class="bg-gradient-to-r from-[#0033A0] to-[#1B365D] rounded-lg shadow-lg p-8 text-white">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="mb-4 md:mb-0">
+            <h2 class="text-2xl font-bold mb-2">Need Help?</h2>
+            <p class="text-blue-100">Contact KGS for assistance with map services or GIS data.</p>
+          </div>
+          <a 
+            href="/contact/"
+            class="inline-flex items-center px-6 py-3 bg-white text-[#0033A0] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
+            <i class="fas fa-envelope mr-2"></i>
+            Contact Us
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<!-- Image Lightbox Modal -->
+<div 
+  id="imageLightbox"
+  class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4 cursor-pointer"
+>
+  <button 
+    class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+    aria-label="Close lightbox"
+    id="lightboxClose"
+  >
+    <i class="fas fa-times text-3xl"></i>
+  </button>
+  <img 
+    id="lightboxImage"
+    src="" 
+    alt="" 
+    class="max-w-full max-h-full object-contain rounded-lg"
+  />
+</div>
+
+<style>
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+  
+  .accordion-content.expanded {
+    max-height: 2000px;
+  }
+  
+  .accordion-icon.rotated {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+      header.addEventListener('click', () => {
+        const accordionId = header.getAttribute('data-accordion');
+        const content = document.getElementById(`${accordionId}-content`);
+        const icon = header.querySelector('.accordion-icon');
+        
+        // Toggle current accordion
+        content.classList.toggle('expanded');
+        content.classList.toggle('hidden');
+        icon.classList.toggle('rotated');
+      });
+    });
+    
+    // Open the first accordion (ArcGIS Pro) by default
+    const firstContent = document.getElementById('arcgis-pro-content');
+    const firstIcon = document.querySelector('[data-accordion="arcgis-pro"] .accordion-icon');
+    if (firstContent && firstIcon) {
+      firstContent.classList.add('expanded');
+      firstContent.classList.remove('hidden');
+      firstIcon.classList.add('rotated');
+    }
+
+    // Image lightbox functionality
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxClose = document.getElementById('lightboxClose');
+    
+    // Open lightbox when clicking on enlargeable images
+    document.querySelectorAll('[data-enlarge]').forEach(img => {
+      img.addEventListener('click', (e) => {
+        // Don't open lightbox if clicking the toggle button
+        if (e.target.closest('.gif-toggle')) return;
+        
+        lightboxImage.src = img.src;
+        lightboxImage.alt = img.alt;
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    
+    // Close lightbox when clicking the X button
+    lightboxClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeLightbox();
+    });
+    
+    // Close lightbox when clicking the backdrop
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+    
+    // Close lightbox on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) {
+        closeLightbox();
+      }
+    });
+    
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    // GIF play/pause functionality
+    document.querySelectorAll('[data-gif]').forEach(gif => {
+      const container = gif.closest('.gif-container');
+      const toggleBtn = container?.querySelector('.gif-toggle');
+      
+      if (!toggleBtn) return;
+      
+      // Store the original GIF src
+      const gifSrc = gif.src;
+      let isPlaying = true;
+      let staticFrame = null;
+      
+      // Create a canvas to capture the first frame
+      function captureStaticFrame() {
+        return new Promise((resolve) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror = () => resolve(null);
+          img.src = gifSrc;
+        });
+      }
+      
+      toggleBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        
+        if (isPlaying) {
+          // Pause: capture current frame and show static image
+          if (!staticFrame) {
+            staticFrame = await captureStaticFrame();
+          }
+          if (staticFrame) {
+            gif.src = staticFrame;
+          }
+          toggleBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+          toggleBtn.setAttribute('aria-label', 'Play animation');
+          isPlaying = false;
+        } else {
+          // Play: restore the GIF
+          gif.src = gifSrc;
+          toggleBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          toggleBtn.setAttribute('aria-label', 'Pause animation');
+          isPlaying = true;
+        }
+      });
+    });
+  });
+</script>
