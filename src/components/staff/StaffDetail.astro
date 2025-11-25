@@ -40,17 +40,17 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
             />
             <div class={`absolute top-0 left-0 w-2 h-full border-l-4 department-${member.department_id?.slug || 'other'}`}></div>
           </div>
-        ) : (
-          <div class="w-full bg-gray-200 flex items-center justify-center" style="padding-bottom: 133.33%;">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
-                <span class="text-4xl font-semibold text-blue-800">
-                  {member.first_name.charAt(0)}{member.last_name.charAt(0)}
-                </span>
+          ) : (
+            <div class="relative w-full bg-gray-200 flex items-center justify-center" style="padding-bottom: 133.33%;">
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="text-4xl font-semibold text-blue-800">
+                    {member.first_name.charAt(0)}{member.last_name.charAt(0)}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
       
       <!-- Info Section - Takes remaining space -->
