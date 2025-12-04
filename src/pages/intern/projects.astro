@@ -3,7 +3,17 @@
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InternSidebar from '../../components/intern/InternSidebar.astro';
-import { fetchInternProjectsByYear, fetchAllFinalProjectDetails } from '../../lib/api_intern';
+import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
+import InfoBox from '../../components/intern/InfoBox.astro';
+import { fetchInternProjectsByYear, fetchInternDetailsByYear, fetchAllFinalProjectDetails, fetchCurrentInternDetails } from '../../lib/api_intern';
+
+// Get the year from params
+const { year } = Astro.params;
+const currentDetails = await fetchCurrentInternDetails();
+const programYear = year ? parseInt(year) : currentDetails?.program_year;
+
+// Fetch details for the specific year
+const details = programYear ? await fetchInternDetailsByYear(programYear) : currentDetails;
 
 const projectsByYear = await fetchInternProjectsByYear();
 const finalProjectDetails = await fetchAllFinalProjectDetails();
@@ -30,7 +40,8 @@ finalProjectDetails.forEach(detail => {
     <!-- Main Content -->
     <div class="lg:col-span-3 max-w-6xl">
     <h1 class="text-3xl font-bold text-blue-900 mb-8">Past Projects</h1>
-    
+    <p class="text-lg">(these are currently being updated)</p>
+       
     {years.length > 0 ? (
       <div class="space-y-16">
         {years.map((year) => {
@@ -214,35 +225,23 @@ finalProjectDetails.forEach(detail => {
       </div>
     )}
 
-    <!-- Call to Action -->
-    <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-8 mt-16">
-      <div class="text-center">
-        <h3 class="text-2xl font-bold text-blue-800 mb-4">
-          Interested in Joining Future Projects?
-        </h3>
-        <p class="text-gray-700 mb-6">
-          The Paul Edwin Potter Internship Program continues to offer exciting research opportunities each summer. 
-          Learn more about upcoming programs and application processes.
-        </p>
-        
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="/intern/2025" 
-            class="inline-flex items-center px-6 py-3 btn btn-primary btn-md"
-          >
-            <i class="fas fa-info-circle mr-2" style="font-size: 1.25rem;"></i>
-            View Current Program
-          </a>
-          <a 
-            href="mailto:kgspotterinternship@uky.edu" 
-            class="inline-flex items-center px-6 py-3 btn btn-primary btn-md"
-          >
-            <i class="fas fa-envelope mr-2" style="font-size: 1.25rem;"></i>
-            Contact Us
-          </a>
-        </div>
-      </div>
-    </div>
+     <!-- Apply -->
+      <InfoBox 
+        title="Interested in Applying?"
+        description="The Paul Edwin Potter Internship Program offers a unique opportunity to gain hands-on experience in geological research. If you're ready to take the next step in your career, consider applying for our internship program."
+        buttons={[
+          {
+            text: "Eligibility and Application",
+            href: `/intern/${details.program_year}`,
+            icon: "fas fa-file-alt"
+          },
+          {
+            text: "Past Projects",
+            href: "/intern/projects",
+            icon: "fas fa-diagram-project"
+          }
+        ]}
+      />
     </div>
   </div>
 </BaseLayout>
