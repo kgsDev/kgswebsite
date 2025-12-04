@@ -1,0 +1,41 @@
+---
+// src/components/ApplyBox.astro
+interface Props {
+  programYear: number;
+  appFormUrl?: string | null;
+}
+
+const { programYear, appFormUrl } = Astro.props;
+const app_url = !!appFormUrl;
+---
+
+<div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="text-white rounded-lg p-8 text-center">
+  {app_url ? (
+    <div>
+      <h2 style="color: white !important;">Ready to Apply?</h2>
+      <p style="color: white !important;" class="p-4">Join the {programYear} Paul Edwin Potter Internship Program and kickstart your geoscience career!</p>
+      <div class="text-center" style="cursor: pointer;">
+        <a 
+          href={appFormUrl}
+          class="inline-flex items-center px-6 py-3 bg-white text-blue-900 font-semibold rounded-lg hover:bg-gray-300 transition"
+        >
+          Apply Here
+        </a>
+      </div>
+    </div>
+  ) : (
+    <div>
+      <h2 style="color: white !important;">Application Coming Soon!</h2>
+      <p style="color: white !important;" class="p-4">We're finalizing the application for the {programYear} Paul Edwin Potter Internship Program. Please check back soon!</p>
+    </div>
+  )}
+  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <p class="text-lg" style="color: white !important;">Questions? Contact us:</p>
+    <a 
+      href="mailto:kgspotterinternship@uky.edu"
+      class="baselink text-lg hover:underline" style="color: white !important;"
+    >
+      kgspotterinternship@uky.edu
+    </a>
+  </div>
+</div>

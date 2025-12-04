@@ -2,7 +2,8 @@
 // src/pages/intern/[year].astro
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InternSidebar from '../../components/InternSidebar.astro';
+import InternSidebar from '../../components/intern/InternSidebar.astro';
+import ApplyBox from '../../components/intern/ApplyBox.astro';
 import { fetchCurrentInternDetails, fetchInternDetailsByYear } from '../../lib/api_intern';
 
 // Get the year from params
@@ -31,22 +32,17 @@ function formatDate(dateString) {
 const isCurrentYear = details.program_year === currentDetails?.program_year;
 
 // Check if we're in the "stay tuned" period
-// This is after the program has ended but before next year's info is available
 const today = new Date();
 const programEndDate = new Date(details.program_end_date);
 const showStayTunedMessage = isCurrentYear && today > programEndDate;
-
-// You might also want to check if next year's details exist
-// const nextYearDetails = await fetchInternDetailsByYear(details.program_year + 1);
-// const hasNextYearInfo = nextYearDetails !== null;
+const app_url = !!details.app_form_url;
 ---
 
 <BaseLayout 
-  title={`${details.program_year} Internship Program`}
-  description={`Information about the ${details.program_year} Paul Edwin Potter Internship Program - application dates, project details, and requirements.`}
-  activePage="intern"
+  title={`${details.program_year} Internship Program - Eligibility and Application`}
+  description={`Information about the ${details.program_year} Paul Edwin Potter Internship Program - application dates, eligibility requirements, and what to expect.`}
+  activePage="program"
 >
-
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
     <!-- Sidebar -->
     <InternSidebar activeSection="program" />
@@ -54,337 +50,320 @@ const showStayTunedMessage = isCurrentYear && today > programEndDate;
     <!-- Main Content -->
     <div class="lg:col-span-3 max-w-4xl">
     
-    <!-- Stay Tuned Message (shown after program ends) -->
-    {showStayTunedMessage && (
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
-        <div class="flex items-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 class="text-2xl font-bold text-blue-800">Stay Tuned for {details.program_year + 1}!</h3>
-        </div>
-        
-        <p class="text-lg text-gray-700 mb-4">
-          The {details.program_year} Paul Edwin Potter Internship Program has concluded. We're currently planning our 
-          {details.program_year + 1} program and will post application details and project information soon.
-        </p>
-        
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="bg-white rounded-lg p-4 border border-blue-200">
-            <h4 class="font-semibold text-blue-800 mb-2">Get Notified</h4>
-            <p class="text-sm text-gray-600 mb-3">
-              Want to be the first to know when applications open? Email us to be added to our notification list.
-            </p>
-            <a 
-              href="mailto:kgspotterinternship@uky.edu?subject=Notify me about 2026 internship"
-              class="baselink"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Get on our mailing list
-            </a>
+      <!-- Stay Tuned Message (shown after program ends) -->
+      {showStayTunedMessage && (
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
+          <div class="flex items-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="text-2xl font-bold text-blue-800">Stay Tuned for {details.program_year + 1}!</h3>
           </div>
+          
+          <p class="text-lg text-gray-700 mb-4">
+            The {details.program_year} Paul Edwin Potter Internship Program has concluded. We're currently planning our 
+            {details.program_year + 1} program and will post application details and project information soon.
+          </p>
           
           <div class="bg-white rounded-lg p-4 border border-blue-200">
             <h4 class="font-semibold text-blue-800 mb-2">Typical Timeline</h4>
             <p class="text-sm text-gray-600">
               Based on previous years, applications typically open in late winter/early spring with the program 
-              running during summer months. Check back in early {details.program_year + 1} for specific dates.
+              running during summer months. Check back in late {details.program_year} for specific dates.
             </p>
           </div>
-        </div>
-      </div>
-    )}
-    
-    <h1 class="text-3xl font-bold text-blue-900 mb-2">
-      The Paul Edwin Potter Internship - {details.program_year} Program
-      {showStayTunedMessage && <span class="text-xl text-gray-500 ml-2">(Reference Information)</span>}
-    </h1>
-    
-    <h2 class="text-xl text-gray-600 mb-8">
-      {formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}
-    </h2>
-
-    <!-- Program Description -->
-    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-      <h3 class="text-2xl font-bold text-blue-800 mb-6">Program Overview</h3>
-      
-      <p class="text-lg mb-6">
-        Our program is designed to provide academic and professional development by equipping interns with the knowledge and resources required to 
-        excel in geoscience-related research. In addition to participating in projects led by KGS researchers, interns will be required to attend a weekly 
-        program of seminars and field experiences.
-      </p>
-      
-      <div class="grid md:grid-cols-2 gap-8 mb-8">
-        <div>
-          <h4 class="text-lg font-semibold text-blue-700 mb-4">These activities cover topics including:</h4>
-          <ul class="space-y-2 text-gray-700">
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Data and physical sample management
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Respectful and safe fieldwork
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Responsible conduct of research
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Abstract writing and publication preparation
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Resume writing and mock interviews
-            </li>
-          </ul>
-        </div>
-        
-        <div>
-          <h4 class="text-lg font-semibold text-blue-700 mb-4">Additional opportunities:</h4>
-          <ul class="space-y-2 text-gray-700">
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Networking and mentorship programs
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Academic and career development resources
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Social and interpersonal career coaching
-            </li>
-            <li class="flex items-start">
-              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Research presentations and field experiences
-            </li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Project Image if available -->
-      {details.project_image && (
-        <div class="text-center mb-6">
-          <figure>
-            <img 
-              src={`${directusUrl}assets/${details.project_image}?width=800&quality=90`}
-              alt={details.project_image_caption || "Project image"}
-              class="w-full max-w-2xl h-auto rounded-lg shadow-md mx-auto"
-            />
-            {details.project_image_caption && (
-              <figcaption class="text-sm text-gray-600 mt-2 italic">
-                {details.project_image_caption}
-              </figcaption>
-            )}
-          </figure>
         </div>
       )}
-    </div>
+      
+      <!-- Page Title -->
+      <h1 class="text-3xl font-bold text-blue-900 mb-2">
+        {details.program_year} Program
+      </h1>
+      
+      <h2 class="text-xl text-gray-600 mb-8">
+        {formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}
+      </h2>
 
-    <!-- Application Information (if current year AND not past program end) -->
-    {isCurrentYear && !showStayTunedMessage && (
-      <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-8 mb-8">
-        <div class="flex items-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem;" class="text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-          </svg>
-          <h3 class="text-2xl font-bold text-green-800">Apply Now for {details.program_year}</h3>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <h4 class="font-semibold text-gray-800 mb-3">Important Dates for {details.program_year}:</h4>
-            <ul class="space-y-2 text-sm">
-              <li class="flex justify-between">
-                <span class="font-medium">Application Period:</span>
-                <span>{formatDate(details.application_start_date)} - {formatDate(details.application_end_date)}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Application Review:</span>
-                <span>{formatDate(details.application_review_start)} - {formatDate(details.application_review_end)}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Round One Interviews:</span>
-                <span>{details.round_one_interview_date}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Round Two Interviews:</span>
-                <span>{details.round_two_interview_date}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Offer Letters:</span>
-                <span>{details.offer_letter_date}</span>
-              </li>
-              <li class="flex justify-between border-t pt-2 mt-3">
-                <span class="font-medium text-green-700">Program Duration:</span>
-                <span class="text-green-700">{formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}</span>
-              </li>
-            </ul>
-          </div>
+      <!-- Overview Section -->
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <p class="text-gray-700 mb-6">
+            The program seeks to cultivate the expertise of any early career scientists with an interest in earth sciences, which is why we have progressively expanded our geographic eligibility year after year. Since its inception in 2022, the KGS Potter internship program has connected students from several universities across geoscience and related disciplines, and we are always eager to grow that list!
+          </p>
           
-          <div class="flex flex-col justify-center">
-            {details.app_form_url ? (
-              <a 
-                href={details.app_form_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition mb-3"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Apply Online
-              </a>
-            ) : (
-              <div class="text-center py-3 px-6 bg-gray-100 text-gray-600 rounded-lg">
-                Application information coming soon
+           <h3 class="text-xl font-bold text-blue-800 mb-6">Eligible Applicants</h3>
+
+            <div class="flex items-start">
+              <i class="fas fa-user-graduate text-blue-500 mt-1 mr-3 flex-shrink-0" style="font-size: 1.5rem;"></i>
+              <div>
+                <p class="font-semibold text-gray-900 mb-1">Education</p>
+                <p class="text-gray-700">
+                  Incoming and current undergraduate and master's level students enrolled at a higher education institution.
+                </p>
               </div>
-            )}
-            <p class="text-sm text-gray-600 text-center">
-              Questions? Email <a href="mailto:kgspotterinternship@uky.edu" class="baselink">kgspotterinternship@uky.edu</a>
-            </p>
+            </div>
+            
+            <div class="flex items-start mt-5">
+              <i class="fas fa-globe-americas text-blue-500 mt-1 mr-3 flex-shrink-0" style="font-size: 1.5rem;"></i>
+              <div>
+                <p class="font-semibold text-gray-900 mb-1">Field of Study</p>
+                <p class="text-gray-700">
+                  Students interested in geoscience and related fields such as environmental science, physics, engineering, 
+                  public health, or geography.
+                </p>
+              </div>
+            </div>
+        </div>
+        
+        <!-- Project Image -->
+        {details.project_image && (
+          <div class="text-center" style="align-self: center;">
+            <figure>
+              <img 
+                src={`${directusUrl}assets/${details.project_image}?width=800&quality=90`}
+                alt={details.project_image_caption || `${details.program_year} internship project`}
+                class="w-full h-auto rounded-lg shadow-lg"
+              />
+              {details.project_image_caption && (
+                <figcaption class="text-sm text-gray-600 mt-2">
+                  {details.project_image_caption}
+                </figcaption>
+              )}
+            </figure>
+          </div>
+        )}
+      </div>
+
+      <!-- ========================================
+           ELIGIBILITY AND APPLICATION SECTION
+           ======================================== -->
+      
+      <div class="mb-12">
+        <!-- Application Information (if current year AND not past program end) -->
+        {isCurrentYear && !showStayTunedMessage && (
+          <div class="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-500 rounded-lg p-6 mb-6">
+           
+            <div>
+              <div id="application-dates" class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-3 text-lg">
+                  <i class="fas fa-calendar-alt text-gray-600 mt-2 mr-2"></i>
+                  {details.program_year} Program Key Dates:</h4>
+                <ul class="space-y-2 text-lg text-gray-700">
+                  <li class="py-1">
+                    <b>Application Period:</b> {formatDate(details.application_start_date)} - {formatDate(details.application_end_date)}
+                  </li>
+                  <li class="py-1">
+                    <b>Application Review:</b> {formatDate(details.application_review_start)} - {formatDate(details.application_review_end)}
+                  </li>
+                  <li class="py-1">
+                    <b>Round One Interviews:</b> {details.round_one_interview_date}
+                  </li>
+                  <li class="py-1">
+                    <b>Round Two Interviews:</b> {details.round_two_interview_date}
+                  </li>
+                  <li class="py-1">
+                    <b>Offer Letters:</b> {details.offer_letter_date}
+                  </li>
+                  <li class="py-1">
+                    <b>Program Duration:</b> {formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}
+                  </li>
+                </ul>
+              </div>
+              
+             </div>
+          </div>
+        )}
+
+     <!-- Apply -->
+      <ApplyBox programYear={details.program_year} appFormUrl={details.app_form_url} />
+
+      <!-- ========================================
+       WHAT TO EXPECT SECTION
+       ======================================== -->
+      
+      <div class="mb-12 mt-8" id="what-to-expect">
+        <h2 class="font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
+          What to Expect
+        </h2>
+
+        <!-- Project Description from Directus -->
+        {details.project_description && (
+          <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h3 class="text-xl font-bold text-blue-800 mb-6">{details.program_year} Experience</h3>
+            <div 
+              class="prose max-w-none text-gray-700"
+              set:html={details.project_description}
+            />
+          </div>
+        )}
+
+        <!-- Intern Showcase -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-lg p-8 mb-8" id="showcase">
+          <h3 class="text-xl font-bold text-purple-800 mb-4">Intern Showcase</h3>
+          <p class="text-gray-700 mb-4">
+            At the end of the internship, interns will present their work in a combined 
+            <a href="https://uknow.uky.edu/research/showcase-highlight-kgs-potter-internship-program" target="_blank">lightning talk and poster session</a>. 
+              Short lightning talks provide interns the opportunity to concisely convey research products related to current and emerging KGS work. 
+              The poster session allows networking with future colleagues and requires the ability to communicate complex scientific concepts in a 
+              visually appealing and compelling way.
+          </p>
+          
+          <div class="text-center">
+            <a 
+              href="/intern/projects" 
+              class="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
+            >
+              View Past Projects
+              <i class="fas fa-arrow-right ml-3"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- What to Expect FAQ -->
+        <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-8">
+          <h3 class="text-xl font-bold text-green-800 mb-6">Frequently Asked Questions</h3>
+          
+          <div class="space-y-6">
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-briefcase text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                What will I be working on?
+              </h4>
+              <div 
+                class="prose max-w-none text-gray-700"
+                set:html={details.faq_working_on}
+              />
+            </div>
+            
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-tools text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                What skills will I learn?
+              </h4> 
+              <p>It depends on your project! However, most of our interns will work in standard GIS software packages and learn the basics of planning field work and note taking. Past that, some of our projects have allowed interns to build skills in:</p>
+                <table class="w-full table-auto border border-gray-200 rounded-lg overflow-hidden text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                  <th class="text-left px-4 py-3 border-b border-gray-200">Software/Analytical</th>
+                  <th class="text-left px-4 py-3 border-b border-gray-200">Field</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <tr>
+                  <td class="px-4 py-2">ArcGIS Pro</td>
+                  <td class="px-4 py-2">Dye tracing</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">RStudio</td>
+                  <td class="px-4 py-2">Electrical resistivity tomography</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">QGIS</td>
+                  <td class="px-4 py-2">Water and soil sampling</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">Soil geochemistry</td>
+                  <td class="px-4 py-2">Drone lidar acquisition</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">TUFLOW</td>
+                  <td class="px-4 py-2">Soil infiltration testing</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">Lidar processing and interpretation</td>
+                  <td class="px-4 py-2">Field notes and measurements</td>
+                  </tr>
+                  <tr>
+                  <td class="px-4 py-2">Standard lab safety</td>
+                  <td class="px-4 py-2">Radon testing</td>
+                  </tr>
+                </tbody>
+                </table>
+            </div>
+            
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-dollar-sign text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Is this a paid experience?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                Yes! This is a paid internship. Interns will be paid {details.pay_rate} as participants in the program.
+              </p>
+            </div>
+            
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-sun-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                How is this different from a summer job?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                Most summer jobs won't let you design your experience. This is an all-encompassing research and professional 
+                development experience. We will assign you a project topic, and you'll work with mentors to develop a research 
+                question and work plan for the summer, making tweaks along the way. Outside of your research tasks, we also 
+                provide public speaking training, mock interviews, and several field trips and seminars with UK faculty and staff.
+              </p>
+            </div>
+            
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-users-cog text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Will I work independently?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                Yes and no. We design the program to closely mimic a real-world research team, so each intern will be given 
+                their own project, but these will often overlap with other projects, and all interns will collaborate to learn 
+                techniques and complete field work.
+              </p>
+            </div>
+            
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-clock text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                What is the time commitment?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                The {details.program_year} internship will run from {formatDate(details.program_start_date)} to {formatDate(details.program_end_date)}. 
+                We expect interns to work 40 hours a week for the entire 10-week period and attend program seminars and field experiences.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    )}
 
-    <!-- Show reference notice for past program information -->
-    {showStayTunedMessage && (
-      <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4 mb-8">
-        <div class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="text-amber-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p class="text-amber-800">
-            <strong>Note:</strong> The information below is from the {details.program_year} program and is provided for reference. 
-            Dates and project details for {details.program_year + 1} may vary.
-          </p>
-        </div>
-      </div>
 
-        <div class="bg-blue-50 border border-blue-400 rounded-lg p-8 mb-8">
-          <div>
-            <h4 class="font-semibold text-gray-800 mb-3">Reference Dates for {details.program_year}:</h4>
-            <ul class="space-y-2 text-sm">
-              <li class="flex justify-between">
-                <span class="font-medium">Application Period:</span>
-                <span>{formatDate(details.application_start_date)} - {formatDate(details.application_end_date)}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Application Review:</span>
-                <span>{formatDate(details.application_review_start)} - {formatDate(details.application_review_end)}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Round One Interviews:</span>
-                <span>{details.round_one_interview_date}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Round Two Interviews:</span>
-                <span>{details.round_two_interview_date}</span>
-              </li>
-              <li class="flex justify-between">
-                <span class="font-medium">Offer Letters:</span>
-                <span>{details.offer_letter_date}</span>
-              </li>
-              <li class="flex justify-between border-t pt-2 mt-3">
-                <span class="font-medium text-green-700">Program Duration:</span>
-                <span class="text-green-700">{formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}</span>
-              </li>
-            </ul>
+      <!-- Bottom images -->
+      {details.bottom_image_1 && (
+        <div id="bottom-images" class="mb-12 mt-4 flex justify-center">
+          <div class="w-3/4 max-w-4xl flex flex-col items-center text-left">
+            <figure class="w-full">
+              <img 
+                src={`${directusUrl}assets/${details.bottom_image_1}?width=800&quality=90`}
+                alt={details.bottom_image_1_caption || details.bottom_image_caption || `${details.program_year-1} internship project`}
+                class="w-full h-auto rounded-lg shadow-lg mx-auto"
+              />
+
+              {details.bottom_image_2 && (
+                <img 
+                  src={`${directusUrl}assets/${details.bottom_image_2}?width=800&quality=90`}
+                  alt={details.bottom_image_2_caption || details.bottom_image_caption || `${details.program_year-1} internship project`}
+                  class="w-full h-auto rounded-lg shadow-lg mt-6 mx-auto"
+                />
+              )}
+
+              {details.bottom_images_caption && (
+                <figcaption class="text-md text-gray-600 mt-2">
+                  {details.bottom_images_caption}
+                </figcaption>
+              )}
+            </figure>
           </div>
         </div>
-    )}
+      )}
 
-    <!-- Eligibility Requirements -->
-    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-      <h3 class="text-2xl font-bold text-blue-800 mb-6">Eligible Applicants</h3>
-      
-      <div class="space-y-4">
-        <div class="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="text-blue-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-          <p>
-            <strong>Education:</strong> Undergraduate and master's level students enrolled at a higher education institution in Kentucky or surrounding area. 
-            This includes but is not limited to the University of Cincinnati, Marshall University, Hanover College, etc.
-          </p>
-        </div>
-        
-        <div class="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="text-blue-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <p>
-            <strong>Field of Study:</strong> Students interested in geoscience and related fields such as environmental science, physics, engineering, 
-            public health, or geography.
-          </p>
-        </div>
-        
-        <div class="flex items-start">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem;" class="text-blue-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p>
-            <strong>Time Commitment:</strong> Able to commit 40 hours per week for ten weeks and attend program seminars and field experiences.
-          </p>
-        </div>
-      </div>
-    </div>
 
-    <!-- Project Details -->
-    {details.project_description && (
-      <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h3 class="text-2xl font-bold text-blue-800 mb-6">{details.program_year} Projects</h3>
-        <div 
-          class="prose max-w-none"
-          set:html={details.project_description}
-        />
-      </div>
-    )}
+     <!-- Apply -->
+    <ApplyBox programYear={details.program_year} appFormUrl={details.app_form_url} />
 
-    <!-- Showcase Section -->
-    <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-8">
-      <h3 class="text-2xl font-bold text-purple-800 mb-4">KGS Paul Edwin Potter Internship Showcase</h3>
-      <p class="text-gray-700 mb-4">
-        At the end of the internship, interns will present their work in a poster session. The goal of this showcase is to ensure interns have the 
-        opportunity to develop research products related to current and emerging KGS work. The poster session gives interns an opportunity to network with 
-        future colleagues, sharpen their presentation skills, and learn to convey complex scientific concepts in a visually appealing and compelling way.
-      </p>
-      
-      <div class="text-center">
-        <a 
-          href="/intern/projects" 
-          class="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
-        >
-          View Past Project Showcases
-          <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" class="ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
     </div>
   </div>
 </BaseLayout>

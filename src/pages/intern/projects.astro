@@ -2,7 +2,7 @@
 // src/pages/intern/projects.astro
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InternSidebar from '../../components/InternSidebar.astro';
+import InternSidebar from '../../components/intern/InternSidebar.astro';
 import { fetchInternProjectsByYear, fetchAllFinalProjectDetails } from '../../lib/api_intern';
 
 const projectsByYear = await fetchInternProjectsByYear();

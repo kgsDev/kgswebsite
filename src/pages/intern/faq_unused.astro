@@ -2,7 +2,7 @@
 // src/pages/intern/faq.astro
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import InternSidebar from '../../components/InternSidebar.astro';
+import InternSidebar from '../../components/intern/InternSidebar.astro';
 import { fetchInternFAQs } from '../../lib/api_intern';
 
 const faqs = await fetchInternFAQs();
@@ -16,11 +16,11 @@ const faqs = await fetchInternFAQs();
 
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
     <!-- Sidebar -->
-    <InternSidebar activeSection="faq" />
+    <InternSidebar activeSection="why" />
 
     <!-- Main Content -->
     <div class="lg:col-span-3 max-w-4xl">
-    <h1 class="text-3xl font-bold text-blue-900 mb-2">The Paul Edwin Potter Internship - FAQs</h1>
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">The Paul Edwin Potter Internship - Why Participate?</h1>
     
     <!-- Hero Image -->
     <div class="text-center mb-8">

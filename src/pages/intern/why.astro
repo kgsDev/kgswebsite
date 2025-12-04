@@ -1,0 +1,229 @@
+---
+// src/pages/intern/faq.astro
+export const prerender = false;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InternSidebar from '../../components/intern/InternSidebar.astro';
+import InfoBox from '../../components/intern/InfoBox.astro';
+import {fetchCurrentInternDetails, fetchInternDetailsByYear, fetchInternMapImage, fetchInternFAQs } from '../../lib/api_intern';
+
+// Get the year from params
+const { year } = Astro.params;
+const currentDetails = await fetchCurrentInternDetails();
+const programYear = year ? parseInt(year) : currentDetails?.program_year;
+
+// Fetch details for the specific year
+const details = programYear ? await fetchInternDetailsByYear(programYear) : currentDetails;
+
+const faqs = await fetchInternFAQs();
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+
+const map_image = await fetchInternMapImage();
+---
+
+<BaseLayout 
+  title="Why Participate? - Paul Edwin Potter Internship Program"
+  description="Why participate in the Paul Edwin Potter Internship Program? Explore the benefits, outcomes, and frequently asked questions about this paid summer research internship."
+  activePage="intern"
+>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <InternSidebar activeSection="why" />
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 max-w-4xl">
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">Why Participate?</h1>
+    
+      <!-- Overview Section -->
+      <div class="mb-8">
+        <div>
+          <p class="text-gray-700 mb-4">
+            The KGS Paul Edwin Potter Internship Program is looking for students wanting more than a summer job or resume builder. This internship is often, but not always, the first opportunity students have to apply what they’ve learned in the classroom, and we find that many of our students fall in love with research and eventually pursue careers and graduate degrees in geology. Potter program alumni are applying what they’ve learned to careers and advanced degrees in seismology, mining, public health, and environmental science. Some are even working full time at the Kentucky Geological Survey.
+          </p>
+        </div>
+        
+         <div class="mb-8">
+            <figure>
+              <img 
+                src={`${directusUrl}assets/c6f43641-f726-47ea-a938-afaf8c7552d6?width=800&quality=90`}
+                alt="Madison High, KGS employee and 2024 Potter Intern, presenting her research at the 2025 GSA Annual Meeting in San Antonio."}
+                class="w-full h-auto rounded-lg shadow-lg"
+              />
+              <figcaption class="text-sm text-gray-600 mt-2">
+                  Madison High, KGS employee and 2024 Potter Intern, presenting her research at the 2025 GSA Annual Meeting in San Antonio.
+              </figcaption>
+            </figure>
+          </div>
+
+         <div>
+          <p class="text-gray-700 mt-12">
+            The program seeks to cultivate the expertise of any early career scientists with an interest in earth sciences. Since its inception in 2022, the KGS Potter internship program has connected students from several universities across geoscience and related disciplines, and we are always eager to grow that list!
+           </p>
+          </div>
+      </div>
+
+      <!-- Map image -->
+      <div class="mb-8 ">
+        <figure>
+        <img 
+          src={`${directusUrl}assets/68fc3847-7e11-4d3d-a41b-fe49463d86b6?width=800&quality=100`}
+          alt={` ${map_image ? map_image.description : 'Map showing locations of schools where Potter interns came from'}`}
+          class="w-full h-auto rounded-lg shadow-lg border"
+        />
+        <figcaption class="text-sm text-gray-600 mt-2">
+          {map_image ? map_image.description : 'Map showing locations of schools where Potter interns came from'}
+        </figcaption>
+      </figure>
+      </div>
+
+      <!-- Content -->
+      <div class="mb-12 mt-8" id="what-to-expect">
+        <h2 class="font-bold text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
+          <i class="fas fa-comments mr-2"></i>
+          Hear From Our Interns
+        </h2>
+        <p class="text-gray-700 mb-6">
+          We think the best people to explain why this experience is meaningful are our interns themselves, so check out what they want future interns to know. 
+        </p>
+
+            <!-- FAQs Section -->
+            <!-- Testimonials from Directus -->
+        {faqs.length > 0 ? (
+        <div class="space-y-6">
+          {faqs.map((faq, index) => (
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div class="px-6 py-4">
+                {faq.question && (
+                  <h3 class="font-semibold text-gray-900 mb-4">{faq.question}</h3>
+               )}
+              <div 
+                class="prose max-w-none text-gray-700"
+                set:html={faq.answer}
+              />
+          {faq.faq_image && (
+            <figure class="mt-4">
+              <img 
+                src={`${directusUrl}assets/${faq.faq_image}?width=800&quality=90`}
+                alt={faq.faq_image_caption || 'FAQ image'}
+                class="w-full h-auto rounded-lg"
+              />
+              {faq.faq_image_caption && (
+                <figcaption class="text-sm text-gray-600 mt-2">
+            {faq.faq_image_caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
+              </div>
+            </div>
+          ))}
+        </div>
+            ) : (
+        <p class="text-gray-700">No testimonials available at this time.</p>
+            )}
+      </div>      
+    
+
+     <!-- Apply -->
+      <InfoBox 
+        title="Interested in Applying?"
+        description="The Paul Edwin Potter Internship Program offers a unique opportunity to gain hands-on experience in geological research. If you're ready to take the next step in your career, consider applying for our internship program."
+        buttons={[
+          {
+            text: "Eligibility and Application",
+            href: `/intern/${details.program_year}`,
+            icon: "fas fa-file-alt"
+          },
+          {
+            text: "Past Projects",
+            href: "/intern/projects",
+            icon: "fas fa-diagram-project"
+          }
+        ]}
+      />
+
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // FAQ Accordion functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const faqToggles = document.querySelectorAll('.faq-toggle');
+    
+    faqToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const targetId = toggle.getAttribute('data-target');
+        const content = document.getElementById(targetId);
+        const icon = toggle.querySelector('.faq-icon');
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        
+        // Close all other FAQs
+        faqToggles.forEach((otherToggle) => {
+          if (otherToggle !== toggle) {
+            const otherId = otherToggle.getAttribute('data-target');
+            const otherContent = document.getElementById(otherId);
+            const otherIcon = otherToggle.querySelector('.faq-icon');
+            
+            otherContent.classList.add('hidden');
+            otherToggle.setAttribute('aria-expanded', 'false');
+            otherIcon.style.transform = 'rotate(0deg)';
+          }
+        });
+        
+        // Toggle current FAQ
+        if (isExpanded) {
+          content.classList.add('hidden');
+          toggle.setAttribute('aria-expanded', 'false');
+          icon.style.transform = 'rotate(0deg)';
+        } else {
+          content.classList.remove('hidden');
+          toggle.setAttribute('aria-expanded', 'true');
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  /* Smooth transitions for FAQ content */
+  .faq-content {
+    transition: all 0.3s ease;
+  }
+  
+  /* Style for FAQ content with HTML from Directus */
+  .faq-content .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  
+  .faq-content .prose a:hover {
+    color: #1d4ed8;
+  }
+  
+  .faq-content .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .faq-content .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .faq-content .prose li {
+    margin: 0.5rem 0;
+  }
+  
+  .faq-content .prose p {
+    margin-bottom: 1rem;
+  }
+  
+  .faq-content .prose strong {
+    font-weight: 600;
+  }
+</style>

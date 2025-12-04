@@ -21,6 +21,25 @@ async function apiRequest(path, params) {
   }
 }
 
+//fetch map image information
+export async function fetchInternMapImage() {
+  try {
+    const images = await apiRequest('/files', {
+      filter: JSON.stringify({
+        filename_download: {
+          _eq: 'intern_map_image.png'
+        }
+      })
+    });
+    
+    return images.length > 0 ? images[0] : null;
+  } catch (error) {
+    console.error('Error fetching intern map image:', error);
+    return null;
+  }
+}
+
+
 /**
  * Fetch current internship details (most recent year)
  */

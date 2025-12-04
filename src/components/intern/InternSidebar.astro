@@ -1,6 +1,6 @@
 ---
 // src/components/InternSidebar.astro
-import { fetchCurrentInternDetails, fetchInternProjectYears } from '../lib/api_intern';
+import { fetchCurrentInternDetails, fetchInternProjectYears } from '../../lib/api_intern';
 
 // Get current program year and available years for navigation
 const currentDetails = await fetchCurrentInternDetails();
@@ -16,7 +16,7 @@ const pathname = Astro.url.pathname;
 <aside class="lg:col-span-1">
   <!-- Current Year Navigation -->
   <div class="bg-white p-4 rounded-lg shadow mb-6">
-    <h2 class="text-xl font-bold mb-4 text-blue-800">Program Information</h2>
+    <h3 class="font-bold mb-4 text-blue-800">Potter Internship</h3>
     <ul class="space-y-2">
       <li>
         <a 
@@ -31,24 +31,32 @@ const pathname = Astro.url.pathname;
         <a 
           href={`/intern/${currentYear}`}
           class={`baselink ${activeSection === 'program' || pathname.includes(`/intern/${currentYear}`) ? 'font-bold' : 'hover:underline'}`}
-          aria-label={`${currentYear} Internship Program`}
+          aria-label={`${currentYear} Internship Program - Eligibility and Application`}
         >
-          {currentYear} Program
+          Eligibility and Application
         </a>
       </li>
       <li>
         <a 
-          href="/intern/faq"
-          class={`baselink ${activeSection === 'faq' || pathname.includes('/intern/faq') ? 'font-bold' : 'hover:underline'}`}
-          aria-label="Frequently Asked Questions">
-          FAQs
+          href={`/intern/${currentYear}#what-to-expect`}
+          class={`baselink ${activeSection === 'expect' || pathname.includes(`/intern/${currentYear}#what-to-expect`) ? 'font-bold' : 'hover:underline'}`}
+          aria-label={`${currentYear} Internship Program - What to Expect`}
+        >
+          What to Expect
+        </a>
+      <li>
+        <a 
+          href="/intern/why"
+          class={`baselink ${activeSection === 'why' || pathname.includes('/intern/why') ? 'font-bold' : 'hover:underline'}`}
+          aria-label="Why Participate?">
+          Why Participate?
         </a>
       </li>
       <li>
         <a 
           href="/intern/projects"
           class={`baselink ${activeSection === 'projects' || pathname.includes('/intern/projects') ? 'font-bold' : 'hover:underline'}`}
-          aria-label="Past Internship Projects"
+          aria-label="Past Projects - Past Internship Projects"
         >
           Past Projects
         </a>
@@ -56,29 +64,7 @@ const pathname = Astro.url.pathname;
     </ul>
   </div>
   
-  <!-- Archive Years (if there are other years) -->
-  {availableYears.length > 1 && (
-    <div class="bg-white p-4 rounded-lg shadow mb-6">
-      <h2 class="text-xl font-bold mb-4 text-blue-800">Archives</h2>
-      <ul class="space-y-2">
-        {availableYears
-          .filter(year => year !== currentYear)
-          .map(year => (
-            <li>
-              <a 
-                href={`/intern/archive/${year}`}
-                class={`baselink ${pathname.includes(`/intern/archive/${year}`) ? 'font-bold' : 'hover:underline'}`}
-                aria-label={`${year} Internship Projects`}
-              >
-                {year} Projects
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  )}
-  
+   
   <!-- Contact Info -->
   <div class="bg-white p-4 rounded-lg shadow">
     <h2 class="text-xl font-bold mb-4 text-blue-800">Questions?</h2>
