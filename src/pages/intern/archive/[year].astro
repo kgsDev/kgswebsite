@@ -2,7 +2,7 @@
 // src/pages/intern/archive/[year].astro
 export const prerender = false;
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import InternSidebar from '../../../components/InternSidebar.astro';
+import InternSidebar from '../../../components/intern/InternSidebar.astro';
 import { fetchInternProjectsForYear, fetchInternProjectYears, fetchInternDetailsByYear, fetchFinalProjectDetailsByYear } from '../../../lib/api_intern';
 
 // Generate static paths for available years
