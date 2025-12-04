@@ -17,14 +17,20 @@ const details = programYear ? await fetchInternDetailsByYear(programYear) : curr
 
 const projectsByYear = await fetchInternProjectsByYear();
 const finalProjectDetails = await fetchAllFinalProjectDetails();
-const years = Object.keys(projectsByYear).sort((a, b) => parseInt(b) - parseInt(a));
-const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 // Create a map of year to final project details for easy lookup
 const finalProjectDetailsMap = {};
 finalProjectDetails.forEach(detail => {
   finalProjectDetailsMap[detail.project_year] = detail;
 });
+
+// Get all unique years from both projects and final project details
+const projectYears = Object.keys(projectsByYear);
+const finalProjectYears = finalProjectDetails.map(detail => detail.project_year.toString());
+const allYears = [...new Set([...projectYears, ...finalProjectYears])];
+const years = allYears.sort((a, b) => parseInt(b) - parseInt(a));
+
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 ---
 
 <BaseLayout 
@@ -45,7 +51,7 @@ finalProjectDetails.forEach(detail => {
     {years.length > 0 ? (
       <div class="space-y-16">
         {years.map((year) => {
-          const projects = projectsByYear[year];
+          const projects = projectsByYear[year] || [];
           const yearDetails = finalProjectDetailsMap[parseInt(year)];
           
           return (
@@ -90,91 +96,97 @@ finalProjectDetails.forEach(detail => {
               
                    
               {/* Projects for this year */}
-              <div class="grid gap-8">
-                {projects.map((project, index) => (
-                  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="p-6">
-                      <div class="flex items-start mb-4">
-                        <div class="w-1 h-16 bg-blue-500 rounded-full mr-4 mt-1 flex-shrink-0"></div>
-                        <div class="flex-grow">
-                          <h3 class="text-xl font-bold text-blue-800 mb-2">
-                            {project.title || `Project ${index + 1}`}
-                          </h3>
-                          
-                          {project.research_question && (
-                            <div class="mb-4">
-                              <h4 class="font-semibold text-gray-700 mb-2">Research Question:</h4>
-                              <p class="text-gray-600 italic">{project.research_question}</p>
-                            </div>
-                          )}
-                          
-                          {project.project_summary && (
-                            <div class="mb-4">
-                              <h4 class="font-semibold text-gray-700 mb-2">Summary:</h4>
-                              <p class="text-gray-700">{project.project_summary}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Final Project Section */}
-                      <div class="bg-gray-50 rounded-lg p-6 mt-6">
-                        <h4 class="font-semibold text-gray-800 mb-4">Final Project:</h4>
-                        
-                        <div class="flex flex-col md:flex-row gap-6">
-                          {/* Poster thumbnail */}
-                          {project.poster_thumb && (
-                            <div class="md:w-48 flex-shrink-0">
-                              {project.poster_pdf ? (
-                                <a href={`${directusUrl}assets/${project.poster_pdf}`} target="_blank" class="block">
-                                  <img 
-                                    src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
-                                    alt={`${project.title} poster`}
-                                    class="w-full h-auto rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                                  />
-                                </a>
-                              ) : (
-                                <img 
-                                  src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
-                                  alt={`${project.title} poster`}
-                                  class="w-full h-auto rounded-lg shadow-md"
-                                />
-                              )}
-                            </div>
-                          )}
-                          
-                          {/* Project details */}
+              {projects.length > 0 ? (
+                <div class="grid gap-8">
+                  {projects.map((project, index) => (
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div class="p-6">
+                        <div class="flex items-start mb-4">
+                          <div class="w-1 h-16 bg-blue-500 rounded-full mr-4 mt-1 flex-shrink-0"></div>
                           <div class="flex-grow">
-                            <div class="mb-2">
-                              <h5 class="font-semibold text-gray-800">{project.name_intern}</h5>
-                              <p class="text-sm text-gray-600">{project.affiliation_intern}</p>
-                            </div>
+                            <h3 class="text-xl font-bold text-blue-800 mb-2">
+                              {project.title || `Project ${index + 1}`}
+                            </h3>
                             
-                            <div class="text-gray-700 italic">
-                              "{project.title}"
-                            </div>
+                            {project.research_question && (
+                              <div class="mb-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">Research Question:</h4>
+                                <p class="text-gray-600 italic">{project.research_question}</p>
+                              </div>
+                            )}
                             
-                            {project.poster_pdf && (
-                              <div class="mt-4">
-                                <a 
-                                  href={`${directusUrl}assets/${project.poster_pdf}`}
-                                  target="_blank"
-                                  class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  View Poster (PDF)
-                                </a>
+                            {project.project_summary && (
+                              <div class="mb-4">
+                                <h4 class="font-semibold text-gray-700 mb-2">Summary:</h4>
+                                <p class="text-gray-700">{project.project_summary}</p>
                               </div>
                             )}
                           </div>
                         </div>
+                        
+                        {/* Final Project Section */}
+                        <div class="bg-gray-50 rounded-lg p-6 mt-6">
+                          <h4 class="font-semibold text-gray-800 mb-4">Final Project:</h4>
+                          
+                          <div class="flex flex-col md:flex-row gap-6">
+                            {/* Poster thumbnail */}
+                            {project.poster_thumb && (
+                              <div class="md:w-48 flex-shrink-0">
+                                {project.poster_pdf ? (
+                                  <a href={`${directusUrl}assets/${project.poster_pdf}`} target="_blank" class="block">
+                                    <img 
+                                      src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
+                                      alt={`${project.title} poster`}
+                                      class="w-full h-auto rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                                    />
+                                  </a>
+                                ) : (
+                                  <img 
+                                    src={`${directusUrl}assets/${project.poster_thumb}?width=200&quality=90`}
+                                    alt={`${project.title} poster`}
+                                    class="w-full h-auto rounded-lg shadow-md"
+                                  />
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* Project details */}
+                            <div class="flex-grow">
+                              <div class="mb-2">
+                                <h5 class="font-semibold text-gray-800">{project.name_intern}</h5>
+                                <p class="text-sm text-gray-600">{project.affiliation_intern}</p>
+                              </div>
+                              
+                              <div class="text-gray-700 italic">
+                                "{project.title}"
+                              </div>
+                              
+                              {project.poster_pdf && (
+                                <div class="mt-4">
+                                  <a 
+                                    href={`${directusUrl}assets/${project.poster_pdf}`}
+                                    target="_blank"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" class="mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    View Poster (PDF)
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div class="bg-gray-50 rounded-lg p-8 text-center mb-8">
+                  <p class="text-gray-600">Individual project details for this year are being added.</p>
+                </div>
+              )}
               
               {/* Group photo for the year */}
               <div class="mt-12 text-center">
@@ -224,7 +236,7 @@ finalProjectDetails.forEach(detail => {
         </div>
       </div>
     )}
-
+    <br>
      <!-- Apply -->
       <InfoBox 
         title="Interested in Applying?"
@@ -244,6 +256,8 @@ finalProjectDetails.forEach(detail => {
       />
     </div>
   </div>
+     <!-- Add lightbox functionality to any page that has galleries just add data-gallery="true" to the container -->
+    <LightboxEnhancer />
 </BaseLayout>
 
 <style>
