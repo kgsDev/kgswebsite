@@ -14,12 +14,12 @@ const app_url = !!appFormUrl;
     <div>
       <h2 style="color: white !important;">Ready to Apply?</h2>
       <p style="color: white !important;" class="p-4">Join the {programYear} Paul Edwin Potter Internship Program and kickstart your geoscience career!</p>
-      <div class="text-center" style="cursor: pointer;">
+      <div class="text-center mb-4" style="cursor: pointer;">
         <a 
           href={appFormUrl}
-          class="inline-flex items-center px-6 py-3 bg-white text-blue-900 font-semibold rounded-lg hover:bg-gray-300 transition"
+          class="text-lg inline-flex items-center px-6 py-3 bg-white text-blue-900 font-semibold rounded-lg hover:bg-gray-300 transition"
         >
-          Apply Here
+          Apply Here <i class="fas fa-arrow-right ml-2"></i>
         </a>
       </div>
     </div>
@@ -29,7 +29,7 @@ const app_url = !!appFormUrl;
       <p style="color: white !important;" class="p-4">We're finalizing the application for the {programYear} Paul Edwin Potter Internship Program. Please check back soon!</p>
     </div>
   )}
-  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+  <div class="flex flex-col sm:flex-row gap-2 justify-center">
     <p class="text-lg" style="color: white !important;">Questions? Contact us:</p>
     <a 
       href="mailto:kgspotterinternship@uky.edu"

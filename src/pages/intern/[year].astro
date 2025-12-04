@@ -34,12 +34,12 @@ const isCurrentYear = details.program_year === currentDetails?.program_year;
 // Check if we're in the "stay tuned" period
 const today = new Date();
 const programEndDate = new Date(details.program_end_date);
-const showStayTunedMessage = isCurrentYear && today > programEndDate;
+const showStayTunedMessage = today > programEndDate;
 const app_url = !!details.app_form_url;
 ---
 
 <BaseLayout 
-  title={`${details.program_year} Internship Program - Eligibility and Application`}
+  title={`Paul Edwin Potter Internship Program: ${details.program_year} Eligibility and Application`}
   description={`Information about the ${details.program_year} Paul Edwin Potter Internship Program - application dates, eligibility requirements, and what to expect.`}
   activePage="program"
 >
@@ -88,7 +88,7 @@ const app_url = !!details.app_form_url;
       <div class="grid md:grid-cols-2 gap-8 mb-8">
         <div>
           <p class="text-gray-700 mb-6">
-            The program seeks to cultivate the expertise of any early career scientists with an interest in earth sciences, which is why we have progressively expanded our geographic eligibility year after year. Since its inception in 2022, the KGS Potter internship program has connected students from several universities across geoscience and related disciplines, and we are always eager to grow that list!
+           The Paul EdwinPotter Internship Program is designed to provide academic and professional development by <a href="/intern/why/">equipping interns with the knowledge and resources</a> required to excel in geoscience-related research.
           </p>
           
            <h3 class="text-xl font-bold text-blue-800 mb-6">Eligible Applicants</h3>
