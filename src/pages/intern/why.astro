@@ -3,6 +3,7 @@
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InternSidebar from '../../components/intern/InternSidebar.astro';
+import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import InfoBox from '../../components/intern/InfoBox.astro';
 import {fetchCurrentInternDetails, fetchInternDetailsByYear, fetchInternMapImage, fetchInternFAQs } from '../../lib/api_intern';
 
@@ -64,15 +65,15 @@ const map_image = await fetchInternMapImage();
       </div>
 
       <!-- Map image -->
-      <div class="mb-8 ">
+      <div class="mb-8">
         <figure>
         <img 
-          src={`${directusUrl}assets/68fc3847-7e11-4d3d-a41b-fe49463d86b6?width=800&quality=100`}
-          alt={` ${map_image ? map_image.description : 'Map showing locations of schools where Potter interns came from'}`}
+          src={`${directusUrl}assets/68fc3847-7e11-4d3d-a41b-fe49463d86b6?width=900&quality=100`}s
+          alt={` ${map_image ? map_image.description : 'Map showing locations of past Potter interns\' schools.'}`}
           class="w-full h-auto rounded-lg shadow-lg border"
         />
         <figcaption class="text-sm text-gray-600 mt-2">
-          {map_image ? map_image.description : 'Map showing locations of schools where Potter interns came from'}
+          {map_image ? map_image.description : 'Map showing locations of past Potter interns\' schools.'}
         </figcaption>
       </figure>
       </div>
@@ -145,6 +146,8 @@ const map_image = await fetchInternMapImage();
 
     </div>
   </div>
+   <!-- Add lightbox functionality to any page that has galleries just add data-gallery="true" to the container -->
+    <LightboxEnhancer />
 </BaseLayout>
 
 <script>
