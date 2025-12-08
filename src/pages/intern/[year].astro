@@ -5,6 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import InternSidebar from '../../components/intern/InternSidebar.astro';
 import ApplyBox from '../../components/intern/ApplyBox.astro';
 import { fetchCurrentInternDetails, fetchInternDetailsByYear } from '../../lib/api_intern';
+import { ACTION_ERROR_CODES } from 'astro:actions';
 
 // Get the year from params
 const { year } = Astro.params;
@@ -88,7 +89,7 @@ const app_url = !!details.app_form_url;
       <div class="grid md:grid-cols-2 gap-8 mb-8">
         <div>
           <p class="text-gray-700 mb-6">
-           The Paul EdwinPotter Internship Program is designed to provide academic and professional development by <a href="/intern/why/">equipping interns with the knowledge and resources</a> required to excel in geoscience-related research.
+           The Paul Edwin Potter Internship Program is designed to provide academic and professional development by <a href="/intern/why/">equipping interns with the knowledge and resources</a> required to excel in geoscience-related research.
           </p>
           
            <h3 class="text-xl font-bold text-blue-800 mb-6">Eligible Applicants</h3>
@@ -145,21 +146,15 @@ const app_url = !!details.app_form_url;
            
             <div>
               <div id="application-dates" class="mb-6">
-                <h4 class="font-semibold text-gray-800 mb-3 text-lg">
+                <h4 class="font-semibold text-gray-800 mb-4 text-lg">
                   <i class="fas fa-calendar-alt text-gray-600 mt-2 mr-2"></i>
-                  {details.program_year} Program Key Dates:</h4>
-                <ul class="space-y-2 text-lg text-gray-700">
+                  {details.program_year} Program Key Dates:
+                </h4>
+                
+                <!-- Mobile: Simple List (hidden on md and up) -->
+                <ul class="space-y-2 text-md text-gray-700 md:hidden">
                   <li class="py-1">
                     <b>Application Period:</b> {formatDate(details.application_start_date)} - {formatDate(details.application_end_date)}
-                  </li>
-                  <li class="py-1">
-                    <b>Application Review:</b> {formatDate(details.application_review_start)} - {formatDate(details.application_review_end)}
-                  </li>
-                  <li class="py-1">
-                    <b>Round One Interviews:</b> {details.round_one_interview_date}
-                  </li>
-                  <li class="py-1">
-                    <b>Round Two Interviews:</b> {details.round_two_interview_date}
                   </li>
                   <li class="py-1">
                     <b>Offer Letters:</b> {details.offer_letter_date}
@@ -168,6 +163,74 @@ const app_url = !!details.app_form_url;
                     <b>Program Duration:</b> {formatDate(details.program_start_date)} - {formatDate(details.program_end_date)}
                   </li>
                 </ul>
+
+                <!-- Desktop: Timeline (hidden on mobile, shown on md and up) -->
+                <div class="hidden md:block relative pt-8 pb-4 px-4">
+                  <!-- Timeline Line -->
+                  <div class="absolute left-4 right-4" style="top: 9rem;">
+                    <div class="h-4 bg-gradient-to-r from-blue-400 via-green-400 to-purple-500 rounded-full shadow-md"></div>
+                  </div>
+                  
+                  <!-- Timeline Markers -->
+                  <div class="relative grid grid-cols-5 gap-2">
+                    <!-- Application Start -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-5 h-5 bg-blue-500 rounded-full border-4 border-white shadow-lg mb-3 relative z-10"></div>
+                      <div class="text-center">
+                        <div class="text-sm font-semibold text-blue-800 mb-1">Application Opens</div>
+                        <div class="text-sm text-gray-900">{new Date(details.application_start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Application End -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-5 h-5 bg-blue-600 rounded-full border-4 border-white shadow-lg mb-3 relative z-10"></div>
+                      <div class="text-center">
+                        <div class="text-sm font-semibold text-blue-800 mb-1">Application Deadline</div>
+                        <div class="text-sm text-gray-900">{new Date(details.application_end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Offer Letters -->
+                    <div class="flex flex-col items-center" style="margin-left: -60%;">
+                      <div class="w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow-lg mb-3 relative z-10"></div>
+                      <div class="text-center">
+                        <div class="text-sm font-semibold text-green-800 mb-1">Offer Letters</div>
+                        <div class="text-sm text-gray-900">{details.offer_letter_date}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Program Start -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-5 h-5 bg-purple-500 rounded-full border-4 border-white shadow-lg mb-3 relative z-10"></div>
+                      <div class="text-center">
+                        <div class="text-sm font-semibold text-purple-800 mb-1">Program Start</div>
+                        <div class="text-sm text-gray-900">{new Date(details.program_start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Program End -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-5 h-5 bg-purple-700 rounded-full border-4 border-white shadow-lg mb-3 relative z-10"></div>
+                      <div class="text-center">
+                        <div class="text-sm font-semibold text-purple-800 mb-1">Program End</div>
+                        <div class="text-sm text-gray-900">{new Date(details.program_end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Month Labels Below Timeline -->
+                  <div class="grid grid-cols-8 mt-14 text-sm text-gray-900 font-medium px-4">
+                    <span>Dec</span>
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                    <span>Jun</span>
+                    <span>Jul</span>
+                  </div>
+                </div>
               </div>
               
              </div>
@@ -194,8 +257,44 @@ const app_url = !!details.app_form_url;
               class="prose max-w-none text-gray-700"
               set:html={details.project_description}
             />
-          </div>
-        )}
+            <div>
+                <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                  <i class="fas fa-sun-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                  How is this different from a summer job?
+                </h4>
+                <p class="text-gray-700 ml-7">
+                  Most summer jobs won't let you design your experience. This is an all-encompassing research and professional 
+                  development experience. We will assign you a project topic, and you'll work with mentors to develop a research 
+                  question and work plan for the summer, making tweaks along the way. Outside of your research tasks, we also 
+                  provide public speaking training, mock interviews, and several field trips and seminars with UK faculty and staff.
+                </p>
+            </div>
+            <div class="mt-6">
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-users-cog text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Will I work independently?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                Yes and no. We design the program to closely mimic a real-world research team, so each intern will be given 
+                their own project, but these will often overlap with other projects, and all interns will collaborate to learn 
+                techniques and complete field work.
+              </p>
+            </div>
+            {details.faq_skills && (
+              <div class="mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                  <i class="fas fa-tools text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                  What skills will I learn?
+                </h4>
+                <div 
+                  style="padding-left:1px"
+                  class="prose text-gray-700 ml-7"
+                  set:html={details.faq_skills}
+                />
+              </div>
+            )}
+        </div>
+      )}
 
         <!-- Intern Showcase -->
         <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-lg p-8 mb-8" id="showcase">
@@ -219,68 +318,11 @@ const app_url = !!details.app_form_url;
           </div>
         </div>
 
-        <!-- What to Expect FAQ -->
-        <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-8">
+        <!-- FAQ Section -->
+        <div class="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-8" id="faq">
           <h3 class="text-xl font-bold text-green-800 mb-6">Frequently Asked Questions</h3>
           
           <div class="space-y-6">
-            <div>
-              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
-                <i class="fas fa-briefcase text-green-600 mr-2" style="font-size: 1.25rem;"></i>
-                What will I be working on?
-              </h4>
-              <div 
-                class="prose max-w-none text-gray-700"
-                set:html={details.faq_working_on}
-              />
-            </div>
-            
-            <div>
-              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
-                <i class="fas fa-tools text-green-600 mr-2" style="font-size: 1.25rem;"></i>
-                What skills will I learn?
-              </h4> 
-              <p>It depends on your project! However, most of our interns will work in standard GIS software packages and learn the basics of planning field work and note taking. Past that, some of our projects have allowed interns to build skills in:</p>
-                <table class="w-full table-auto border border-gray-200 rounded-lg overflow-hidden text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                  <th class="text-left px-4 py-3 border-b border-gray-200">Software/Analytical</th>
-                  <th class="text-left px-4 py-3 border-b border-gray-200">Field</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  <tr>
-                  <td class="px-4 py-2">ArcGIS Pro</td>
-                  <td class="px-4 py-2">Dye tracing</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">RStudio</td>
-                  <td class="px-4 py-2">Electrical resistivity tomography</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">QGIS</td>
-                  <td class="px-4 py-2">Water and soil sampling</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">Soil geochemistry</td>
-                  <td class="px-4 py-2">Drone lidar acquisition</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">TUFLOW</td>
-                  <td class="px-4 py-2">Soil infiltration testing</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">Lidar processing and interpretation</td>
-                  <td class="px-4 py-2">Field notes and measurements</td>
-                  </tr>
-                  <tr>
-                  <td class="px-4 py-2">Standard lab safety</td>
-                  <td class="px-4 py-2">Radon testing</td>
-                  </tr>
-                </tbody>
-                </table>
-            </div>
-            
             <div>
               <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
                 <i class="fas fa-dollar-sign text-green-600 mr-2" style="font-size: 1.25rem;"></i>
@@ -293,29 +335,77 @@ const app_url = !!details.app_form_url;
             
             <div>
               <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
-                <i class="fas fa-sun-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
-                How is this different from a summer job?
+                <i class="fas fa-map-marked-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Do I have to be a student at the University of Kentucky to apply?
               </h4>
               <p class="text-gray-700 ml-7">
-                Most summer jobs won't let you design your experience. This is an all-encompassing research and professional 
-                development experience. We will assign you a project topic, and you'll work with mentors to develop a research 
-                question and work plan for the summer, making tweaks along the way. Outside of your research tasks, we also 
-                provide public speaking training, mock interviews, and several field trips and seminars with UK faculty and staff.
+                No. Any interested incoming or enrolled undergraduate or master's level student at a higher education institution may apply.
+              </p>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-map-marked-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Do I need to be a Geoscience major?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                No, we welcome students with a wide range of related educational backgrounds. Our project topics vary from year to year and require skill sets from Environmental Sciences, Physics, Engineering, Public Health, Geography, Statistics, Communications, etc.
+              </p>
+            </div>
+
+
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-map-marked-alt text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Do you have any tips about formatting our resume or cover letter?
+              </h4>
+              <p class="text-gray-700 ml-7">
+                    
+                We would like you to submit a one- or two-page resume and a one- or two-page letter of interest/cover letter. 
+                We will use this information to get to know you and match you to a potential position. 
+                Specific instructions are provided on the application form. 
+                Don't stress too much about being the best or perfect. 
+                We will have training exercises later in the program to help hone these skills.
+                <br><br>
+                If you would like your resume and cover letter reviewed before submission please submit a finalized draft version as a 
+                Word document to <a href="mailto:kgspotterinternship@uky.edu">kgspotterinternship@uky.edu</a> 
+                by {formatDate(details.application_review_end)}. Please include in your email, your name, and specific questions or 
+                concerns you would like addressed.
               </p>
             </div>
             
             <div>
               <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
-                <i class="fas fa-users-cog text-green-600 mr-2" style="font-size: 1.25rem;"></i>
-                Will I work independently?
+                <i class="fas fa-clock text-green-600 mr-2" style="font-size: 1.25rem;"></i>
+                Is housing provided?
               </h4>
               <p class="text-gray-700 ml-7">
-                Yes and no. We design the program to closely mimic a real-world research team, so each intern will be given 
-                their own project, but these will often overlap with other projects, and all interns will collaborate to learn 
-                techniques and complete field work.
-              </p>
+                Interns are responsible for paying for their local housing, transportation, parking, and food. 
+                The University of Kentucky provides the following campus options:
+                <ul class="list-disc list-inside mt-2" style="margin-left:20px">
+                  <li>
+                    <a href="https://wildcatliving.uky.edu/overnight-accommodations-campus" target="_blank" class="text-blue-600 underline">
+                      Housing
+                    </a> - Offers summer housing for students in a dormitory setting.
+                  </li>
+                  <li>
+                    <a href="https://www.uky.edu/transportation/" target="_blank" class="text-blue-600 underline">
+                      Transportation
+                    </a> - Provides information on public transit at the University of Kentucky.
+                  </li>
+                  <li>
+                    <a href="https://www.uky.edu/transportation/park/employee-permits" target="_blank" class="text-blue-600 underline">
+                      Parking
+                    </a> - Details on parking permits at the University of Kentucky.
+                  </li>
+                  <li>
+                    <a href="https://uky.campusdish.com/" target="_blank" class="text-blue-600 underline">
+                      Dining
+                    </a> - Information on dining options at the University of Kentucky.
+                  </li>
+                </ul>
             </div>
-            
+
             <div>
               <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
                 <i class="fas fa-clock text-green-600 mr-2" style="font-size: 1.25rem;"></i>
