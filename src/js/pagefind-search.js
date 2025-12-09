@@ -54,9 +54,13 @@ async function loadSearchIndex() {
 function searchContent(query, category = '') {
   const lowerQuery = query.toLowerCase();
   return searchIndex.filter(item => {
+    // Add null checks for content and title
+    const itemContent = item.content || '';
+    const itemTitle = item.title || '';
+    
     const matchesQuery = 
-      item.content.toLowerCase().includes(lowerQuery) ||
-      item.title.toLowerCase().includes(lowerQuery);
+      itemContent.toLowerCase().includes(lowerQuery) ||
+      itemTitle.toLowerCase().includes(lowerQuery);
     
     const matchesCategory = !category || item.category === category;
     
