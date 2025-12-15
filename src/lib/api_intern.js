@@ -27,7 +27,7 @@ export async function fetchInternMapImage() {
     const images = await apiRequest('/files', {
       filter: JSON.stringify({
         filename_download: {
-          _eq: 'intern_map_image.png'
+          _eq: 'PotterInternMap.png'
         }
       })
     });

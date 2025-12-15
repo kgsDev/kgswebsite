@@ -19,7 +19,7 @@ const faqs = await fetchInternFAQs();
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-const map_image = await fetchInternMapImage();
+const map_image = await fetchInternMapImage(); //check directus image name - should be PotterInternMap.png - if the caption is not correct
 ---
 
 <BaseLayout 
@@ -68,7 +68,7 @@ const map_image = await fetchInternMapImage();
       <div class="mb-8">
         <figure>
         <img 
-          src={`${directusUrl}assets/68fc3847-7e11-4d3d-a41b-fe49463d86b6?width=900&quality=100`}s
+          src={`${directusUrl}assets/68fc3847-7e11-4d3d-a41b-fe49463d86b6?width=900&quality=100`}
           alt={` ${map_image ? map_image.description : 'Map showing locations of past Potter interns\' schools.'}`}
           class="w-full h-auto rounded-lg shadow-lg border"
         />
