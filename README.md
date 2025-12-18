@@ -401,7 +401,7 @@ Copyright © 2025 Kentucky Geological Survey, University of Kentucky
 
 ## Contact
 
-**Developer**: Doug (KGS Web Development Team)
+**Developer**: Doug Curl (KGS Director of Information Management)
 **Organization**: Kentucky Geological Survey
 **Institution**: University of Kentucky
 
