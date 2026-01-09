@@ -35,16 +35,20 @@ try {
       'year',
       'journal',
       'url',
-      'thumbnail'
+      'thumbnail',
+      'featured'
     ],
     filter: {
       'research_team': {
         'team_id': {
           '_eq': teamId
         }
+      },
+      'featured': {
+        '_eq': true
       }
     },
-    sort: ['-year', 'title']
+    sort: ['sort', '-year', 'title']
   }));
   
   publications = pubs || [];
