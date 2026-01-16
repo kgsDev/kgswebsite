@@ -7,6 +7,7 @@ export const prerender = false;
 import Layout from "../../layouts/BaseLayout.astro";
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import ResearchTeam from "../../components/research/ResearchTeam.astro";
+import ResearchPublications from "../../components/research/ResearchPublications.astro";
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
@@ -33,7 +34,8 @@ try {
       'Research_Team.id',
       'Research_Team.name',
       'Research_Team.description',
-      'Research_Team.team_icon'
+      'Research_Team.team_icon',
+      'Research_Team.pub_search_keyword'
     ],
     filter: { slug: { _eq: slug } },
     limit: 1
@@ -195,6 +197,9 @@ function createHierarchicalBreadcrumbs(page: any) {
 }
 
 const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
+
+// Determine the publication search keyword - use pub_search_keyword if available, otherwise use title
+const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
 ---
 <Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
   <main>
@@ -207,11 +212,88 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
       <span>{page.title}</span>
     </h1>
     
-    <!-- Main content -->
-    <div class="research-content" set:html={page.content} />
+    <!-- Content with Sidebar (only for top-level pages with teams) -->
+    {!page.parent_page && page.Research_Team ? (
+      <div class="content-wrapper">
+        <!-- Main Content Column -->
+        <div class="main-content">
+          <div class="research-content" set:html={page.content} />
+        </div>
 
-    <!-- Research Team Section (only for top-level pages with teams - from Component) -->
-    {!page.parent_page && page.Research_Team && (
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Contact Information -->
+          <div class="sidebar-section">
+            <h3>
+              <i class="fas fa-address-card"></i>
+              Contact Information
+            </h3>
+            <div class="contact-info">
+              <div class="contact-section">
+                <p class="contact-name">Team Lead</p>
+                <p class="contact-title">
+                  {teamStaff.leaders[0] ? (
+                    <a href={`/staff/${teamStaff.leaders[0].slug}`}>
+                      {teamStaff.leaders[0].first_name} {teamStaff.leaders[0].last_name}
+                    </a>
+                  ) : (
+                    'Leader TBD'
+                  )}
+                </p>
+                {teamStaff.leaders[0] && (
+                  <>
+                    <p>
+                      <i class="fas fa-envelope"></i>
+                      <a href={`mailto:${teamStaff.leaders[0].email}`}>
+                        {teamStaff.leaders[0].email}
+                      </a>
+                    </p>
+                    {teamStaff.leaders[0].phone && (
+                      <p>
+                        <i class="fas fa-phone"></i>
+                        {teamStaff.leaders[0].phone}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+              
+              <div class="contact-section">
+                <p class="contact-name">General Inquiries</p>
+                <p>
+                  <i class="fas fa-envelope"></i>
+                  <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Featured Publications -->
+          <div class="sidebar-section">
+            <h3>
+              <i class="fas fa-books"></i>
+              Featured Publications
+            </h3>
+            <ResearchPublications 
+              teamId={page.Research_Team.id} 
+              showInSidebar={true}
+            />
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; font-size:1rem;">
+              <a href={`https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=${encodeURIComponent(pubSearchKeyword)}`} class="sidebar-link" style="font-weight: 600;">
+                View related publications <i class="fas fa-arrow-right" style="margin-left: auto;"></i>
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Research Publications Section (full width below content) -->
+      <ResearchPublications 
+        teamId={page.Research_Team.id}
+        title="Publications"
+      />
+
+      <!-- Research Team Section -->
       <ResearchTeam 
         teamName={page.Research_Team.name}
         teamDescription={page.Research_Team.description}
@@ -221,6 +303,9 @@ const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page)
         affiliates={teamStaff.affiliates}
         directusUrl={directusUrl}
       />
+    ) : (
+      <!-- Simple layout for child pages or pages without teams -->
+      <div class="research-content" set:html={page.content} />
     )}
 
     <!-- Add lightbox functionality to any page that has galleries -->
