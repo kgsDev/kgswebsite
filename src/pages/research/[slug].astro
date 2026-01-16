@@ -278,11 +278,6 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
               teamId={page.Research_Team.id} 
               showInSidebar={true}
             />
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; font-size:1rem;">
-              <a href={`https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=${encodeURIComponent(pubSearchKeyword)}`} class="sidebar-link" style="font-weight: 600;">
-                View related publications <i class="fas fa-arrow-right" style="margin-left: auto;"></i>
-              </a>
-            </div>
           </div>
         </aside>
       </div>
@@ -292,6 +287,13 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
         teamId={page.Research_Team.id}
         title="Publications"
       />
+      
+      <!-- View Related Publications Link -->
+      <div style="margin-top: 1rem; padding: 1.5rem; background: #f8f9fa; border-radius: 0.5rem; text-align: center;">
+        <a href={`https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=${encodeURIComponent(pubSearchKeyword)}`} class="sidebar-link" style="font-weight: 600; font-size: 1.125rem;">
+          View all related publications <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+        </a>
+      </div>
 
       <!-- Research Team Section -->
       <ResearchTeam 
