@@ -1,5 +1,6 @@
 // src/js/pagefind-search.js
-//this file handles the search functionality for the site, combining Pagefind results with custom indexed content
+// This file handles the search functionality for the site, combining Pagefind results 
+// with custom indexed content and publications from the external database
 
 let searchIndex = [];
 let pagefind = null;
@@ -53,6 +54,7 @@ async function loadSearchIndex() {
 // Search custom content
 function searchContent(query, category = '') {
   const lowerQuery = query.toLowerCase();
+  
   return searchIndex.filter(item => {
     // Add null checks for content and title
     const itemContent = item.content || '';
@@ -100,6 +102,28 @@ async function searchPagefind(query) {
   }
 }
 
+// Search publications from external database
+async function searchPublications(query) {
+  if (!query || query.length < 2) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(`/api/search-publications.json?q=${encodeURIComponent(query)}`);
+    
+    if (!response.ok) {
+      console.error('Publications search failed:', response.status);
+      return [];
+    }
+
+    const results = await response.json();
+    return results;
+  } catch (error) {
+    console.error('Publications search error:', error);
+    return [];
+  }
+}
+
 // Get icon for content type
 function getIcon(type) {
   const icons = {
@@ -116,13 +140,17 @@ function getIcon(type) {
     intern_year: 'fa-calendar',
     page: 'fa-file-lines',
     annual_report: 'fa-file-pdf',
-    factsheet: 'fa-file-alt'
+    factsheet: 'fa-file-alt',
+    publication: 'fa-book'
   };
   return icons[type] || 'fa-file';
 }
 
 function createExcerpt(text, query, length) {
-  const textOnly = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const textOnly = text
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   const lowerText = textOnly.toLowerCase();
   const lowerQuery = query.toLowerCase();
   const index = lowerText.indexOf(lowerQuery);
@@ -156,10 +184,11 @@ async function performSearch(query, category = '') {
   searchResults.innerHTML = '';
   noResults.classList.add('hidden');
 
-  // Search both systems in parallel
-  const [customResults, pagefindResults] = await Promise.all([
+  // Search all three systems in parallel
+  const [customResults, pagefindResults, publicationsResults] = await Promise.all([
     Promise.resolve(searchContent(query, category)),
-    searchPagefind(query)
+    searchPagefind(query),
+    searchPublications(query)
   ]);
 
   // Merge results, avoiding duplicates by URL
@@ -176,6 +205,14 @@ async function performSearch(query, category = '') {
 
   // Add Pagefind results that aren't already in custom results
   pagefindResults.forEach(result => {
+    if (!urlSet.has(result.url)) {
+      urlSet.add(result.url);
+      mergedResults.push(result);
+    }
+  });
+
+  // Add publications results (these will have unique URLs from external system)
+  publicationsResults.forEach(result => {
     if (!urlSet.has(result.url)) {
       urlSet.add(result.url);
       mergedResults.push(result);
@@ -207,6 +244,54 @@ async function performSearch(query, category = '') {
     const itemsHTML = items.map(result => {
       const excerpt = result.excerpt || createExcerpt(result.content, query, 150);
       
+      // Special rendering for publications
+      if (result.type === 'publication') {
+        return `
+          <div class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-gray-200 mb-4">
+            <div class="flex items-start">
+              <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                <i class="fa-solid ${getIcon(result.type)} text-green-600 text-2xl"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">${result.category}</span>
+                  ${result.year ? `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${result.year}</span>` : ''}
+                  ${result.pubType ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${result.pubType}</span>` : ''}
+                </div>
+                <h3 class="text-xl font-semibold text-blue-900 mb-1">
+                  <a href="${result.url}" target="_blank" class="hover:underline">${highlightText(result.title, query)}</a>
+                </h3>
+                ${result.authors ? `<p class="text-sm text-gray-700 mb-2"><strong>Authors:</strong> ${result.authors}</p>` : ''}
+                ${result.series || result.issue ? `
+                  <p class="text-sm text-gray-600 mb-2">
+                    ${result.series ? `<strong>Series:</strong> ${result.series}` : ''}
+                    ${result.series && result.issue ? ' | ' : ''}
+                    ${result.issue ? `<strong>Issue:</strong> ${result.issue}` : ''}
+                  </p>
+                ` : ''}
+                ${excerpt ? `<p class="text-gray-600 mb-2">${excerpt}</p>` : ''}
+                <div class="flex gap-3 text-sm flex-wrap">
+                  <a href="${result.url}" target="_blank" class="text-blue-600 hover:underline">
+                    <i class="fa-solid fa-circle-info mr-1"></i>View Details
+                  </a>
+                  ${result.url_download ? `
+                    <a href="${result.url_download}" target="_blank" class="text-blue-600 hover:underline">
+                      <i class="fa-solid fa-download mr-1"></i>Download
+                    </a>
+                  ` : ''}
+                  ${result.url_webpage ? `
+                    <a href="${result.url_webpage}" target="_blank" class="text-blue-600 hover:underline">
+                      <i class="fa-solid fa-globe mr-1"></i>Web Page
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Standard rendering for other content types
       return `
         <a href="${result.url}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition border-2 border-transparent hover:border-blue-500 mb-4">
           <div class="flex items-start">
@@ -252,67 +337,55 @@ async function performSearch(query, category = '') {
   searchResults.innerHTML = `
     <div class="mb-4 text-gray-600">
       Found ${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''}
-      ${!pagefindLoaded ? ' <span class="text-xs text-gray-500">(static pages not indexed in dev mode)</span>' : ''}
+      ${!pagefindLoaded ? ' <span class="text-sm text-gray-500">(static content search not available in dev mode)</span>' : ''}
     </div>
     ${resultsHTML}
   `;
 }
 
-// Initialize search
-async function initializeSearch() {
-  await Promise.all([loadSearchIndex(), loadPagefind()]);
+// Initialize search functionality
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load Pagefind and search index
+  await Promise.all([
+    loadPagefind(),
+    loadSearchIndex()
+  ]);
 
   const searchInput = document.getElementById('search-input');
   const categoryFilter = document.getElementById('category-filter');
-  const searchResults = document.getElementById('search-results');
-  const noResults = document.getElementById('no-results');
-  const otherServicesSection = document.getElementById('other-services'); 
+  let searchTimeout;
 
-  // Get query from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const query = urlParams.get('q');
-  
-  if (query) {
-    searchInput.value = query;
-    performSearch(query);
-  }
+  // Debounced search function
+  const debouncedSearch = () => {
+    clearTimeout(searchTimeout);
+    const query = searchInput.value.trim();
+    const category = categoryFilter.value;
 
-  // Search on input
-  let debounceTimer;
-  searchInput.addEventListener('input', (e) => {
-    clearTimeout(debounceTimer);
-    const query = e.target.value.trim();
-    
     if (query.length < 2) {
-      searchResults.innerHTML = '';
-      noResults.classList.add('hidden');
-      otherServicesSection.classList.remove('hidden');
+      document.getElementById('search-results').innerHTML = '';
+      document.getElementById('no-results').classList.add('hidden');
       return;
     }
 
-    otherServicesSection.classList.add('hidden');
-
-    const newUrl = new URL(window.location);
-    newUrl.searchParams.set('q', query);
-    window.history.pushState({}, '', newUrl);
-
-    debounceTimer = setTimeout(() => {
-      performSearch(query, categoryFilter.value);
+    searchTimeout = setTimeout(() => {
+      performSearch(query, category);
     }, 300);
-  });
+  };
 
-  // Filter by category
-  categoryFilter.addEventListener('change', () => {
-    const query = searchInput.value.trim();
-    if (query.length >= 2) {
-      performSearch(query, categoryFilter.value);
+  // Event listeners
+  searchInput.addEventListener('input', debouncedSearch);
+  categoryFilter.addEventListener('change', debouncedSearch);
+
+  // Check for URL parameters on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialQuery = urlParams.get('q');
+  const initialCategory = urlParams.get('category');
+
+  if (initialQuery) {
+    searchInput.value = initialQuery;
+    if (initialCategory) {
+      categoryFilter.value = initialCategory;
     }
-  });
-}
-
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeSearch);
-} else {
-  initializeSearch();
-}
+    performSearch(initialQuery, initialCategory || '');
+  }
+});
