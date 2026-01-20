@@ -187,6 +187,19 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
           DOI
         </a>
       )}
+
+      {publication.accessibility_url && (
+        <a 
+          href={publication.accessibility_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick="event.stopPropagation();"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
+        >
+          <i class="fas fa-universal-access mr-2"></i>
+          Accessibility Version
+        </a>
+      )}
     </div>
   </div>
   

@@ -14,8 +14,6 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 const { staff } = Astro.props;
 ---
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <div class="staff-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
   {staff.map((member) => {
     const { researchTeams, informalTeams } = separateTeams(member.team);

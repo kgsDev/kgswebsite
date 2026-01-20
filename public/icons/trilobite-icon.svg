@@ -1,0 +1,15 @@
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="inline-block w-8 h-8 mr-2" aria-hidden="true">
+    <path d="M 12 2 C 7 2 5 4 5 6 C 5 7 5.5 7.5 6 7.5 L 18 7.5 C 18.5 7.5 19 7 19 6 C 19 4 17 2 12 2 Z"/>
+    <circle cx="9" cy="5.5" r="0.8" fill="white" opacity="0.7"/>
+    <circle cx="15" cy="5.5" r="0.8" fill="white" opacity="0.7"/>
+    <ellipse cx="12" cy="9.5" rx="7" ry="1.2"/>
+    <ellipse cx="12" cy="11.5" rx="6.5" ry="1.2"/>
+    <ellipse cx="12" cy="13.5" rx="6" ry="1.2"/>
+    <ellipse cx="12" cy="15.5" rx="5.5" ry="1.2"/>
+    <path d="M 12 17 C 8 17 6.5 17.5 6.5 19 C 6.5 20.5 8.5 22 12 22 C 15.5 22 17.5 20.5 17.5 19 C 17.5 17.5 16 17 12 17 Z"/>
+    <rect x="11.7" y="2" width="0.6" height="20" opacity="0.2"/>
+    <path d="M 6 7.5 L 4.5 8.5 M 18 7.5 L 19.5 8.5" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 5.5 9.5 L 4 10.5 M 18.5 9.5 L 20 10.5" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 5.5 11.5 L 4 12.5 M 18.5 11.5 L 20 12.5" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 6 13.5 L 4.5 14.5 M 18 13.5 L 19.5 14.5" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.6"/>
+  </svg>

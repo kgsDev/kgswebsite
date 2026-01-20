@@ -12,6 +12,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/node": "^9.4.2",
     "@directus/sdk": "^19.1.0",
+    "@mdi/font": "^7.4.47",
     "astro": "^5.7.10",
     "axios": "^1.9.0",
     "csv-parse": "^5.6.0",
