@@ -1,11 +1,9 @@
 ---
-import directus from "../../../lib/directus";
-import { readItems } from "@directus/sdk";
-
 interface Props {
   teamId: number;
   title?: string;
   showInSidebar?: boolean;
+  limit?: number;
 }
 
 const { 
@@ -15,48 +13,95 @@ const {
   limit = showInSidebar ? 3 : -1
 } = Astro.props;
 
-const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
+const pubsDbUrl = "https://kgs.uky.edu/dpub";
 
-// Image transformation parameters for Directus
-// width=300: Request 300px width (2-3x display size for retina)
-// quality=85: High quality (default is often 80)
-// format=auto: Let Directus choose best format (WebP if supported)
-
-// Fetch publications for this research team
+// Fetch publications for this research team from external database
 let publications = [];
 
 try {
-  // Query publications through the publications_team junction table
-  const pubs = await directus.request(readItems("publications", {
-    fields: [
-      'id',
-      'title',
-      'authors',
-      'year',
-      'journal',
-      'url',
-      'thumbnail',
-      'featured'
-    ],
-    filter: {
-      'research_team': {
-        'team_id': {
-          '_eq': teamId
-        }
-      }
-    },
-    sort: ['sort', '-year', 'title']
-  }));
+  // Fetch the team with nested publications and authors through the M2M relationships
+  const teamResponse = await fetch(
+    `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${teamId}&fields=id,publications.publications_id.id,publications.publications_id.title,publications.publications_id.publication_year,publications.publications_id.url_download,publications.publications_id.url_webpage,publications.publications_id.cover,publications.publications_id.kygs_team_featured,publications.publications_id.author_id.authors_id.first_name,publications.publications_id.author_id.authors_id.middle_name,publications.publications_id.author_id.authors_id.last_name,publications.publications_id.author_id.authors_id.prefix,publications.publications_id.author_id.authors_id.suffix`
+  );
   
-  publications = pubs || [];
- 
-  // Apply limit if specified
-  if (limit > 0 && publications.length > limit) {
-    publications = publications.slice(0, limit);
+  if (!teamResponse.ok) {
+    throw new Error(`Failed to fetch team data: ${teamResponse.status}`);
+  }
+  
+  const teamData = await teamResponse.json();
+  
+  // The response is an array, get the first (and should be only) match
+  const team = teamData.data?.[0];
+  
+  // Extract the actual publications from the junction table structure
+  if (team?.publications && Array.isArray(team.publications)) {
+    publications = team.publications
+      .map(junction => junction.publications_id)
+      .filter(pub => pub && pub.id); // Filter out any null/undefined entries
+    
+    // Sort publications: featured first, then by year (descending), then by title
+    publications.sort((a, b) => {
+      // Check if either pub is featured for this team
+      const aFeatured = Array.isArray(a.kygs_team_featured) && a.kygs_team_featured.includes(teamId);
+      const bFeatured = Array.isArray(b.kygs_team_featured) && b.kygs_team_featured.includes(teamId);
+      
+      if (aFeatured && !bFeatured) return -1;
+      if (!aFeatured && bFeatured) return 1;
+      
+      // If both featured or both not featured, sort by year descending
+      if (b.publication_year !== a.publication_year) {
+        return b.publication_year - a.publication_year;
+      }
+      
+      // Finally sort by title
+      return (a.title || '').localeCompare(b.title || '');
+    });
+    
+    // Apply limit if specified
+    if (limit > 0 && publications.length > limit) {
+      publications = publications.slice(0, limit);
+    }
   }
 
 } catch (error) {
   console.error("Error fetching publications:", error);
+}
+
+// Helper function to format authors from M2M junction table
+function formatAuthors(authorJunctions) {
+  if (!Array.isArray(authorJunctions) || authorJunctions.length === 0) return '';
+  
+  // Extract author objects from junction table
+  const authors = authorJunctions
+    .map(junction => junction.authors_id)
+    .filter(author => author && (author.first_name || author.last_name));
+  
+  if (authors.length === 0) return '';
+  
+  // Format each author name with prefix, first, middle, last, suffix
+  const authorNames = authors.map(author => {
+    const parts = [];
+    if (author.prefix) parts.push(author.prefix);
+    if (author.first_name) parts.push(author.first_name);
+    if (author.middle_name) parts.push(author.middle_name);
+    if (author.last_name) parts.push(author.last_name);
+    if (author.suffix) parts.push(author.suffix);
+    return parts.join(' ').trim();
+  }).filter(name => name.length > 0);
+  
+  if (authorNames.length === 0) return '';
+  if (authorNames.length === 1) return authorNames[0];
+  if (authorNames.length === 2) return `${authorNames[0]} and ${authorNames[1]}`;
+  
+  // For 3+ authors, list all with commas and "and" before the last
+  const lastAuthor = authorNames[authorNames.length - 1];
+  const otherAuthors = authorNames.slice(0, -1);
+  return `${otherAuthors.join(', ')}, and ${lastAuthor}`;
+}
+
+// Helper function to get publication URL (prefer webpage, fallback to download)
+function getPubUrl(pub) {
+  return pub.url_webpage || pub.url_download || null;
 }
 ---
 
@@ -105,6 +150,10 @@ try {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
 
+      .pub-item.featured {
+        border-left: 4px solid #0033A0;
+      }
+
       .pub-thumbnail {
         flex-shrink: 0;
         width: 100px;
@@ -136,15 +185,15 @@ try {
         min-width: 0;
       }
 
-      .pub-title h3 {
+      .pub-title h4 {
         font-weight: 600;
         color: #1f2937;
         margin-bottom: 0.25rem;
-        line-height: 1;
+        line-height: 1.3;
       }
 
       .pub-list .pub-title {
-        font-size:1.25rem;
+        font-size: 1.25rem;
       }
 
       .pub-title a {
@@ -235,40 +284,45 @@ try {
       </h3>
     )}
 
-    <div class={showInSidebar ? "pub-list-compact" : "pub-list"} data-gallery="true">
-      {publications.map((pub) => (
-        <article class="pub-item">
-          <div class="pub-thumbnail">
-            {pub.thumbnail ? (
-              <img 
-                src={`${directusUrl}/assets/${pub.thumbnail}?width=300&quality=80`}
-                alt={`Cover for ${pub.title}`}
-                loading="lazy"
-              />
-            ) : (
-              <i class="fas fa-file-alt"></i>
-            )}
-          </div>
-          <div class="pub-content">
-            <h3 class="pub-title">
-              {pub.url ? (
-                <a href={pub.url} target="_blank" rel="noopener noreferrer">
-                  {pub.title}
-                </a>
+    <div class={showInSidebar ? "pub-list-compact" : "pub-list"}>
+      {publications.map((pub) => {
+        const pubUrl = getPubUrl(pub);
+        const authors = formatAuthors(pub.author_id);
+        const isFeatured = Array.isArray(pub.kygs_team_featured) && pub.kygs_team_featured.includes(teamId);
+        
+        return (
+          <article class={`pub-item ${isFeatured ? 'featured' : ''}`}>
+            <div class="pub-thumbnail">
+              {pub.cover ? (
+                <img 
+                  src={`${pubsDbUrl}/assets/${pub.cover}?width=300&quality=80`}
+                  alt={`Cover for ${pub.title}`}
+                  loading="lazy"
+                />
               ) : (
-                pub.title
+                <i class="fas fa-file-alt"></i>
               )}
-            </h3>
-            {pub.authors && (
-              <p class="pub-authors">{pub.authors}</p>
-            )}
-            <p class="pub-meta">
-              <span class="pub-year">{pub.year}</span>
-              {pub.journal && ` • ${pub.journal}`}
-            </p>
-          </div>
-        </article>
-      ))}
+            </div>
+            <div class="pub-content">
+              <h4 class="pub-title">
+                {pubUrl ? (
+                  <a href={pubUrl} target="_blank" rel="noopener noreferrer">
+                    {pub.title}
+                  </a>
+                ) : (
+                  pub.title
+                )}
+              </h4>
+              {authors && (
+                <p class="pub-authors">{authors}</p>
+              )}
+              <p class="pub-meta">
+                <span class="pub-year">{pub.publication_year}</span>
+              </p>
+            </div>
+          </article>
+        );
+      })}
     </div>
   </div>
 )}
