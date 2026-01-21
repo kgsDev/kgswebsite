@@ -1,0 +1,296 @@
+---
+// DatasetDownloadModal.astro
+---
+
+<dialog id="dataset-download-modal" class="dataset-modal">
+  <div class="modal-content">
+    <button class="modal-close" aria-label="Close modal">&times;</button>
+    
+    <h2>Download Dataset</h2>
+    <p class="modal-description">
+      Please provide your information to download this dataset. 
+      This helps us track usage and improve our services.
+    </p>
+    
+    <form id="dataset-download-form">
+      <div class="form-group">
+        <label for="download-name">
+          Name <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="download-name" 
+          name="name" 
+          required
+          placeholder="Your full name"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="download-email">
+          Email <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="download-email" 
+          name="email" 
+          required
+          placeholder="your.email@example.com"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="download-institution">
+          Institution/Organization <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="download-institution" 
+          name="institution" 
+          required
+          placeholder="Your institution or organization"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="download-purpose">
+          Intended Use <span class="required">*</span>
+        </label>
+        <textarea 
+          id="download-purpose" 
+          name="purpose" 
+          required
+          rows="4"
+          placeholder="Please briefly describe how you plan to use this dataset"
+        ></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn-secondary cancel-download">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-download"></i> Download
+        </button>
+      </div>
+    </form>
+    
+    <div id="download-loading" class="loading-state" style="display: none;">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Processing your request...</p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .dataset-modal {
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .dataset-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    padding: 2rem;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    color: #000;
+  }
+
+  .dataset-modal h2 {
+    margin-top: 0;
+    color: #0033A0;
+  }
+
+  .modal-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .required {
+    color: #d32f2f;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #0033A0;
+    box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.1);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: #0033A0;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #002875;
+  }
+
+  .btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+  }
+
+  .btn-secondary:hover {
+    background: #d0d0d0;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .loading-state i {
+    font-size: 2rem;
+    color: #0033A0;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<script>
+  const modal = document.getElementById('dataset-download-modal') as HTMLDialogElement;
+  const form = document.getElementById('dataset-download-form') as HTMLFormElement;
+  const loadingState = document.getElementById('download-loading');
+  const closeBtn = document.querySelector('.modal-close');
+  const cancelBtn = document.querySelector('.cancel-download');
+  
+  let currentFileId: string | null = null;
+  let currentDatasetId: string | null = null;
+  let currentFilename: string | null = null;
+
+  // Store dataset info for download
+  (window as any).openDatasetDownload = (fileId: string, datasetId: string, filename: string) => {
+    currentFileId = fileId;
+    currentDatasetId = datasetId;
+    currentFilename = filename;
+    modal.showModal();
+  };
+
+  // Close modal handlers
+  closeBtn?.addEventListener('click', () => modal.close());
+  cancelBtn?.addEventListener('click', () => modal.close());
+
+  // Handle form submission
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!currentFileId || !currentDatasetId) return;
+
+    const formData = new FormData(form);
+    const data = {
+      fileId: currentFileId,
+      datasetId: currentDatasetId,
+      name: formData.get('name'),
+      email: formData.get('email'),
+      institution: formData.get('institution'),
+      purpose: formData.get('purpose')
+    };
+
+    // Show loading state
+    form.style.display = 'none';
+    if (loadingState) loadingState.style.display = 'block';
+
+    try {
+      const response = await fetch('/api/directus/dataset-download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = result.download_url;
+        link.download = currentFilename || result.filename || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Close modal and reset
+        modal.close();
+        form.reset();
+        
+        // Show success message (optional)
+        alert('Download started! Thank you for providing your information.');
+      } else {
+        throw new Error(result.error || 'Download failed');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download dataset. Please try again.');
+    } finally {
+      // Reset UI
+      form.style.display = 'block';
+      if (loadingState) loadingState.style.display = 'none';
+    }
+  });
+
+  // Reset form when modal closes
+  modal?.addEventListener('close', () => {
+    form.reset();
+    form.style.display = 'block';
+    if (loadingState) loadingState.style.display = 'none';
+  });
+</script>

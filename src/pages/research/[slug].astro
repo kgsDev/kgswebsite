@@ -1,13 +1,13 @@
 ---
 // src/pages/research/[slug].astro
-// Dynamic version that fetches fresh content on each request
-
 export const prerender = false;
 
 import Layout from "../../layouts/BaseLayout.astro";
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import ResearchTeam from "../../components/research/ResearchTeam.astro";
 import ResearchPublications from "../../components/research/ResearchPublications.astro";
+import DatasetList from "../../components/research/DatasetList.astro";
+import DatasetDownloadModal from '../../components/DatasetDownloadModal.astro';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
@@ -21,8 +21,8 @@ let page = null;
 let teamStaff = {
   leaders: [],
   coreMembers: [],
-  kgsMembers: [], // KGS staff members
-  affiliates: [] // Non-KGS staff (affiliates and students)
+  kgsMembers: [],
+  affiliates: []
 };
 
 try {
@@ -120,7 +120,6 @@ try {
 
             if (rankA !== rankB) return rankA - rankB;
 
-            // If same rank, sort by last name, then first name
             const nameA = `${a.last_name}, ${a.first_name}`.toLowerCase();
             const nameB = `${b.last_name}, ${b.first_name}`.toLowerCase();
             return nameA.localeCompare(nameB);
@@ -160,7 +159,6 @@ try {
           .filter(Boolean)
           .filter(staff => staff && staff.id && !excludeIds.includes(staff.id));
 
-        // Split into KGS staff and affiliates
         teamStaff.kgsMembers = filteredMembers.filter(staff => staff.kgs_staff === true);
         teamStaff.affiliates = filteredMembers.filter(staff => staff.kgs_staff !== true);
       }
@@ -197,10 +195,9 @@ function createHierarchicalBreadcrumbs(page: any) {
 }
 
 const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
-
-// Determine the publication search keyword - use pub_search_keyword if available, otherwise use title
 const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
 ---
+
 <Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
   <main>
     <h1 class="flex items-center gap-3">
@@ -282,6 +279,9 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
         </aside>
       </div>
 
+      <!-- Datasets Section (using reusable component) -->
+      <DatasetList teamId={page.Research_Team.id} />
+
       <!-- Research Publications Section (full width below content) -->
       <ResearchPublications 
         teamId={page.Research_Team.id}
@@ -312,6 +312,9 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
 
     <!-- Add lightbox functionality to any page that has galleries -->
     <LightboxEnhancer />
+    
+    <!-- Dataset Download Modal -->
+    <DatasetDownloadModal />
   </main>
 </Layout>
 
