@@ -168,9 +168,30 @@ try {
     }
   }
 
+
 } catch (error) {
   console.error("Error fetching research page:", error);
 }
+
+  // Check for publications
+  let hasFeaturedPublications = false;
+
+  if (page && !page.parent_page && page.Research_Team?.id) {
+    try {
+      const pubsDbUrl = "https://kgs.uky.edu/dpub";
+      const teamResponse = await fetch(
+        `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${page.Research_Team.id}&fields=publications.publications_id.id&limit=1`
+      );
+      
+      if (teamResponse.ok) {
+        const teamData = await teamResponse.json();
+        const team = teamData.data?.[0];
+        hasFeaturedPublications = team?.publications && team.publications.length > 0;
+      }
+    } catch (error) {
+      console.error("Error checking for publications:", error);
+    }
+  }
 
 // Handle 404 if page not found
 if (!page) {
@@ -266,16 +287,18 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
           </div>
 
           <!-- Featured Publications -->
-          <div class="sidebar-section">
-            <h3>
-              <i class="fas fa-books"></i>
-              Featured Publications
-            </h3>
-            <ResearchPublications 
-              teamId={page.Research_Team.id} 
-              showInSidebar={true}
-            />
-          </div>
+          {hasFeaturedPublications && (
+            <div class="sidebar-section">
+              <h3>
+                <i class="fas fa-books"></i>
+                Featured Publications
+              </h3>
+              <ResearchPublications 
+                teamId={page.Research_Team.id} 
+                showInSidebar={true}
+              />
+            </div>
+          )}
         </aside>
       </div>
 
