@@ -2,6 +2,10 @@
 // src/pages/labs/[slug]/index.astro
 export const prerender = false;
 
+// At the top with other imports
+import directus from "../../../../lib/directus";
+import { readItems } from "@directus/sdk";
+
 import LabLayout from '../../../layouts/LabLayout.astro';
 import DraftBanner from '../../../components/DraftBanner.astro';
 import NewsCard from '../../../components/news/NewsCard.astro';
@@ -33,6 +37,26 @@ const featuredProjects = await fetchLabProjects(lab.id, { featured: true, limit:
 const recentNews = await fetchLabNews(lab.id, { limit: 3 });
 const labTools = await fetchLabTools(lab.id);
 const labStaff = await fetchLabStaff(lab.id);
+
+// After other fetch calls
+const labDatasets = await directus.request(readItems("datasets_labs", {
+  fields: [
+    'datasets_id.id',
+    'datasets_id.title',
+    'datasets_id.format',
+    'datasets_id.date_uploaded'
+  ],
+  filter: {
+    labs_id: { _eq: lab.id },
+    datasets_id: {
+      status: { _eq: 'published' }
+    }
+  },
+  sort: ['-datasets_id.date_uploaded'],
+  limit: 3
+}));
+
+const recentDatasets = labDatasets.map(item => item.datasets_id).filter(Boolean);
 
 // Check if this is draft content or preview mode
 const isDraft = lab.status === 'draft';
@@ -94,6 +118,47 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     </div>
   )}
   
+  <!--Datasets Section -->
+  {recentDatasets.length > 0 && (
+    <div class="content-block">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold lab-primary-text">Available Datasets</h2>
+          <a href={`/labs/${lab.slug}/datasets`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
+            View All Datasets
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        
+        <div class="space-y-3">
+          {recentDatasets.map(dataset => (
+            <div class="bg-gray-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="font-semibold lab-secondary-text">{dataset.title}</h4>
+                  <div class="flex gap-2 mt-1 text-sm text-gray-600">
+                    {dataset.format && <span>Format: {dataset.format}</span>}
+                    {dataset.date_uploaded && (
+                      <span>• {new Date(dataset.date_uploaded).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                </div>
+                <a 
+                  href={`/labs/${lab.slug}/datasets#dataset-${dataset.id}`}
+                  class="text-blue-600 hover:text-blue-800"
+                >
+                  View →
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
   <!-- Featured Projects Section -->
   {featuredProjects.length > 0 && (
     <div class="content-block">
