@@ -3,10 +3,7 @@
 export const prerender = false; // Enable SSR for this page
 
 import LabLayout from '../../../layouts/LabLayout.astro';
-import { 
-  fetchLabBySlug, 
-  fetchLabPublications 
-} from '../../../lib/api_labs';
+import { fetchLabBySlug } from '../../../lib/api_labs';
 
 // Get the lab for this page
 const { slug } = Astro.params;
@@ -17,25 +14,110 @@ if (!lab) {
   return Astro.redirect('/404');
 }
 
-// Get publications for this lab
-const publicationsResponse = await fetchLabPublications(lab.id);
+const pubsDbUrl = "https://kgs.uky.edu/dpub";
 
-// Ensure we have an array to work with
-const publications = Array.isArray(publicationsResponse) ? publicationsResponse : 
-                    (publicationsResponse?.data && Array.isArray(publicationsResponse.data)) ? publicationsResponse.data : 
-                    [];
+// Fetch publications for this lab from external database
+let publications = [];
 
-// Sort publications by year (most recent first)
-const sortedPublications = publications.sort((a, b) => {
-  const yearA = a.year || 0;
-  const yearB = b.year || 0;
-  return yearB - yearA;
-});
+try {
+  // Fetch the lab with nested publications and authors through the M2M relationships
+  const labResponse = await fetch(
+    `${pubsDbUrl}/items/kygs_lab?filter[kygs_id][_eq]=${lab.id}&fields=id,use_kygs_sort,publications.publications_id.id,publications.publications_id.title,publications.publications_id.publication_year,publications.publications_id.url_download,publications.publications_id.url_webpage,publications.publications_id.cover,publications.publications_id.kygs_lab_featured,publications.publications_id.kygs_sort,publications.publications_id.author_id.authors_id.first_name,publications.publications_id.author_id.authors_id.middle_name,publications.publications_id.author_id.authors_id.last_name,publications.publications_id.author_id.authors_id.prefix,publications.publications_id.author_id.authors_id.suffix`
+  );
+  
+  if (!labResponse.ok) {
+    throw new Error(`Failed to fetch lab data: ${labResponse.status}`);
+  }
+  
+  const labData = await labResponse.json();
+  
+  // The response is an array, get the first (and should be only) match
+  const labFromPubs = labData.data?.[0];
+  
+  // Extract the actual publications from the junction table structure
+  if (labFromPubs?.publications && Array.isArray(labFromPubs.publications)) {
+    publications = labFromPubs.publications
+      .map(junction => junction.publications_id)
+      .filter(pub => pub && pub.id); // Filter out any null/undefined entries
+    
+    // Sort publications: featured first, then by kygs_sort (if present), then by year (descending), then by title
+    publications.sort((a, b) => {
+      // Check if either pub is featured for this lab
+      const aFeatured = Array.isArray(a.kygs_lab_featured) && a.kygs_lab_featured.includes(lab.id);
+      const bFeatured = Array.isArray(b.kygs_lab_featured) && b.kygs_lab_featured.includes(lab.id);
+      
+      if (aFeatured && !bFeatured) return -1;
+      if (!aFeatured && bFeatured) return 1;
+      
+      // If both featured or both not featured, check for kygs_sort
+      if(labFromPubs.use_kygs_sort) {
+        const aSort = a.kygs_sort ?? null;
+        const bSort = b.kygs_sort ?? null;
+        
+        // If both have kygs_sort values, sort by those (ascending - lower numbers first)
+        if (aSort !== null && bSort !== null) {
+          if (aSort !== bSort) return aSort - bSort;
+        }
+        // If only one has kygs_sort, prioritize it
+        if (aSort !== null && bSort === null) return -1;
+        if (aSort === null && bSort !== null) return 1;
+      }
+      
+      // If neither has kygs_sort or they're equal, sort by year descending
+      if (b.publication_year !== a.publication_year) {
+        return b.publication_year - a.publication_year;
+      }
+      
+      // Finally sort by title
+      return (a.title || '').localeCompare(b.title || '');
+    });
+  }
+
+} catch (error) {
+  console.error("Error fetching publications:", error);
+}
+
+// Helper function to format authors from M2M junction table
+function formatAuthors(authorJunctions) {
+  if (!Array.isArray(authorJunctions) || authorJunctions.length === 0) return '';
+  
+  // Extract author objects from junction table
+  const authors = authorJunctions
+    .map(junction => junction.authors_id)
+    .filter(author => author && (author.first_name || author.last_name));
+  
+  if (authors.length === 0) return '';
+  
+  // Format each author name with prefix, first, middle, last, suffix
+  const authorNames = authors.map(author => {
+    const parts = [];
+    if (author.prefix) parts.push(author.prefix);
+    if (author.first_name) parts.push(author.first_name);
+    if (author.middle_name) parts.push(author.middle_name);
+    if (author.last_name) parts.push(author.last_name);
+    if (author.suffix) parts.push(author.suffix);
+    return parts.join(' ').trim();
+  }).filter(name => name.length > 0);
+  
+  if (authorNames.length === 0) return '';
+  if (authorNames.length === 1) return authorNames[0];
+  if (authorNames.length === 2) return `${authorNames[0]} and ${authorNames[1]}`;
+  
+  // For 3+ authors, list all with commas and "and" before the last
+  const lastAuthor = authorNames[authorNames.length - 1];
+  const otherAuthors = authorNames.slice(0, -1);
+  return `${otherAuthors.join(', ')}, and ${lastAuthor}`;
+}
+
+// Helper function to get publication URL (prefer webpage, fallback to download)
+function getPubUrl(pub) {
+  return pub.url_webpage || pub.url_download || null;
+}
 
 // Group publications by year for better organization
 const publicationsByYear = {};
-sortedPublications.forEach(pub => {
-  const year = pub.year || 'No Date';
+publications.forEach(pub => {
+  const year = pub.publication_year || 'No Date';
   if (!publicationsByYear[year]) {
     publicationsByYear[year] = [];
   }
@@ -48,38 +130,6 @@ const years = Object.keys(publicationsByYear).sort((a, b) => {
   if (b === 'No Date') return -1;
   return b - a;
 });
-
-// Get the directus URL for asset loading
-const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
-
-// Helper function to format date
-const formatDate = (dateString) => {
-  if (!dateString) return null;
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
-
-// Helper function to create citation
-const createCitation = (pub) => {
-  if (pub.citation) return pub.citation;
-  
-  let citation = '';
-  if (pub.authors) citation += `${pub.authors}. `;
-  if (pub.title) citation += `"${pub.title}." `;
-  if (pub.journal) {
-    citation += `${pub.journal}`;
-    if (pub.volume) citation += ` ${pub.volume}`;
-    if (pub.issue) citation += `.${pub.issue}`;
-    if (pub.pages) citation += ` (${pub.pages})`;
-    citation += '. ';
-  }
-  if (pub.year) citation += `${pub.year}.`;
-  
-  return citation.trim();
-};
 ---
 
 <LabLayout lab={lab} activePage="publications" pageTitle="Publications">
@@ -120,106 +170,96 @@ const createCitation = (pub) => {
         </div>
         
         <div class="space-y-6">
-          {publicationsByYear[year].map((pub, index) => (
-            <div class="border-l-4 border-blue-500 pl-6 pb-6 border-b border-gray-100 last:border-b-0">
-              <div class="mb-3">
-                <h3 class="text-lg font-semibold lab-primary-text mb-2">{pub.title}</h3>
-                
-                {pub.authors && (
-                  <p class="text-gray-700 mb-2">
-                    <strong>Authors:</strong> {pub.authors}
-                  </p>
-                )}
-                
-                <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
-                  {pub.journal && (
-                    <div>
-                      <strong>Journal:</strong> {pub.journal}
-                      {pub.volume && <span>, Vol. {pub.volume}</span>}
-                      {pub.issue && <span>({pub.issue})</span>}
+          {publicationsByYear[year].map((pub) => {
+            const pubUrl = getPubUrl(pub);
+            const authors = formatAuthors(pub.author_id);
+            const isFeatured = Array.isArray(pub.kygs_lab_featured) && pub.kygs_lab_featured.includes(lab.id);
+            
+            return (
+              <div class={`border-l-4 ${isFeatured ? 'border-blue-600' : 'border-blue-500'} pl-6 pb-6 border-b border-gray-100 last:border-b-0`}>
+                <div class="flex gap-4">
+                  {/* Thumbnail */}
+                  {pub.cover && (
+                    <div class="flex-shrink-0">
+                      <img 
+                        src={`${pubsDbUrl}/assets/${pub.cover}?width=200&quality=80`}
+                        alt={`Cover for ${pub.title}`}
+                        class="w-24 h-32 object-cover object-top rounded shadow-sm"
+                        loading="lazy"
+                      />
                     </div>
                   )}
                   
-                  {pub.pages && (
-                    <div><strong>Pages:</strong> {pub.pages}</div>
-                  )}
-                  
-                  {pub.publication_date && (
-                    <div><strong>Published:</strong> {formatDate(pub.publication_date)}</div>
-                  )}
-                  
-                  {pub.doi && (
-                    <div><strong>DOI:</strong> {pub.doi}</div>
-                  )}
+                  <div class="flex-1 min-w-0">
+                    <div class="mb-3">
+                      {isFeatured && (
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded mb-2">
+                          Featured
+                        </span>
+                      )}
+                      
+                      <h3 class="text-lg font-semibold lab-primary-text mb-2">
+                        {pubUrl ? (
+                          <a href={pubUrl} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                            {pub.title}
+                          </a>
+                        ) : (
+                          pub.title
+                        )}
+                      </h3>
+                      
+                      {authors && (
+                        <p class="text-gray-700 mb-2">
+                          <strong>Authors:</strong> {authors}
+                        </p>
+                      )}
+                      
+                      <div class="text-sm text-gray-600">
+                        <strong>Year:</strong> {pub.publication_year}
+                      </div>
+                    </div>
+                    
+                    {/* Links */}
+                    <div class="flex flex-wrap gap-3 text-sm">
+                      {pub.url_webpage && (
+                        <a 
+                          href={pub.url_webpage} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                          View Publication
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                      
+                      {pub.url_download && (
+                        <a 
+                          href={pub.url_download} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Download PDF
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              {pub.abstract && (
-                <div class="mb-4">
-                  <h4 class="font-medium text-gray-900 mb-2">Abstract</h4>
-                  <p class="text-gray-700 text-sm leading-relaxed">{pub.abstract}</p>
-                </div>
-              )}
-              
-              <!-- Citation -->
-              <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-900 mb-2 text-sm">Citation</h4>
-                <p class="text-sm text-gray-700 font-mono leading-relaxed">
-                  {createCitation(pub)}
-                </p>
-              </div>
-              
-              <!-- Links -->
-              <div class="flex flex-wrap gap-3 text-sm">
-                {pub.doi && (
-                  <a 
-                    href={`https://doi.org/${pub.doi}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    DOI Link
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
-                
-                {pub.url && (
-                  <a 
-                    href={pub.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Full Text
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
-                
-                {pub.pdf && (
-                  <a 
-                    href={`${directusUrl}assets/${pub.pdf}`} 
-                    target="_blank"
-                    class="inline-flex items-center lab-secondary-text hover:lab-primary-text transition-colors duration-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Download PDF
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     ))}

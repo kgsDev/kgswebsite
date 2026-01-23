@@ -1,4 +1,5 @@
 ---
+// ResearchPublications.astro
 interface Props {
   teamId: number;
   title?: string;
@@ -21,7 +22,7 @@ let publications = [];
 try {
   // Fetch the team with nested publications and authors through the M2M relationships
   const teamResponse = await fetch(
-    `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${teamId}&fields=id,publications.publications_id.id,publications.publications_id.title,publications.publications_id.publication_year,publications.publications_id.url_download,publications.publications_id.url_webpage,publications.publications_id.cover,publications.publications_id.kygs_team_featured,publications.publications_id.kygs_sort,publications.publications_id.author_id.authors_id.first_name,publications.publications_id.author_id.authors_id.middle_name,publications.publications_id.author_id.authors_id.last_name,publications.publications_id.author_id.authors_id.prefix,publications.publications_id.author_id.authors_id.suffix`
+    `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${teamId}&fields=id,use_kygs_sort,publications.publications_id.id,publications.publications_id.title,publications.publications_id.publication_year,publications.publications_id.url_download,publications.publications_id.url_webpage,publications.publications_id.cover,publications.publications_id.kygs_team_featured,publications.publications_id.kygs_sort,publications.publications_id.author_id.authors_id.first_name,publications.publications_id.author_id.authors_id.middle_name,publications.publications_id.author_id.authors_id.last_name,publications.publications_id.author_id.authors_id.prefix,publications.publications_id.author_id.authors_id.suffix`
   );
   
   if (!teamResponse.ok) {
@@ -49,16 +50,18 @@ try {
       if (!aFeatured && bFeatured) return 1;
       
       // If both featured or both not featured, check for kygs_sort
-      const aSort = a.kygs_sort ?? null;
-      const bSort = b.kygs_sort ?? null;
-      
-      // If both have kygs_sort values, sort by those (ascending - lower numbers first)
-      if (aSort !== null && bSort !== null) {
-        if (aSort !== bSort) return aSort - bSort;
+      if(team.use_kygs_sort) {
+        const aSort = a.kygs_sort ?? null;
+        const bSort = b.kygs_sort ?? null;
+        
+        // If both have kygs_sort values, sort by those (ascending - lower numbers first)
+        if (aSort !== null && bSort !== null) {
+          if (aSort !== bSort) return aSort - bSort;
+        }
+        // If only one has kygs_sort, prioritize it
+        if (aSort !== null && bSort === null) return -1;
+        if (aSort === null && bSort !== null) return 1;
       }
-      // If only one has kygs_sort, prioritize it
-      if (aSort !== null && bSort === null) return -1;
-      if (aSort === null && bSort !== null) return 1;
       
       // If neither has kygs_sort or they're equal, sort by year descending
       if (b.publication_year !== a.publication_year) {
