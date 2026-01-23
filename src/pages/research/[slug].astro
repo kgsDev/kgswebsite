@@ -6,6 +6,8 @@ import Layout from "../../layouts/BaseLayout.astro";
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import ResearchTeam from "../../components/research/ResearchTeam.astro";
 import ResearchPublications from "../../components/research/ResearchPublications.astro";
+import ResearchPresentations from "../../components/research/ResearchPresentations.astro";
+import { fetchTeamPresentations } from "../../lib/api_research";
 import DatasetList from "../../components/research/DatasetList.astro";
 import DatasetDownloadModal from '../../components/DatasetDownloadModal.astro';
 import directus from "../../../lib/directus";
@@ -173,26 +175,53 @@ try {
   console.error("Error fetching research page:", error);
 }
 
-  // Check for publications
+  // Check for publications and presentations
   let hasFeaturedPublications = false;
+  let hasFeaturedPresentations = false;
+  let hasPresentations = false;
 
   if (page && !page.parent_page && page.Research_Team?.id) {
     try {
       const pubsDbUrl = "https://kgs.uky.edu/dpub";
-      const teamResponse = await fetch(
+      
+      // Check for publications
+      const pubResponse = await fetch(
         `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${page.Research_Team.id}&fields=publications.publications_id.id&limit=1`
       );
       
-      if (teamResponse.ok) {
-        const teamData = await teamResponse.json();
-        const team = teamData.data?.[0];
+      if (pubResponse.ok) {
+        const pubData = await pubResponse.json();
+        const team = pubData.data?.[0];
         hasFeaturedPublications = team?.publications && team.publications.length > 0;
       }
+
+      // Check for presentations
+      const presResponse = await fetch(
+        `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${page.Research_Team.id}&fields=presentations.presentations_id.id&limit=1`
+      );
+      
+      if (presResponse.ok) {
+        const presData = await presResponse.json();
+        const team = presData.data?.[0];
+        hasFeaturedPresentations = team?.presentations && team.presentations.length > 0;
+      }
+
     } catch (error) {
-      console.error("Error checking for publications:", error);
+      console.error("Error checking for publications/presentations:", error);
+    }
+    // Check for presentations
+    try {
+      const presentations = await fetchTeamPresentations(page.Research_Team.id, { 
+        yearGroup: false, 
+        limit: 1 
+      });
+      hasPresentations = presentations && presentations.length > 0;
+    } catch (error) {
+      console.error("Error checking for presentations:", error);
     }
   }
 
+  
 // Handle 404 if page not found
 if (!page) {
   return Astro.redirect('/404');
@@ -299,6 +328,20 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
               />
             </div>
           )}
+
+          <!-- Featured Presentations -->
+          {hasFeaturedPresentations && (
+            <div class="sidebar-section">
+              <h3>
+                <i class="fas fa-presentation"></i>
+                Featured Presentations
+              </h3>
+              <ResearchPresentations 
+                teamId={page.Research_Team.id} 
+                showInSidebar={true}
+              />
+            </div>
+          )}
         </aside>
       </div>
 
@@ -309,6 +352,12 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
       <ResearchPublications 
         teamId={page.Research_Team.id}
         title="Publications"
+      />
+      
+      <!-- Research Presentations Section (full width below publications) -->
+      <ResearchPresentations 
+        teamId={page.Research_Team.id}
+        title="Presentations"
       />
       
       <!-- View Related Publications Link -->
