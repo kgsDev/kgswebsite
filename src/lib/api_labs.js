@@ -584,7 +584,7 @@ export async function fetchLabPublications(labId, options = {}) {
  * Fetch presentations associated with a lab using many-to-many relationship
  */
 export async function fetchLabPresentations(labId, options = {}) {
-  const { limit = 10, page = 1, yearGroup = true } = options;
+  const { limit = null, yearGroup = true } = options;
   
   try {
     // First, get presentation relations through the junction table
@@ -606,19 +606,38 @@ export async function fetchLabPresentations(labId, options = {}) {
       .map(relation => relation.presentations_id)
       .filter(presentation => presentation) // Filter out any null/undefined entries
       .sort((a, b) => {
-        // Sort by date (most recent first)
-        const dateA = a.date ? new Date(a.date) : new Date(0);
-        const dateB = b.date ? new Date(b.date) : new Date(0);
-        return dateB - dateA;
+        // Sort by year (most recent first), then by date if available, then by title
+        const yearA = a.year || 0;
+        const yearB = b.year || 0;
+        
+        if (yearA !== yearB) {
+          return yearB - yearA;
+        }
+        
+        // If same year, sort by date if available
+        if (a.date && b.date) {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          if (dateA.getTime() !== dateB.getTime()) {
+            return dateB - dateA;
+          }
+        }
+        
+        // Finally sort by title
+        return (a.title || '').localeCompare(b.title || '');
       });
+    
+    // Apply limit if specified
+    if (limit) {
+      presentations = presentations.slice(0, limit);
+    }
     
     // If yearGroup is true, group presentations by year
     if (yearGroup) {
       const groupedByYear = {};
       
       presentations.forEach(pres => {
-        const date = pres.date ? new Date(pres.date) : null;
-        const year = date ? date.getFullYear() : 'Unknown Year';
+        const year = pres.year || 'Unknown Year';
         
         if (!groupedByYear[year]) {
           groupedByYear[year] = [];
