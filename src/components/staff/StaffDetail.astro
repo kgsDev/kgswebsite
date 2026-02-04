@@ -103,6 +103,16 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
                 {member.phone}
               </a>
             )}
+
+            {member.office_mmrb && (
+              <div class="inline-flex items-center">
+                <div class="mr-2 p-1 bg-blue-100 rounded-full">
+                  <i class="fas fa-door-open text-blue-500" style="font-size: 1rem;"></i>
+                </div>
+                MMRB Office: {member.office_mmrb}
+              </div>
+            )}
+
           </div>
           
           {/* Teams and locations grid */}
@@ -210,9 +220,6 @@ const sortedInformalTeams = sortInformalTeams(informalTeams);
                             </div>
                           )}
                           
-                          {location.description && (
-                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">{location.description}</p>
-                          )}
                         </div>
                         
                         {(location.slug || mapUrl) && (

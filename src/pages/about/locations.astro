@@ -103,6 +103,16 @@ const GOOGLE_MAPS_API_KEY = import.meta.env.GOOGLE_MAPS_API_KEY;
                     </div>
                   )}
 
+                  <!-- Description -->
+                  {location.description && (
+                    <div class="flex items-start">
+                      <i class="fas fa-regular fa-circle-info mr-3 mt-1 text-blue-500 flex-shrink-0"></i>
+                      <div>
+                        <div class="font-medium text-gray-900 mb-1" set:html={location.description}></div>
+                      </div>
+                    </div>
+                  )}
+
                   <!-- Website -->
                   {location.url && (
                     <div class="flex items-start">

@@ -137,6 +137,16 @@ const { staff } = Astro.props;
                   <span class="truncate">{member.phone}</span>
                 </div>
               )}
+              
+            {member.office_mmrb && (
+              <div class="flex items-center text-gray-600 text-xs">
+                <span class="text-blue-500 mr-2 flex-shrink-0">
+                  <i class="fas fa-door-open text-blue-500" style="font-size: 0.875rem;"></i>
+                </span>
+                MMRB Office: {member.office_mmrb}
+              </div>
+            )}
+
             </div>
             
             <div class="mt-2 text-right">

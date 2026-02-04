@@ -40,6 +40,7 @@ export async function fetchKGSLocations() {
         'toll_free_phone',
         'email',
         'url',
+        'description',
         'slug'
       ],
       filter: JSON.stringify({
@@ -53,7 +54,6 @@ export async function fetchKGSLocations() {
       sort: 'sort,state,city,name'
     });
 
-    console.log(`Fetched ${locations.length} KGS directory locations`);
     return locations;
   } catch (error) {
     console.error('Error fetching KGS locations:', error);
