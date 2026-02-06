@@ -167,6 +167,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
             href={factsheet.url_download}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`Download PDF for ${cleanTitle}`}
             class="inline-flex items-center px-4 py-2 bg-[#0033A0] text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             <i class="fas fa-download mr-2"></i>
@@ -179,6 +180,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
             href={factsheet.url_webpage}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`View ${cleanTitle} online`}
             class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
           >
             <i class="fas fa-external-link-alt mr-2"></i>
@@ -191,6 +193,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
             href={`https://doi.org/${factsheet.doi}`}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`View DOI for ${cleanTitle}`}
             class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
           >
             <i class="fas fa-link mr-2"></i>

@@ -410,6 +410,7 @@ const {
       const prevBtn = document.createElement('button');
       prevBtn.className = `px-3 py-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`;
       prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevBtn.setAttribute('aria-label', 'Previous page');
       prevBtn.disabled = currentPage === 1;
       prevBtn.addEventListener('click', () => {
         if (currentPage > 1) {
@@ -460,6 +461,7 @@ const {
       const nextBtn = document.createElement('button');
       nextBtn.className = `px-3 py-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`;
       nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextBtn.setAttribute('aria-label', 'Next page');
       nextBtn.disabled = currentPage === totalPages;
       nextBtn.addEventListener('click', () => {
         if (currentPage < totalPages) {

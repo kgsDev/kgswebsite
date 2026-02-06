@@ -154,6 +154,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
           href={publication.url_download}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Download PDF of ${cleanTitle}`}
           onclick="event.stopPropagation();"
           class="inline-flex items-center px-4 py-2 bg-[#0033A0] text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
         >
@@ -168,6 +169,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
           target="_blank"
           rel="noopener noreferrer"
           onclick="event.stopPropagation();"
+          aria-label={`View ${cleanTitle} online`}
           class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
         >
           <i class="fas fa-external-link-alt mr-2"></i>
@@ -181,6 +183,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
           target="_blank"
           rel="noopener noreferrer"
           onclick="event.stopPropagation();"
+          aria-label={`View DOI for ${cleanTitle}`}
           class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
         >
           <i class="fas fa-link mr-2"></i>
@@ -194,6 +197,7 @@ const colors = colorClasses[categoryColor] || colorClasses.gray;
           target="_blank"
           rel="noopener noreferrer"
           onclick="event.stopPropagation();"
+          aria-label={`View accessibility version of ${cleanTitle}`}
           class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium"
         >
           <i class="fas fa-universal-access mr-2"></i>

@@ -66,6 +66,7 @@ const modalId = `modal-${mapService.id}`;
         href={mapService.map_url}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label={`Launch map service ${mapService.title}`}
         class="w-full px-4 py-2.5 bg-[#0033A0] text-white text-center rounded-lg hover:bg-[#1B365D] transition-colors font-medium flex items-center justify-center"
       >
         <i class="fas fa-external-link-alt mr-2"></i>
@@ -77,6 +78,7 @@ const modalId = `modal-${mapService.id}`;
           href={mapService.help_url}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`View help and documentation for ${mapService.title}`}
           class="w-full px-4 py-2.5 bg-gray-100 text-gray-700 text-center rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center justify-center"
         >
           <i class="fas fa-question-circle mr-2"></i>

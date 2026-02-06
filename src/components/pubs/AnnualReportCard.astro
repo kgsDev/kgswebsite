@@ -87,6 +87,7 @@ const categoryIcon = 'fa-file-alt';
             href={annualReport.url_webpage}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`View ${annualReport.title} online`}
             class="inline-flex items-center px-4 py-2 bg-[#0033A0] text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             <i class="fas fa-external-link-alt mr-2"></i>
@@ -99,6 +100,7 @@ const categoryIcon = 'fa-file-alt';
             href={annualReport.url_download}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`Download PDF of ${annualReport.title}`}
             class={`inline-flex items-center px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
               downloadIsProminent 
                 ? 'bg-[#0033A0] text-white hover:bg-blue-700' 
@@ -114,6 +116,7 @@ const categoryIcon = 'fa-file-alt';
           <a 
             href={`https://doi.org/${annualReport.doi}`}
             target="_blank"
+            aria-label={`View DOI for ${annualReport.title}`}
             rel="noopener noreferrer"
             class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
           >

@@ -624,7 +624,7 @@ try {
             <p class="contact-name">Team Lead</p>
             <p class="contact-title">
               {teamStaff.leaders[0] ? (
-                <a href={`/staff/${teamStaff.leaders[0].slug}`}>
+                <a href={`/staff/${teamStaff.leaders[0].slug}`} aria-label={`View profile for ${teamStaff.leaders[0].first_name} ${teamStaff.leaders[0].last_name}`}>
                   {teamStaff.leaders[0].first_name} {teamStaff.leaders[0].last_name}
                 </a>
               ) : (
@@ -634,7 +634,7 @@ try {
             <p>
               <i class="fas fa-envelope"></i>
                {teamStaff.leaders[0] ? (
-                <a href={`mailto:/staff/${teamStaff.leaders[0].email}`}>
+                <a href={`mailto:/staff/${teamStaff.leaders[0].email}`} aria-label={`Email ${teamStaff.leaders[0].first_name} ${teamStaff.leaders[0].last_name}`}>
                   {teamStaff.leaders[0].email}
                 </a>
               ) : (
@@ -651,7 +651,7 @@ try {
             <p class="contact-name">General Inquiries</p>
             <p>
               <i class="fas fa-envelope"></i>
-              <a href="mailto:kgsmail@uky.edu">kgsmail@uky.edu</a>
+              <a href="mailto:kgsmail@uky.edu" aria-label="Email KGS General Inquiries">kgsmail@uky.edu</a>
             </p>
           </div>
         </div>
