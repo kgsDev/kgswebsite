@@ -242,7 +242,11 @@ const app_url = !!details.app_form_url;
         )}
 
      <!-- Apply -->
-      <ApplyBox programYear={details.program_year} appFormUrl={details.app_form_url} />
+     <ApplyBox 
+      programYear={details.program_year} 
+      appFormUrl={details.app_form_url}
+      applicationEndDate={details.application_end_date}
+    />
 
       <!-- ========================================
        WHAT TO EXPECT SECTION
@@ -456,7 +460,11 @@ const app_url = !!details.app_form_url;
 
 
      <!-- Apply -->
-    <ApplyBox programYear={details.program_year} appFormUrl={details.app_form_url} />
+      <ApplyBox 
+        programYear={details.program_year} 
+        appFormUrl={details.app_form_url}
+        applicationEndDate={details.application_end_date}
+    />
 
     </div>
   </div>

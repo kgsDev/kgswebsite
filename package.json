@@ -9,11 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/node": "^9.4.2",
+    "@astrojs/check": "^0.9.6",
+    "@astrojs/node": "^9.5.4",
     "@directus/sdk": "^19.1.0",
     "@mdi/font": "^7.4.47",
-    "astro": "^5.7.10",
+    "astro": "^5.17.3",
     "axios": "^1.9.0",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",

@@ -1,16 +1,20 @@
 ---
-// src/components/ApplyBox.astro
+// src/components/intern/ApplyBox.astro
 interface Props {
   programYear: number;
   appFormUrl?: string | null;
+  applicationEndDate?: string | null;
 }
 
-const { programYear, appFormUrl } = Astro.props;
+const { programYear, appFormUrl, applicationEndDate } = Astro.props;
 const app_url = !!appFormUrl;
+
+const today = new Date();
+const appClosed = applicationEndDate ? today > new Date(applicationEndDate) : false;
 ---
 
 <div style="background: linear-gradient(to right, var(--wildcatBlue), var(--midnightBlue));" class="text-white rounded-lg p-8 text-center">
-  {app_url ? (
+  {app_url && !appClosed ? (
     <div>
       <h2 style="color: white !important;">Ready to Apply?</h2>
       <p style="color: white !important;" class="p-4">Join the {programYear} Paul Edwin Potter Internship Program and kickstart your geoscience career!</p>
@@ -29,12 +33,12 @@ const app_url = !!appFormUrl;
         </a>
       </div>
     </div>
-  ) : (
+  ) : !appClosed ? (
     <div>
       <h2 style="color: white !important;">Application Coming Soon!</h2>
       <p style="color: white !important;" class="p-4">We're finalizing the application for the {programYear} Paul Edwin Potter Internship Program. Please check back soon!</p>
     </div>
-  )}
+  ) : null}
   <div class="flex flex-col sm:flex-row gap-2 justify-center">
     <p class="text-lg" style="color: white !important;">Questions? Contact us:</p>
     <a 
