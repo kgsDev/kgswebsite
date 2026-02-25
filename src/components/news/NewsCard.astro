@@ -14,37 +14,27 @@ const formatDate = (dateString) => {
   });
 };
 
-/// Format date range for events
+// Format date range for events
 const formatDateRange = (startDate, endDate) => {
   if (!startDate) return '';
-  
   const start = new Date(startDate);
   const startMonth = start.toLocaleDateString('en-US', { month: 'long' });
   const startDay = start.getDate();
   const startYear = start.getFullYear();
-  
-  // If no end date or same as start date, or same day, return just the start date
-  if (!endDate || startDate === endDate || 
+  if (!endDate || startDate === endDate ||
       (new Date(endDate)).toDateString() === start.toDateString()) {
     return `${startMonth} ${startDay}, ${startYear}`;
   }
-  
   const end = new Date(endDate);
   const endMonth = end.toLocaleDateString('en-US', { month: 'long' });
   const endDay = end.getDate();
   const endYear = end.getFullYear();
-  
-  // If same month and year, display as "Month Day–Day, Year"
   if (startMonth === endMonth && startYear === endYear) {
     return `${startMonth} ${startDay}–${endDay}, ${startYear}`;
   }
-  
-  // If same year but different months, display as "Month Day – Month Day, Year"
   if (startYear === endYear) {
     return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${startYear}`;
   }
-  
-  // If different years, display full dates
   return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`;
 };
 
@@ -53,19 +43,16 @@ const isEventPast = (endDate) => {
   if (!endDate) return false;
   const end = new Date(endDate);
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set to beginning of day
+  today.setHours(0, 0, 0, 0);
   return end < today;
 };
 
-// Determine card size classes
+// Determine layout classes based on size
 let containerClass = "";
 let imageClass = "";
 let imageStyle = "";
 
 if (size === "large") {
-  //containerClass = "lg:flex-row";
-  //imageClass = "lg:w-1/3";
-  //imageStyle = "lg:max-h-none lg:h-full";
   containerClass = "flex-col md:flex-row";
   imageClass = "w-full md:w-1/2";
   imageStyle = "h-56 md:h-full";
@@ -80,28 +67,69 @@ if (size === "large") {
   imageStyle = "h-56 md:h-full";
 }
 
-// Get category label and color
+// Media type labels and icons map
+const mediaTypeLabels: Record<string, string> = {
+  tv_interview:   "TV Interview",
+  tv_news:        "TV News",
+  online_article: "Online Article",
+  newspaper:      "Newspaper",
+  radio_interview:"Radio Interview",
+  podcast:        "Podcast",
+  radio_news:     "Radio News",
+  documentary:    "Documentary",
+};
+
+const mediaTypeIcons: Record<string, string> = {
+  tv_interview:   "fa-tv",
+  tv_news:        "fa-tv",
+  online_article: "fa-globe",
+  newspaper:      "fa-newspaper",
+  radio_interview:"fa-microphone",
+  podcast:        "fa-podcast",
+  radio_news:     "fa-radio",
+  documentary:    "fa-film",
+};
+
+// Get category label, color, href, and icon
 let categoryLabel = "";
 let categoryColor = "";
 let categoryHref = "";
+let categoryIcon = "";
 
 if (article.category === "press") {
   categoryLabel = "Press Release";
   categoryColor = "bg-blue-100 text-blue-800";
   categoryHref = "/news/press-releases";
+  categoryIcon = "fa-newspaper";
 } else if (article.category === "research") {
   categoryLabel = "Research";
   categoryColor = "bg-green-100 text-green-800";
   categoryHref = "/news/research";
+  categoryIcon = "fa-flask";
 } else if (article.category === "event") {
   categoryLabel = "Event";
   categoryColor = isEventPast(article.event_end) ? "bg-gray-100 text-gray-700" : "bg-purple-100 text-purple-800";
   categoryHref = "/news/events";
+  categoryIcon = "fa-calendar";
+} else if (article.category === "media") {
+  categoryLabel = article.media_type
+    ? (mediaTypeLabels[article.media_type] || article.media_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
+    : "KGS in the Media";
+  categoryColor = "bg-orange-100 text-orange-800";
+  categoryHref = "/news/media";
+  categoryIcon = article.media_type ? (mediaTypeIcons[article.media_type] || "fa-broadcast-tower") : "fa-broadcast-tower";
 } else {
   categoryLabel = "News";
   categoryColor = "bg-gray-100 text-gray-800";
   categoryHref = "/news";
+  categoryIcon = "fa-bullhorn";
 }
+
+// Determine link destination — media items link externally, others go to internal slug page
+const isMedia = article.category === "media";
+const articleHref = (isMedia && article.media_url) ? article.media_url : `/news/${article.slug}`;
+const linkTarget = isMedia ? "_blank" : undefined;
+const linkRel = isMedia ? "noopener noreferrer" : undefined;
 
 // Use tile_image if available, otherwise fall back to main_image
 const displayImage = article.tile_image || article.main_image;
@@ -111,7 +139,7 @@ const displayImage = article.tile_image || article.main_image;
   <!-- Image Section -->
   {displayImage ? (
     <div class={`relative ${imageClass}`}>
-      <a href={`/news/${article.slug}`} class="block h-full">
+      <a href={articleHref} target={linkTarget} rel={linkRel} class="block h-full">
         <div class="aspect-[3/2] w-full h-full">
           <img 
             src={`${directusUrl}assets/${displayImage}?width=600&height=400&quality=80&fit=cover`} 
@@ -121,29 +149,45 @@ const displayImage = article.tile_image || article.main_image;
           />
         </div>
       </a>
-      
+
       {/* Badge for past events */}
       {article.category === "event" && isEventPast(article.event_end) && (
         <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs font-bold px-2 py-1">
           PAST EVENT
+        </div>
+      )}
+
+      {/* External link indicator for media items */}
+      {isMedia && (
+        <div class="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-2 py-1">
+          <i class="fas fa-external-link-alt mr-1"></i>KGS in the News
         </div>
       )}
     </div>
   ) : (
-    <div class={`bg-gray-200 flex items-center justify-center relative ${imageClass}`}>
-      <div class="aspect-[3/2] w-full h-full flex items-center justify-center">
-        <i class="fas fa-image"></i>
-      </div>
-      
+    <div class={`flex items-center justify-center relative ${imageClass} ${isMedia ? 'bg-orange-50' : 'bg-gray-200'}`}>
+      <a href={articleHref} target={linkTarget} rel={linkRel} class="block w-full h-full">
+        <div class="aspect-[3/2] w-full h-full flex items-center justify-center">
+          <i class={`fas ${categoryIcon} text-4xl ${isMedia ? 'text-orange-300' : 'text-gray-400'}`}></i>
+        </div>
+      </a>
+
       {/* Badge for past events */}
       {article.category === "event" && isEventPast(article.event_end) && (
         <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs font-bold px-2 py-1">
           PAST EVENT
         </div>
       )}
+
+      {/* External link indicator for media items without image */}
+      {isMedia && (
+        <div class="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-2 py-1">
+          <i class="fas fa-external-link-alt mr-1"></i>KGS in the News
+        </div>
+      )}
     </div>
   )}
-  
+
   <!-- Content Section -->
   <div class="p-5 flex-1 flex flex-col">
     <!-- Date and Category -->
@@ -160,33 +204,48 @@ const displayImage = article.tile_image || article.main_image;
           <time datetime={article.publication_date}>{formatDate(article.publication_date)}</time>
         </div>
       )}
-      
+
       {article.category && (
-        <a href={categoryHref} class={`text-xs px-2 py-1 rounded-full ${categoryColor}`}>
+        <a href={categoryHref} class={`text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 ${categoryColor}`}>
+          <i class={`fas ${categoryIcon}`}></i>
           {categoryLabel}
         </a>
       )}
     </div>
-    
+
+    {/* Media outlet name */}
+    {isMedia && article.media_name && (
+      <div class="mb-2 text-sm text-orange-700 font-medium flex items-center gap-1">
+        <i class="fas fa-building"></i>
+        {article.media_name}
+      </div>
+    )}
+
     <!-- Article Title -->
     <h4 class="text-xl font-bold text-blue-900 mb-2 line-clamp-2">
-      <a href={`/news/${article.slug}`} class="hover:text-blue-700">
+      <a href={articleHref} target={linkTarget} rel={linkRel} class="hover:text-blue-700">
         {article.title}
       </a>
     </h4>
-    
+
     <!-- Article Summary -->
     {article.excerpt && (
       <p class="text-gray-600 mb-4 line-clamp-3">
         {article.excerpt}
       </p>
     )}
-     
-    <!-- Read More Link -->
-    <div class="mt-4 pt-3 border-t border-gray-100">
-      <a href={`/news/${article.slug}`} class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200" aria-label={`Read full article: ${article.title}`}>
-        Read Article
-        <i class="fas fa-arrow-right"></i>
+
+    <!-- Read More / Visit Link -->
+    <div class="mt-auto pt-3 border-t border-gray-100">
+      <a 
+        href={articleHref} 
+        target={linkTarget} 
+        rel={linkRel}
+        class="inline-flex items-center text-gray-700 hover:text-blue-700 hover:underline font-medium transition duration-200"
+        aria-label={isMedia ? `View media coverage: ${article.title}` : `Read full article: ${article.title}`}
+      >
+        {isMedia ? 'View Coverage' : 'Read Article'}
+        <i class={`fas ${isMedia ? 'fa-external-link-alt' : 'fa-arrow-right'} ml-1`}></i>
       </a>
     </div>
   </div>
@@ -197,7 +256,7 @@ const displayImage = article.tile_image || article.main_image;
   .aspect-\[3\/2\] {
     aspect-ratio: 3/2;
   }
-  
+
   /* Truncate text using line clamp */
   .line-clamp-2 {
     display: -webkit-box;
@@ -205,7 +264,7 @@ const displayImage = article.tile_image || article.main_image;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
