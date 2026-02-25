@@ -1,0 +1,24 @@
+# Redirect labs/SP&M (and variations) to labs/spm
+# The ampersand in the path is the tricky part — Apache sees it as a query
+# string separator in some contexts, so we match on the raw REQUEST_URI
+# using a RewriteCond to catch all variations.
+
+# Must have mod_rewrite enabled and AllowOverride All in your vhost config.
+
+RewriteEngine On
+
+# Match /labs/SP&M, /labs/sp&m, /labs/SP%26M, /labs/sp%26m
+# REQUEST_URI contains the raw undecoded path+query, so %26 is the
+# percent-encoded ampersand. We match both decoded (&) and encoded (%26)
+# forms, and case-insensitively for the SP/sp and M/m parts.
+
+# Case 1: percent-encoded ampersand in path — /labs/SP%26M or /labs/sp%26m
+RewriteCond %{REQUEST_URI} ^/labs/[Ss][Pp]%26[Mm](/.*)?$ [NC]
+RewriteRule ^ /labs/spm [R=301,L]
+
+# Case 2: literal ampersand — Apache may split this into path=/labs/SP and
+# query string=M, so we match on SCRIPT_URL or the combined URI.
+# Catch /labs/SP with query string starting with M (e.g. ?M or &M)
+RewriteCond %{REQUEST_URI} ^/labs/[Ss][Pp]$ [NC]
+RewriteCond %{QUERY_STRING} ^[Mm](&.*)?$ [NC]
+RewriteRule ^ /labs/spm? [R=301,L]

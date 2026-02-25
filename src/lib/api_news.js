@@ -573,3 +573,235 @@ export async function fetchNewsYears() {
     return [new Date().getFullYear()];
   }
 }
+
+/**
+ * Resolve a lab slug to its numeric ID via the labs table.
+ * Returns the ID (number) or null if not found.
+ */
+async function resolveLabSlugToId(labSlug) {
+  try {
+    const labs = await apiRequest('/items/labs', {
+      fields: ['id', 'name', 'short_name', 'slug'],
+      filter: JSON.stringify({ slug: { _eq: labSlug } }),
+      limit: 1
+    });
+    if (!labs || labs.length === 0) return null;
+    return { id: labs[0].id, name: labs[0].short_name || labs[0].name };
+  } catch (error) {
+    console.error(`Error resolving lab slug "${labSlug}":`, error);
+    return null;
+  }
+}
+
+/**
+ * Get article IDs linked to a lab via the labs_articles junction table.
+ * Junction fields: labs_id (lab FK), articles_id (article FK)
+ */
+async function getArticleIdsByLab(labId) {
+  try {
+    const relations = await apiRequest('/items/labs_articles', {
+      fields: ['articles_id.id'],
+      filter: JSON.stringify({ labs_id: { _eq: labId } }),
+      limit: -1 // get all
+    });
+    if (!relations || relations.length === 0) return [];
+    // articles_id may be a raw integer or an object depending on Directus config
+    return relations
+      .map(r => (typeof r.articles_id === 'object' ? r.articles_id?.id : r.articles_id))
+      .filter(Boolean);
+  } catch (error) {
+    console.error(`Error fetching article IDs for lab ${labId}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Get article IDs linked to a research team by team slug.
+ *
+ * Queries the articles_team junction table using a NESTED relational
+ * filter (team_id.slug) so we never need direct read access to /items/team.
+ *
+ * Junction: articles_team
+ *   articles_id — article FK (integer or nested object)
+ *   team_id     — team FK (nested object with name/slug available)
+ *
+ * Returns { ids: number[], name: string } or null if slug not found / 403.
+ */
+async function getArticleIdsByTeamSlug(teamSlug) {
+  try {
+    const relations = await apiRequest('/items/articles_team', {
+      fields: ['articles_id', 'team_id.name', 'team_id.slug'],
+      filter: JSON.stringify({
+        team_id: {
+          slug: { _eq: teamSlug }
+        }
+      }),
+      limit: -1
+    });
+
+    if (!relations || relations.length === 0) return null;
+
+    // Pull team display name from first row (same for all rows)
+    const teamName = relations[0]?.team_id?.name || teamSlug;
+
+    const ids = relations
+      .map(r => (typeof r.articles_id === 'object' ? r.articles_id?.id : r.articles_id))
+      .filter(Boolean);
+
+    return { ids, name: teamName };
+  } catch (error) {
+    console.error(`Error fetching articles for team slug "${teamSlug}":`, error.message);
+    return null;
+  }
+}
+
+
+/**
+ * Fetch news articles with optional lab or research team filtering.
+ * Supports the same category filter and pagination as fetchRecentNews.
+ *
+ * @param {object} options
+ * @param {number}      options.limit     - Articles per page (default 9)
+ * @param {number}      options.page      - Current page number (default 1)
+ * @param {string|null} options.category  - 'press' | 'research' | 'event' | 'media' | null
+ * @param {string|null} options.labSlug   - Lab slug (e.g. 'kentucky-water-science-center')
+ * @param {string|null} options.teamSlug  - Research team slug (e.g. 'lem')
+ *
+ * @returns {Promise<{articles, totalCount, page, totalPages, filterLabel, filterType, filterNotFound}>}
+ */
+export async function fetchNewsFiltered({
+  limit = 9,
+  page = 1,
+  category = null,
+  labSlug = null,
+  teamSlug = null,
+} = {}) {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+
+    // ---- Resolve filters to allowed article ID sets ----
+    let allowedIds  = null;  // null = no ID restriction
+    let filterLabel = null;
+    let filterType  = null;
+
+    if (labSlug) {
+      const lab = await resolveLabSlugToId(labSlug);
+      if (lab) {
+        allowedIds  = await getArticleIdsByLab(lab.id);
+        filterLabel = lab.name;
+        filterType  = 'lab';
+      } else {
+        return {
+          articles: [], totalCount: 0, page, totalPages: 0,
+          filterLabel: labSlug, filterType: 'lab', filterNotFound: true
+        };
+      }
+
+    } else if (teamSlug) {
+      // Uses nested relational filter — no direct /items/team access needed
+      const team = await getArticleIdsByTeamSlug(teamSlug);
+      if (team) {
+        allowedIds  = team.ids;
+        filterLabel = team.name;
+        filterType  = 'team';
+      } else {
+        return {
+          articles: [], totalCount: 0, page, totalPages: 0,
+          filterLabel: teamSlug, filterType: 'team', filterNotFound: true
+        };
+      }
+    }
+
+    // If filter resolved but zero articles are linked, return early
+    if (allowedIds !== null && allowedIds.length === 0) {
+      return {
+        articles: [], totalCount: 0, page, totalPages: 0,
+        filterLabel, filterType, filterNotFound: false
+      };
+    }
+
+    // ---- Build Directus filter ----
+    let filter = {
+      status: { _eq: 'published' }
+    };
+
+    if (allowedIds !== null) {
+      filter.id = { _in: allowedIds };
+    }
+
+    if (category) {
+      filter.category = { _eq: category };
+      if (category === 'event') {
+        filter.event_end = { _gte: todayStr };
+      }
+    } else {
+      // Exclude expired events from the unfiltered feed
+      filter._or = [
+        { category: { _neq: 'event' } },
+        {
+          _and: [
+            { category: { _eq: 'event' } },
+            { event_end: { _gte: todayStr } }
+          ]
+        }
+      ];
+    }
+
+    // ---- Paginated article fetch ----
+    const articles = await apiRequest('/items/articles', {
+      fields: [
+        'id',
+        'title',
+        'slug',
+        'excerpt',
+        'main_image',
+        'tile_image',
+        'publication_date',
+        'category',
+        'event_date',
+        'event_end',
+        'event_location',
+        'event_website',
+        'author.first_name',
+        'author.last_name',
+        'author.slug',
+        'media_type',
+        'media_url',
+        'media_name',
+      ],
+      filter: JSON.stringify(filter),
+      sort: '-publication_date',
+      limit,
+      page,
+    });
+
+    // ---- Total count for pagination ----
+    const countResponse = await api.get('/items/articles', {
+      params: {
+        aggregate: { count: 'id' },
+        filter: JSON.stringify(filter)
+      }
+    });
+
+    const totalCount = countResponse.data.data?.[0]?.count?.id || 0;
+
+    return {
+      articles,
+      totalCount,
+      page,
+      totalPages: Math.ceil(totalCount / limit),
+      filterLabel,
+      filterType,
+      filterNotFound: false,
+    };
+
+  } catch (error) {
+    console.error('Error in fetchNewsFiltered:', error);
+    return {
+      articles: [], totalCount: 0, page, totalPages: 0,
+      filterLabel: null, filterType: null, filterNotFound: false
+    };
+  }
+}
