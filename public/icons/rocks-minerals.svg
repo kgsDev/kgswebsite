@@ -1,0 +1,10 @@
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="inline-block w-8 h-8 mr-2" aria-hidden="true">
+      <path d="M 2 19 L 3.5 11.5 L 7 9 L 11 10 L 12 14 L 10 19 Z"/>
+      <path d="M 7 9 L 11 10 L 10 19 L 12 14 Z" opacity="0.2"/>
+      <path d="M 11.5 19 L 12.5 14.5 L 16 13 L 19.5 14 L 20.5 19 Z"/>
+      <path d="M 16 13 L 19.5 14 L 20.5 19 L 18 19 Z" opacity="0.2"/>
+      <path d="M 18 4 L 20.5 7 L 21.5 11.5 L 19 12.5 L 17 11 L 16.5 6.5 Z"/>
+      <path d="M 18 4 L 21.5 11.5 L 19.5 10 Z" opacity="0.25"/>
+      <line x1="18" y1="4" x2="19" y2="12.5" stroke="#0033A0" stroke-width="0.4" opacity="0.35"/>
+      <rect x="1" y="19.5" width="22" height="1.5" rx="0.4" opacity="0.5"/>
+    </svg>

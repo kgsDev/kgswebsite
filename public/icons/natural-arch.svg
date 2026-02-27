@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <path fill-rule="evenodd" d="
+    M 0 22
+      L 1 13
+      C 1 8 3 4 7 3
+      C 9 2 11 2.5 12.5 3.5
+      C 14 4.5 15 6 15.5 8
+      C 16 6 17.5 4.5 19.5 5
+      C 21.5 5.5 23 8 23 11
+      L 24 22
+      Z
+    M 5.5 18
+      C 5.5 14 7 11 9.5 10
+      C 11 9.5 12.5 10 13.5 11.5
+      C 14.5 13 14.5 16 14.5 18
+      Z
+  "/>
+  <rect x="0" y="22" width="24" height="2" opacity="0.5"/>
+  <line x1="1.5" y1="16"  x2="5"   y2="15"   stroke="white" stroke-width="0.45" opacity="0.2"/>
+  <line x1="1"   y1="19"  x2="5.2" y2="18.5" stroke="white" stroke-width="0.45" opacity="0.2"/>
+  <line x1="15"  y1="14"  x2="22"  y2="13"   stroke="white" stroke-width="0.45" opacity="0.2"/>
+  <line x1="15"  y1="18"  x2="23"  y2="17"   stroke="white" stroke-width="0.45" opacity="0.2"/>
+</svg>

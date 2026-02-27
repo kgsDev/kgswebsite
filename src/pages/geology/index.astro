@@ -1,0 +1,261 @@
+---
+// src/pages/geology/index.astro
+// Landing page for Kentucky Geology section
+// Lives at: /geology
+
+export const prerender = true;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import trilobite from '/icons/trilobite-icon.svg?raw';
+import arches from '/icons/natural-arch.svg?raw';
+import rocks from '/icons/rocks-minerals.svg?raw';
+import cave from '/icons/cave-karst.svg?raw';
+
+// Topics grouped to mirror the nav menu sections
+// Set isExternal: true for links still on the old site
+const groups = [
+  {
+    label: 'Getting Started',
+    icon: 'fas fa-graduation-cap',
+    color: '#0033A0',
+    topics: [
+      {
+        title: 'Educational Resources',
+        description: 'K–12 earth science materials, classroom resources, and geology outreach programs.',
+        icon: 'fas fa-chalkboard-teacher',
+        href: 'https://www.uky.edu/KGS/education/',
+        isExternal: true,
+      },
+      {
+        title: 'General Geology of Kentucky',
+        description: 'An overview of Kentucky\'s geologic history, rock units, and regional geology.',
+        icon: 'fas fa-layer-group',
+        href: 'https://www.uky.edu/KGS/geoky/',
+        isExternal: true,
+      },
+      {
+        title: 'Fact Sheets',
+        description: 'Informational fact sheets about Kentucky geology, natural resources, and geologic hazards.',
+        icon: 'fas fa-info-circle',
+        href: '/pubs/factsheets',
+        isExternal: false,
+      },
+      {
+        title: 'Geologic Maps',
+        description: 'Access to digital geologic maps, GIS data, and mapping resources for Kentucky.',
+        icon: 'fas fa-map',
+        href: '/maps/',
+        isExternal: false,
+      },
+    ],
+  },
+  {
+    label: 'Natural Resources & Economic Geology',
+    icon: 'fas fa-mountain',
+    color: '#1B365D',
+    topics: [
+      {
+        title: 'Coal',
+        description: 'Coal geology, stratigraphy, reserves, and production data for the Commonwealth.',
+        icon: 'fas fa-industry',
+        href: 'https://www.uky.edu/KGS/coal/',
+        isExternal: true,
+      },
+      {
+        title: 'Oil & Natural Gas',
+        description: 'Oil and gas geology, well data, production history, and field information.',
+        icon: 'fas fa-oil-well',
+        href: 'https://www.uky.edu/KGS/emsweb/',
+        isExternal: true,
+      },
+      {
+        title: 'Mineral Resources',
+        description: 'Industrial minerals, limestone, sand and gravel, and other non-fuel mineral resources.',
+        icon: 'fas fa-gem',
+        href: 'https://www.uky.edu/KGS/minerals/',
+        isExternal: true,
+      },
+    ],
+  },
+  {
+    label: 'Fossils, Rocks & Natural Features',
+    icon: 'fas fa-bone',
+    color: '#16a085',
+    topics: [
+      {
+        title: 'Fossils',
+        description: 'Kentucky\'s fossil record, common fossil types, and where to find them.',
+        iconRaw: trilobite,
+        href: 'https://www.uky.edu/KGS/fossils/',
+        isExternal: true,
+      },
+      {
+        title: 'Rocks & Minerals',
+        description: 'Identification guides, rock types found in Kentucky, and collecting resources.',
+        iconRaw: rocks,
+        href: 'https://www.uky.edu/KGS/rocksmineral/',
+        isExternal: true,
+      },
+      {
+        title: 'Natural Arches',
+        description: 'A catalog of Kentucky\'s natural rock arches and their geologic origins.',
+        iconRaw: arches,
+        href: 'https://kgs.uky.edu/arches/',
+        isExternal: true,
+      },
+    ],
+  },
+  {
+    label: 'Geologic Hazards',
+    icon: 'fas fa-triangle-exclamation',
+    color: '#c0392b',
+    topics: [
+      {
+        title: 'Earthquakes',
+        description: 'Seismic hazards, earthquake history, and monitoring in Kentucky and the region.',
+        icon: 'fas fa-wave-square',
+        href: 'https://www.uky.edu/KGS/earthquake/earthquake_information.php',
+        isExternal: true,
+      },
+      {
+        title: 'Karst & Sinkholes',
+        description: 'Karst topography, sinkhole formation, groundwater, and cave geology.',
+        iconRaw: cave,
+        href: 'https://www.uky.edu/KGS/karst/',
+        isExternal: true,
+      },
+      {
+        title: 'Landslides',
+        description: 'Landslide inventory, susceptibility mapping, and engineering geology research.',
+        icon: 'fas fa-hill-rockslide',
+        href: '/research/landslides',
+        isExternal: false,
+      },
+      {
+        title: 'Radon',
+        description: 'Indoor radon potential mapping, health risks, and how to get a free test kit.',
+        icon: 'fas fa-radiation',
+        href: '/geology/radon',
+        isExternal: false,
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Kentucky Geology"
+  description="Explore Kentucky's geology — from coal and minerals to fossils, natural arches, karst, landslides, and radon. Resources for educators, students, and the public."
+  customBreadcrumbs={[
+    { label: 'Home', href: '/' },
+    { label: 'Kentucky Geology' },
+  ]}
+>
+
+  <!-- Page header -->
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: #1B365D; margin-bottom: 0.5rem;">
+      <i class="fas fa-map" style="margin-right: 0.6rem; color: #0033A0;"></i>
+      Kentucky Geology
+    </h1>
+    <p style="font-size: 1.125rem; color: #4b5563; max-width: 720px;">
+      Kentucky has a rich and varied geologic history. Explore our resources and information on rock types, natural
+      resources, fossils, geologic hazards, and more.
+    </p>
+  </div>
+
+  <!-- Topic groups -->
+  {groups.map(group => (
+    <section style="margin-bottom: 2.5rem;">
+
+      <!-- Group heading -->
+      <div style={`display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 3px solid ${group.color};`}>
+        <i class={`${group.icon}`} style={`color: ${group.color}; font-size: 1.25rem;`}></i>
+        <h2 style={`font-size: 1.25rem; font-weight: 700; color: ${group.color}; margin: 0;`}>
+          {group.label}
+        </h2>
+      </div>
+
+      <!-- Cards grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem;">
+        {group.topics.map(topic => (
+          <a
+            href={topic.href}
+            target={topic.isExternal ? '_blank' : undefined}
+            rel={topic.isExternal ? 'noopener noreferrer' : undefined}
+            class="geology-card"
+            aria-label={topic.isExternal ? `${topic.title} (opens in new tab)` : topic.title}
+          >
+          <div class="geology-card-icon" style={`background: ${group.color}15; color: ${group.color};`}>
+            {topic.iconRaw
+              ? <Fragment set:html={topic.iconRaw} />
+              : <i class={topic.icon}></i>
+            }
+          </div>
+            <div class="geology-card-body">
+              <h3 class="geology-card-title">
+                {topic.title}
+                {topic.isExternal && (
+                  <i class="fas fa-external-link-alt" style="font-size: 0.7rem; opacity: 0.6; margin-left: 0.35rem; vertical-align: middle;"></i>
+                )}
+              </h3>
+              <p class="geology-card-desc">{topic.description}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </section>
+  ))}
+
+</BaseLayout>
+
+<style>
+  .geology-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.625rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    overflow: hidden;
+  }
+
+  .geology-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #0033A0;
+    text-decoration: none;
+  }
+
+  .geology-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    font-size: 2rem;
+    /* background color set inline per group */
+  }
+
+  .geology-card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex: 1;
+  }
+
+  .geology-card-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #0033A0;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+
+  .geology-card-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>
