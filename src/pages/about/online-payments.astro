@@ -1,0 +1,49 @@
+---
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const {
+    title = 'Online Transactions Terms and Conditions',
+    description = 'Kentucky Geological Survey Online Transactions Terms and Conditions.',
+    showBreadcrumb = true,
+} = Astro.props;
+---
+<BaseLayout title={title}>
+<style>
+    h2 { padding-top: 3vh; }
+    p.pp { margin-bottom: 1rem; }
+</style>
+
+    <h1>Online Transactions Terms and Conditions</h1>
+    <p><em>University of Kentucky — Kentucky Geological Survey</em></p>
+
+    <h2>Privacy</h2>
+    <p class="pp">Your privacy is important to us; therefore, the University of Kentucky Kentucky Geological Survey will operate by these principles:</p>
+    <p class="pp">We explicitly ask when we need information that personally identifies you ("Personal Information"). Personal information will be used for communication and transaction purposes only. We take all measures to protect your personal information and we will never sell or redistribute your information to anyone.</p>
+    <p class="pp">If at any time you believe this site has not adhered to these principles, please <a href="mailto:KGSmail@uky.edu">notify us by email</a> and we will use all reasonable efforts to promptly determine and correct the problem. If you have questions about this policy, please <a href="mailto:KGSmail@uky.edu">email us</a>.</p>
+
+    <h2>Credit Card Transactions</h2>
+        <img src="/assets/about/cc-images.png" alt="Accepted credit cards" style="max-width: 320px; margin-bottom: 1rem;" />
+    <p class="pp">All transaction amounts are in US dollars (USD).</p>
+    <p class="pp">The processing of online transactions is done through Worldpay or Bluefin.</p>
+    <p class="pp">Shortly after a purchase or refund is processed, you will receive a confirmation via email. You are advised to print out and save a copy of the order confirmation for verification necessary to request refunds or resolve any disputes.</p>
+    <p class="pp">This site uses industry-standard Secure Sockets Layer (SSL) servers on our transaction pages. It encrypts all your personal information including name, address, and credit card number to prevent unauthorized access as the information travels over the Internet. Under the Fair Credit Billing Act, your bank cannot hold you liable for more than $50.00 of fraudulent charges. If your bank does hold you liable for any of this $50.00, this site will cover the entire liability for you, up to the full $50.00. This site will cover this liability only if the unauthorized use of your credit card resulted through no fault of your own from transactions made at this site while using the secure server.</p>
+
+    <h2>Refund Policy</h2>
+    <p>Unless stated otherwise on the individual registration site or payment form, all payment fees are non-refundable.</p>
+
+    <h2>Contact Information</h2>
+    <p>
+        Kentucky Geological Survey<br />
+        University of Kentucky<br />
+        228 Mining and Mineral Resources Bldg.<br />
+        310 Columbia Ave.<br />
+        Lexington, KY 40506-0107<br />
+        United States
+    </p>
+    <p>
+        Email: <a href="mailto:KGSmail@uky.edu">KGSmail@uky.edu</a><br />
+        Phone: <a href="tel:+18592575500">859-257-5500</a>
+    </p>
+
+</BaseLayout>
