@@ -59,7 +59,8 @@ export async function fetchDatasets(category = null) {
       'date_updated',
       'contact_name',
       'contact_email',
-      'notes'
+      'notes',
+      'slug'
     ],
     filter: JSON.stringify(filter),
     sort: '-featured,sort,title',
