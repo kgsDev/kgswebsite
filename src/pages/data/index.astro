@@ -7,7 +7,7 @@ export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Data & Downloads';
-const description = 'Download GIS shapefiles, datasets, and data files from the Kentucky Geological Survey. Includes oil and gas well locations, coal data, geologic map data, and more.';
+const description = 'Download GIS shapefiles, datasets, and data files from the Kentucky Geological Survey. Includes oil and gas well locations, geologic map data, and more.';
 
 // Data categories — add/remove/reorder as the section grows.
 // "url" is the sub-page within /data/; "external" links go to legacy or external resources.
@@ -18,10 +18,11 @@ const dataCategories = [
     icon: 'fa-oil-well',
     color: 'border-[#0033A0] bg-blue-50',
     iconColor: 'text-[#0033A0]',
-    description: 'Well location shapefiles, production data, and related GIS datasets for Kentucky oil and gas wells. Updated monthly.',
+    description: 'Well location shapefiles, production data, and related GIS datasets for Kentucky oil and gas wells.',
     url: '/data/oilgas',
-    highlights: ['Well Location Shapefile (~150,000 wells)', 'Monthly updates', 'NAD83 / decimal degrees']
+    highlights: ['Well Location Shapefile (~150,000 wells)', 'Permitted Deviated Well Traces', 'Weekly updates' ]
   },
+  /*
   {
     id: 'coal',
     title: 'Coal',
@@ -44,16 +45,17 @@ const dataCategories = [
     highlights: ['Groundwater monitoring', 'Spring inventories', 'Well records'],
     comingSoon: true
   },
+  */
   {
-    id: 'geology',
-    title: 'Geologic Map Data',
+    id: 'geospatial data',
+    title: 'Geospatial Data',
     icon: 'fa-mountain',
     color: 'border-green-600 bg-green-50',
     iconColor: 'text-green-700',
-    description: 'Downloadable geologic map GIS data, including surface geology, faults, and Carter coordinate grid.',
+    description: 'Downloadable geospatial data, including georeferenced maps, shapefiles, and GIS datasets for Kentucky.',
     url: 'https://www.uky.edu/KGS/gis/kgs_gis.html',
     external: true,
-    highlights: ['Surface geology', 'Fault lines', 'Carter coordinate grid']
+    highlights: ['Geology and soils', 'Political and physical boundaries', 'Reference grids']
   }
 ];
 ---
