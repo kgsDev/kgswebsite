@@ -1,0 +1,202 @@
+---
+// src/pages/data/index.astro
+// Landing page for the KGS Data & Downloads section
+
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Data & Downloads';
+const description = 'Download GIS shapefiles, datasets, and data files from the Kentucky Geological Survey. Includes oil and gas well locations, coal data, geologic map data, and more.';
+
+// Data categories — add/remove/reorder as the section grows.
+// "url" is the sub-page within /data/; "external" links go to legacy or external resources.
+const dataCategories = [
+  {
+    id: 'oilgas',
+    title: 'Oil & Gas',
+    icon: 'fa-oil-well',
+    color: 'border-[#0033A0] bg-blue-50',
+    iconColor: 'text-[#0033A0]',
+    description: 'Well location shapefiles, production data, and related GIS datasets for Kentucky oil and gas wells. Updated monthly.',
+    url: '/data/oilgas',
+    highlights: ['Well Location Shapefile (~150,000 wells)', 'Monthly updates', 'NAD83 / decimal degrees']
+  },
+  {
+    id: 'coal',
+    title: 'Coal',
+    icon: 'fa-industry',
+    color: 'border-gray-500 bg-gray-50',
+    iconColor: 'text-gray-600',
+    description: 'Coal resource data, mine locations, seam data, and related GIS files for Kentucky.',
+    url: '/data/coal',
+    highlights: ['Mine locations', 'Seam thickness data', 'Production statistics'],
+    comingSoon: true
+  },
+  {
+    id: 'water',
+    title: 'Water Resources',
+    icon: 'fa-water',
+    color: 'border-[#4CBCC0] bg-teal-50',
+    iconColor: 'text-[#4CBCC0]',
+    description: 'Groundwater, well logs, spring inventories, and related datasets for Kentucky water resources.',
+    url: '/data/water',
+    highlights: ['Groundwater monitoring', 'Spring inventories', 'Well records'],
+    comingSoon: true
+  },
+  {
+    id: 'geology',
+    title: 'Geologic Map Data',
+    icon: 'fa-mountain',
+    color: 'border-green-600 bg-green-50',
+    iconColor: 'text-green-700',
+    description: 'Downloadable geologic map GIS data, including surface geology, faults, and Carter coordinate grid.',
+    url: 'https://www.uky.edu/KGS/gis/kgs_gis.html',
+    external: true,
+    highlights: ['Surface geology', 'Fault lines', 'Carter coordinate grid']
+  }
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  activePage="data"
+  showBreadcrumb={true}
+>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </Fragment>
+
+  <!-- Page Hero -->
+  <div class="relative bg-gradient-to-br from-[#0033A0] via-[#1B365D] to-[#0033A0] mb-8 overflow-hidden">
+    <div class="container mx-auto px-4 py-10 relative">
+      <div class="max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4 drop-shadow-lg" style="color: var(--ivory)">
+          <i class="fas fa-database"></i>
+          Data &amp; Downloads
+        </h1>
+        <p class="text-xl drop-shadow-lg max-w-2xl" style="color: var(--ivory)">{description}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Intro -->
+    <div class="bg-blue-50 border-l-4 border-[#0033A0] p-5 rounded-r-lg mb-8 text-gray-700 leading-relaxed">
+      <p>
+        The Kentucky Geological Survey makes a variety of datasets available for download. Select a category below
+        to find shapefiles, tabular data, and other files available for use in your own research or GIS projects.
+        For interactive access to KGS data, visit our
+        <a href="/maps/" class="text-[#0033A0] hover:underline font-medium">Map Services</a> or use the
+        <a href="https://kgs.uky.edu/kygeode/services/" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline font-medium">KGS Geode online search tools</a>.
+      </p>
+    </div>
+
+    <!-- Category Cards -->
+    <div class="grid sm:grid-cols-2 gap-6 mb-12">
+      {dataCategories.map(cat => (
+        <div class={`bg-white rounded-lg shadow-md border-t-4 overflow-hidden flex flex-col ${cat.color} ${cat.comingSoon ? 'opacity-75' : 'hover:shadow-xl transition-shadow'}`}>
+          <div class="p-6 flex flex-col flex-1">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class={`w-12 h-12 rounded-full flex items-center justify-center ${cat.comingSoon ? 'bg-gray-100' : 'bg-white shadow-sm'}`}>
+                  <i class={`fas ${cat.icon} text-xl ${cat.comingSoon ? 'text-gray-400' : cat.iconColor}`}></i>
+                </div>
+                <h2 class="text-xl font-bold text-[#1B365D]">{cat.title}</h2>
+              </div>
+              {cat.comingSoon && (
+                <span class="text-xs bg-gray-200 text-gray-500 font-semibold px-2 py-1 rounded shrink-0">Coming Soon</span>
+              )}
+              {cat.external && (
+                <span class="text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded shrink-0">External</span>
+              )}
+            </div>
+
+            <p class="text-gray-600 text-sm mb-4 flex-1">{cat.description}</p>
+
+            {cat.highlights && (
+              <ul class="text-sm text-gray-500 space-y-1 mb-5">
+                {cat.highlights.map(h => (
+                  <li class="flex items-center gap-2">
+                    <i class="fas fa-check text-xs text-green-500"></i>
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {!cat.comingSoon && (
+              <a
+                href={cat.url}
+                target={cat.external ? '_blank' : undefined}
+                rel={cat.external ? 'noopener noreferrer' : undefined}
+                class="inline-flex items-center gap-2 px-4 py-2 bg-[#0033A0] hover:bg-[#1B365D] text-white text-sm font-semibold rounded-lg transition-colors self-start mt-auto"
+              >
+                View Downloads
+                {cat.external
+                  ? <i class="fas fa-arrow-up-right-from-square text-xs"></i>
+                  : <i class="fas fa-arrow-right text-xs"></i>
+                }
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Additional Resources -->
+    <section class="mb-10">
+      <h2 class="text-2xl font-bold text-[#1B365D] mb-4">Additional Resources</h2>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {[
+          {
+            title: 'KGS Map Services',
+            desc: 'Browse and connect to KGS WMS/WFS map services in your GIS.',
+            url: '/maps/',
+            icon: 'fa-map'
+          },
+          {
+            title: 'KGS Geode Online Search',
+            desc: 'Query oil & gas, coal, water well, and other KGS databases online.',
+            url: 'https://kgs.uky.edu/kygeode/services/',
+            icon: 'fa-magnifying-glass',
+            external: true
+          },
+          {
+            title: 'Publications Catalog',
+            desc: 'Find KGS reports, maps, and bulletins — many with downloadable data.',
+            url: '/publications/',
+            icon: 'fa-book'
+          }
+        ].map(r => (
+          <a
+            href={r.url}
+            target={r.external ? '_blank' : undefined}
+            rel={r.external ? 'noopener noreferrer' : undefined}
+            class="flex flex-col gap-2 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#0033A0] hover:shadow transition-all group"
+          >
+            <div class="flex items-center gap-2">
+              <i class={`fas ${r.icon} text-[#0033A0]`}></i>
+              <span class="font-semibold text-[#1B365D] group-hover:text-[#0033A0] transition-colors text-sm">
+                {r.title} {r.external && <i class="fas fa-arrow-up-right-from-square text-xs opacity-60"></i>}
+              </span>
+            </div>
+            <p class="text-xs text-gray-600">{r.desc}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Data Management Policy note -->
+    <div class="text-sm text-gray-500 border-t border-gray-200 pt-4 mb-4">
+      KGS datasets are published in accordance with the
+      <a href="/about/dmp" class="text-[#0033A0] hover:underline">KGS Data Management Policy</a>
+      and, where applicable, are licensed under the
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">Creative Commons Attribution 4.0 International License</a>.
+      Questions? Contact <a href="mailto:KGSmail@uky.edu" class="text-[#0033A0] hover:underline">KGSmail@uky.edu</a>.
+    </div>
+
+  </div>
+</BaseLayout>
