@@ -104,12 +104,16 @@ export async function fetchAllLabs(request = null) {
         'primary_color',
         'background_color',
         'secondary_color',
-        'status' // Added status field for preview indicators
+        'status', // Added status field for preview indicators
+        'public'
       ],
-      filter: JSON.stringify(getContentFilter(showDrafts)),
+      filter: JSON.stringify({
+        ...getContentFilter(showDrafts),
+        public: { _eq: true }
+      }),
       sort: 'sort,name'
     });
-    
+
     return labs;
   } catch (error) {
     console.error('Error fetching all labs:', error);
