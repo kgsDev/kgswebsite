@@ -8,6 +8,7 @@ import { fetchLabBySlug } from '../../../lib/api_labs';
 // Get the lab for this page
 const { slug } = Astro.params;
 const lab = await fetchLabBySlug(slug);
+const pending_pubs = lab?.pending_pubs || '';
 
 // Handle 404 if lab not found
 if (!lab) {
@@ -157,6 +158,17 @@ const years = Object.keys(publicationsByYear).sort((a, b) => {
         )}
       </div>
     </div>
+
+    <!-- Pending Publications -->
+    {pending_pubs && pending_pubs.trim() !== '' && (
+    <div class="content-block p-6">
+      <h2 class="text-xl font-bold lab-secondary-text">Pending Publications</h2>
+      <div 
+        class="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none"
+        set:html={pending_pubs}
+      />
+    </div>
+    )}
 
     <!-- Publications by Year -->
     {years.map(year => (
