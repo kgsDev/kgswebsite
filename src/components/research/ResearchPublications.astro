@@ -328,9 +328,9 @@ function getPubUrl(pub) {
                   pub.title
                 )}
               </h4>
-              {authors && (
-                <p class="pub-authors">{authors}</p>
-              )}
+              {authors ? (
+                <p class="pub-authors"><strong>KGS-affiliated authors: </strong>{authors}</p>
+              ) : null}
               <p class="pub-meta">
                 <span class="pub-year">{pub.publication_year}</span>
               </p>
