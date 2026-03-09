@@ -173,7 +173,10 @@ const totalPresentations = years.reduce((sum, year) => sum + presentationsByYear
                   {presentation.abstract && (
                     <div class="mb-4">
                       <h4 class="font-medium text-gray-900 mb-2">Abstract</h4>
-                      <p class="text-gray-700 text-sm leading-relaxed">{presentation.abstract}</p>
+                      <div 
+                        class="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none"
+                        set:html={presentation.abstract}
+                      />
                     </div>
                   )}
                   
