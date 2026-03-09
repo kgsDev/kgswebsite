@@ -616,13 +616,13 @@ const services = [
                         <a href={service.serviceUrl} aria-label={`View ArcGIS Server URL for ${service.name}`} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
                           <i class="fas fa-server mr-1"></i> ArcGIS Server URL
                         </a>
-                        <a href={service.wmsUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                        <a href={service.wmsUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline" aria-label={`WMS URL for ${service.name}`}>
                           <i class="fas fa-layer-group mr-1"></i> WMS
                         </a>
                         <a href={service.arcmapUrl} aria-label={`View ${service.name} in ArcMap`} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
                           <i class="fas fa-map mr-1"></i> View in ArcMap
                         </a>
-                        <a href={service.googleEarthUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline">
+                        <a href={service.googleEarthUrl} target="_blank" rel="noopener" class="block text-[#0033A0] hover:underline" aria-label={`Google Earth URL for ${service.name}`}>
                           <i class="fas fa-earth-americas mr-1"></i> Google Earth
                         </a>
                       </div>

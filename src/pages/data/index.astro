@@ -135,6 +135,7 @@ const dataCategories = [
                 target={cat.external ? '_blank' : undefined}
                 rel={cat.external ? 'noopener noreferrer' : undefined}
                 class="inline-flex items-center gap-2 px-4 py-2 bg-[#0033A0] hover:bg-[#1B365D] text-white text-sm font-semibold rounded-lg transition-colors self-start mt-auto"
+                aria-label={`View downloads for ${cat.title}`}
               >
                 View Downloads
                 {cat.external
@@ -177,11 +178,11 @@ const dataCategories = [
             href={r.url}
             target={r.external ? '_blank' : undefined}
             rel={r.external ? 'noopener noreferrer' : undefined}
-            class="flex flex-col gap-2 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#0033A0] hover:shadow transition-all group"
+            class="flex flex-col gap-2 p-4 bg-white border border-gray-200 rounded-lg hover:border-[var(--hover-button-blue)] hover:shadow transition-all group"
           >
             <div class="flex items-center gap-2">
               <i class={`fas ${r.icon} text-[#0033A0]`}></i>
-              <span class="font-semibold text-[#1B365D] group-hover:text-[#0033A0] transition-colors text-sm">
+              <span class="font-semibold text-[#1B365D] group-hover:text-[var(--hover-button-blue)] transition-colors text-sm">
                 {r.title} {r.external && <i class="fas fa-arrow-up-right-from-square text-xs opacity-60"></i>}
               </span>
             </div>
@@ -194,10 +195,10 @@ const dataCategories = [
     <!-- Data Management Policy note -->
     <div class="text-sm text-gray-500 border-t border-gray-200 pt-4 mb-4">
       KGS datasets are published in accordance with the
-      <a href="/about/dmp" class="text-[#0033A0] hover:underline">KGS Data Management Policy</a>
+      <a href="/about/dmp" class="text-[var(--navy)] underline">KGS Data Management Policy</a>
       and, where applicable, are licensed under the
-      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">Creative Commons Attribution 4.0 International License</a>.
-      Questions? Contact <a href="mailto:KGSmail@uky.edu" class="text-[#0033A0] hover:underline">KGSmail@uky.edu</a>.
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="text-[var(--navy)] underline">Creative Commons Attribution 4.0 International License</a>.
+      Questions? Contact <a href="mailto:KGSmail@uky.edu" class="text-[var(--navy)] underline">KGSmail@uky.edu</a>.
     </div>
 
   </div>
