@@ -317,12 +317,14 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             font-family: 'Inter', sans-serif;
             font-size: 1.1rem;
             font-weight: 700;
+            color:rgba(255,255,255);
             margin: 0 0 0.2rem 0;
         }
 
         .bio-modal-title {
             font-family: 'Source Sans Pro', sans-serif;
             font-size: 0.9rem;
+            color: rgba(255,255,255);
             opacity: 0.85;
             margin: 0;
         }
@@ -502,7 +504,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
                 geological research and public service. Our board members bring diverse professional backgrounds and valuable insights from across Kentucky and beyond.</p>
         </div>
 
-        <section class="board-section" aria-labelledby="current-members">
+        <section class="board-section">
             {sortedGroups.length > 0 ? (
                 sortedGroups.map(([termLabel, members]) => (
                     <div class="term-group">
