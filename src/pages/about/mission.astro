@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 // Define props with defaults specific to mission page
 const {
-    title = 'Mission, Vision, & Values',
+    title = 'Mission, Vision, & Core Values',
     description = 'Kentucky Geological Survey mission, vision, and values.',
     showBreadcrumb = true,
 } = Astro.props;
@@ -18,31 +18,36 @@ title = {title}
         text-transform: uppercase;
     }
     .initiatives {
-        padding-top: 3vh;
+        padding-top: 1vh;
     }
     .initiatives ul {
         list-style: disc;
         padding-left: 2vw;
     }
 </style>
-    <h1>Mission, Vision, & Values</h1>
-    <h2>MISSION</h2>
-    <p>The Kentucky Geological Survey (KGS) is a state-supported research center and public resource within the University of Kentucky. Our mission is to support the sustainable prosperity of the Commonwealth, the vitality of its flagship land grant university, and the welfare of its people. We do this by conducting research in the geological sciences, providing unbiased data and information to the public, and engaging with stakeholders. Research conducted by the KGS serves the Commonwealth and its people by building resilience.</p>
+    <h1>Mission, Vision, & Core Values</h1>
     <h2>VISION</h2>
-    <p>To be the primary source of geologic information about and for Kentucky.</p>
-    <h2>VALUES</h2>
-    <p>An increased pool of knowledge and expertise leads to greater ingenuity and provides competitive advantages that increase institutional excellence. The Survey cannot exist without staff, collaborators, and stakeholders with a breadth of experience. KGS prides itself on being a supportive professional environment. As researchers, we encourage scholarly freedom in asking the big questions required of today's geoscientists.</p>
-    <p>We at KGS continue our long-standing commitment to provide unbiased scientific information to Kentuckians. We do not advocate on behalf of policy options.</p>
+    <p>To advance research in geologic sciences, natural resources, and geologic hazards and to disseminate this knowledge through active engagement across Kentucky.</p>
+    <h2>MISSION</h2>
+    <p>The Kentucky Geological Survey (KGS) was established by the Kentucky General Assembly as a research center within the University of Kentucky. Our mission is to support the prosperity and resiliency of the Commonwealth, the vitality of its flagship land-grant university, and the welfare of its people. We accomplish this mission by conducting research in the geologic sciences, natural resources (energy, minerals, and water), and geologic hazards. We provide unbiased data and information to elected officials, decision makers, and the public and actively engage with stakeholders across Kentucky.</p>
+    <h2>CORE VALUES</h2>
+    <p>The Kentucky Geological Survey is guided by core values that align with both the Commonwealth of Kentucky and the University of Kentucky:</p>
     <div class="initiatives">
-        <h3>Supporting Initiatives:</h3>
         <ul>
-            <li>We advertise full-time geologist job series and related professional job openings nationally on a variety of professional and association career boards to attract a broader group of applicants.</li>
-            <li>We form search committees to make consensus hiring recommendations to the director for full-time geologist and related professional job openings. We try to make all committees represent a sample of KGS perspectives.</li>
-            <li>For our governor-appointed advisory board, we seek out a wide pool of nominees from a variety of sources across the Commonwealth.</li>
-            <li>Ongoing research collaborations help us identify and engage with underserved non-traditional KGS stakeholders from both rural areas and urban centers throughout Kentucky.</li>
-            <li>KGS supports a wide variety of professional development programs and associations. The Survey encourages employee participation in these organizations to facilitate innovation, communication, and collaboration.</li>
-            <li>We are affiliated with programs such as the Kentucky Climate Consortium and the NIEHS-funded UK Center for Appalachian Research on Environmental Sciences (UK-CARES), which include commitments to translational and citizen science, a resolution of socially and economically driven health disparities, and studying environmental impacts on communities.</li>
-            <li>To encourage community and collaboration, we support a research seminar series, walking meetings, and informal whiteboard feedback sessions.</li>
+            <li>Excellence in research and engagement</li>
+            <li>Institutional and professional credibility</li>
+            <li>Open and transparent communication</li>
+            <li>Caring for the KGS community</li>
+            <li>Collaboration and cooperation</li>
+            <li>Personal responsibility and accountability</li>
         </ul>
+    </div>
+    <div style="margin-top: 2rem; padding: 1.5rem; background-color: #f5f5f5; border-left: 4px solid #003366;">
+        <h3>KGS Strategic Plan</h3>
+        <p>Learn more about our direction and priorities:</p>
+        <a href="https://kygs.uky.edu/directus/assets/2f1ad450-e7ad-476f-8311-d42c44acfea2" 
+           style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background-color: #003366; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            View 14th Kentucky Geological Survey Strategic Plan (PDF)
+        </a>
     </div>
     </BaseLayout>
