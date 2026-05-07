@@ -32,7 +32,6 @@ const {
       <h1>Research Laboratories</h1>
       <p class="text-gray-600 mt-2">{description}</p>
     </div>
-    
     {labs.length === 0 ? (
       <div class="text-center py-16 bg-white rounded-lg shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,6 +42,39 @@ const {
       </div>
     ) : (
       <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+
+      <!-- This is a hardcode of the KGS analytical lab -->
+        <a href="/research/lab/" class="block"> 
+          <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"> 
+            <div class="h-2 w-full" style="background-color: var(--skyBlue)"></div> 
+            <div class="p-6"> 
+              <div class="flex items-center mb-4"> 
+                <div class="mr-6 w-32 h-20 flex-shrink-0 flex items-center justify-center"> 
+                  <img src="https://kygs.uky.edu/directus/assets/c5e6b9cd-8994-40f1-9d17-d7265daedd73?width=800&amp;quality=100" alt="KGS Analytical Laboratory" 
+                    class="max-w-full max-h-full object-contain"> 
+                </div> 
+                <div class="flex-1 flex flex-col justify-center min-w-0"> 
+                  <h3 class="text-xl font-bold leading-tight" style="color: var(--midnightBlue)"> KGS Analytical Laboratory </h3> 
+                </div> 
+              </div> 
+              <p class="text-gray-700 text-sm line-clamp-3">
+                The KGS laboratory specializes in environmental analysis of:
+                <ul class="text-gray-700 text-sm line-clamp-3">
+                <li>Water quality and contamination</li>
+                <li>Coal quality and composition</li>
+                <li>Rocks and minerals</li>
+                <li>Other natural resources</li>
+                </ul>
+              </p> 
+              <div class="mt-4 flex justify-end"> 
+                <span class="inline-flex items-center text-sm font-medium hover:underline" style="color: var(--wildcatBlue)">Visit Lab<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path> </svg> </span> 
+              </div> 
+            </div> 
+          </div> 
+        </a>    
+        <!-- End hardcode -->
+        <!-- Loop through labs from Directus -->
         {labs.map(lab => (
           <a href={`/labs/${lab.slug}`} class="block">
             <div 

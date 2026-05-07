@@ -175,10 +175,10 @@ function getColorClasses(hexColor) {
                   href={network.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  aria-label={`Explore ${network.title} (opens in new tab)`}
+                  aria-label={`Explore ${network.button_title} || ${network.title} (opens in new tab)`}
                   class={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:transform hover:translate-y-[-2px] hover:shadow-lg ${colors.button}`}
                 >
-                  Explore {network.title}
+                  Explore  {network.button_title || network.title}
                   <i class="fas fa-external-link-alt text-sm"></i>
                 </a>
               </div>
