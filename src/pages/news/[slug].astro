@@ -154,12 +154,15 @@ if (article.category === "press") {
 } else if (article.category === "research") {
   categoryLabel = "Research Updates";
   categoryUrl = "/news/research";
-} else if (article.category === "event") {
-  categoryLabel = "Events";
-  categoryUrl = "/news/events";
+} else if (article.category === "our_collecton") {
+  categoryLabel = "From Our Collection";
+  categoryUrl = "/news/collection";
 } else if (article.category === "media") {
   categoryLabel = "KGS in the Media";
   categoryUrl = "/news/media";
+} else if (article.category === "event") {
+  categoryLabel = "Events";
+  categoryUrl = "/news/events";
 } else {
   categoryLabel = "News & Announcements";
   categoryUrl = "/news";
@@ -230,6 +233,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
              article.category === "media" ? "KGS in the Media" : 
              article.category === "event" ? (isEventPast(article.event_end) ? "Past Event" : "Upcoming Event") : 
              article.category === "media" ? "KGS in the Media" :
+             article.category === "our_collecton" ? "From Our Collection" :
              "News"}
           </a>
         </div>

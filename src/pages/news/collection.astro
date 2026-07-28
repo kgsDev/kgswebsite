@@ -1,0 +1,50 @@
+---
+// src/pages/news/media.astro
+export const prerender = false;
+import NewsLayout from '../../layouts/NewsLayout.astro';
+import NewsGrid from '../../components/news/NewsGrid.astro';
+import Pagination from '../../components/Pagination.astro';
+import { fetchRecentNews } from '../../lib/api_news';
+
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const limit = 12;
+const category = 'our_collection';
+
+const { articles, totalCount, totalPages } = await fetchRecentNews(limit, page, category);
+
+const title = "From Our Collection";
+const description = "Highlights from the KGS collection including fossils, minerals, core, etc.";
+---
+
+<NewsLayout title={title} description={description}>
+  <Fragment slot="head-meta">
+    <title>{title} | Kentucky Geological Survey</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </Fragment>
+
+  <div>
+    <h1 class="text-3xl font-bold text-blue-900 mb-2">From Our Collection</h1>
+    <p class="text-gray-600 mb-8">
+      Highlights and writeups about items from the KGS collection. Including fossils, minerals, core, meteorites and other specimens.
+    </p>
+
+    {articles.length > 0 ? (
+      <>
+        <NewsGrid articles={articles} layout="list" />
+        <Pagination currentPage={page} totalPages={totalPages} baseUrl="/news/collection" />
+      </>
+    ) : (
+      <div class="bg-white p-8 rounded-lg shadow-md text-center">
+        <i class="fas fa-broadcast-tower text-gray-400 mb-4" style="font-size: 4rem; display: block;"></i>
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">No items yet</h2>
+        <p class="text-gray-600">Check back soon for collection highlights.</p>
+      </div>
+    )}
+  </div>
+</NewsLayout>

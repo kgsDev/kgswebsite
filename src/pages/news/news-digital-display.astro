@@ -91,6 +91,12 @@ const getCategoryInfo = (article) => {
       color: "bg-green-100 text-green-800",
       icon: "fa-flask"
     };
+  } else if (article.category === "our_collection") {
+    return {
+      label: "From Our Collection",
+      color: "bg-yellow-100 text-yellow-800",
+      icon: "fa-bone"
+    };
   } else if (article.category === "event") {
     return {
       label: isEventPast(article.event_end) ? "Past Event" : "Upcoming Event",
