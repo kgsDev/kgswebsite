@@ -15,12 +15,30 @@ import { readItems } from "@directus/sdk";
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
+type TeamMember = {
+  id?: string | number;
+  slug?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  working_title?: string;
+  photo?: string | null;
+  kgs_staff?: boolean;
+  kgs_faculty?: boolean;
+};
+
 // Get the slug from URL params
 const { slug } = Astro.params;
 
 // Fetch the research page dynamically based on the slug
 let page = null;
-let teamStaff = {
+let teamStaff: {
+  leaders: TeamMember[];
+  coreMembers: TeamMember[];
+  kgsMembers: TeamMember[];
+  affiliates: TeamMember[];
+} = {
   leaders: [],
   coreMembers: [],
   kgsMembers: [],
@@ -276,34 +294,39 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
               Contact Information
             </h3>
             <div class="contact-info">
-              <div class="contact-section">
-                <p class="contact-name">Team Lead</p>
-                <p class="contact-title">
-                  {teamStaff.leaders[0] ? (
-                    <a href={`/staff/${teamStaff.leaders[0].slug}`}>
-                      {teamStaff.leaders[0].first_name} {teamStaff.leaders[0].last_name}
-                    </a>
-                  ) : (
-                    'Leader TBD'
-                  )}
-                </p>
-                {teamStaff.leaders[0] && (
-                  <>
-                    <p>
-                      <i class="fas fa-envelope"></i>
-                      <a href={`mailto:${teamStaff.leaders[0].email}`}>
-                        {teamStaff.leaders[0].email}
-                      </a>
+              {teamStaff.leaders.length > 0 ? (
+                teamStaff.leaders.map((leader) => (
+                  <div class="contact-section">
+                    <p class="contact-title">
+                      {leader.slug ? (
+                        <a href={`/staff/${leader.slug}`}>
+                          {leader.first_name} {leader.last_name}
+                        </a>
+                      ) : (
+                        `${leader.first_name || ''} ${leader.last_name || ''}`.trim() || 'Team Lead'
+                      )}
                     </p>
-                    {teamStaff.leaders[0].phone && (
+                    {leader.email && (
                       <p>
-                        <i class="fas fa-phone"></i>
-                        {teamStaff.leaders[0].phone}
+                        <i class="fas fa-envelope"></i>
+                        <a href={`mailto:${leader.email}`}>
+                          {leader.email}
+                        </a>
                       </p>
                     )}
-                  </>
-                )}
-              </div>
+                    {leader.phone && (
+                      <p>
+                        <i class="fas fa-phone"></i>
+                        {leader.phone}
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div class="contact-section">
+                  <p class="contact-title">Leader TBD</p>
+                </div>
+              )}
               
               <div class="contact-section">
                 <p class="contact-name">General Inquiries</p>
