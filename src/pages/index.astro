@@ -4,7 +4,6 @@ import Header from '../components/common/Header.astro';
 import Footer from '../components/common/Footer.astro';
 import NewsGrid from '../components/news/NewsGrid.astro';
 import { fetchRecentNews } from '../lib/api_news';
-import { fetchHomepageSection } from '../lib/api_homepage';
 
 import '../styles/home_global.css';
 import '../styles/home_reset.css';
@@ -13,19 +12,22 @@ import '../styles/home_styles.css';
 // Fetch recent news for the homepage (limit to 6 items)
 const { articles } = await fetchRecentNews(6, 1);
 
-// Fetch the internship section data
-const dynamicSection = await fetchHomepageSection();
+import { fetchAllHomepageSections } from '../lib/api_homepage';
 
-// Fallback data for the internship section if no CMS data is available
+const sections = await fetchAllHomepageSections();
+
+// Fallback if CMS returns nothing
 const fallbackDynamicData = {
-    title: "Summer Internship Program",
-    content: `<p>Dr. Paul Edwin Potter Internship Program participants collaborate with mentors from KGS on 10-week research projects focused on KGS current research areas. Interns develop technical skills, participate in professional development opportunities, and expand their academic networks.</p>`,
-    button_text: "Find Out More",
-    button_url: "/intern/",
-    image: null, // Will use hardcoded image path below
-    image_alt_text: "2023 Potter Internship Program participants",
-    image_caption: "2023 Potter Internship Program participants"
+  title: "Summer Internship Program",
+  content: `<p>Dr. Paul Edwin Potter Internship Program participants…</p>`,
+  button_text: "Find Out More",
+  button_url: "/intern/",
+  image: null,
+  image_alt_text: "2023 Potter Internship Program participants",
+  image_caption: "2023 Potter Internship Program participants"
 };
+
+const rotatingSections = sections.length > 0 ? sections : [fallbackDynamicData];
 ---
 <html lang="en">
 <head>
@@ -157,39 +159,56 @@ const fallbackDynamicData = {
 
         <section class="midsection">
             <div class="section-container">
-             <!-- Dynamic Internship/First Section -->
-            <div class="section-dynamic">
-                <h2 class="inter-h2">{dynamicSection?.title || fallbackDynamicData.title}</h2>
-                
-                <!-- Content with HTML support -->
-                <div class="section-content" set:html={dynamicSection?.content || fallbackDynamicData.content} />
-                
-                <!-- Button - aligned left -->
-                <div class="button-container-left">
-                    <a href={dynamicSection?.button_url || fallbackDynamicData.button_url} class="inter-button">
-                        {dynamicSection?.button_text || fallbackDynamicData.button_text}
-                    </a>
+                <!-- Rotating homepage sections -->
+                <div class="section-rotator" data-interval="8000">
+                    {rotatingSections.map((section, i) => (
+                        <div class="section-dynamic rotator-slide" data-active={i === 0 ? "true" : "false"} hidden={i !== 0}>
+                            <h2 class="inter-h2">{section.title || fallbackDynamicData.title}</h2>
+
+                            <!-- Content with HTML support -->
+                            <div class="section-content" set:html={section.content || fallbackDynamicData.content} />
+
+                            <!-- Button - aligned left -->
+                            <div class="button-container-left">
+                                <a href={section.button_url || fallbackDynamicData.button_url} class="inter-button">
+                                    {section.button_text || fallbackDynamicData.button_text}
+                                </a>
+                            </div>
+
+                            <!-- Image - centered with left-aligned caption -->
+                            {section.image ? (
+                                <div class="image-container-centered">
+                                    <img
+                                        src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${section.image}?quality=90&width=600&fit=cover`}
+                                        alt={section.image_alt_text || ''}
+                                    />
+                                    {section.image_caption && (
+                                        <p class="image-caption-left source-sans-3-p-smaller">{section.image_caption}</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div class="image-container-centered">
+                                    <img src="/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
+                                    <p class="image-caption-left source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    {rotatingSections.length > 1 && (
+                        <div class="rotator-nav" role="group" aria-label="Choose featured section">
+                            {rotatingSections.map((section, i) => (
+                                <button
+                                    type="button"
+                                    class="rotator-dot"
+                                    data-index={i}
+                                    aria-current={i === 0 ? "true" : "false"}
+                                    aria-label={`Show section ${i + 1}: ${section.title || ''}`}
+                                ></button>
+                            ))}
+                        </div>
+                    )}
                 </div>
-                
-                <!-- Image - centered with left-aligned caption -->
-                {dynamicSection?.image ? (
-                    <div class="image-container-centered">
-                        <img 
-                            src={`${import.meta.env.PUBLIC_DIRECTUS_URL}assets/${dynamicSection.image}?quality=90&width=600&fit=cover`} 
-                            alt={dynamicSection.image_alt_text || ''} 
-                        />
-                        {dynamicSection.image_caption && (
-                            <p class="image-caption-left source-sans-3-p-smaller">{dynamicSection.image_caption}</p>
-                        )}
-                    </div>
-                ) : (
-                    <div class="image-container-centered">
-                        <img src="/assets/index/kgs-internship-sm.webp" alt="2023 Potter Internship Program participants">
-                        <p class="image-caption-left source-sans-3-p-smaller">2023 Potter Internship Program participants</p>
-                    </div>
-                )}
-            </div>
-                            
+                           
                 <div class="section-connect">
                     <h2 class="inter-h2">Connect with Us</h2>
 
@@ -329,6 +348,53 @@ const fallbackDynamicData = {
     <!-- Use your Astro Footer component -->
     <Footer />
    <script>
+    const rotator = document.querySelector('.section-rotator');
+    const slides = rotator ? [...rotator.querySelectorAll('.rotator-slide')] : [];
+    const dots   = rotator ? [...rotator.querySelectorAll('.rotator-dot')] : [];
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (rotator && slides.length > 1) {
+        let i = 0;
+        const interval = Number(rotator.dataset.interval) || 8000;
+        let timer = null;
+
+        function show(index) {
+            const target = (index + slides.length) % slides.length;
+            if (target === i) return;
+
+            slides[i].hidden = true;
+            slides[i].dataset.active = "false";
+            dots[i]?.setAttribute('aria-current', 'false');
+
+            i = target;
+
+            slides[i].hidden = false;
+            slides[i].dataset.active = "true";
+            dots[i]?.setAttribute('aria-current', 'true');
+        }
+
+        const next  = () => show(i + 1);
+        const stop  = () => { clearInterval(timer); timer = null; };
+        const start = () => { if (!reduceMotion && !timer) timer = setInterval(next, interval); };
+
+        // Manual dots: jump, then restart the countdown from that slide
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                show(Number(dot.dataset.index));
+                stop();
+                start();
+            });
+        });
+
+        // Pause while hovering or tabbing anywhere in the rotator (slides or dots)
+        rotator.addEventListener('mouseenter', stop);
+        rotator.addEventListener('mouseleave', start);
+        rotator.addEventListener('focusin', stop);
+        rotator.addEventListener('focusout', start);
+
+        start(); // begin auto-rotation (no-op under reduced motion)
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const video = document.getElementById('hero-video');
         const controlBtn = document.getElementById('video-control-btn');
