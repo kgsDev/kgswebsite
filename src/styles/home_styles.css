@@ -1941,6 +1941,60 @@ body {
 /* ========================================
    DYNAMIC HOMEPAGE SECTION
    ======================================== */
+   
+/* Rotator is the left column; slides + dots stack inside it */
+.section-rotator {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: var(--section-padding);
+}
+
+.section-rotator .section-dynamic {
+    width: 100%;
+    padding: 0;
+}
+
+/* Manual navigation dots */
+.rotator-nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.rotator-dot {
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid var(--primary-blue);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.rotator-dot:hover {
+    background: var(--hover-button-blue);
+    border-color: var(--hover-button-blue);
+    transform: scale(1.15);
+}
+
+.rotator-dot[aria-current="true"] {
+    background: var(--primary-blue);
+}
+
+.rotator-dot:focus-visible {
+    outline: 2.5px solid var(--navy);
+    outline-offset: 3px;
+}
+
+@media (min-width: 1100px) {
+    .section-rotator {
+        width: calc(50% - 20px);
+        padding: 35px 0;
+    }
+}
 
 /* Content formatting for CMS content */
 .section-dynamic .section-content {
@@ -2050,5 +2104,15 @@ body {
     
     .section-dynamic .image-container-centered {
         margin-top: 20px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .rotator-slide[data-active="true"] {
+        animation: slideFade 0.5s ease;
+    }
+    @keyframes slideFade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
 }
