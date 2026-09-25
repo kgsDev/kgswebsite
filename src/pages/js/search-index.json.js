@@ -17,6 +17,7 @@ import {
 } from '../../lib/api_search_content';
 import { fetchAllAnnualReports } from '../../lib/api_annual-reports';
 import { fetchAllFactsheets } from '../../lib/api_factsheets';
+import { fetchAllEpisodes, stripHtml } from '../../lib/api_podcast';
 
 export async function GET() {
   const searchIndex = [];
@@ -350,6 +351,30 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error indexing factsheets:', error);
+  }
+
+  // ===== PODCAST EPISODES =====
+  try {
+    const episodes = await fetchAllEpisodes();
+    episodes.forEach(ep => {
+      searchIndex.push({
+        title: ep.title,
+        url: `/podcast#episode-${ep.id}`,
+        content: [
+          ep.title,
+          stripHtml(ep.description),
+          ep.topics.map(t => t.name).join(' ')
+        ].join(' '),
+        type: 'podcast',
+        category: 'Podcast',
+        subtitle: ep.pub_date
+          ? `The Big Blue Rock Pod · ${new Date(ep.pub_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+          : 'The Big Blue Rock Pod',
+        image: ep.image_url || null
+      });
+    });
+  } catch (error) {
+    console.error('Error indexing podcast episodes:', error);
   }
 
 
