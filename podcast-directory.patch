@@ -1,0 +1,655 @@
+diff --git a/scripts/podcast-setup.mjs b/scripts/podcast-setup.mjs
+new file mode 100644
+index 0000000..93dbdcd
+--- /dev/null
++++ b/scripts/podcast-setup.mjs
+@@ -0,0 +1,166 @@
++// One-time setup: creates the podcast collections in Directus and seeds starter topics.
++// Safe to re-run — anything that already exists is skipped.
++//
++// Usage (from the Astro project root):
++//   node scripts/podcast-setup.mjs
++//
++// Reads from .env: PUBLIC_DIRECTUS_URL, DIRECTUS_ADMIN_TOKEN (schema changes need an admin token)
++
++import dotenv from 'dotenv';
++dotenv.config();
++
++const { PUBLIC_DIRECTUS_URL: DIRECTUS_URL, DIRECTUS_ADMIN_TOKEN } = process.env;
++if (!DIRECTUS_URL || !DIRECTUS_ADMIN_TOKEN) {
++  console.error('Set PUBLIC_DIRECTUS_URL and DIRECTUS_ADMIN_TOKEN in .env');
++  process.exit(1);
++}
++
++async function api(method, path, body) {
++  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}${path}`, {
++    method,
++    headers: { Authorization: `Bearer ${DIRECTUS_ADMIN_TOKEN}`, 'Content-Type': 'application/json' },
++    body: body ? JSON.stringify(body) : undefined,
++  });
++  if (!res.ok) throw new Error(`${method} ${path} → ${res.status}: ${await res.text()}`);
++  return res.status === 204 ? null : res.json();
++}
++
++async function exists(path) {
++  const res = await fetch(`${DIRECTUS_URL.replace(/\/$/, '')}${path}`, {
++    headers: { Authorization: `Bearer ${DIRECTUS_ADMIN_TOKEN}` },
++  });
++  return res.ok;
++}
++
++// ---- field builders ---------------------------------------------------------
++
++const pk = {
++  field: 'id', type: 'integer',
++  meta: { hidden: true, readonly: true, interface: 'input' },
++  schema: { is_primary_key: true, has_auto_increment: true },
++};
++const str = (field, meta = {}, schema = {}) => ({
++  field, type: 'string', meta: { interface: 'input', width: 'half', ...meta }, schema: { max_length: 1024, ...schema },
++});
++const txt = (field, meta = {}) => ({ field, type: 'text', meta: { interface: 'input-multiline', ...meta }, schema: {} });
++const int = (field, meta = {}) => ({ field, type: 'integer', meta: { interface: 'input', width: 'half', ...meta }, schema: {} });
++
++// ---- collections ------------------------------------------------------------
++
++const topicsCollection = {
++  collection: 'podcast_topics',
++  meta: { icon: 'label', note: 'Topics used to organize Big Blue Rock Pod episodes', display_template: '{{name}}', sort_field: 'sort' },
++  schema: {},
++  fields: [
++    pk,
++    str('name', { required: true }),
++    str('slug', { required: true, note: 'URL-safe, e.g. "earthquakes" → /podcast?topic=earthquakes' }, { is_unique: true }),
++    txt('keywords', { note: 'Comma-separated words. New episodes whose title or description contain any of these get this topic automatically.' }),
++    int('sort', { hidden: true }),
++  ],
++};
++
++const episodesCollection = {
++  collection: 'podcast_episodes',
++  meta: {
++    icon: 'podcasts', note: 'Synced monthly from the Podbean RSS feed',
++    display_template: '{{title}}', sort_field: null,
++    archive_field: 'status', archive_value: 'archived', unarchive_value: 'draft',
++  },
++  schema: {},
++  fields: [
++    pk,
++    {
++      field: 'status', type: 'string',
++      meta: {
++        interface: 'select-dropdown', width: 'half', note: 'Only "published" episodes show on the site',
++        options: { choices: [
++          { text: 'Published', value: 'published' },
++          { text: 'Draft', value: 'draft' },
++          { text: 'Archived', value: 'archived' },
++        ] },
++      },
++      schema: { default_value: 'published', is_nullable: false },
++    },
++    str('guid', { readonly: true, note: 'Podbean episode ID — the sync matches on this' }, { is_unique: true }),
++    str('title', { width: 'full', readonly: true }),
++    int('episode_number', { readonly: true }),
++    int('season', { readonly: true }),
++    { field: 'pub_date', type: 'timestamp', meta: { interface: 'datetime', width: 'half', readonly: true }, schema: {} },
++    str('duration', { readonly: true }),
++    txt('summary', { readonly: true, note: 'Plain-text excerpt of the description' }),
++    { field: 'description', type: 'text', meta: { interface: 'input-rich-text-html', readonly: true }, schema: {} },
++    str('audio_url', { readonly: true }),
++    str('episode_url', { readonly: true }),
++    str('image_url', { readonly: true }),
++  ],
++};
++
++const junctionCollection = {
++  collection: 'podcast_episodes_topics',
++  meta: { hidden: true, icon: 'import_export' },
++  schema: {},
++  fields: [
++    pk,
++    { field: 'podcast_episodes_id', type: 'integer', meta: { hidden: true }, schema: {} },
++    { field: 'podcast_topics_id', type: 'integer', meta: { hidden: true }, schema: {} },
++  ],
++};
++
++const starterTopics = [
++  { name: 'Coal', slug: 'coal', keywords: 'coal, mining, mine reclamation', sort: 1 },
++  { name: 'Earthquakes & Hazards', slug: 'hazards', keywords: 'earthquake, seismic, fault, landslide, sinkhole, hazard', sort: 2 },
++  { name: 'Water', slug: 'water', keywords: 'groundwater, aquifer, karst, spring, well water, watershed', sort: 3 },
++  { name: 'Fossils', slug: 'fossils', keywords: 'fossil, paleontolog, trilobite, dinosaur', sort: 4 },
++  { name: 'Energy', slug: 'energy', keywords: 'oil, natural gas, geothermal, carbon storage, energy', sort: 5 },
++  { name: 'Minerals & Rocks', slug: 'minerals', keywords: 'mineral, rock, limestone, geode, crystal, critical mineral', sort: 6 },
++  { name: 'Maps & Data', slug: 'maps-data', keywords: 'map, mapping, gis, lidar, data', sort: 7 },
++];
++
++// ---- run --------------------------------------------------------------------
++
++for (const c of [topicsCollection, episodesCollection, junctionCollection]) {
++  if (await exists(`/collections/${c.collection}`)) {
++    console.log(`skip   ${c.collection} (exists)`);
++  } else {
++    await api('POST', '/collections', c);
++    console.log(`create ${c.collection}`);
++  }
++}
++
++if (await exists('/fields/podcast_episodes/topics')) {
++  console.log('skip   podcast_episodes.topics (exists)');
++} else {
++  await api('POST', '/fields/podcast_episodes', {
++    field: 'topics', type: 'alias',
++    meta: {
++      special: ['m2m'], interface: 'list-m2m',
++      options: { template: '{{podcast_topics_id.name}}', enableCreate: false },
++      note: 'Auto-suggested for new episodes from topic keywords — edit freely; the sync never changes these after creation',
++    },
++  });
++
++  // episodes ←→ junction
++  await api('POST', '/relations', {
++    collection: 'podcast_episodes_topics', field: 'podcast_episodes_id', related_collection: 'podcast_episodes',
++    meta: { one_field: 'topics', junction_field: 'podcast_topics_id' },
++    schema: { on_delete: 'CASCADE' },
++  });
++  // topics ←→ junction
++  await api('POST', '/relations', {
++    collection: 'podcast_episodes_topics', field: 'podcast_topics_id', related_collection: 'podcast_topics',
++    meta: { one_field: null, junction_field: 'podcast_episodes_id' },
++    schema: { on_delete: 'CASCADE' },
++  });
++  console.log('create podcast_episodes.topics (M2M)');
++}
++
++const { data: existingTopics } = await api('GET', '/items/podcast_topics?limit=1');
++if (existingTopics.length) {
++  console.log('skip   starter topics (topics already exist)');
++} else {
++  await api('POST', '/items/podcast_topics', starterTopics);
++  console.log(`seed   ${starterTopics.length} starter topics`);
++}
++
++console.log('\nDone. Next: grant read permissions (see notes), then run podcast-sync.mjs.');
+diff --git a/scripts/podcast-sync.mjs b/scripts/podcast-sync.mjs
+new file mode 100644
+index 0000000..c888a6a
+--- /dev/null
++++ b/scripts/podcast-sync.mjs
+@@ -0,0 +1,194 @@
++// Syncs The Big Blue Rock Pod's Podbean RSS feed into Directus.
++//
++//  - New episodes are created as "published" with topics auto-suggested from each topic's keywords.
++//  - Existing episodes (matched on the feed's <guid>) get their feed-owned fields refreshed.
++//    Their status and topics are never touched, so editors' changes stick.
++//  - Episodes that disappear from the feed are left alone.
++//
++// Usage (from the Astro project root):
++//   node scripts/podcast-sync.mjs                      # normal run
++//   node scripts/podcast-sync.mjs --dry-run            # report what would change, write nothing
++//   node scripts/podcast-sync.mjs --feed-file=feed.xml # use a saved copy of the feed
++//
++// Reads from .env: PUBLIC_DIRECTUS_URL, PODCAST_FEED_URL, and
++//   DIRECTUS_PODCAST_TOKEN (a token limited to the podcast collections — falls back to DIRECTUS_ADMIN_TOKEN)
++// Requires the fast-xml-parser package (npm install fast-xml-parser).
++
++import { readFile } from 'node:fs/promises';
++import { pathToFileURL } from 'node:url';
++import { XMLParser } from 'fast-xml-parser';
++import dotenv from 'dotenv';
++
++// Fields the feed owns. The sync overwrites these; everything else belongs to editors.
++export const FEED_FIELDS = [
++  'title', 'episode_number', 'season', 'pub_date', 'duration',
++  'summary', 'description', 'audio_url', 'episode_url', 'image_url',
++];
++
++// ---- feed parsing -----------------------------------------------------------
++
++// A tag can come back as a string or, if it has attributes, as { '#text': ..., '@_attr': ... }.
++const text = v => (v == null ? '' : typeof v === 'object' ? String(v['#text'] ?? '') : String(v)).trim();
++const int = v => { const n = parseInt(text(v), 10); return Number.isFinite(n) ? n : null; };
++
++const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', mdash: '—', ndash: '–', hellip: '…' };
++export function htmlToText(html) {
++  return html
++    .replace(/<(br|\/p|\/li|\/h\d)[^>]*>/gi, ' ')
++    .replace(/<[^>]+>/g, '')
++    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))
++    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
++    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m)
++    .replace(/\s+/g, ' ')
++    .trim();
++}
++
++function excerpt(plain, max = 300) {
++  if (plain.length <= max) return plain;
++  const cut = plain.slice(0, max);
++  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,.;:]+$/, '') + '…';
++}
++
++export function parseFeed(xml) {
++  const parser = new XMLParser({
++    ignoreAttributes: false,        // keep attributes like <enclosure url="..."> as '@_url'
++    parseTagValue: false,           // keep every value a string; we convert numbers ourselves
++    isArray: name => name === 'item', // one episode still comes back as an array
++  });
++  const channel = parser.parse(xml)?.rss?.channel;
++  if (!channel) throw new Error('Not an RSS feed: no <rss><channel> found');
++
++  return (channel.item ?? []).map(item => {
++    const description = text(item['content:encoded']) || text(item.description);
++    const plain = htmlToText(description);
++    const guid = text(item.guid) || text(item.link) || item.enclosure?.['@_url'];
++    if (!guid) throw new Error(`Episode "${text(item.title)}" has no guid, link, or audio URL to match on`);
++    const pub = new Date(text(item.pubDate));
++
++    return {
++      guid,
++      title: text(item.title),
++      episode_number: int(item['itunes:episode']),
++      season: int(item['itunes:season']),
++      pub_date: isNaN(pub) ? null : pub.toISOString(),
++      duration: text(item['itunes:duration']) || null,
++      summary: excerpt(plain),
++      description,
++      audio_url: item.enclosure?.['@_url'] ?? null,
++      episode_url: text(item.link) || null,
++      image_url: item['itunes:image']?.['@_href'] ?? null,
++      _plain: plain, // used for topic matching only, not saved
++    };
++  });
++}
++
++// ---- topic suggestion -------------------------------------------------------
++
++const escapeRegex = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
++
++// \b only on the left: "fossil" matches "fossils" and "paleontolog" matches "paleontology",
++// but "gas" won't match "Vegas".
++export function suggestTopics(episode, topics) {
++  const haystack = `${episode.title} ${episode._plain}`;
++  return topics
++    .filter(t => (t.keywords ?? '')
++      .split(/[,\n]/).map(k => k.trim()).filter(Boolean)
++      .some(k => new RegExp(`\\b${escapeRegex(k)}`, 'i').test(haystack)))
++    .map(t => t.id);
++}
++
++// ---- change detection -------------------------------------------------------
++
++const norm = (field, v) => {
++  if (v == null || v === '') return '';
++  if (field === 'pub_date') return String(new Date(v).getTime());
++  return String(v);
++};
++export const changedFields = (existing, episode) =>
++  FEED_FIELDS.filter(f => norm(f, existing[f]) !== norm(f, episode[f]));
++
++const pick = (obj, keys) => Object.fromEntries(keys.map(k => [k, obj[k]]));
++
++// ---- Directus ---------------------------------------------------------------
++
++function directusClient(baseUrl, token) {
++  const base = baseUrl.replace(/\/$/, '');
++  return async function api(method, path, body) {
++    const res = await fetch(`${base}${path}`, {
++      method,
++      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
++      body: body ? JSON.stringify(body) : undefined,
++    });
++    if (!res.ok) throw new Error(`${method} ${path} → ${res.status}: ${await res.text()}`);
++    return res.status === 204 ? null : (await res.json()).data;
++  };
++}
++
++// ---- main -------------------------------------------------------------------
++
++export async function sync({ directusUrl, token, feedUrl, feedFile, dryRun = false, log = console.log }) {
++  const xml = feedFile
++    ? await readFile(feedFile, 'utf8')
++    : await fetch(feedUrl).then(r => { if (!r.ok) throw new Error(`Feed fetch → ${r.status}`); return r.text(); });
++
++  const episodes = parseFeed(xml);
++  const api = directusClient(directusUrl, token);
++
++  const topics = await api('GET', '/items/podcast_topics?fields=id,name,keywords&limit=-1');
++  const existing = await api('GET', `/items/podcast_episodes?fields=id,guid,${FEED_FIELDS.join(',')}&limit=-1`);
++  const byGuid = new Map(existing.map(e => [e.guid, e]));
++  const topicName = new Map(topics.map(t => [t.id, t.name]));
++
++  const counts = { created: 0, updated: 0, unchanged: 0 };
++
++  for (const ep of episodes) {
++    const current = byGuid.get(ep.guid);
++
++    if (!current) {
++      const topicIds = suggestTopics(ep, topics);
++      const names = topicIds.map(id => topicName.get(id)).join(', ') || 'no topics matched';
++      log(`${dryRun ? 'would create' : 'create'}  ${ep.title}  [${names}]`);
++      if (!dryRun) {
++        await api('POST', '/items/podcast_episodes', {
++          ...pick(ep, FEED_FIELDS),
++          guid: ep.guid,
++          status: 'published',
++          topics: topicIds.map(id => ({ podcast_topics_id: id })),
++        });
++      }
++      counts.created++;
++      continue;
++    }
++
++    const changed = changedFields(current, ep);
++    if (!changed.length) { counts.unchanged++; continue; }
++
++    log(`${dryRun ? 'would update' : 'update'}  ${ep.title}  (${changed.join(', ')})`);
++    if (!dryRun) await api('PATCH', `/items/podcast_episodes/${current.id}`, pick(ep, changed));
++    counts.updated++;
++  }
++
++  log(`\n${episodes.length} in feed — ${counts.created} new, ${counts.updated} updated, ${counts.unchanged} unchanged${dryRun ? ' (dry run, nothing written)' : ''}`);
++  return counts;
++}
++
++// Run only when executed directly, not when imported by tests.
++if (import.meta.url === pathToFileURL(process.argv[1]).href) {
++  dotenv.config();
++  const { PUBLIC_DIRECTUS_URL, PODCAST_FEED_URL } = process.env;
++  const token = process.env.DIRECTUS_PODCAST_TOKEN || process.env.DIRECTUS_ADMIN_TOKEN;
++  const feedFile = process.argv.find(a => a.startsWith('--feed-file='))?.split('=')[1];
++  const missing = [
++    !PUBLIC_DIRECTUS_URL && 'PUBLIC_DIRECTUS_URL',
++    !token && 'DIRECTUS_PODCAST_TOKEN (or DIRECTUS_ADMIN_TOKEN)',
++    !feedFile && !PODCAST_FEED_URL && 'PODCAST_FEED_URL',
++  ].filter(Boolean);
++  if (missing.length) { console.error(`Missing in .env: ${missing.join(', ')}`); process.exit(1); }
++
++  console.log(`Podcast sync — ${new Date().toISOString()}`);
++  sync({
++    directusUrl: PUBLIC_DIRECTUS_URL, token,
++    feedUrl: PODCAST_FEED_URL, feedFile,
++    dryRun: process.argv.includes('--dry-run'),
++  }).catch(err => { console.error(`FAILED: ${err.message}`); process.exit(1); });
++}
+diff --git a/src/lib/api_podcast.js b/src/lib/api_podcast.js
+new file mode 100644
+index 0000000..78da120
+--- /dev/null
++++ b/src/lib/api_podcast.js
+@@ -0,0 +1,62 @@
++// src/lib/api_podcast.js
++// API functions for The Big Blue Rock Pod episode directory.
++// Episodes are loaded into Directus monthly by scripts/podcast-sync.mjs.
++import axios from 'axios';
++
++const api = axios.create({
++  baseURL: import.meta.env.PUBLIC_DIRECTUS_URL,
++  headers: { 'Content-Type': 'application/json' },
++});
++
++async function apiRequest(path, params) {
++  try {
++    const response = await api.get(path, { params });
++    return response.data.data || [];
++  } catch (error) {
++    console.error(`Error fetching ${path}:`, error.message);
++    return [];
++  }
++}
++
++/**
++ * Published episodes, newest first, with topics flattened to [{ name, slug }].
++ */
++export async function fetchAllEpisodes() {
++  const episodes = await apiRequest('/items/podcast_episodes', {
++    fields: [
++      'id', 'title', 'episode_number', 'season', 'pub_date', 'duration',
++      'summary', 'description', 'audio_url', 'episode_url', 'image_url',
++      'topics.podcast_topics_id.name', 'topics.podcast_topics_id.slug',
++    ].join(','),
++    filter: JSON.stringify({ status: { _eq: 'published' } }),
++    sort: '-pub_date',
++    limit: -1,
++  });
++
++  // Junction rows come back as [{ podcast_topics_id: { name, slug } }]
++  return episodes.map(ep => ({
++    ...ep,
++    topics: (ep.topics || []).map(t => t.podcast_topics_id).filter(Boolean),
++  }));
++}
++
++export async function fetchAllTopics() {
++  return apiRequest('/items/podcast_topics', {
++    fields: 'id,name,slug',
++    sort: 'sort,name',
++    limit: -1,
++  });
++}
++
++export function stripHtml(html) {
++  return (html || '')
++    .replace(/<[^>]*>/g, ' ')
++    .replace(/&nbsp;/g, ' ')
++    .replace(/&amp;/g, '&')
++    .replace(/&lt;/g, '<')
++    .replace(/&gt;/g, '>')
++    .replace(/&quot;/g, '"')
++    .replace(/&#0?39;/g, "'")
++    .replace(/\s+/g, ' ')
++    .trim();
++}
+diff --git a/src/pages/js/search-index.json.js b/src/pages/js/search-index.json.js
+index b96f5aa..1ca9200 100644
+--- a/src/pages/js/search-index.json.js
++++ b/src/pages/js/search-index.json.js
+@@ -17,6 +17,7 @@ import {
+ } from '../../lib/api_search_content';
+ import { fetchAllAnnualReports } from '../../lib/api_annual-reports';
+ import { fetchAllFactsheets } from '../../lib/api_factsheets';
++import { fetchAllEpisodes, stripHtml } from '../../lib/api_podcast';
+ 
+ export async function GET() {
+   const searchIndex = [];
+@@ -352,6 +353,30 @@ export async function GET() {
+     console.error('Error indexing factsheets:', error);
+   }
+ 
++  // ===== PODCAST EPISODES =====
++  try {
++    const episodes = await fetchAllEpisodes();
++    episodes.forEach(ep => {
++      searchIndex.push({
++        title: ep.title,
++        url: `/podcast#episode-${ep.id}`,
++        content: [
++          ep.title,
++          stripHtml(ep.description),
++          ep.topics.map(t => t.name).join(' ')
++        ].join(' '),
++        type: 'podcast',
++        category: 'Podcast',
++        subtitle: ep.pub_date
++          ? `The Big Blue Rock Pod · ${new Date(ep.pub_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
++          : 'The Big Blue Rock Pod',
++        image: ep.image_url || null
++      });
++    });
++  } catch (error) {
++    console.error('Error indexing podcast episodes:', error);
++  }
++
+ 
+   return new Response(JSON.stringify(searchIndex), {
+     headers: {
+diff --git a/src/pages/podcast/index.astro b/src/pages/podcast/index.astro
+new file mode 100644
+index 0000000..d0c1d79
+--- /dev/null
++++ b/src/pages/podcast/index.astro
+@@ -0,0 +1,166 @@
++---
++// src/pages/podcast/index.astro
++// The Big Blue Rock Pod — episode directory, filterable by topic and searchable by text.
++export const prerender = false;
++
++import BaseLayout from '../../layouts/BaseLayout.astro';
++import { fetchAllEpisodes, fetchAllTopics, stripHtml } from '../../lib/api_podcast';
++
++const [episodes, topics] = await Promise.all([fetchAllEpisodes(), fetchAllTopics()]);
++
++// Count episodes per topic; only show topics that have at least one episode.
++const counts = new Map();
++episodes.forEach(ep => ep.topics.forEach(t => counts.set(t.slug, (counts.get(t.slug) || 0) + 1)));
++const usedTopics = topics.filter(t => counts.has(t.slug));
++
++const activeSlug = Astro.url.searchParams.get('topic');
++const activeTopic = topics.find(t => t.slug === activeSlug);
++const shown = activeTopic
++  ? episodes.filter(ep => ep.topics.some(t => t.slug === activeSlug))
++  : episodes;
++
++const formatDate = d => d
++  ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
++  : '';
++
++const pillBase = 'inline-block px-3 py-1.5 rounded-full border text-sm no-underline';
++const pillOn = 'bg-[#0033A0] text-white border-[#0033A0]';
++const pillOff = 'border-[#0033A0] text-[#0033A0] hover:bg-blue-50';
++
++const title = activeTopic ? `${activeTopic.name} – The Big Blue Rock Pod` : 'The Big Blue Rock Pod';
++const description = 'Every episode of The Big Blue Rock Pod from the Kentucky Geological Survey, organized by topic.';
++
++Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
++---
++
++<BaseLayout title={title} description={description} activePage="podcast" showBreadcrumb={true}>
++  <div class="container mx-auto px-4 py-1">
++    <div class="mb-6">
++      <h1><i class="fas fa-podcast" aria-hidden="true"></i> The Big Blue Rock Pod</h1>
++      <p class="text-gray-700 mt-2">
++        Conversations about Kentucky geology from the Kentucky Geological Survey.
++        Browse episodes by topic or search the show notes.
++      </p>
++    </div>
++
++    {episodes.length === 0 ? (
++      <p class="p-4 border border-gray-300 rounded bg-gray-50">
++        Episodes aren't available right now. Please check back later.
++      </p>
++    ) : (
++      <>
++        <nav aria-label="Episode topics" class="mb-6">
++          <ul class="flex flex-wrap gap-2 list-none p-0">
++            <li>
++              <a href="/podcast" aria-current={!activeTopic ? 'page' : undefined}
++                 class:list={[pillBase, !activeTopic ? pillOn : pillOff]}>
++                All ({episodes.length})
++              </a>
++            </li>
++            {usedTopics.map(t => (
++              <li>
++                <a href={`/podcast?topic=${t.slug}`} aria-current={t.slug === activeSlug ? 'page' : undefined}
++                   class:list={[pillBase, t.slug === activeSlug ? pillOn : pillOff]}>
++                  {t.name} ({counts.get(t.slug)})
++                </a>
++              </li>
++            ))}
++          </ul>
++        </nav>
++
++        <div class="mb-6">
++          <label for="episode-search" class="block font-semibold text-[#1B365D] mb-1">
++            Search {activeTopic ? `${activeTopic.name} episodes` : 'episodes'}
++          </label>
++          <input id="episode-search" type="search" autocomplete="off"
++                 class="w-full md:w-96 border border-gray-400 rounded px-3 py-2"
++                 aria-describedby="episode-count" />
++          <p id="episode-count" class="mt-2 text-sm text-gray-700" aria-live="polite">
++            {shown.length} episode{shown.length === 1 ? '' : 's'}{activeTopic ? ` in ${activeTopic.name}` : ''}
++          </p>
++        </div>
++
++        <ul class="space-y-6 list-none p-0">
++          {shown.map(ep => (
++            <li id={`episode-${ep.id}`} data-episode
++                data-search={`${ep.title} ${stripHtml(ep.description)} ${ep.topics.map(t => t.name).join(' ')}`.toLowerCase()}
++                class="border border-gray-200 rounded-lg p-5 flex flex-col sm:flex-row gap-5">
++              {ep.image_url && (
++                <img src={ep.image_url} alt="" loading="lazy" width="112" height="112"
++                     class="w-28 h-28 rounded object-cover shrink-0" />
++              )}
++              <div class="min-w-0 flex-1">
++                <h2 class="text-xl font-semibold text-[#1B365D] mt-0">
++                  {ep.episode_number && <span class="text-gray-600 font-normal">{`Ep. ${ep.episode_number}: `}</span>}
++                  {ep.title}
++                </h2>
++                <p class="text-sm text-gray-700 mt-1">
++                  <time datetime={ep.pub_date}>{formatDate(ep.pub_date)}</time>
++                  {ep.duration && <span>{` · ${ep.duration}`}</span>}
++                </p>
++
++                {ep.topics.length > 0 && (
++                  <ul class="flex flex-wrap gap-2 mt-2 list-none p-0" aria-label="Topics">
++                    {ep.topics.map(t => (
++                      <li>
++                        <a href={`/podcast?topic=${t.slug}`}
++                           class="text-xs px-2 py-0.5 rounded bg-blue-50 text-[#0033A0] hover:underline">{t.name}</a>
++                      </li>
++                    ))}
++                  </ul>
++                )}
++
++                <p class="mt-3 text-gray-800">{ep.summary}</p>
++
++                {ep.audio_url && (
++                  <audio controls preload="none" src={ep.audio_url} class="w-full mt-3"
++                         aria-label={`Play ${ep.title}`}></audio>
++                )}
++
++                {ep.description && (
++                  <details class="mt-3">
++                    <summary class="cursor-pointer font-semibold text-[#0033A0]">Show notes</summary>
++                    <div class="prose max-w-none mt-2" set:html={ep.description} />
++                  </details>
++                )}
++
++                {ep.episode_url && (
++                  <p class="mt-3 text-sm">
++                    <a href={ep.episode_url} class="text-[#0033A0] underline">
++                      <i class="fas fa-external-link-alt" aria-hidden="true"></i> Episode page on Podbean
++                    </a>
++                  </p>
++                )}
++              </div>
++            </li>
++          ))}
++        </ul>
++
++        <p id="no-results" class="text-gray-700" hidden>No episodes match your search.</p>
++      </>
++    )}
++  </div>
++</BaseLayout>
++
++<script is:inline>
++  (() => {
++    const input = document.getElementById('episode-search');
++    if (!input) return;
++    const count = document.getElementById('episode-count');
++    const empty = document.getElementById('no-results');
++    const items = Array.from(document.querySelectorAll('[data-episode]'));
++    const baseLabel = count.textContent;
++
++    input.addEventListener('input', () => {
++      const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
++      let visible = 0;
++      items.forEach(li => {
++        const match = terms.every(t => li.dataset.search.includes(t));
++        li.hidden = !match;
++        if (match) visible++;
++      });
++      count.textContent = terms.length ? `${visible} of ${items.length} episodes match` : baseLabel;
++      empty.hidden = visible > 0;
++    });
++  })();
++</script>
