@@ -24,6 +24,14 @@ const formatDate = d => d
   ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
   : '';
 
+const formatDuration = seconds => {
+  const totalSeconds = Number(seconds);
+  if (!Number.isFinite(totalSeconds)) return '';
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
+  return `${minutes}:${remainingSeconds}`;
+};
+
 // Topic filter buttons. These links deliberately live outside <ul>/<p>: global.css styles
 // `ul a` / `p a` with unlayered rules, which beat Tailwind v4 utilities (they're in @layer).
 const btnBase = 'inline-flex items-center gap-2 px-4 py-2 rounded-md border text-sm font-medium no-underline shadow-sm transition-colors';
@@ -93,7 +101,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
 
         <div class="space-y-6">
           {shown.map(ep => (
-            <article id={`episode-${ep.id}`} data-episode
+            <article id={`episode-${ep.episode_number}`} data-episode
                 data-search={`${ep.title} ${stripHtml(ep.description)} ${ep.topics.map(t => t.name).join(' ')}`.toLowerCase()}
                 class="border border-gray-200 rounded-lg p-5 flex flex-col sm:flex-row gap-5">
               {/* Fallback chain: episode art → show logo → branded tile.
@@ -112,7 +120,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
                 </h2>
                 <p class="text-sm text-gray-700 mt-1">
                   <time datetime={ep.pub_date}>{formatDate(ep.pub_date)}</time>
-                  {ep.duration && <span>{` · ${ep.duration}`}</span>}
+                  {ep.duration && <span>{` · ${formatDuration(ep.duration)}`}</span>}
                 </p>
 
                 {ep.topics.length > 0 && (
