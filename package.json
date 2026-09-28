@@ -17,6 +17,7 @@
     "axios": "^1.9.0",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
+    "fast-xml-parser": "^5.11.1",
     "slugify": "^1.6.6"
   },
   "description": "```sh npm create astro@latest -- --template basics ```",
