@@ -141,9 +141,16 @@ function getIcon(type) {
     page: 'fa-file-lines',
     annual_report: 'fa-file-pdf',
     factsheet: 'fa-file-alt',
-    publication: 'fa-book'
+    publication: 'fa-book',
+    podcast: 'fa-podcast'
   };
   return icons[type] || 'fa-file';
+}
+
+// Search results carry either a Directus asset ID or a full external URL (e.g. podcast art on Podbean).
+function imageSrc(image) {
+  if (/^https?:\/\//i.test(image)) return image;
+  return `${directusUrl.replace(/\/$/, '')}/assets/${image}?width=80&height=80&fit=cover`;
 }
 
 function createExcerpt(text, query, length) {
@@ -297,8 +304,9 @@ async function performSearch(query, category = '') {
           <div class="flex items-start">
             ${result.image ? `
               <img 
-                src="${directusUrl}/assets/${result.image}?width=80&height=80&fit=cover" 
-                alt="${result.title}"
+                src="${imageSrc(result.image)}"
+                alt=""
+                loading="lazy"
                 class="w-20 h-20 rounded-lg object-cover mr-4"
               />
             ` : `

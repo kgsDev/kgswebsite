@@ -58,6 +58,10 @@ export function parseFeed(xml) {
   const channel = parser.parse(xml)?.rss?.channel;
   if (!channel) throw new Error('Not an RSS feed: no <rss><channel> found');
 
+  // Show artwork. Podbean only puts <itunes:image> on an episode when it has custom art,
+  // so episodes without one fall back to this.
+  const showImage = channel['itunes:image']?.['@_href'] || text(channel.image?.url) || null;
+
   return (channel.item ?? []).map(item => {
     const description = text(item['content:encoded']) || text(item.description);
     const plain = htmlToText(description);
@@ -76,7 +80,7 @@ export function parseFeed(xml) {
       description,
       audio_url: item.enclosure?.['@_url'] ?? null,
       episode_url: text(item.link) || null,
-      image_url: item['itunes:image']?.['@_href'] ?? null,
+      image_url: item['itunes:image']?.['@_href'] || showImage,
       _plain: plain, // used for topic matching only, not saved
     };
   });
