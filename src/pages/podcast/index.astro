@@ -5,6 +5,7 @@ export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { fetchAllEpisodes, fetchAllTopics, stripHtml } from '../../lib/api_podcast';
+import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
 
 const [episodes, topics] = await Promise.all([fetchAllEpisodes(), fetchAllTopics()]);
 
@@ -95,15 +96,15 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
             <article id={`episode-${ep.id}`} data-episode
                 data-search={`${ep.title} ${stripHtml(ep.description)} ${ep.topics.map(t => t.name).join(' ')}`.toLowerCase()}
                 class="border border-gray-200 rounded-lg p-5 flex flex-col sm:flex-row gap-5">
-              {/* Branded tile always renders; episode art sits on top of it. If there's no art,
-                  or the image fails to load, the tile shows through. */}
+              {/* Fallback chain: episode art → show logo → branded tile.
+                  The tile always renders underneath; if the episode art fails, onerror swaps in
+                  the show logo, and if that fails too the image is removed so the tile shows. */}
               <div class="relative w-28 h-28 shrink-0 rounded overflow-hidden bg-gradient-to-br from-[#0033A0] to-[#1B365D] flex items-center justify-center" aria-hidden="true">
                 <i class="fas fa-podcast text-white/90 text-4xl"></i>
-                {ep.image_url && (
-                  <img src={ep.image_url} alt="" loading="lazy" width="112" height="112"
-                       onerror="this.remove()"
-                       class="absolute inset-0 w-full h-full object-cover" />
-                )}
+                <img src={ep.image_url || PODCAST_DEFAULT_IMAGE} alt="" loading="lazy" width="112" height="112"
+                     data-fallback={PODCAST_DEFAULT_IMAGE}
+                     onerror="if (this.dataset.fallback && this.src !== this.dataset.fallback) { this.src = this.dataset.fallback; } else { this.remove(); }"
+                     class="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div class="min-w-0 flex-1">
                 <h2 class="text-xl font-semibold text-[#1B365D] mt-0">

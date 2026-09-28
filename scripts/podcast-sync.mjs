@@ -18,6 +18,7 @@ import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { XMLParser } from 'fast-xml-parser';
 import dotenv from 'dotenv';
+import { PODCAST_DEFAULT_IMAGE } from '../src/lib/podcast_config.js';
 
 // Fields the feed owns. The sync overwrites these; everything else belongs to editors.
 export const FEED_FIELDS = [
@@ -60,7 +61,7 @@ export function parseFeed(xml) {
 
   // Show artwork. Podbean only puts <itunes:image> on an episode when it has custom art,
   // so episodes without one fall back to this.
-  const showImage = channel['itunes:image']?.['@_href'] || text(channel.image?.url) || null;
+  const showImage = channel['itunes:image']?.['@_href'] || text(channel.image?.url) || PODCAST_DEFAULT_IMAGE;
 
   return (channel.item ?? []).map(item => {
     const description = text(item['content:encoded']) || text(item.description);
@@ -177,7 +178,7 @@ export async function sync({ directusUrl, token, feedUrl, feedFile, dryRun = fal
 }
 
 // Run only when executed directly, not when imported by tests.
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   dotenv.config();
   const { PUBLIC_DIRECTUS_URL, PODCAST_FEED_URL } = process.env;
   const token = process.env.DIRECTUS_PODCAST_TOKEN || process.env.DIRECTUS_ADMIN_TOKEN;

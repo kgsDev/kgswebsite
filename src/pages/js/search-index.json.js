@@ -18,6 +18,7 @@ import {
 import { fetchAllAnnualReports } from '../../lib/api_annual-reports';
 import { fetchAllFactsheets } from '../../lib/api_factsheets';
 import { fetchAllEpisodes, stripHtml } from '../../lib/api_podcast';
+import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
 
 export async function GET() {
   const searchIndex = [];
@@ -370,7 +371,7 @@ export async function GET() {
         subtitle: ep.pub_date
           ? `The Big Blue Rock Pod · ${new Date(ep.pub_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
           : 'The Big Blue Rock Pod',
-        image: ep.image_url || null
+        image: ep.image_url || PODCAST_DEFAULT_IMAGE
       });
     });
   } catch (error) {
