@@ -9,6 +9,7 @@ import {
   fetchEpisodeBySlug, fetchAllEpisodes, formatEpisodeDate, formatDuration,
 } from '../../lib/api_podcast';
 import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
+import { getSiteUrl } from '../../lib/site_url.js';
 
 const { slug } = Astro.params;
 const ep = await fetchEpisodeBySlug(slug);
@@ -21,7 +22,7 @@ if (ep && ep.slug !== slug) {
 
 if (!ep) Astro.response.status = 404;
 
-const siteUrl = (import.meta.env.PUBLIC_SITE_URL || Astro.url.origin).replace(/\/$/, '');
+const siteUrl = getSiteUrl(Astro); // not Astro.url.origin, which is localhost behind nginx
 const shareUrl = ep ? `${siteUrl}/podcast/${ep.slug}` : '';
 const image = ep?.image_url || PODCAST_DEFAULT_IMAGE;
 const title = ep ? `${ep.title} | The Big Blue Rock Pod` : 'Episode not found | The Big Blue Rock Pod';

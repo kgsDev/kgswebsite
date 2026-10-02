@@ -1,6 +1,7 @@
 ---
 // src/components/SEOHead.astro
 // A reusable component for SEO and social media meta tags
+import { getSiteUrl, toPublicUrl } from '../lib/site_url.js';
 
 interface Props {
   title: string;
@@ -28,10 +29,11 @@ const {
   canonicalUrl
 } = Astro.props;
 
-// Get the base URL for absolute URLs
-const siteUrl = import.meta.env.PUBLIC_SITE_URL || Astro.url.origin;
-const imageUrl = image ? (image.startsWith('http') ? image : `${siteUrl}${image}`) : '';
-const canonical = canonicalUrl ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${siteUrl}${canonicalUrl}`) : Astro.url.href;
+// Public base URL for absolute URLs. Not Astro.url.origin: behind nginx that's localhost.
+// toPublicUrl also rewrites localhost URLs the layouts pass in (they default to Astro.url.href).
+const siteUrl = getSiteUrl(Astro);
+const imageUrl = image ? toPublicUrl(image, Astro) : '';
+const canonical = toPublicUrl(canonicalUrl || `${Astro.url.pathname}${Astro.url.search}`, Astro);
 
 // Organization data for schema.org
 const organizationSchema = {
