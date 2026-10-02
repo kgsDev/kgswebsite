@@ -4,7 +4,9 @@
 export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { fetchAllEpisodes, fetchAllTopics, stripHtml } from '../../lib/api_podcast';
+import {
+  fetchAllEpisodes, fetchAllTopics, stripHtml, formatEpisodeDate as formatDate, formatDuration,
+} from '../../lib/api_podcast';
 import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
 
 const [episodes, topics] = await Promise.all([fetchAllEpisodes(), fetchAllTopics()]);
@@ -19,18 +21,6 @@ const activeTopic = topics.find(t => t.slug === activeSlug);
 const shown = activeTopic
   ? episodes.filter(ep => ep.topics.some(t => t.slug === activeSlug))
   : episodes;
-
-const formatDate = d => d
-  ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
-  : '';
-
-const formatDuration = seconds => {
-  const totalSeconds = Number(seconds);
-  if (!Number.isFinite(totalSeconds)) return '';
-  const minutes = Math.floor(totalSeconds / 60);
-  const remainingSeconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
-  return `${minutes}:${remainingSeconds}`;
-};
 
 // Topic filter buttons. These links deliberately live outside <ul>/<p>: global.css styles
 // `ul a` / `p a` with unlayered rules, which beat Tailwind v4 utilities (they're in @layer).
@@ -116,7 +106,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
               </div>
               <div class="min-w-0 flex-1">
                 <h2 class="text-xl font-semibold text-[#1B365D] mt-0">
-                  {ep.title}
+                  <a href={`/podcast/${ep.slug}`} class="text-[#1B365D] no-underline hover:underline">{ep.title}</a>
                 </h2>
                 <p class="text-sm text-gray-700 mt-1">
                   <time datetime={ep.pub_date}>{formatDate(ep.pub_date)}</time>
@@ -149,13 +139,16 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
                   </details>
                 )}
 
-                {ep.episode_url && (
-                  <p class="mt-3 text-sm">
+                <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                  <a href={`/podcast/${ep.slug}`} class="text-[#0033A0] underline">
+                    <i class="fas fa-share-nodes" aria-hidden="true"></i> Episode page &amp; share link<span class="sr-only">: {ep.title}</span>
+                  </a>
+                  {ep.episode_url && (
                     <a href={ep.episode_url} class="text-[#0033A0] underline">
-                      <i class="fas fa-external-link-alt" aria-hidden="true"></i> Episode page on Podbean
+                      <i class="fas fa-external-link-alt" aria-hidden="true"></i> Listen on Podbean<span class="sr-only">: {ep.title}</span>
                     </a>
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
             </article>
           ))}

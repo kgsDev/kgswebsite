@@ -360,7 +360,7 @@ export async function GET() {
     episodes.forEach(ep => {
       searchIndex.push({
         title: ep.title,
-        url: `/podcast#episode-${ep.episode_number}`,
+        url: `/podcast/${ep.slug}`,
         content: [
           ep.title,
           stripHtml(ep.description),

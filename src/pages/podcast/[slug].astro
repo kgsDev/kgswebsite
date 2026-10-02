@@ -1,0 +1,218 @@
+---
+// src/pages/podcast/[slug].astro
+// A single Big Blue Rock Pod episode, with a shareable URL and social preview (Open Graph) tags.
+// The slug matches the episode's Podbean URL: kgsnews.podbean.com/e/earthquakes/ → /podcast/earthquakes
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  fetchEpisodeBySlug, fetchAllEpisodes, formatEpisodeDate, formatDuration,
+} from '../../lib/api_podcast';
+import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
+
+const { slug } = Astro.params;
+const ep = await fetchEpisodeBySlug(slug);
+
+if (!ep) Astro.response.status = 404;
+
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL || Astro.url.origin).replace(/\/$/, '');
+const shareUrl = ep ? `${siteUrl}/podcast/${ep.slug}` : '';
+const image = ep?.image_url || PODCAST_DEFAULT_IMAGE;
+const title = ep ? `${ep.title} | The Big Blue Rock Pod` : 'Episode not found | The Big Blue Rock Pod';
+const description = ep?.summary || 'An episode of The Big Blue Rock Pod from the Kentucky Geological Survey.';
+
+// Up to three other episodes sharing this episode's first topic, newest first.
+let related = [];
+if (ep?.topics.length) {
+  const all = await fetchAllEpisodes();
+  const topicSlug = ep.topics[0].slug;
+  related = all.filter(e => e.id !== ep.id && e.topics.some(t => t.slug === topicSlug)).slice(0, 3);
+}
+
+// schema.org structured data so search engines understand this is a podcast episode.
+const episodeSchema = ep && {
+  '@context': 'https://schema.org',
+  '@type': 'PodcastEpisode',
+  name: ep.title,
+  url: shareUrl,
+  description,
+  datePublished: ep.pub_date || undefined,
+  episodeNumber: ep.episode_number || undefined,
+  image,
+  associatedMedia: ep.audio_url ? { '@type': 'MediaObject', contentUrl: ep.audio_url } : undefined,
+  partOfSeries: { '@type': 'PodcastSeries', name: 'The Big Blue Rock Pod', url: `${siteUrl}/podcast` },
+  publisher: { '@type': 'Organization', name: 'Kentucky Geological Survey' },
+};
+
+const enc = encodeURIComponent;
+const shareLinks = ep ? [
+  { label: 'Facebook', icon: 'fab fa-facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(shareUrl)}` },
+  { label: 'LinkedIn', icon: 'fab fa-linkedin', href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(shareUrl)}` },
+  { label: 'X', icon: 'fab fa-x-twitter', href: `https://x.com/intent/post?url=${enc(shareUrl)}&text=${enc(ep.title)}` },
+  { label: 'Email', icon: 'fas fa-envelope', href: `mailto:?subject=${enc(`${ep.title} – The Big Blue Rock Pod`)}&body=${enc(`${description}\n\n${shareUrl}`)}` },
+] : [];
+
+const shareBtn = 'inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-[#1B365D] no-underline shadow-sm hover:border-[#0033A0] hover:bg-blue-50';
+
+const customBreadcrumbs = [
+  { label: 'The Big Blue Rock Pod', href: '/podcast' },
+  { label: ep ? ep.title : 'Episode not found' },
+];
+
+Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  activePage="podcast"
+  customBreadcrumbs={customBreadcrumbs}
+  image={image}
+  imageAlt={ep ? `Episode art for ${ep.title}` : 'The Big Blue Rock Pod'}
+  type={ep ? 'article' : 'website'}
+  publishedDate={ep?.pub_date}
+  canonicalUrl={shareUrl || undefined}
+>
+  <Fragment slot="head">
+    {ep?.audio_url && <meta property="og:audio" content={ep.audio_url} />}
+    {episodeSchema && <script type="application/ld+json" set:html={JSON.stringify(episodeSchema)} />}
+  </Fragment>
+
+  <div class="container mx-auto px-4 py-1 max-w-4xl">
+    {!ep ? (
+      <div class="py-10">
+        <h1>Episode not found</h1>
+        <p class="text-gray-700 mt-2">
+          That episode may have been renamed or removed.
+          <a href="/podcast">Browse all episodes of The Big Blue Rock Pod</a>.
+        </p>
+      </div>
+    ) : (
+      <article>
+        <div class="flex flex-col sm:flex-row gap-6 items-start">
+          {/* Same fallback chain as the directory: episode art → show logo → branded tile */}
+          <div class="relative w-48 h-48 shrink-0 rounded-lg overflow-hidden shadow bg-gradient-to-br from-[#0033A0] to-[#1B365D] flex items-center justify-center" aria-hidden="true">
+            <i class="fas fa-podcast text-white/90 text-6xl"></i>
+            <img src={image} alt="" width="192" height="192"
+                 data-fallback={PODCAST_DEFAULT_IMAGE}
+                 onerror="if (this.dataset.fallback && this.src !== this.dataset.fallback) { this.src = this.dataset.fallback; } else { this.remove(); }"
+                 class="absolute inset-0 w-full h-full object-cover" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-semibold uppercase tracking-wide text-gray-700">
+              <i class="fas fa-podcast" aria-hidden="true"></i> The Big Blue Rock Pod
+              {ep.episode_number && <span>{` · Episode ${ep.episode_number}`}</span>}
+            </div>
+            <h1 class="mt-1 mb-2">{ep.title}</h1>
+            <div class="text-sm text-gray-700">
+              <time datetime={ep.pub_date}>{formatEpisodeDate(ep.pub_date)}</time>
+              {ep.duration && <span>{` · ${formatDuration(ep.duration)}`}</span>}
+            </div>
+
+            {ep.topics.length > 0 && (
+              <div class="flex flex-wrap items-center gap-2 mt-3">
+                <span class="sr-only">Topics:</span>
+                {ep.topics.map(t => (
+                  <a href={`/podcast?topic=${t.slug}`}
+                     class="text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200 bg-blue-50 text-[#0033A0] no-underline hover:border-[#0033A0]">
+                    <i class="fas fa-tag mr-1" aria-hidden="true"></i>{t.name}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {ep.audio_url && (
+          <audio controls preload="metadata" src={ep.audio_url} class="w-full mt-6"
+                 aria-label={`Play ${ep.title}`}></audio>
+        )}
+
+        <section aria-labelledby="share-heading" class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h2 id="share-heading" class="text-sm font-semibold uppercase tracking-wide text-gray-700 mt-0 mb-3">
+            Share this episode
+          </h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="copy-link" data-url={shareUrl} class={shareBtn}>
+              <i class="fas fa-link" aria-hidden="true"></i> <span>Copy link</span>
+            </button>
+            <button type="button" id="native-share" data-url={shareUrl} data-title={ep.title} class={shareBtn} hidden>
+              <i class="fas fa-share-nodes" aria-hidden="true"></i> Share…
+            </button>
+            {shareLinks.map(s => (
+              <a href={s.href} target={s.label === 'Email' ? undefined : '_blank'} rel="noopener" class={shareBtn}>
+                <i class={s.icon} aria-hidden="true"></i> {s.label}
+                {s.label !== 'Email' && <span class="sr-only">(opens in a new tab)</span>}
+              </a>
+            ))}
+          </div>
+          <p id="share-status" class="text-sm text-gray-700 mt-2 mb-0" aria-live="polite"></p>
+        </section>
+
+        {ep.description && (
+          <section aria-labelledby="notes-heading" class="mt-8">
+            <h2 id="notes-heading">Show notes</h2>
+            <div class="prose max-w-none" set:html={ep.description} />
+          </section>
+        )}
+
+        <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/podcast" class="text-[#0033A0] underline">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i> All episodes
+          </a>
+          {ep.episode_url && (
+            <a href={ep.episode_url} class="text-[#0033A0] underline">
+              <i class="fas fa-external-link-alt" aria-hidden="true"></i> Listen on Podbean
+            </a>
+          )}
+        </div>
+
+        {related.length > 0 && (
+          <section aria-labelledby="related-heading" class="mt-10 border-t border-gray-200 pt-6">
+            <h2 id="related-heading">More on {ep.topics[0].name}</h2>
+            <div class="grid gap-4 sm:grid-cols-3 mt-4">
+              {related.map(r => (
+                <a href={`/podcast/${r.slug}`}
+                   class="block rounded-lg border border-gray-200 bg-white p-3 no-underline text-[#1B365D] hover:border-[#0033A0] hover:shadow">
+                  <img src={r.image_url || PODCAST_DEFAULT_IMAGE} alt="" loading="lazy" width="320" height="320"
+                       onerror={`this.onerror=null; this.src='${PODCAST_DEFAULT_IMAGE}'`}
+                       class="w-full aspect-square object-cover rounded" />
+                  <span class="block font-semibold mt-2">{r.title}</span>
+                  <span class="block text-sm text-gray-700">{formatEpisodeDate(r.pub_date)}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </article>
+    )}
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const status = document.getElementById('share-status');
+    const copyBtn = document.getElementById('copy-link');
+    const nativeBtn = document.getElementById('native-share');
+    if (!copyBtn) return;
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copyBtn.dataset.url);
+        status.textContent = 'Link copied to clipboard.';
+      } catch {
+        // Clipboard blocked (older browser or permissions): show the URL so it can be copied by hand.
+        status.textContent = `Copy this link: ${copyBtn.dataset.url}`;
+      }
+    });
+
+    // The system share sheet (mostly phones) — only shown where the browser supports it.
+    if (navigator.share) {
+      nativeBtn.hidden = false;
+      nativeBtn.addEventListener('click', () => {
+        navigator.share({ title: nativeBtn.dataset.title, url: nativeBtn.dataset.url }).catch(() => {});
+      });
+    }
+  })();
+</script>
