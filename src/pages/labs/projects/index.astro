@@ -12,6 +12,7 @@ import {
 } from '../../../lib/api_projects';
 import { fetchAllLabs } from '../../../lib/api_labs';
 import { isDraftMode } from '../../../utils/preview';
+import { toPublicUrl } from '../../../lib/site_url.js';
 
 // Get query parameters for filtering
 const url = new URL(Astro.request.url);
@@ -595,7 +596,7 @@ const pageDescription = labFilter && currentLab ?
           <ul class="mt-2 text-xs space-y-1">
             <li>• Draft projects are marked with yellow "DRAFT" badges</li>
             <li>• All links will maintain preview mode when clicked</li>
-            <li>• Share this URL to let others preview: <code class="bg-blue-100 px-1 rounded">{Astro.url.href}</code></li>
+            <li>• Share this URL to let others preview: <code class="bg-blue-100 px-1 rounded">{toPublicUrl(Astro.url.href, Astro)}</code></li>
           </ul>
         </div>
       </div>
