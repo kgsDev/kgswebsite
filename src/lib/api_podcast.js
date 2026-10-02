@@ -24,14 +24,28 @@ const EPISODE_FIELDS = [
   'topics.podcast_topics_id.name', 'topics.podcast_topics_id.slug',
 ].join(',');
 
+// Decode %-escapes without throwing on malformed input, and lowercase so "%E2%80%93" and
+// "%e2%80%93" (and the decoded "–") all compare equal.
+function safeDecode(s) {
+  try { return decodeURIComponent(s).toLowerCase(); } catch { return String(s).toLowerCase(); }
+}
+
 /**
- * URL slug for an episode's page on our site, taken from its Podbean URL so the two match:
- *   https://kgsnews.podbean.com/e/earthquakes/  →  "earthquakes"  →  /podcast/earthquakes
- * Falls back to the Directus id if there's no Podbean URL.
+ * URL slug for an episode's page on our site: the episode number (/podcast/58).
+ * Episodes without a number (trailers, bonus episodes) use their Directus id (/podcast/id-142),
+ * prefixed so it can never collide with an episode number.
  */
 export function episodeSlug(ep) {
+  return ep.episode_number != null ? String(ep.episode_number) : `id-${ep.id}`;
+}
+
+/**
+ * The episode's slug on Podbean (kgsnews.podbean.com/e/<this>/), decoded. Only used to
+ * redirect older title-style links (/podcast/earthquakes) to the numbered URL.
+ */
+export function podbeanSlug(ep) {
   const match = (ep.episode_url || '').match(/\/e\/([^/?#]+)/);
-  return match ? decodeURIComponent(match[1]) : String(ep.id);
+  return match ? safeDecode(match[1]) : null;
 }
 
 // Junction rows come back as [{ podcast_topics_id: { name, slug } }]; flatten them and add the slug.
@@ -57,22 +71,33 @@ export async function fetchAllEpisodes() {
 }
 
 /**
- * One published episode by its page slug (see episodeSlug), or null.
+ * One published episode for a /podcast/<slug> URL, or null. Accepts:
+ *   "58"            → episode number 58 (newest, if a number were ever reused)
+ *   "id-142"        → Directus id 142 (episodes without a number)
+ *   anything else   → a Podbean title slug, matched against each episode's Podbean URL.
+ * The caller compares the result's .slug to the requested one and redirects if they differ.
  */
 export async function fetchEpisodeBySlug(slug) {
-  const filter = /^\d+$/.test(slug)
-    ? { id: { _eq: Number(slug) } }
-    // _contains narrows the query; the exact slug check below rules out near-misses
-    // like "earthquakes" matching "/e/earthquakes-part-2/".
-    : { episode_url: { _contains: `/e/${slug}` } };
+  const published = { status: { _eq: 'published' } };
+  let filter;
+  if (/^\d+$/.test(slug)) filter = { episode_number: { _eq: Number(slug) } };
+  else if (/^id-\d+$/.test(slug)) filter = { id: { _eq: Number(slug.slice(3)) } };
 
-  const rows = await apiRequest('/items/podcast_episodes', {
-    fields: EPISODE_FIELDS,
-    filter: JSON.stringify({ _and: [{ status: { _eq: 'published' } }, filter] }),
-    limit: 10,
-  });
-  const ep = rows.map(normalize).find(e => e.slug === slug);
-  return ep || null;
+  if (filter) {
+    const rows = await apiRequest('/items/podcast_episodes', {
+      fields: EPISODE_FIELDS,
+      filter: JSON.stringify({ _and: [published, filter] }),
+      sort: '-pub_date',
+      limit: 1,
+    });
+    return rows.length ? normalize(rows[0]) : null;
+  }
+
+  // Legacy title slug. Podbean URLs can hold %-encoded characters (e.g. an en dash as
+  // %e2%80%93), so compare decoded values in JS rather than string-matching in Directus.
+  const wanted = safeDecode(slug);
+  const all = await fetchAllEpisodes();
+  return all.find(e => podbeanSlug(e) === wanted) || null;
 }
 
 export function formatEpisodeDate(d) {

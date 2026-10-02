@@ -1,7 +1,7 @@
 ---
 // src/pages/podcast/[slug].astro
 // A single Big Blue Rock Pod episode, with a shareable URL and social preview (Open Graph) tags.
-// The slug matches the episode's Podbean URL: kgsnews.podbean.com/e/earthquakes/ → /podcast/earthquakes
+// URLs use the episode number (/podcast/58); see episodeSlug() in api_podcast.js.
 export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -12,6 +12,12 @@ import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
 
 const { slug } = Astro.params;
 const ep = await fetchEpisodeBySlug(slug);
+
+// Older title-style links (/podcast/earthquakes) and variants like /podcast/058 land here too;
+// send them permanently to the one canonical URL so shares and search engines consolidate on it.
+if (ep && ep.slug !== slug) {
+  return Astro.redirect(`/podcast/${ep.slug}`, 301);
+}
 
 if (!ep) Astro.response.status = 404;
 
