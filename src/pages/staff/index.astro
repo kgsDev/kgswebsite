@@ -196,6 +196,11 @@ const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== '
 
 <script>
   // Client-side search and filtering functionality
+  // Supports URL params:
+  //   ?division=geoscience-research   (also accepts ?department=)
+  //   ?team=karst                     (slug or exact name, case-insensitive)
+  //   ?q=groundwater                  (search text)
+  //   ?sort=name-desc                 (name | name-desc)
   document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search');
     const departmentSelect = document.getElementById('department');
@@ -205,85 +210,138 @@ const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== '
     const noResults = document.getElementById('no-results');
     const departmentSections = document.querySelectorAll('.department-section');
     const activeFilters = document.getElementById('active-filters');
-    
-    // Function to update active filter pills
+
+    // ---------- URL parameter helpers ----------
+
+    // "Geoscience Research" -> "geoscience-research", "Oil & Gas" -> "oil-and-gas"
+    const slugify = (s) =>
+      (s || '')
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    // Find the <option> whose value matches a URL value (by slug, so case,
+    // spaces, and punctuation don't matter). Returns '' if nothing matches.
+    function matchOption(select, raw) {
+      if (!raw) return '';
+      const target = slugify(raw);
+      const match = Array.from(select.options).find(
+        (o) => o.value && !o.disabled && slugify(o.value) === target
+      );
+      return match ? match.value : '';
+    }
+
+    // Read the URL and set the form controls to match
+    function applyUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      departmentSelect.value = matchOption(
+        departmentSelect,
+        params.get('division') ?? params.get('department')
+      );
+      teamSelect.value = matchOption(teamSelect, params.get('team'));
+      searchInput.value = params.get('q') ?? '';
+      sortSelect.value = params.get('sort') === 'name-desc' ? 'name-desc' : 'name';
+    }
+
+    // Write the current control values back to the URL (without reloading
+    // or adding history entries). Unrelated params (e.g. utm_*) are kept.
+    function updateUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const setOrDelete = (key, value) => (value ? params.set(key, value) : params.delete(key));
+
+      params.delete('department'); // normalize legacy alias to ?division=
+      setOrDelete('division', departmentSelect.value ? slugify(departmentSelect.value) : '');
+      setOrDelete('team', teamSelect.value ? slugify(teamSelect.value) : '');
+      setOrDelete('q', searchInput.value.trim());
+      setOrDelete('sort', sortSelect.value !== 'name' ? sortSelect.value : '');
+
+      const qs = params.toString();
+      const newUrl = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
+      const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+      if (newUrl !== currentUrl) {
+        history.replaceState(history.state, '', newUrl);
+      }
+    }
+
+    // ---------- Active filter pills ----------
+
+    // Full class strings (not built dynamically) so Tailwind keeps them
+    const PILL_STYLES = {
+      blue: {
+        pill: 'px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs flex items-center',
+        button: 'ml-1 text-blue-500 hover:text-blue-700',
+      },
+      gray: {
+        pill: 'px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs flex items-center',
+        button: 'ml-1 text-gray-500 hover:text-gray-700',
+      },
+    };
+
+    const CLOSE_ICON = `
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>`;
+
+    // Builds a pill with textContent (never innerHTML) for the user-supplied
+    // value — the search text can now come from the URL, so it must not be
+    // parsed as HTML.
+    function addPill(label, value, style, onRemove) {
+      const pill = document.createElement('div');
+      pill.className = style.pill;
+
+      const text = document.createElement('span');
+      text.textContent = `${label}: ${value}`;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = style.button;
+      button.setAttribute('aria-label', `Remove ${label.toLowerCase()} filter`);
+      button.innerHTML = CLOSE_ICON; // static markup only
+      button.addEventListener('click', () => {
+        onRemove();
+        filterStaff();
+      });
+
+      pill.append(text, button);
+      activeFilters.appendChild(pill);
+    }
+
     function updateActiveFilters() {
-      // Clear existing filters
       activeFilters.innerHTML = '';
-      
-      // Add department filter if selected
+
       if (departmentSelect.value) {
-        const pill = document.createElement('div');
-        pill.className = 'px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs flex items-center';
-        pill.innerHTML = `
-          <span>Department: ${departmentSelect.value}</span>
-          <button class="ml-1 text-blue-500 hover:text-blue-700" data-filter="department">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        `;
-        activeFilters.appendChild(pill);
-        
-        // Add click handler to remove filter
-        pill.querySelector('button').addEventListener('click', () => {
+        addPill('Division', departmentSelect.value, PILL_STYLES.blue, () => {
           departmentSelect.value = '';
-          filterStaff();
         });
       }
-      
-      // Add team filter if selected
+
       if (teamSelect.value) {
-        const pill = document.createElement('div');
-        pill.className = 'px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs flex items-center';
-        pill.innerHTML = `
-          <span>Team: ${teamSelect.value}</span>
-          <button class="ml-1 text-blue-500 hover:text-blue-700" data-filter="team">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        `;
-        activeFilters.appendChild(pill);
-        
-        // Add click handler to remove filter
-        pill.querySelector('button').addEventListener('click', () => {
+        addPill('Team', teamSelect.value, PILL_STYLES.blue, () => {
           teamSelect.value = '';
-          filterStaff();
         });
       }
-      
-      // Add search filter if entered
+
       if (searchInput.value) {
-        const pill = document.createElement('div');
-        pill.className = 'px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs flex items-center';
-        pill.innerHTML = `
-          <span>Search: ${searchInput.value}</span>
-          <button class="ml-1 text-gray-500 hover:text-gray-700" data-filter="search">
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: 0.875rem; height: 0.875rem;" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        `;
-        activeFilters.appendChild(pill);
-        
-        // Add click handler to remove filter
-        pill.querySelector('button').addEventListener('click', () => {
+        addPill('Search', searchInput.value, PILL_STYLES.gray, () => {
           searchInput.value = '';
-          filterStaff();
         });
       }
     }
     
-    // Function to filter staff members
+    // ---------- Filtering ----------
+
     function filterStaff() {
       const searchTerm = searchInput.value.toLowerCase();
       const selectedDepartment = departmentSelect.value;
       const selectedTeam = teamSelect.value;
       let hasVisibleStaff = false;
       
-      // Update active filters display
+      // Update active filters display and keep the URL in sync
       updateActiveFilters();
+      updateUrl();
       
       // Loop through all department sections
       departmentSections.forEach(section => {
@@ -383,9 +441,11 @@ const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== '
       }
     }
     
-    // Function to sort staff members
+    // ---------- Sorting ----------
+
     function sortStaff() {
       const sortBy = sortSelect.value;
+      updateUrl();
       
       departmentSections.forEach(section => {
         const department = section.getAttribute('data-department');
@@ -421,13 +481,19 @@ const departmentNames = Object.keys(staffByDepartment).filter(dept => dept !== '
       });
     }
     
-    // Add event listeners
+    // ---------- Wire up ----------
+
     searchInput.addEventListener('input', filterStaff);
     departmentSelect.addEventListener('change', filterStaff);
     teamSelect.addEventListener('change', filterStaff);
     sortSelect.addEventListener('change', sortStaff);
     
-    // Initialize first time
+    // Initialize from the URL, then filter (and sort only if non-default,
+    // so the server's original order is kept otherwise)
+    applyUrlParams();
     filterStaff();
+    if (sortSelect.value !== 'name') {
+      sortStaff();
+    }
   });
 </script>
