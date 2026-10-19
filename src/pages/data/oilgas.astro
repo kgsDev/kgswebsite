@@ -9,7 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { fetchDatasets } from '../../lib/api_datalinks.js';
 
 const title = 'Oil & Gas Data Downloads';
-const description = 'Download Kentucky oil and gas well location shapefiles and related datasets from the Kentucky Geological Survey.';
+const description = 'Download Kentucky oil and gas well location shapefiles, other datasets, and scanned resources related to Kentucky oil and gas from the Kentucky Geological Survey.';
 
 // Fetch dynamic datasets tagged as oilgas from Directus
 let dynamicDatasets = [];
@@ -154,7 +154,7 @@ function badgeColor(format) {
     <!-- Intro note -->
     <div class="bg-blue-50 border-l-4 border-[#0033A0] p-5 rounded-r-lg mb-8 text-gray-700 leading-relaxed">
       <p>
-        The downloads below include GIS shapefiles and other datasets for Kentucky oil and gas wells.
+        The downloads below include GIS shapefiles, other datasets, and scanned resources related to Kentucky oil and gas wells.
         The well location shapefile contains data for over 160,000 well locations and is updated monthly.
         Use these data with your own GIS software or cloud services such as <a href="https://www.arcgis.com/index.html" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">ArcGIS Online</a>.
       </p>
