@@ -30,6 +30,6 @@ astro.config.mjs
 .idea/
 
 # big files
-*.mp4
+#*.mp4
 src/components/common/Header copy.astro
 *.code-workspace
