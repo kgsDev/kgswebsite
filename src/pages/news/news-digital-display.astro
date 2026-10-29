@@ -3,16 +3,11 @@
 export const prerender = false;
 import DigitalDisplayLayout from '../../layouts/DigitalDisplayLayout.astro';
 import { fetchRecentNews } from '../../lib/api_news';
-import { fetchFacebookPosts } from '../../lib/api_facebook';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Fetch 6 recent news items and up to 4 Facebook posts in parallel
-const [{ articles }, fbFeed] = await Promise.all([
-  fetchRecentNews(6, 1),
-  fetchFacebookPosts(4),
-]);
-const fbPosts = fbFeed.posts;
+// Fetch 6 recent news items (social feed comes from Curator on the client)
+const { articles } = await fetchRecentNews(6, 1);
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -142,51 +137,36 @@ const getCategoryInfo = (article) => {
     
     <div class="grid grid-cols-3 gap-5" style="margin-top: 5rem;">
       
-      {/* Facebook Feed - Left column (rendered server-side from the Graph API) */}
-      <div class="facebook-feed-column">
-        <h2 class="text-3xl font-bold text-blue-900 mb-6 flex items-center">
-          <i class="fab fa-facebook text-blue-600 mr-3"></i>
-          Facebook Updates<br />
-          Follow Us @KGSNews
+      {/* Social Feed - Left column (Curator.io: Facebook, Instagram, Threads) */}
+      <div class="social-feed-column">
+        <h2 class="text-3xl font-bold text-blue-900 mb-6">
+          Social Updates
+          <span class="social-icons">
+            <i class="fab fa-facebook text-blue-600"></i>
+            <i class="fab fa-instagram text-pink-600"></i>
+            <i class="fab fa-threads text-gray-900"></i>
+          </span>
+          <span class="block text-xl font-semibold text-gray-700 mt-2">Follow Us @KGSNews</span>
         </h2>
 
-        <div class="fb-posts">
-          {fbPosts.length > 0 ? (
-            fbPosts.map((post) => (
-              <article class="fb-post bg-white border-2 border-gray-200 rounded-lg overflow-hidden shadow-md">
-                {post.full_picture && (
-                  <img
-                    src={post.full_picture}
-                    alt=""
-                    class="fb-post-image"
-                    referrerpolicy="no-referrer"
-                  />
-                )}
-                <div class="p-5">
-                  <div class="mb-3 flex items-center text-gray-600 text-base">
-                    <i class="fab fa-facebook mr-2 text-blue-600"></i>
-                    <span class="font-medium">{formatDate(post.created_time)}</span>
-                  </div>
-                  {post.message && (
-                    <p class="fb-post-text text-gray-800 text-lg leading-relaxed">
-                      {post.message}
-                    </p>
-                  )}
-                </div>
-              </article>
-            ))
-          ) : (
-            <div class="fb-fallback bg-white border-2 border-gray-200 rounded-lg p-8 text-center shadow-md">
-              <i class="fab fa-facebook text-6xl text-blue-600 mb-4"></i>
-              <p class="text-2xl font-bold text-blue-900">facebook.com/KGSNews</p>
-              <p class="text-gray-600 text-lg mt-2">Follow us for the latest updates</p>
-            </div>
-          )}
+        <div class="social-feed-container">
+          <div id="curator-feed-default-feed-layout">
+            <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+          </div>
         </div>
+
+        <script is:inline type="text/javascript">
+          /* curator-feed-default-feed-layout */
+          (function(){
+            var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+            i.src="https://cdn.curator.io/published/c80b8a60-67c3-4196-8e47-66813787b135.js";
+            e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+          })();
+        </script>
       </div>
 
       {/* News Articles - Right 2 columns */}
-      <div class="col-span-2 grid grid-cols-2 gap-8">
+      <div id="news-grid" class="col-span-2 grid grid-cols-2 gap-8">
         {articles.map((article) => {
           const displayImage = article.tile_image || article.main_image;
           const categoryInfo = getCategoryInfo(article);
@@ -318,7 +298,41 @@ const getCategoryInfo = (article) => {
   </div>
 </DigitalDisplayLayout>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script is:inline>
+  // Refresh the news cards in place without reloading the page, so the
+  // Curator widget loads (and counts a view) only once a day.
+  (function () {
+    var NEWS_REFRESH_MS = 10 * 60 * 1000; // check Directus news every 10 minutes
+    var FULL_RELOAD_HOUR = 3;             // one full page reload per day, after 3 a.m.
+    var loadedOn = new Date().toDateString();
+
+    async function refreshNews() {
+      try {
+        var res = await fetch(location.href, { cache: 'no-store' });
+        if (!res.ok) return;
+        var doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+        var fresh = doc.getElementById('news-grid');
+        var current = document.getElementById('news-grid');
+        if (fresh && current && fresh.innerHTML !== current.innerHTML) {
+          current.innerHTML = fresh.innerHTML;
+        }
+      } catch (e) {
+        // Network blip: leave what's on screen and try again next interval.
+      }
+    }
+
+    setInterval(function () {
+      var now = new Date();
+      if (now.toDateString() !== loadedOn && now.getHours() >= FULL_RELOAD_HOUR) {
+        location.reload();
+        return;
+      }
+      refreshNews();
+    }, NEWS_REFRESH_MS);
+  })();
+</script>
 
 <style>
   .digital-news-display {
@@ -373,32 +387,42 @@ const getCategoryInfo = (article) => {
     background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
   }
   
-  /* Facebook Feed Styling */
-  .facebook-feed-column {
+  /* Social Feed Styling */
+  .social-feed-column {
     position: sticky;
     top: 2rem;
     height: fit-content;
   }
 
-  .fb-posts {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  .social-icons {
+    display: inline-flex;
+    gap: 0.6rem;
+    margin-left: 0.75rem;
+    font-size: 1.75rem;
+    vertical-align: middle;
   }
 
-  .fb-post-image {
-    width: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-    background: #f3f4f6;
-  }
-
-  /* Keep Facebook's line breaks, cap long posts so they don't push others off-screen */
-  .fb-post-text {
-    white-space: pre-line;
-    display: -webkit-box;
-    -webkit-line-clamp: 8;
-    -webkit-box-orient: vertical;
+  /* Fixed-height window so the feed can't push past the bottom of the screen */
+  .social-feed-container {
+    max-height: 2800px;
     overflow: hidden;
+  }
+
+  /* Curator injects its markup after render, so these need :global()
+     to escape Astro's scoped styles. Class names are Curator's defaults;
+     if one doesn't apply, check the live markup in DevTools. */
+  .social-feed-container :global(.crt-post-text) {
+    font-size: 1.25rem;
+    line-height: 1.6;
+  }
+
+  .social-feed-container :global(.crt-post-name),
+  .social-feed-container :global(.crt-post-username) {
+    font-size: 1.1rem;
+  }
+
+  /* Nobody can click "Load more" on a wall screen */
+  .social-feed-container :global(.crt-load-more) {
+    display: none;
   }
 </style>
