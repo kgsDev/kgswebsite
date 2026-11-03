@@ -3,7 +3,7 @@
 export const prerender = false; // Enable SSR for this page
 import NewsLayout from '../../layouts/NewsLayout.astro';
 import NewsGrid from '../../components/news/NewsGrid.astro';
-import SuscribeCalendar from '../../components/news/SuscribeCalendar.astro';
+import SubscribeCalendar from '../../components/news/SubscribeCalendar.astro';
 import Pagination from '../../components/Pagination.astro';
 import { fetchEvents } from '../../lib/api_news';
 import { EVENT_TYPES, isValidEventType } from '../../lib/eventTypes';
@@ -82,6 +82,7 @@ const description = isUpcoming
         </li>
       </ul>
     </div>
+    <SubscribeCalendar />
   </Fragment>
   
   <!-- Page Content -->

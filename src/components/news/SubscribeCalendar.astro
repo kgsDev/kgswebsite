@@ -1,5 +1,7 @@
 ---
+// src/components/news/SubscribeCalendar.astro
 import { SITE } from '../../lib/ics';
+
 const httpsUrl = `${SITE}/calendar/kgs-events.ics`;
 const webcalUrl = httpsUrl.replace(/^https?:/, 'webcal:');
 const googleUrl = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`;
@@ -9,7 +11,7 @@ const googleUrl = `https://calendar.google.com/calendar/render?cid=${encodeURICo
   <p class="text-sm text-gray-600 mb-3">
     Add KGS community events to your calendar. New events appear automatically.
   </p>
-  <ul class="space-y-2 text-sm">
+  <ul class="subscribe-list space-y-2 text-sm">
     <li>
       <a href={googleUrl} target="_blank" rel="noopener noreferrer" class="baselink inline-flex items-center gap-2">
         <i class="fab fa-google" aria-hidden="true"></i> Google Calendar
@@ -30,6 +32,13 @@ const googleUrl = `https://calendar.google.com/calendar/render?cid=${encodeURICo
   </ul>
 </div>
 
+<style>
+  .subscribe-list { list-style: none; margin: 0; padding: 0; }
+  .subscribe-list li { list-style: none; }
+  .subscribe-list li::before, .subscribe-list li::marker { content: none; }
+  button.baselink { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; }
+</style>
+
 <script>
   document.querySelectorAll('[data-copy-feed]').forEach((btn) => {
     btn.addEventListener('click', async () => {
@@ -38,7 +47,7 @@ const googleUrl = `https://calendar.google.com/calendar/render?cid=${encodeURICo
         await navigator.clipboard.writeText(btn.dataset.copyFeed);
         status.textContent = 'Copied!';
       } catch {
-        status.textContent = btn.dataset.copyFeed; // fallback: show it to copy manually
+        status.textContent = btn.dataset.copyFeed; // fallback: show it for manual copy
       }
       setTimeout(() => (status.textContent = ''), 4000);
     });
