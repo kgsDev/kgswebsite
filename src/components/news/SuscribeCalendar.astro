@@ -1,0 +1,46 @@
+---
+import { SITE } from '../../lib/ics';
+const httpsUrl = `${SITE}/calendar/kgs-events.ics`;
+const webcalUrl = httpsUrl.replace(/^https?:/, 'webcal:');
+const googleUrl = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`;
+---
+<div id="subscribe" class="bg-white p-4 rounded-lg shadow mb-6 scroll-mt-24">
+  <h2 class="text-xl font-bold mb-2 text-blue-800">Subscribe to Events</h2>
+  <p class="text-sm text-gray-600 mb-3">
+    Add KGS community events to your calendar. New events appear automatically.
+  </p>
+  <ul class="space-y-2 text-sm">
+    <li>
+      <a href={googleUrl} target="_blank" rel="noopener noreferrer" class="baselink inline-flex items-center gap-2">
+        <i class="fab fa-google" aria-hidden="true"></i> Google Calendar
+        <span class="sr-only">(opens in new tab)</span>
+      </a>
+    </li>
+    <li>
+      <a href={webcalUrl} class="baselink inline-flex items-center gap-2">
+        <i class="fab fa-apple" aria-hidden="true"></i> Apple Calendar / Outlook desktop
+      </a>
+    </li>
+    <li>
+      <button type="button" class="baselink inline-flex items-center gap-2" data-copy-feed={httpsUrl}>
+        <i class="fas fa-link" aria-hidden="true"></i> Copy feed URL (Outlook web, others)
+      </button>
+      <span class="ml-1 text-green-700" role="status" aria-live="polite" data-copy-status></span>
+    </li>
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll('[data-copy-feed]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const status = btn.parentElement.querySelector('[data-copy-status]');
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyFeed);
+        status.textContent = 'Copied!';
+      } catch {
+        status.textContent = btn.dataset.copyFeed; // fallback: show it to copy manually
+      }
+      setTimeout(() => (status.textContent = ''), 4000);
+    });
+  });
+</script>

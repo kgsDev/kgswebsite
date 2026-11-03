@@ -1,0 +1,94 @@
+---
+import { googleCalendarUrl } from '../../lib/ics';
+const { event, variant = 'menu' } = Astro.props;
+const google = googleCalendarUrl(event);
+const ics = `/calendar/event/${event.slug}.ics`;
+---
+{google && (variant === 'inline' ? (
+  <div class="atc-inline">
+    <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+    <span>Add to calendar:</span>
+    <a href={google} target="_blank" rel="noopener noreferrer">
+      Google<span class="atc-sr"> Calendar (opens in new tab)</span>
+    </a>
+    <span aria-hidden="true">·</span>
+    <a href={ics} download>Apple/Outlook<span class="atc-sr"> (.ics file)</span></a>
+  </div>
+) : (
+  <details class="atc">
+    <summary class="atc-btn">
+      <i class="fas fa-calendar-plus" aria-hidden="true"></i> Add to calendar
+      <i class="fas fa-chevron-down atc-chev" aria-hidden="true"></i>
+    </summary>
+    <ul class="atc-menu" role="list">
+      <li>
+        <a href={google} target="_blank" rel="noopener noreferrer">
+          <i class="fab fa-google" aria-hidden="true"></i> Google Calendar
+          <span class="atc-sr"> (opens in new tab)</span>
+        </a>
+      </li>
+      <li>
+        <a href={ics} download>
+          <i class="fas fa-file-arrow-down" aria-hidden="true"></i> Apple, Outlook &amp; others (.ics)
+        </a>
+      </li>
+    </ul>
+  </details>
+))}
+
+<style>
+  .atc { position: relative; display: inline-block; }
+  .atc-btn {
+    list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1rem; border: 1px solid #2563eb; border-radius: 0.375rem;
+    color: #1e40af; background: #fff; font-weight: 600; font-size: 0.95rem;
+  }
+  .atc-btn::-webkit-details-marker { display: none; }
+  .atc-btn:hover { background: #eff6ff; }
+  .atc-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .atc[open] .atc-chev { transform: rotate(180deg); }
+  .atc-chev { font-size: 0.75rem; transition: transform 150ms; }
+
+  .atc-menu {
+    position: absolute; z-index: 20; top: calc(100% + 0.25rem); left: 0; min-width: 16rem;
+    margin: 0; padding: 0.25rem; list-style: none;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 0.5rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  }
+  .atc-menu li { list-style: none; }
+  .atc-menu li::before, .atc-menu li::marker { content: none; }
+  .atc-menu a {
+    display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem;
+    border-radius: 0.375rem; color: #1f2937; text-decoration: none;
+  }
+  .atc-menu a:hover, .atc-menu a:focus-visible { background: #f3f4f6; }
+  .atc-menu i { width: 1rem; text-align: center; color: #4b5563; }
+
+  .atc-inline {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem;
+    font-size: 0.875rem; color: #4b5563;
+  }
+  .atc-inline a { color: #1e40af; font-weight: 600; text-decoration: none; }
+  .atc-inline a:hover { text-decoration: underline; }
+
+  .atc-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>
+
+<script>
+  // Close menus on outside click or Escape
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('details.atc[open]').forEach((d) => {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('details.atc[open]').forEach((d) => {
+      d.removeAttribute('open');
+      d.querySelector('summary')?.focus();
+    });
+  });
+</script>
