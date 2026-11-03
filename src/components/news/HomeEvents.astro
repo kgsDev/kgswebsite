@@ -1,0 +1,210 @@
+---
+// src/components/news/HomeEvents.astro
+import { fetchEvents } from '../../lib/api_news';
+import { getEventTypes } from '../../lib/eventTypes';
+
+const { limit = 5, pastMonths = 6 } = Astro.props;
+
+const pastSince = new Date();
+pastSince.setMonth(pastSince.getMonth() - pastMonths);
+
+const [upcomingRes, pastRes] = await Promise.all([
+  fetchEvents(limit, 1, true),
+  fetchEvents(limit, 1, false, null, pastSince),
+]);
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const thisYear = new Date().getFullYear();
+
+// Parse 'YYYY-MM-DD' as a local calendar date (avoids the UTC off-by-one)
+const toLocalDate = (s) => {
+  if (!s) return null;
+  const [y, m, d] = String(s).slice(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
+const describe = (ev) => {
+  const start = toLocalDate(ev.event_date) ?? toLocalDate(ev.event_end);
+  const end = toLocalDate(ev.event_end);
+  let range = '';
+  if (start && end && end > start) {
+    range = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()
+      ? `${MONTHS[start.getMonth()]} ${start.getDate()}–${end.getDate()}`
+      : `${MONTHS[start.getMonth()]} ${start.getDate()} – ${MONTHS[end.getMonth()]} ${end.getDate()}`;
+  }
+  return {
+    href: `/news/${ev.slug}`,
+    title: ev.title,
+    iso: (ev.event_date || ev.event_end || '').slice(0, 10),
+    mon: start ? MONTHS[start.getMonth()] : '',
+    day: start ? start.getDate() : '',
+    year: start && start.getFullYear() !== thisYear ? start.getFullYear() : null,
+    range,
+    types: getEventTypes(ev),
+  };
+};
+
+const groups = [
+  {
+    key: 'upcoming',
+    title: 'Upcoming',
+    href: '/news/events?section=upcoming',
+    empty: 'No upcoming events right now. Check back soon!',
+    items: upcomingRes.articles.map(describe),
+  },
+  {
+    key: 'past',
+    title: 'Recent',
+    href: '/news/events?section=past',
+    empty: `No events in the past ${pastMonths} months.`,
+    items: pastRes.articles.map(describe),
+  },
+];
+---
+
+<div class="connect-item home-events">
+  <h3 class="inter-h2 connect-subtitle">KGS in the Community</h3>
+
+  {groups.map((g) => (
+    <div class={`he-group he-${g.key}`}>
+      <div class="he-group-head">
+        <h4 class="he-group-title">{g.title}</h4>
+        <a class="he-all" href={g.href}>
+          View all<span class="he-sr"> {g.key} events</span>
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      {g.items.length > 0 ? (
+        <ul class="he-list" role="list">
+          {g.items.map((ev) => (
+            <li>
+              <a href={ev.href} class="he-link">
+                <time class="he-date" datetime={ev.iso}>
+                  <span class="he-mon">{ev.mon}</span>
+                  <span class="he-day">{ev.day}</span>
+                </time>
+                <span class="he-body">
+                  <span class="he-title">{ev.title}</span>
+                  <span class="he-meta">
+                   {ev.types.map((t) => (
+                      <span class="he-type">
+                        <i class={`fas ${t.icon} ${t.iconColor}`} aria-hidden="true"></i>
+                        {t.label}
+                      </span>
+                    ))}
+                    {ev.range && <span>{ev.range}</span>}
+                    {ev.year && <span>{ev.year}</span>}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="he-empty source-sans-3-p">{g.empty}</p>
+      )}
+    </div>
+  ))}
+</div>
+
+<style>
+  .home-events { margin-bottom: 2rem; }
+
+  .he-group + .he-group { margin-top: 1.5rem; }
+
+  .he-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
+  }
+  .he-group-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4b5563;
+    margin: 0;
+  }
+  .he-all {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e40af;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .he-all:hover { text-decoration: underline; }
+
+  .he-list { list-style: none; margin: 0; padding: 0; }
+  .he-list li { list-style: none; border-bottom: 1px solid #f1f5f9; }
+  .he-list li::before, .he-list li::marker { content: none; }
+  .he-list li:last-child { border-bottom: 0; }
+
+  .he-link {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.65rem 0.25rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: background-color 150ms;
+  }
+  .he-link:hover { background: #f8fafc; }
+  .he-link:hover .he-title { text-decoration: underline; }
+  .he-link:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+  .he-date {
+    flex: 0 0 3.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.3rem 0;
+    border-radius: 0.5rem;
+    background: #eff6ff;
+    color: #1e3a8a;
+    line-height: 1.1;
+    font-family: 'Inter', sans-serif;
+  }
+  .he-mon { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .he-day { font-size: 1.35rem; font-weight: 800; }
+
+  .he-body { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+  .he-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1e3a8a;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .he-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  .he-type { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+  /* Past events: quieter */
+  .he-past .he-date { background: #f3f4f6; color: #4b5563; }
+  .he-past .he-title { color: #374151; }
+
+  .he-empty { color: #6b7280; margin: 0.5rem 0 0; }
+
+  .he-sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+</style>

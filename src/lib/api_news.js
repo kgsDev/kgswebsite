@@ -1,5 +1,6 @@
 // src/lib/api_news.js
 import axios from 'axios';
+import { parseEventTypeKeys } from './eventTypes';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -9,14 +10,30 @@ const api = axios.create({
   }
 });
 
+// Staff shown on news cards: name, photo, and their primary team
+const STAFF_CARD_FIELDS = [
+  'staff.staff_id.id',
+  'staff.staff_id.first_name',
+  'staff.staff_id.last_name',
+  'staff.staff_id.slug',
+  'staff.staff_id.photo',
+  'staff.staff_id.team_primary.name',
+  'staff.staff_id.team_primary.slug',
+];
+
 // Helper function to handle errors consistently
 async function apiRequest(path, params) {
   try {
     const response = await api.get(path, { params });
     return response.data.data || [];
   } catch (error) {
-    console.error(`Error fetching ${path}:`, error.message);
-    console.error('Full error:', error);
+    const status = error.response?.status;
+    const directusErrors = error.response?.data?.errors;
+    console.error(
+      `Directus ${status ?? 'request'} error on ${path}:`,
+      directusErrors ? JSON.stringify(directusErrors, null, 2) : error.message
+    );
+    if (params?.filter) console.error('  filter:', params.filter);
     return [];
   }
 }
@@ -77,7 +94,16 @@ export async function fetchNewsBySlug(slug) {
     try {
       // Get staff relations
       const staffRelations = await apiRequest('/items/articles_staff', {
-        fields: ['staff_id.id', 'staff_id.first_name', 'staff_id.last_name', 'staff_id.slug', 'staff_id.working_title', 'staff_id.photo'],
+          fields: [
+            'staff_id.id',
+            'staff_id.first_name',
+            'staff_id.last_name',
+            'staff_id.slug',
+            'staff_id.working_title',
+            'staff_id.photo',
+            'staff_id.team_primary.name',
+            'staff_id.team_primary.slug',
+          ],
         filter: JSON.stringify({
           articles_id: {
             _eq: article.id
@@ -86,7 +112,7 @@ export async function fetchNewsBySlug(slug) {
       });
       
       if (staffRelations && staffRelations.length > 0) {
-        article.related_staff = staffRelations.map(relation => relation.staff_id);
+        article.related_staff = staffRelations.map(r => r.staff_id).filter(s => s && typeof s === 'object');
       } else {
         article.related_staff = [];
       }
@@ -122,95 +148,107 @@ export async function fetchNewsBySlug(slug) {
   }
 }
 
-/**
- * Fetch event articles with date filtering
- * @param {number} limit - Number of events per page
- * @param {number} page - Current page number
- * @param {boolean} upcoming - If true, fetch only upcoming events, otherwise past events
- */
-export async function fetchEvents(limit = 10, page = 1, upcoming = true) {
-  try {
+const EVENT_FIELDS = [
+  'id',
+  'title',
+  'slug',
+  'excerpt',
+  'main_image',
+  'tile_image',
+  'publication_date',
+  'category',
+  'event_date',
+  'event_end',
+  'event_types',
+  'event_location',
+  'event_website',
+  'author.first_name',
+  'author.last_name',
+  'author.slug',
+  STAFF_CARD_FIELDS,
+];
 
-    // Get current date in YYYY-MM-DD format
+/**
+ * Fetch event articles with date filtering and optional type filtering.
+ * Type filtering is done in JS: Directus doesn't support _contains on JSON fields.
+ */
+export async function fetchEvents(limit = 10, page = 1, upcoming = true, eventType = null, pastSince = null) {
+  try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to beginning of day
+    today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString().split('T')[0];
-    
-    // Create filter based on event status
-    let filter = {
-      status: {
-        _eq: 'published'
-      },
-      category: {
-        _eq: 'event'
-      }
+
+    // Date/status filter only — NO event_types condition goes to Directus
+    const filter = {
+      status: { _eq: 'published' },
+      category: { _eq: 'event' },
     };
-    
-    // Filter by date
+
     if (upcoming) {
-      // Upcoming events: End date is today or in the future
-      filter.event_end = {
-        _gte: todayStr
-      };
+      filter.event_end = { _gte: todayStr };
+    } else if (pastSince) {
+      const d = new Date(pastSince);
+      const sinceStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      filter._and = [
+        { event_end: { _lt: todayStr } },
+        { event_end: { _gte: sinceStr } },
+      ];
     } else {
-      // Past events: End date is in the past
-      filter.event_end = {
-        _lt: todayStr
+      filter.event_end = { _lt: todayStr };
+    }
+
+    const sort = upcoming ? 'event_date' : '-event_date';
+
+    // ---- With a type filter: get the whole section, filter + paginate here ----
+    if (eventType) {
+      const all = await apiRequest('/items/articles', {
+        fields: EVENT_FIELDS,
+        filter: JSON.stringify(filter),
+        sort,
+        limit: -1,
+      });
+
+      const matches = all.filter((a) => parseEventTypeKeys(a).includes(eventType));
+      const totalCount = matches.length;
+      const start = (page - 1) * limit;
+
+      return {
+        articles: matches.slice(start, start + limit),
+        totalCount,
+        page,
+        totalPages: Math.ceil(totalCount / limit),
       };
     }
-    
-    // Fetch events with pagination
+
+    // ---- No type filter: Directus paginates and counts as before ----
     const articles = await apiRequest('/items/articles', {
-      fields: [
-        'id',
-        'title',
-        'slug',
-        'excerpt',
-        'main_image',
-        'tile_image',
-        'publication_date',
-        'category',
-        'event_date',
-        'event_end',
-        'event_location',
-        'event_website',
-        'author.first_name',
-        'author.last_name',
-        'author.slug'
-      ],
+      fields: EVENT_FIELDS,
       filter: JSON.stringify(filter),
-      sort: upcoming ? 'event_date' : '-event_date', // Sort by earliest first for upcoming, latest first for past
-      limit: limit,
-      page: page
+      sort,
+      limit,
+      page,
     });
-    
-   
-    // Get total count for pagination
+
     const countResponse = await api.get('/items/articles', {
       params: {
-        aggregate: {
-          count: 'id'
-        },
-        filter: JSON.stringify(filter)
-      }
+        aggregate: { count: 'id' },
+        filter: JSON.stringify(filter),
+      },
     });
-    
     const totalCount = countResponse.data.data?.[0]?.count?.id || 0;
-    
+
     return {
       articles,
       totalCount,
       page,
-      totalPages: Math.ceil(totalCount / limit)
+      totalPages: Math.ceil(totalCount / limit),
     };
   } catch (error) {
-    console.error(`Error fetching ${upcoming ? 'upcoming' : 'past'} events:`, error);
-    return {
-      articles: [],
-      totalCount: 0,
-      page: page,
-      totalPages: 0
-    };
+    console.error(
+      `Error fetching ${upcoming ? 'upcoming' : 'past'} events:`,
+      error.response?.data?.errors ? JSON.stringify(error.response.data.errors) : error.message
+    );
+    return { articles: [], totalCount: 0, page, totalPages: 0 };
   }
 }
 
@@ -282,6 +320,7 @@ export async function fetchRecentNews(limit = 10, page = 1, category = null) {
         'category',
         'event_date',
         'event_end',
+        'event_types',
         'event_location',
         'event_website',
         'author.first_name',
@@ -290,6 +329,7 @@ export async function fetchRecentNews(limit = 10, page = 1, category = null) {
         'media_type',
         'media_url',
         'media_name',
+        STAFF_CARD_FIELDS,
         ],
       filter: JSON.stringify(filter),
       sort: '-publication_date',
@@ -360,12 +400,14 @@ export async function fetchNewsByMonth(year = null) {
           'category',
           'event_date',
           'event_end',
+          'event_types',
           'author.first_name',
           'author.last_name',
           'author.slug',
           'media_type',
           'media_url',
           'media_name',
+          STAFF_CARD_FIELDS,
         ],
       filter: JSON.stringify(filter),
       sort: '-publication_date'
@@ -452,7 +494,8 @@ export async function fetchNewsByStaffId(staffId, limit = 3) {
         'slug',
         'excerpt',
         'main_image',
-        'publication_date'
+        'publication_date',
+        STAFF_CARD_FIELDS,
       ],
       filter: JSON.stringify({
         id: {
@@ -506,7 +549,7 @@ export async function fetchNewsByLabId(labId, limit = 3) {
         'publication_date',
         'author.first_name',
         'author.last_name',
-        'author.slug'
+        'author.slug',
       ],
       filter: JSON.stringify({
         id: {
@@ -762,6 +805,7 @@ export async function fetchNewsFiltered({
         'category',
         'event_date',
         'event_end',
+        'event_types',
         'event_location',
         'event_website',
         'author.first_name',
@@ -770,6 +814,7 @@ export async function fetchNewsFiltered({
         'media_type',
         'media_url',
         'media_name',
+        STAFF_CARD_FIELDS,
       ],
       filter: JSON.stringify(filter),
       sort: '-publication_date',
@@ -804,4 +849,30 @@ export async function fetchNewsFiltered({
       filterLabel: null, filterType: null, filterNotFound: false
     };
   }
+}
+
+/**
+ * Events for the calendar feed: everything upcoming plus the last N months.
+ * Throws on error (unlike apiRequest) so the feed can return 503 instead of
+ * an empty calendar, which would wipe events from subscribers' calendars.
+ */
+export async function fetchCalendarEvents(pastMonths = 6) {
+  const since = new Date();
+  since.setMonth(since.getMonth() - pastMonths);
+  const sinceStr = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
+
+  const response = await api.get('/items/articles', {
+    params: {
+      fields: ['id', 'title', 'slug', 'excerpt', 'event_date', 'event_end',
+               'event_location', 'event_website', 'event_types'],
+      filter: JSON.stringify({
+        status: { _eq: 'published' },
+        category: { _eq: 'event' },
+        event_end: { _gte: sinceStr },
+      }),
+      sort: 'event_date',
+      limit: -1,
+    },
+  });
+  return response.data.data || [];
 }

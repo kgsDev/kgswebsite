@@ -3,6 +3,7 @@
 import Header from '../components/common/Header.astro';
 import Footer from '../components/common/Footer.astro';
 import NewsGrid from '../components/news/NewsGrid.astro';
+import HomeEvents from '../components/news/HomeEvents.astro';
 import { fetchRecentNews } from '../lib/api_news';
 
 import '../styles/home_global.css';
@@ -147,10 +148,10 @@ const rotatingSections = sections.length > 0 ? sections : [fallbackDynamicData];
                             <p class="source-sans-3-p tile-text">Our research and laboratories enhance knowledge and understanding of Kentucky's geological resources, hazards, and water systems to support science-based decision making for the Commonwealth.</p>
                         </div>
                     </a>
-                    <a href="/about/jobs/" class="tile openings">
+                    <a href="/data/" class="tile openings">
                         <div class="tile-content">
-                            <h2 class="inter-h2 tile-title">Current Openings</h2>
-                            <p class="source-sans-3-p tile-text">Check out our current job opportunities and apply today.</p>
+                            <h2 class="inter-h2 tile-title">Geologic Data</h2>
+                            <p class="source-sans-3-p tile-text">Access our geological data and information resources to support research and decision-making.</p>
                         </div>
                     </a>
                 </div>
@@ -212,6 +213,9 @@ const rotatingSections = sections.length > 0 ? sections : [fallbackDynamicData];
                 <div class="section-connect">
                     <h2 class="inter-h2">Connect with Us</h2>
 
+                    <!-- Home Events Section -->
+                    <HomeEvents limit={5} />
+                    
                     <!-- Podcast Section -->
                     <div class="connect-item podcast">
                         <h3 class="inter-h2 connect-subtitle">The Big Blue Rock Pod</h3>
@@ -224,7 +228,7 @@ const rotatingSections = sections.length > 0 ? sections : [fallbackDynamicData];
 
                         <!-- Social Media Section - Left Column -->
                         <div class="connect-item social">
-                            <h3 class="inter-h2 connect-subtitle">Follow Our Research</h3>
+                            <h3 class="inter-h2 connect-subtitle">Follow KGS</h3>
                             <p class="source-sans-3-p">Stay connected with KGS on social media for updates, research highlights, and community engagement.</p>
                             <div class="social-links">
                                 <a href="https://www.facebook.com/kgsnews/" class="social-link" target="_blank" rel="noopener" aria-label="Follow us on Facebook">

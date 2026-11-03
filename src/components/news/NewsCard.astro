@@ -1,5 +1,7 @@
 ---
 // src/components/news/NewsCard.astro
+import { getEventTypes } from '../../lib/eventTypes';
+import AddToCalendar from '../../components/news/AddToCalendar.astro';
 const { article, size = "medium" } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
@@ -90,6 +92,11 @@ const mediaTypeIcons: Record<string, string> = {
   documentary:    "fa-film",
 };
 
+
+const isEvent = article.category === "event";
+const eventTypeList = isEvent ? getEventTypes(article) : [];
+const eventSection = isEvent && isEventPast(article.event_end) ? 'past' : 'upcoming';
+
 // Get category label, color, href, and icon
 let categoryLabel = "";
 let categoryColor = "";
@@ -112,7 +119,7 @@ if (article.category === "press") {
   categoryHref = "/news/collection";
   categoryIcon = "fa-box-archive";
 } else if (article.category === "event") {
-  categoryLabel = "Event";
+  categoryLabel = "KGS in the Community";
   categoryColor = isEventPast(article.event_end) ? "bg-gray-100 text-gray-700" : "bg-purple-100 text-purple-800";
   categoryHref = "/news/events";
   categoryIcon = "fa-calendar";
@@ -138,6 +145,19 @@ const linkRel = isMedia ? "noopener noreferrer" : undefined;
 
 // Use tile_image if available, otherwise fall back to main_image
 const displayImage = article.tile_image || article.main_image;
+// ---- Staff + primary team ----
+const MAX_STAFF = 3;
+const staffList = (article.staff || [])
+  .map((r) => r?.staff_id)
+  .filter((s) => s && typeof s === 'object' && (s.first_name || s.last_name));
+const shownStaff = staffList.slice(0, MAX_STAFF);
+const extraStaff = staffList.length - shownStaff.length;
+
+// Keep the portrait ratio from Directus; CSS crops it into a circle
+const staffPhotoUrl = (fileId) =>
+  `${directusUrl}assets/${fileId}?quality=80&width=96&height=128&fit=cover`;
+const initials = (s) =>
+  `${s.first_name?.[0] ?? ''}${s.last_name?.[0] ?? ''}`.toUpperCase();
 ---
 
 <div class={`bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 flex ${containerClass}`}>
@@ -212,10 +232,20 @@ const displayImage = article.tile_image || article.main_image;
 
       {article.category && (
         <a href={categoryHref} class={`text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 ${categoryColor}`}>
-          <i class={`fas ${categoryIcon}`}></i>
+          <i class={`fas ${categoryIcon}`} aria-hidden="true"></i>
           {categoryLabel}
         </a>
       )}
+
+      {eventTypeList.map((t) => (
+        <a
+          href={`/news/events?section=${eventSection}&type=${t.key}`}
+          class={`text-xs px-2 py-1 rounded-full inline-flex items-center gap-1 hover:underline ${t.color}`}
+        >
+          <i class={`fas ${t.icon}`} aria-hidden="true"></i>
+          {t.label}
+        </a>
+      ))}
     </div>
 
     {/* Media outlet name */}
@@ -240,6 +270,42 @@ const displayImage = article.tile_image || article.main_image;
       </p>
     )}
 
+    <!-- KGS staff + primary team -->
+    {shownStaff.length > 0 && (
+      <ul class="staff-list" role="list" aria-label="KGS staff">
+        {shownStaff.map((s) => {
+          const Tag = s.slug ? 'a' : 'div';
+          return (
+            <li>
+              <Tag href={s.slug ? `/staff/${s.slug}` : undefined} class="staff-chip">
+                {s.photo ? (
+                  <img
+                    src={staffPhotoUrl(s.photo)}
+                    alt=""
+                    width="36"
+                    height="36"
+                    loading="lazy"
+                    class="staff-photo"
+                  />
+                ) : (
+                  <span class="staff-initials" aria-hidden="true">{initials(s)}</span>
+                )}
+                <span class="staff-text">
+                  <span class="staff-name">{s.first_name} {s.last_name}</span>
+                  {s.team_primary?.name && (
+                    <span class="staff-team">{s.team_primary.name}</span>
+                  )}
+                </span>
+              </Tag>
+            </li>
+          );
+        })}
+        {extraStaff > 0 && (
+          <li class="staff-more">+{extraStaff} more</li>
+        )}
+      </ul>
+    )}
+
     <!-- Read More / Visit Link -->
     <div class="mt-auto pt-3 border-t border-gray-100">
       <a 
@@ -251,6 +317,9 @@ const displayImage = article.tile_image || article.main_image;
       >
         {isMedia ? 'View Coverage' : 'Read Article'}
         <i class={`fas ${isMedia ? 'fa-external-link-alt' : 'fa-arrow-right'} ml-1`}></i>
+        {isEvent && !isEventPast(article.event_end) && (
+          <div class="mt-2"><AddToCalendar event={article} variant="inline" /></div>
+        )}
       </a>
     </div>
   </div>
@@ -275,5 +344,80 @@ const displayImage = article.tile_image || article.main_image;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+    /* Staff list */
+  .staff-list {
+    list-style: none;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .staff-list li { list-style: none; }
+  .staff-list li::before,
+  .staff-list li::marker { content: none; }
+
+  .staff-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 9999px;
+    width: fit-content;
+    max-width: 100%;
+  }
+  a.staff-chip:hover .staff-name { text-decoration: underline; color: #1d4ed8; }
+  a.staff-chip:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+  .staff-photo,
+  .staff-initials {
+    flex: 0 0 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px #e5e7eb;
+  }
+  .staff-photo {
+    object-fit: cover;
+    object-position: 50% 20%; /* favor faces in portrait shots */
+  }
+  .staff-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #dbeafe;
+    color: #1e3a8a;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .staff-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+  .staff-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .staff-team {
+    font-size: 0.75rem;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .staff-more {
+    font-size: 0.8rem;
+    color: #6b7280;
+    padding-left: 2.85rem; /* align with names */
   }
 </style>

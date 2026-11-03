@@ -3,6 +3,8 @@
 export const prerender = false; // Enable SSR for this page
 import NewsLayout from '../../layouts/NewsLayout.astro';
 import LabsList from '../../components/labs/LabsList.astro';
+import AddToCalendar from '../../components/news/AddToCalendar.astro';
+import StaffPerson from '../../components/staff/StaffPerson.astro';
 import { fetchAllNewsSlugs, fetchNewsBySlug, fetchRecentNews } from '../../lib/api_news';
 
 // Generate static paths for all news articles
@@ -161,7 +163,7 @@ if (article.category === "press") {
   categoryLabel = "KGS in the Media";
   categoryUrl = "/news/media";
 } else if (article.category === "event") {
-  categoryLabel = "Events";
+  categoryLabel = "KGS in the Community";
   categoryUrl = "/news/events";
 } else {
   categoryLabel = "News & Announcements";
@@ -258,6 +260,10 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
             {formatDate(article.publication_date)}
           </time>
         )}
+        {/* Add to calendar for upcoming events */}
+        {article.category === 'event' && !isEventPast(article.event_end) && (
+          <AddToCalendar event={article} />
+        )}
       </div>
       
       {article.category === "media" && (article.media_name || article.media_url) && (
@@ -349,32 +355,32 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
       {(article.related_staff?.length > 0 || article.related_labs?.length > 0) && (
         <div class="mt-8">
           <h3 class="text-xl font-bold text-blue-800 mb-4">Related Resources</h3>
-          
-          <div class="grid md:grid-cols-2 gap-6">
-            <!-- Staff Tags -->
+
+          <div class={`grid gap-6 ${article.related_staff?.length && article.related_labs?.length ? 'md:grid-cols-2' : ''}`}>
+            <!-- Staff -->
             {article.related_staff?.length > 0 && (
               <div>
                 <h4 class="text-lg font-semibold text-blue-700 mb-3">KGS Employees</h4>
-                <div class="flex flex-wrap gap-2">
-                  {article.related_staff.map(staff => (
-                    <a href={`/staff/${staff.slug}`} class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 hover:bg-blue-200">
-                      <i class="fas fa-regular fa-user mr-1"></i>
-                      {staff.first_name} {staff.last_name}
-                    </a>
+                <ul
+                  role="list"
+                  class={`staff-grid grid gap-3 ${article.related_labs?.length ? '' : 'sm:grid-cols-2 lg:grid-cols-3'}`}
+                >
+                  {article.related_staff.map((staff) => (
+                    <li><StaffPerson person={staff} /></li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
-            
+
             <!-- Related Labs using component -->
             {article.related_labs?.length > 0 && (
               <div>
                 <h4 class="text-lg font-semibold text-blue-700 mb-3">Research Labs</h4>
-                <LabsList 
-                  labs={article.related_labs} 
-                  directusUrl={directusUrl} 
-                  title="" 
-                  icon={false} 
+                <LabsList
+                  labs={article.related_labs}
+                  directusUrl={directusUrl}
+                  title=""
+                  icon={false}
                 />
               </div>
             )}
@@ -467,4 +473,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
     max-width: 100%;
     height: auto;
   }
+  .staff-grid { list-style: none; margin: 0; padding: 0; }
+  .staff-grid > li { list-style: none; }
+  .staff-grid > li::before, .staff-grid > li::marker { content: none; }
 </style>
