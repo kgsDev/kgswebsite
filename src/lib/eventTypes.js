@@ -3,7 +3,9 @@ export const EVENT_TYPES = {
   speaker:    { label: "Speaker",       color: "bg-sky-100 text-sky-800",     iconColor: "text-sky-700",   icon: "fa-chalkboard-teacher" },
   tabling:    { label: "Tabling",       color: "bg-amber-100 text-amber-800", iconColor: "text-amber-700", icon: "fa-users" },
   kgs_hosted: { label: "KGS Hosted",    color: "bg-teal-100 text-teal-800",   iconColor: "text-teal-700",  icon: "fa-landmark" },
-  other_orgs: { label: "Other Organizations", color: "bg-rose-100 text-rose-800",   iconColor: "text-rose-700",  icon: "fa-people" }, // ← keep your values, add iconColor
+  other_orgs: { label: "Other Organizations", color: "bg-rose-100 text-rose-800",   iconColor: "text-rose-700",  icon: "fa-people" },
+  facilitator:  { label: "Facilitator",  color: "bg-indigo-100 text-indigo-800", iconColor: "text-indigo-700", icon: "fa-comments" },
+  collaborator: { label: "Collaborator", color: "bg-lime-100 text-lime-800",     iconColor: "text-lime-700",   icon: "fa-cogs" }, // ← keep your values, add iconColor
 };
 
 export function isValidEventType(key) {

@@ -1,6 +1,7 @@
 ---
 // src/components/staff/StaffPerson.astro
 // A staff member with photo (or initials), name, title, and primary team.
+import { staffGroup } from '../../lib/staff_helpers';
 const { person, size = 'md', showTitle = true } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
@@ -12,7 +13,8 @@ const photoUrl = person.photo
 
 const name = [person.first_name, person.last_name].filter(Boolean).join(' ');
 const initials = `${person.first_name?.[0] ?? ''}${person.last_name?.[0] ?? ''}`.toUpperCase();
-const team = person.team_primary;
+const group = staffGroup(person);
+const groupIcon = group?.kind === 'team' ? 'fa-users' : 'fa-building';
 const Tag = person.slug ? 'a' : 'div';
 ---
 
@@ -27,10 +29,10 @@ const Tag = person.slug ? 'a' : 'div';
     {showTitle && person.working_title && (
       <span class="sp-title">{person.working_title}</span>
     )}
-    {team?.name && (
+    {group && (
       <span class="sp-team">
-        <i class="fas fa-users" aria-hidden="true"></i>
-        {team.name}
+        <i class={`fas ${groupIcon}`} aria-hidden="true"></i>
+        {group.name}
       </span>
     )}
   </span>
