@@ -1,15 +1,16 @@
 ---
 // src/pages/data/oilgas.astro
 // Oil & Gas data downloads page
-// Migrated from legacy Apache/PHP site + dynamic datasets from Directus
+// Migrated from legacy Apache/PHP site + dynamic datasets from Directus (tag: 'oilgas')
 
 export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import DatasetCard from '../../components/DatasetCard.astro';
 import { fetchDatasets } from '../../lib/api_datalinks.js';
 
-const title = 'Oil & Gas Data Downloads';
-const description = 'Download Kentucky oil and gas well location shapefiles, other datasets, and scanned resources related to Kentucky oil and gas from the Kentucky Geological Survey.';
+const title = 'Oil & Gas Datasets';
+const description = 'Download Kentucky oil and gas well location shapefiles, other datasets, data services, and scanned resources related to Kentucky oil and gas from the Kentucky Geological Survey.';
 
 // Fetch dynamic datasets tagged as oilgas from Directus
 let dynamicDatasets = [];
@@ -19,80 +20,35 @@ try {
   console.error('Could not load dynamic datasets:', e.message);
 }
 
-// Format label and icon for file format codes
-function formatBadge(format) {
-  if (!format) return null;
-  const labels = {
-    shp:     'Shapefile',
-    csv:     'CSV',
-    xls:     'Excel',
-    xlsx:    'Excel',
-    geojson: 'GeoJSON',
-    txt:     'Text',
-    doc:     'Word',
-    docx:    'Word',
-    pdf:     'PDF',
-    zip:     'ZIP'
-  };
-  return labels[format.toLowerCase()] || format.toUpperCase();
-}
+const OG_SEARCH = 'https://kgs.uky.edu/kygeode/services/oilgas/';
+const OG_MAP    = 'https://kgs.uky.edu/kygeode/geomap/?LayoutID=2';
 
-function formatIcon(format) {
-  if (!format) return 'fa-file';
-  const icons = {
-    shp:     'fa-map',
-    csv:     'fa-file-csv',
-    xls:     'fa-file-excel',
-    xlsx:    'fa-file-excel',
-    geojson: 'fa-map',
-    txt:     'fa-file-lines',
-    doc:     'fa-file-word',
-    docx:    'fa-file-word',
-    pdf:     'fa-file-pdf',
-    zip:     'fa-file-zipper'
-  };
-  return icons[format.toLowerCase()] || 'fa-file';
-}
-
-// Extract the file extension from a URL for the download button label
-function getUrlExtension(url) {
-  if (!url) return null;
-  const match = url.split('?')[0].split('#')[0].match(/\.([a-zA-Z0-9]+)$/);
-  if (!match) return null;
-  const ext = match[1].toLowerCase();
-  const labels = {
-    zip:     'ZIP',
-    gz:      'GZ',
-    tar:     'TAR',
-    shp:     'SHP',
-    csv:     'CSV',
-    xls:     'XLS',
-    xlsx:    'XLSX',
-    geojson: 'GeoJSON',
-    txt:     'TXT',
-    doc:     'DOC',
-    docx:    'DOCX',
-    pdf:     'PDF'
-  };
-  return labels[ext] || ext.toUpperCase();
-}
-
-function badgeColor(format) {
-  if (!format) return 'bg-gray-100 text-gray-600';
-  const colors = {
-    shp:     'bg-blue-100 text-blue-800',
-    csv:     'bg-green-100 text-green-800',
-    xls:     'bg-emerald-100 text-emerald-800',
-    xlsx:    'bg-emerald-100 text-emerald-800',
-    geojson: 'bg-teal-100 text-teal-800',
-    txt:     'bg-gray-100 text-gray-600',
-    doc:     'bg-sky-100 text-sky-800',
-    docx:    'bg-sky-100 text-sky-800',
-    pdf:     'bg-red-100 text-red-700',
-    zip:     'bg-amber-100 text-amber-700'
-  };
-  return colors[format.toLowerCase()] || 'bg-gray-100 text-gray-600';
-}
+const tools = [
+  {
+    title: 'Oil & Gas Data Search (KY Geode)',
+    desc: 'Search KGS oil and gas well records using predefined queries. Access well logs, scanned images, stratigraphic tops, and production data.',
+    url: OG_SEARCH,
+    icon: 'fa-oil-well',
+  },
+  {
+    title: 'Oil & Gas Data on the KY Geologic Map Service',
+    desc: 'Explore oil and gas well locations on the KY Geologic Map Information Service. View, query, and export data from the KGS well database.',
+    url: OG_MAP,
+    icon: 'fa-map-location-dot',
+  },
+  {
+    title: 'Coordinate Conversion Tool',
+    desc: 'Convert between Kentucky State Plane, Carter coordinate, and lat/lon systems.',
+    url: 'https://kgs.uky.edu/kgsweb/CoordConversionTool.asp',
+    icon: 'fa-compass',
+  },
+  {
+    title: 'Gathering Line Map Tool',
+    desc: 'Required by regulation: create gathering line maps for submission to the Kentucky Division of Oil and Gas.',
+    url: 'https://kgs.uky.edu/kgsweb/DataSearching/OilGas/GatherLineSrch.asp',
+    icon: 'fa-diagram-project',
+  },
+];
 ---
 
 <BaseLayout
@@ -114,35 +70,22 @@ function badgeColor(format) {
     <div class="container mx-auto px-4 py-12 relative">
       <div class="max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4 drop-shadow-lg" style="color: var(--ivory)">
-          <i class="fas fa-oil-well"></i>
-          Oil &amp; Gas Data Downloads
+          <i class="fas fa-oil-well" aria-hidden="true"></i>
+          Oil &amp; Gas Datasets
         </h1>
         <p class="text-xl mb-6 drop-shadow-lg" style="color: var(--ivory)">{description}</p>
         <div class="flex flex-wrap gap-3">
-          <a
-            href="/data/"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm"
-          >
-            <i class="fas fa-arrow-left"></i>
+          <a href="/data/" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
             All Data Downloads
           </a>
-          <a
-            href="https://kgs.uky.edu/kygeode/services/oilgas/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm"
-          >
-            <i class="fas fa-magnifying-glass"></i>
+          <a href={OG_SEARCH} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
             Oil &amp; Gas Data Search (KY Geode)
           </a>
-          <a
-            href="https://kgs.uky.edu/kygeode/geomap/?LayoutID=2"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm"
-          >
-            <i class="fas fa-map"></i>
-            Oil & Gas Data on the KY Geologic Map Service
+          <a href={OG_MAP} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-map" aria-hidden="true"></i>
+            Oil &amp; Gas Data on the KY Geologic Map Service
           </a>
         </div>
       </div>
@@ -154,9 +97,10 @@ function badgeColor(format) {
     <!-- Intro note -->
     <div class="bg-blue-50 border-l-4 border-[#0033A0] p-5 rounded-r-lg mb-8 text-gray-700 leading-relaxed">
       <p>
-        The downloads below include GIS shapefiles, other datasets, and scanned resources related to Kentucky oil and gas wells.
+        The downloads below include GIS shapefiles, other datasets, mapping service endpoints (REST APIs), and scanned resources related to Kentucky oil and gas wells.
         The well location shapefile contains data for over 160,000 well locations and is updated monthly.
-        Use these data with your own GIS software or cloud services such as <a href="https://www.arcgis.com/index.html" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">ArcGIS Online</a>.
+        Use these data with your own GIS software or cloud services such as
+        <a href="https://www.arcgis.com/index.html" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">ArcGIS Online</a>.
       </p>
     </div>
 
@@ -164,107 +108,18 @@ function badgeColor(format) {
          DYNAMIC DATASETS FROM DIRECTUS
     ─────────────────────────────────────────── -->
     {dynamicDatasets.length > 0 ? (
-      <section class="mb-12">
+      <section class="mb-12" aria-labelledby="downloads-heading">
+        <h2 id="downloads-heading" class="text-2xl font-bold text-[#1B365D] mb-5 flex items-center gap-2">
+          <i class="fas fa-download text-[#0033A0]" aria-hidden="true"></i>
+          Downloads &amp; Data Services
+        </h2>
         <div class="space-y-6">
-          {dynamicDatasets.map(dataset => {
-            const isFeatured = dataset.featured === true || dataset.featured === 'true';
-            const fmt = dataset.file_format?.toLowerCase();
-            const slugtag = dataset.slug ? dataset.slug : '';
-            return (
-              <div id={slugtag} class={`bg-white rounded-lg shadow-md border overflow-hidden hover:shadow-lg transition-shadow ${isFeatured ? 'border-[#0033A0]' : 'border-gray-200'}`}>
-                {isFeatured && (
-                  <div class="bg-[#0033A0] text-white text-xs font-semibold px-4 py-1 flex items-center gap-1">
-                    <i class="fas fa-star text-yellow-300"></i> Featured Dataset
-                  </div>
-                )}
-                <div class="p-6">
-                  <div class="flex flex-wrap items-start justify-between gap-4 mb-3">
-                  <h3 class="text-xl font-bold text-[#1B365D] flex-1">{dataset.title}</h3>
-                  {fmt && (
-                    <span class={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 shrink-0 ${badgeColor(fmt)}`}>
-                    <i class={`fas ${formatIcon(fmt)}`}></i>
-                    {formatBadge(fmt)}
-                    </span>
-                  )}
-                  </div>
-
-                  {dataset.description && (
-                  <div class="text-gray-700 mb-4" set:html={dataset.description} />
-                  )}
-
-                  {dataset.notes && (
-                  <p class="text-sm text-gray-500 italic mb-4">
-                    <i class="fas fa-circle-info mr-1"></i> {dataset.notes}
-                  </p>
-                  )}
-
-                  {(dataset.last_refreshed || dataset.date_updated || dataset.date_created) && (
-                  <p class="text-xs text-gray-400 mb-4">
-                    <i class="fas fa-clock mr-1"></i> Data last updated: {new Date(dataset.last_refreshed || dataset.date_updated || dataset.date_created).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
-                  )}
-
-                  <div class="flex flex-wrap gap-3 items-center">
-                  {dataset.download_url && (() => {
-                    const urlExt = getUrlExtension(dataset.download_url);
-                    return (
-                    <a
-                      href={dataset.download_url}
-                      aria-label={`Download ${dataset.title}${urlExt ? ` (${urlExt})` : ''}`}
-                      class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0033A0] hover:bg-[#1B365D] text-white font-semibold rounded-lg transition-colors"
-                    >
-                      <i class="fas fa-download"></i>
-                      Download{urlExt ? <span class="font-normal opacity-80 text-sm"> ({urlExt})</span> : ''}
-                    </a>
-                    );
-                  })()}
-                  {dataset.metadata_url && (
-                    <a
-                    href={dataset.metadata_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-[#0033A0] hover:text-[#0033A0] text-gray-600 rounded-lg transition-colors text-sm"
-                    aria-label={`View metadata for ${dataset.title}`}
-                    >
-                    <i class="fas fa-file-lines"></i>
-                    Metadata
-                    </a>
-                  )}
-                  {dataset.external_url && (
-                    <a
-                    href={dataset.external_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-[#0033A0] hover:text-[#0033A0] text-gray-600 rounded-lg transition-colors text-sm"
-                    aria-label={`View more information for ${dataset.title}`}
-                    >
-                    <i class="fas fa-arrow-up-right-from-square"></i>
-                    More Info
-                    </a>
-                  )}
-                  {(dataset.contact_name || dataset.contact_email) && (
-                    <span class="text-sm text-gray-500 ml-auto">
-                    <i class="fas fa-envelope mr-1"></i>
-                    Contact:&nbsp;
-                    {dataset.contact_email ? (
-                      <a href={`mailto:${dataset.contact_email}`} class="text-[#0033A0] hover:underline">
-                      {dataset.contact_name || dataset.contact_email}
-                      </a>
-                    ) : (
-                      dataset.contact_name
-                    )}
-                    </span>
-                  )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {dynamicDatasets.map(dataset => <DatasetCard dataset={dataset} />)}
         </div>
       </section>
     ) : (
       <div class="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500 mb-12">
-        <i class="fas fa-database text-3xl mb-3 block text-gray-300"></i>
+        <i class="fas fa-database text-3xl mb-3 block text-gray-300" aria-hidden="true"></i>
         No datasets are currently available. Please check back soon.
       </div>
     )}
@@ -272,38 +127,13 @@ function badgeColor(format) {
     <!-- ───────────────────────────────────────────
          ONLINE SEARCH TOOLS
     ─────────────────────────────────────────── -->
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold text-[#1B365D] mb-5 flex items-center gap-2">
-        <i class="fas fa-magnifying-glass text-[#0033A0]"></i>
+    <section class="mb-12" aria-labelledby="tools-heading">
+      <h2 id="tools-heading" class="text-2xl font-bold text-[#1B365D] mb-5 flex items-center gap-2">
+        <i class="fas fa-magnifying-glass text-[#0033A0]" aria-hidden="true"></i>
         Online Search &amp; Query Tools
       </h2>
       <div class="grid sm:grid-cols-2 gap-4">
-        {[
-          {
-            title: 'Oil & Gas Data Search (KY Geode)',
-            desc: 'Search KGS oil and gas well records using predefined queries. Access well logs, scanned images, stratigraphic tops, and production data.',
-            url: 'https://kgs.uky.edu/kygeode/services/oilgas/',
-            icon: 'fa-oil-well'
-          },
-          {
-            title: 'Oil & Gas Data on the KY Geologic Map Service',
-            desc: 'Explore oil and gas well locations on the KY Geologic Map Information Service. View, query, and export data from the KGS well database.',
-            url: 'https://kgs.uky.edu/kygeode/geomap/?LayoutID=2',
-            icon: 'fa-map-location-dot'
-          },
-          {
-            title: 'Coordinate Conversion Tool',
-            desc: 'Convert between Kentucky State Plane, Carter coordinate, and lat/lon systems.',
-            url: 'https://kgs.uky.edu/kgsweb/CoordConversionTool.asp',
-            icon: 'fa-compass'
-          },
-          {
-            title: 'Gathering Line Map Tool',
-            desc: 'Required by regulation: create gathering line maps for submission to the Kentucky Division of Oil and Gas.',
-            url: 'https://kgs.uky.edu/kgsweb/DataSearching/OilGas/GatherLineSrch.asp',
-            icon: 'fa-diagram-project'
-          }
-        ].map(tool => (
+        {tools.map(tool => (
           <a
             href={tool.url}
             target="_blank"
@@ -311,11 +141,11 @@ function badgeColor(format) {
             class="flex items-start gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#0033A0] hover:shadow-md transition-all group"
           >
             <div class="shrink-0 w-10 h-10 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
-              <i class={`fas ${tool.icon} text-[#0033A0]`}></i>
+              <i class={`fas ${tool.icon} text-[#0033A0]`} aria-hidden="true"></i>
             </div>
             <div>
               <p class="font-semibold text-[#1B365D] group-hover:text-[#0033A0] transition-colors mb-1">
-                {tool.title} <i class="fas fa-arrow-up-right-from-square text-xs ml-1 opacity-60"></i>
+                {tool.title} <i class="fas fa-arrow-up-right-from-square text-xs ml-1 opacity-60" aria-hidden="true"></i>
               </p>
               <p class="text-sm text-gray-600">{tool.desc}</p>
             </div>
@@ -335,7 +165,8 @@ function badgeColor(format) {
         </p>
         <p>
           <strong>Disclaimer:</strong> Data are presented as-is with no warranty, either expressed or implied, as to the completeness or accuracy of any location or well status.
-          Data are submitted by well operators under requirements of <a href="https://apps.legislature.ky.gov/law/statutes/chapter.aspx?id=38944" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">Kentucky Revised Statute 353</a>.
+          Data are submitted by well operators under requirements of
+          <a href="https://apps.legislature.ky.gov/law/statutes/chapter.aspx?id=38944" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">Kentucky Revised Statute 353</a>.
         </p>
         <p>
           <strong>Questions?</strong> Contact <a href="mailto:carrie.p@uky.edu" class="text-[#0033A0] hover:underline">Carrie Pulliam</a> — 859-323-0543

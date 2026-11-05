@@ -7,7 +7,7 @@ export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Data & Downloads';
-const description = 'Download GIS shapefiles, datasets, and data files from the Kentucky Geological Survey. Includes oil and gas well locations, geologic map data, and more.';
+const description = 'Download GIS shapefiles, datasets, and data files from the Kentucky Geological Survey. Includes oil and gas well locations, groundwater data, geologic map data, and more.';
 
 // Data categories — add/remove/reorder as the section grows.
 // "url" is the sub-page within /data/; "external" links go to legacy or external resources.
@@ -20,7 +20,17 @@ const dataCategories = [
     iconColor: 'text-[#0033A0]',
     description: 'Well location shapefiles, production data, and related GIS datasets for Kentucky oil and gas wells.',
     url: '/data/oilgas',
-    highlights: ['Well Location Shapefile (~150,000 wells)', 'Permitted Deviated Well Traces', 'Weekly updates' ]
+    highlights: ['Well Location Shapefile (over 160,000 wells)', 'Permitted Deviated Well Traces', 'Weekly updates' ]
+  },
+  {
+    id: 'groundwater',
+    title: 'Groundwater',
+    icon: 'fa-droplet',
+    color: 'border-[#4CBCC0] bg-teal-50',
+    iconColor: 'text-[#4CBCC0]',
+    description: 'Water well and spring records, groundwater-quality data, and related datasets from the Kentucky Groundwater Data Repository.',
+    url: '/data/gwater',
+    highlights: ['Water well & spring records', 'Groundwater-quality analyses', 'Updated quarterly from KY Division of Water']
   },
   /*
   {
