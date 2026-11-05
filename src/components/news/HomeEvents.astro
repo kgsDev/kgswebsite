@@ -3,7 +3,10 @@
 import { fetchEvents } from '../../lib/api_news';
 import { getEventTypes } from '../../lib/eventTypes';
 
-const { limit = 5, pastMonths = 6 } = Astro.props;
+const { limit = 6, pastMonths = 12, layout = 'stacked' } = Astro.props;
+const isColumns = layout === 'columns';
+const Heading = isColumns ? 'h2' : 'h3';
+const SubHeading = isColumns ? 'h3' : 'h4';
 
 const pastSince = new Date();
 pastSince.setMonth(pastSince.getMonth() - pastMonths);
@@ -62,56 +65,71 @@ const groups = [
 ];
 ---
 
-<div class="connect-item home-events">
-  <h3 class="inter-h2 connect-subtitle">KGS in the Community</h3>
+<div class={`home-events ${isColumns ? 'home-events--columns' : 'connect-item'}`}>
+  <Heading class={`inter-h2 ${isColumns ? 'he-band-title' : 'connect-subtitle'}`}>KGS in the Community</Heading>
 
-  {groups.map((g) => (
-    <div class={`he-group he-${g.key}`}>
-      <div class="he-group-head">
-        <h4 class="he-group-title">{g.title}</h4>
-        <a class="he-all" href={g.href}>
-          View all<span class="he-sr"> {g.key} events</span>
-          <i class="fas fa-arrow-right" aria-hidden="true"></i>
-        </a>
-      </div>
+  <div class="he-groups">
+    {groups.map((g) => (
+      <div class={`he-group he-${g.key}`}>
+        <div class="he-group-head">
+          <SubHeading class="he-group-title">{g.title}</SubHeading>
+          <a class="he-all" href={g.href}>
+            View all<span class="he-sr"> {g.key} events</span>
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
 
-      {g.items.length > 0 ? (
-        <ul class="he-list" role="list">
-          {g.items.map((ev) => (
-            <li>
-              <a href={ev.href} class="he-link">
-                <time class="he-date" datetime={ev.iso}>
-                  <span class="he-mon">{ev.mon}</span>
-                  <span class="he-day">{ev.day}</span>
-                </time>
-                <span class="he-body">
-                  <span class="he-title">{ev.title}</span>
-                  <span class="he-meta">
-                   {ev.types.map((t) => (
-                      <span class="he-type">
-                        <i class={`fas ${t.icon} ${t.iconColor}`} aria-hidden="true"></i>
-                        {t.label}
-                      </span>
-                    ))}
-                    {ev.range && <span>{ev.range}</span>}
-                    {ev.year && <span>{ev.year}</span>}
+        {g.items.length > 0 ? (
+          <ul class="he-list" role="list">
+            {g.items.map((ev) => (
+              <li>
+                <a href={ev.href} class="he-link">
+                  <time class="he-date" datetime={ev.iso}>
+                    <span class="he-mon">{ev.mon}</span>
+                    <span class="he-day">{ev.day}</span>
+                  </time>
+                  <span class="he-body">
+                    <span class="he-title">{ev.title}</span>
+                    <span class="he-meta">
+                    {ev.types.map((t) => (
+                        <span class="he-type">
+                          <i class={`fas ${t.icon} ${t.iconColor}`} aria-hidden="true"></i>
+                          {t.label}
+                        </span>
+                      ))}
+                      {ev.range && <span>{ev.range}</span>}
+                      {ev.year && <span>{ev.year}</span>}
+                    </span>
                   </span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
+                </a>
+              </li>
+            ))}
+          </ul>
       ) : (
         <p class="he-empty source-sans-3-p">{g.empty}</p>
       )}
     </div>
   ))}
+  </div>
 </div>
 
 <style>
   .home-events { margin-bottom: 2rem; }
-
   .he-group + .he-group { margin-top: 1.5rem; }
+
+  /* Full-width band layout (after the defaults so these win) */
+  .home-events--columns { margin-bottom: 0; }
+  .he-band-title { color: var(--navy, #224560); margin: 0 0 1rem; padding-top: 0; }
+
+  @media (min-width: 900px) {
+    .home-events--columns .he-groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .home-events--columns .he-group + .he-group { margin-top: 0; }
+  }
 
   .he-group-head {
     display: flex;

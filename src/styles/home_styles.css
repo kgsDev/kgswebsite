@@ -465,6 +465,39 @@ body {
 }
 
 /* ========================================
+   COMMUNITY EVENTS BAND
+   ======================================== */
+.section-events {
+    background-color: #f8f9fa;
+    border-top: 1px solid var(--gray-dark);
+    border-bottom: 1px solid var(--gray-dark);
+    padding: 35px 25px 30px;          /* phones: matches Ask a Geologist's 25px sides */
+}
+
+.section-events .section-container {
+    background-color: transparent;    /* let the band tint show through */
+}
+
+/* Tablets: same 45px sides as Ask a Geologist */
+@media (min-width: 768px) and (max-width: 1099px) {
+    .section-events {
+        padding: 40px 45px 35px;
+    }
+}
+
+/* Desktop: container handles the width */
+@media (min-width: 1100px) {
+    .section-events {
+        padding: 35px 0 30px;
+    }
+    .section-events .section-container {
+        padding: 0 var(--tile-gap);
+        background-color: transparent;
+    }
+}
+
+
+/* ========================================
    SECTION TILES
    ======================================== */
 
