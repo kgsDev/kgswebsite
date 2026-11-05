@@ -1,0 +1,114 @@
+---
+// src/components/DatasetCard.astro
+// One Directus dataset rendered as a download card.
+// Usage: <DatasetCard dataset={d} />
+
+import {
+  formatBadge,
+  formatIcon,
+  badgeColor,
+  getUrlExtension,
+  datasetDateLine,
+} from '../lib/datasetFormats.js';
+
+const { dataset } = Astro.props;
+
+const isFeatured = dataset.featured === true || dataset.featured === 'true';
+const fmt = dataset.file_format?.toLowerCase();
+const isRest = fmt === 'rest';
+const urlExt = getUrlExtension(dataset.download_url);
+const dateLine = datasetDateLine(dataset);
+
+const secondaryBtn =
+  'inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-[#0033A0] hover:text-[#0033A0] text-gray-600 rounded-lg transition-colors text-sm';
+---
+
+<div
+  id={dataset.slug || undefined}
+  class={`bg-white rounded-lg shadow-md border overflow-hidden hover:shadow-lg transition-shadow ${isFeatured ? 'border-[#0033A0]' : 'border-gray-200'}`}
+>
+  {isFeatured && (
+    <div class="bg-[#0033A0] text-white text-xs font-semibold px-4 py-1 flex items-center gap-1">
+      <i class="fas fa-star text-yellow-300" aria-hidden="true"></i> Featured Dataset
+    </div>
+  )}
+
+  <div class="p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-3">
+      <h3 class="text-xl font-bold text-[#1B365D] flex-1">{dataset.title}</h3>
+      {fmt && (
+        <span class={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 shrink-0 ${badgeColor(fmt)}`}>
+          <i class={`fas ${formatIcon(fmt)}`} aria-hidden="true"></i>
+          {formatBadge(fmt)}
+        </span>
+      )}
+    </div>
+
+    {dataset.description && <div class="text-gray-700 mb-4" set:html={dataset.description} />}
+
+    {dataset.notes && (
+      <p class="text-sm text-gray-500 italic mb-4">
+        <i class="fas fa-circle-info mr-1" aria-hidden="true"></i> {dataset.notes}
+      </p>
+    )}
+
+    {dateLine && (
+      <p class="text-xs text-gray-500 mb-4">
+        <i class="fas fa-clock mr-1" aria-hidden="true"></i> {dateLine}
+      </p>
+    )}
+
+    <div class="flex flex-wrap gap-3 items-center">
+      {dataset.download_url && (
+        <a
+          href={dataset.download_url}
+          aria-label={`Download ${dataset.title}${urlExt ? ` (${urlExt})` : ''}`}
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0033A0] hover:bg-[#1B365D] text-white font-semibold rounded-lg transition-colors"
+        >
+          <i class="fas fa-download" aria-hidden="true"></i>
+          Download{urlExt && <span class="font-normal opacity-80 text-sm"> ({urlExt})</span>}
+        </a>
+      )}
+
+      {dataset.metadata_url && (
+        <a
+          href={dataset.metadata_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={secondaryBtn}
+          aria-label={isRest ? `View REST API endpoint for ${dataset.title}` : `View metadata for ${dataset.title}`}
+        >
+          <i class={`fas ${isRest ? 'fa-code' : 'fa-file-lines'}`} aria-hidden="true"></i>
+          {isRest ? 'REST API' : 'Metadata'}
+        </a>
+      )}
+
+      {dataset.external_url && (
+        <a
+          href={dataset.external_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={secondaryBtn}
+          aria-label={`View more information for ${dataset.title}`}
+        >
+          <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          More Info
+        </a>
+      )}
+
+      {(dataset.contact_name || dataset.contact_email) && (
+        <span class="text-sm text-gray-500 ml-auto">
+          <i class="fas fa-envelope mr-1" aria-hidden="true"></i>
+          Contact:&nbsp;
+          {dataset.contact_email ? (
+            <a href={`mailto:${dataset.contact_email}`} class="text-[#0033A0] hover:underline">
+              {dataset.contact_name || dataset.contact_email}
+            </a>
+          ) : (
+            dataset.contact_name
+          )}
+        </span>
+      )}
+    </div>
+  </div>
+</div>

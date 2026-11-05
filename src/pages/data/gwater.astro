@@ -1,0 +1,189 @@
+---
+// src/pages/data/groundwater.astro
+// Kentucky Groundwater Data Repository — data downloads page
+// Static content + dynamic datasets from Directus (tag: 'groundwater')
+
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DatasetCard from '../../components/DatasetCard.astro';
+import { fetchDatasets } from '../../lib/api_datalinks.js';
+
+const title = 'Groundwater Datasets';
+const description = 'Download water well and spring records, groundwater-quality data, data services, and scanned records from the Kentucky Groundwater Data Repository, maintained by the Kentucky Geological Survey.';
+
+// Fetch dynamic datasets tagged as groundwater from Directus
+let dynamicDatasets = [];
+try {
+  dynamicDatasets = await fetchDatasets('groundwater');
+} catch (e) {
+  console.error('Could not load dynamic datasets:', e.message);
+}
+
+const WELL_SEARCH    = 'https://kgs.uky.edu/kgsweb/DataSearching/Water/WaterWellSearch.asp';
+const QUALITY_SEARCH = 'https://kgs.uky.edu/kgsweb/DataSearching/Water/WaterQualSearch.asp';
+// TODO: confirm the groundwater LayoutID for the Geologic Map Information Service
+const GW_MAP         = 'https://kgs.uky.edu/kygeode/geomap/';
+
+const tools = [
+  {
+    title: 'Water Well & Spring Records Search',
+    desc: 'Search water well and spring records by county, 7.5-minute quadrangle, AKGWA number, or radius from a point. Results include location, use, construction, lithology and casing data, and scanned driller\u2019s logs where available.',
+    url: WELL_SEARCH,
+    icon: 'fa-faucet-drip',
+  },
+  {
+    title: 'Groundwater-Quality Data Search',
+    desc: 'Search water-quality analyses from wells and springs by county, quadrangle, AKGWA number, or radius. View results as a table or map, and download them as delimited text.',
+    url: QUALITY_SEARCH,
+    icon: 'fa-flask',
+  },
+  {
+    title: 'Water Wells & Springs on the KY Geologic Map Service',
+    desc: 'View water wells and springs alongside geology, sinkholes, karst potential, and other KGS layers. Click a well or spring for its details.',
+    url: GW_MAP,
+    icon: 'fa-map-location-dot',
+  },
+  {
+    title: 'Coordinate Conversion Tool',
+    desc: 'Convert between Kentucky State Plane, Carter coordinate, and lat/lon systems.',
+    url: 'https://kgs.uky.edu/kgsweb/CoordConversionTool.asp',
+    icon: 'fa-compass',
+  },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  activePage="data"
+  showBreadcrumb={true}
+  customBreadcrumbs={[
+    { label: 'Data & Downloads', href: '/data' },
+    { label: 'Groundwater', isLast: true }
+  ]}
+>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </Fragment>
+
+  <!-- Page Hero -->
+  <div class="relative bg-gradient-to-br from-[#0033A0] via-[#1B365D] to-[#0033A0] mb-8 overflow-hidden">
+    <div class="container mx-auto px-4 py-12 relative">
+      <div class="max-w-4xl">
+        <p class="text-sm uppercase tracking-wider font-semibold mb-2 opacity-90" style="color: var(--ivory)">
+          Kentucky Groundwater Data Repository
+        </p>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4 drop-shadow-lg" style="color: var(--ivory)">
+          <i class="fas fa-droplet" aria-hidden="true"></i>
+          Groundwater Datasets
+        </h1>
+        <p class="text-xl mb-6 drop-shadow-lg" style="color: var(--ivory)">{description}</p>
+        <div class="flex flex-wrap gap-3">
+          <a href="/data/" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            All Data Downloads
+          </a>
+          <a href={WELL_SEARCH} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+            Water Well &amp; Spring Search
+          </a>
+          <a href={QUALITY_SEARCH} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors text-sm">
+            <i class="fas fa-flask" aria-hidden="true"></i>
+            Groundwater-Quality Search
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Intro note -->
+    <div class="bg-blue-50 border-l-4 border-[#0033A0] p-5 rounded-r-lg mb-8 text-gray-700 leading-relaxed space-y-3">
+      <p>
+        The Kentucky Groundwater Data Repository was established by the Kentucky Geological Survey in 1990 under
+        <a href="https://apps.legislature.ky.gov/law/statutes/statute.aspx?id=6345" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">KRS 151.035</a>
+        to archive and share groundwater data collected by state agencies, other organizations, and independent researchers.
+      </p>
+      <p>
+        The downloads below include water well and spring locations, construction and lithology data, groundwater-quality analyses,
+        mapping service endpoints (REST APIs), and scanned records. Well records are updated quarterly from the Kentucky Division of Water.
+        Use these data with your own GIS software or cloud services such as
+        <a href="https://www.arcgis.com/index.html" target="_blank" rel="noopener noreferrer" class="text-[#0033A0] hover:underline">ArcGIS Online</a>.
+      </p>
+    </div>
+
+    <!-- ───────────────────────────────────────────
+         DYNAMIC DATASETS FROM DIRECTUS
+    ─────────────────────────────────────────── -->
+    {dynamicDatasets.length > 0 ? (
+      <section class="mb-12" aria-labelledby="downloads-heading">
+        <h2 id="downloads-heading" class="text-2xl font-bold text-[#1B365D] mb-5 flex items-center gap-2">
+          <i class="fas fa-download text-[#0033A0]" aria-hidden="true"></i>
+          Downloads &amp; Data Services
+        </h2>
+        <div class="space-y-6">
+          {dynamicDatasets.map(dataset => <DatasetCard dataset={dataset} />)}
+        </div>
+      </section>
+    ) : (
+      <div class="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500 mb-12">
+        <i class="fas fa-database text-3xl mb-3 block text-gray-300" aria-hidden="true"></i>
+        No datasets are currently available. Please check back soon.
+      </div>
+    )}
+
+    <!-- ───────────────────────────────────────────
+         ONLINE SEARCH TOOLS
+    ─────────────────────────────────────────── -->
+    <section class="mb-12" aria-labelledby="tools-heading">
+      <h2 id="tools-heading" class="text-2xl font-bold text-[#1B365D] mb-5 flex items-center gap-2">
+        <i class="fas fa-magnifying-glass text-[#0033A0]" aria-hidden="true"></i>
+        Online Search &amp; Query Tools
+      </h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {tools.map(tool => (
+          <a
+            href={tool.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-start gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#0033A0] hover:shadow-md transition-all group"
+          >
+            <div class="shrink-0 w-10 h-10 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+              <i class={`fas ${tool.icon} text-[#0033A0]`} aria-hidden="true"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-[#1B365D] group-hover:text-[#0033A0] transition-colors mb-1">
+                {tool.title} <i class="fas fa-arrow-up-right-from-square text-xs ml-1 opacity-60" aria-hidden="true"></i>
+              </p>
+              <p class="text-sm text-gray-600">{tool.desc}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────────
+         COPYRIGHT, DISCLAIMER & CONTACT
+    ─────────────────────────────────────────── -->
+    <section class="mb-8">
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 text-sm text-gray-600 space-y-2">
+        <p>
+          <strong>Copyright:</strong> Data and images are copyrighted by the Kentucky Geological Survey, University of Kentucky.
+          Users are granted the right to use these data to produce maps, charts, and reports, and to redistribute the data in their original form with this documentation included.
+        </p>
+        <p>
+          <strong>Disclaimer:</strong> Data are presented as-is with no warranty, either expressed or implied, as to completeness or accuracy.
+          These records represent only information contained in the Kentucky Groundwater Data Repository and may not include every well or spring in a given area.
+          To find out whether a well or spring is within a wellhead protection area, contact the Kentucky Division of Water at 502-564-3410.
+        </p>
+        <p>
+          <!-- TODO: confirm current repository contact -->
+          <strong>Questions?</strong> Contact <a href="mailto:sarah.arpin@uky.edu" class="text-[#0033A0] hover:underline">Sarah Arpin</a> — 859-323-0524
+        </p>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
