@@ -15,12 +15,14 @@ const MAX_PEOPLE = 3;
 
 const [eventsRes, newsRes] = await Promise.all([
   fetchEvents(EVENTS_MAX, 1, true),
-  fetchRecentNews(NEWS_MAX + EVENTS_MAX, 1),
+  fetchRecentNews(NEWS_MAX + EVENTS_MAX, 1), // only need NEWS_MAX, but fetchRecentNews returns events too, so fetch more and filter out the events
+  //fetchRecentNews(NEWS_MAX, 1)
 ]);
 
 const upcomingEvents = eventsRes.articles;
 const eventIds = new Set(upcomingEvents.map((e) => e.id));
-const articles = newsRes.articles.filter((a) => !eventIds.has(a.id)).slice(0, NEWS_MAX);
+const articles = newsRes.articles.filter((a) => !eventIds.has(a.id)).slice(0, NEWS_MAX); // only need NEWS_MAX, but fetchRecentNews returns events too, so filter out the events
+//const articles = newsRes.articles
 
 // Date-only strings ('2026-11-12') as local dates, avoiding the UTC off-by-one
 const parseDate = (s) => {
@@ -39,7 +41,6 @@ const eventBadge = (ev) => {
   return d ? { mon: MONTHS_SHORT[d.getMonth()], day: d.getDate() } : null;
 };
 
-const eventGridCols = ['grid-cols-1', 'grid-cols-2', 'grid-cols-3'][Math.min(upcomingEvents.length, 3) - 1] || 'grid-cols-3';
 const eventCols = ['grid-cols-1', 'grid-cols-2', 'grid-cols-3'][Math.min(upcomingEvents.length, 3) - 1] || 'grid-cols-3';
 
 
@@ -170,7 +171,7 @@ const getCategoryInfo = (article) => {
   <div class="digital-news-display">
 
     {/* Upcoming events — full width, below the header. Wrapper always renders for the refresh script. */}
-    <section id="events-strip" aria-label="Upcoming events" style="margin-top: 5rem;">
+    <section id="events-strip" aria-label="Upcoming events" style="margin-top: 1rem;">
       {upcomingEvents.length > 0 && (
         <div class="events-band">
           <h2 class="display-section-title">
@@ -526,7 +527,7 @@ const getCategoryInfo = (article) => {
     border: 2px solid #e5e7eb;
     border-top: 6px solid #7c3aed;   /* purple = events */
     border-radius: 0.75rem;
-    padding: 1.5rem 2rem 1rem;
+    padding: 0.5rem 2rem 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
   }
 
