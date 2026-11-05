@@ -16,6 +16,7 @@ const STAFF_CARD_FIELDS = [
   'staff.staff_id.first_name',
   'staff.staff_id.last_name',
   'staff.staff_id.slug',
+  'staff.staff_id.working_title', 
   'staff.staff_id.photo',
   'staff.staff_id.team_primary.name',
   'staff.staff_id.team_primary.slug',

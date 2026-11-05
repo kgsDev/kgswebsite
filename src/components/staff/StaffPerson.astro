@@ -2,10 +2,10 @@
 // src/components/staff/StaffPerson.astro
 // A staff member with photo (or initials), name, title, and primary team.
 import { staffGroup } from '../../lib/staff_helpers';
-const { person, size = 'md', showTitle = true } = Astro.props;
+const { person, size = 'md', showTitle = true, link = true } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-const px = size === 'sm' ? 36 : 56;
+const px = size === 'sm' ? 36 : size === 'lg' ? 72 : 56;
 // Request ~2x display size at the photos' native 3:4 ratio; CSS crops to a circle
 const photoUrl = person.photo
   ? `${directusUrl}assets/${person.photo}?quality=80&width=${px * 2}&height=${Math.round(px * 2 * 4 / 3)}&fit=cover`
@@ -15,7 +15,7 @@ const name = [person.first_name, person.last_name].filter(Boolean).join(' ');
 const initials = `${person.first_name?.[0] ?? ''}${person.last_name?.[0] ?? ''}`.toUpperCase();
 const group = staffGroup(person);
 const groupIcon = group?.kind === 'team' ? 'fa-users' : 'fa-building';
-const Tag = person.slug ? 'a' : 'div';
+const Tag = link && person.slug ? 'a' : 'div';
 ---
 
 <Tag href={person.slug ? `/staff/${person.slug}` : undefined} class={`sp sp-${size}`}>
@@ -79,6 +79,13 @@ const Tag = person.slug ? 'a' : 'div';
   }
   .sp-md .sp-initials { font-size: 1.1rem; }
   .sp-sm .sp-initials { font-size: 0.8rem; }
+
+  .sp-lg { gap: 1rem; padding: 0.75rem 1rem; }
+  .sp-lg .sp-photo { width: 4.5rem; height: 4.5rem; }
+  .sp-lg .sp-initials { font-size: 1.4rem; }
+  .sp-lg .sp-name { font-size: 1.2rem; }
+  .sp-lg .sp-title { font-size: 1rem; }
+  .sp-lg .sp-team { font-size: 0.95rem; }
 
   .sp-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
   .sp-name { font-weight: 600; color: #1e3a8a; }

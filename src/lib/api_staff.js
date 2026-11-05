@@ -657,3 +657,10 @@ export async function fetchAllDepartments() {
     return [];
   }
 }
+
+/** Staff objects from an article's `staff` M2M, skipping empty/broken rows. */
+export function getArticleStaff(article) {
+  return (article?.staff || [])
+    .map((r) => r?.staff_id)
+    .filter((s) => s && typeof s === 'object' && (s.first_name || s.last_name));
+}
