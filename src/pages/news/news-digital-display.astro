@@ -2,12 +2,46 @@
 // src/pages/news/digital-display.astro
 export const prerender = false;
 import DigitalDisplayLayout from '../../layouts/DigitalDisplayLayout.astro';
-import { fetchRecentNews } from '../../lib/api_news';
+import StaffPerson from '../../components/staff/StaffPerson.astro';
+import { fetchEvents, fetchRecentNews } from '../../lib/api_news';
+import { getEventTypes } from '../../lib/eventTypes';
+import { getArticleStaff } from '../../lib/api_staff';
 
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
 
-// Fetch 6 recent news items (social feed comes from Curator on the client)
-const { articles } = await fetchRecentNews(6, 1);
+const EVENTS_MAX = 6;   // two rows of three across the top
+const NEWS_MAX = 6;
+const MAX_PEOPLE = 3;
+
+const [eventsRes, newsRes] = await Promise.all([
+  fetchEvents(EVENTS_MAX, 1, true),
+  fetchRecentNews(NEWS_MAX + EVENTS_MAX, 1),
+]);
+
+const upcomingEvents = eventsRes.articles;
+const eventIds = new Set(upcomingEvents.map((e) => e.id));
+const articles = newsRes.articles.filter((a) => !eventIds.has(a.id)).slice(0, NEWS_MAX);
+
+// Date-only strings ('2026-11-12') as local dates, avoiding the UTC off-by-one
+const parseDate = (s) => {
+  if (!s) return null;
+  const str = String(s);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  return new Date(str);
+};
+
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const eventBadge = (ev) => {
+  const d = parseDate(ev.event_date) ?? parseDate(ev.event_end);
+  return d ? { mon: MONTHS_SHORT[d.getMonth()], day: d.getDate() } : null;
+};
+
+const eventGridCols = ['grid-cols-1', 'grid-cols-2', 'grid-cols-3'][Math.min(upcomingEvents.length, 3) - 1] || 'grid-cols-3';
+const eventCols = ['grid-cols-1', 'grid-cols-2', 'grid-cols-3'][Math.min(upcomingEvents.length, 3) - 1] || 'grid-cols-3';
+
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -134,8 +168,55 @@ const getCategoryInfo = (article) => {
   watermarkSubtext="Scan QR Code for Full Articles">
 
   <div class="digital-news-display">
-    
-    <div class="grid grid-cols-3 gap-5" style="margin-top: 5rem;">
+
+    {/* Upcoming events — full width, below the header. Wrapper always renders for the refresh script. */}
+    <section id="events-strip" aria-label="Upcoming events" style="margin-top: 5rem;">
+      {upcomingEvents.length > 0 && (
+        <div class="events-band">
+          <h2 class="display-section-title">
+            <i class="fas fa-calendar-days" aria-hidden="true"></i>
+            Upcoming Events
+          </h2>
+          <ul class={`events-list grid ${eventCols}`} role="list">
+            {upcomingEvents.map((ev) => {
+              const badge = eventBadge(ev);
+              const types = getEventTypes(ev);
+              return (
+                <li class="event-row">
+                  {badge && (
+                    <div class="event-date">
+                      <span class="event-mon">{badge.mon}</span>
+                      <span class="event-day">{badge.day}</span>
+                    </div>
+                  )}
+                  <div class="event-body">
+                    <h3 class="event-title">{ev.title}</h3>
+                    <p class="event-meta">
+                      {types.map((t) => (
+                        <span class="event-type">
+                          <i class={`fas ${t.icon} ${t.iconColor}`} aria-hidden="true"></i>
+                          {t.label}
+                        </span>
+                      ))}
+                      <span>{formatDateRange(ev.event_date, ev.event_end)}</span>
+                      {ev.event_location && (
+                        <span>
+                          <i class="fas fa-map-marker-alt event-meta-icon" aria-hidden="true"></i>
+                          {ev.event_location}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </section>
+
+    {/* Social + news — top margin reduced since the events band now sits above */}
+    <div class="grid grid-cols-3 gap-5" style="margin-top: 2.5rem;">
       
       {/* Social Feed - Left column (Curator.io: Facebook, Instagram, Threads) */}
       <div class="social-feed-column">
@@ -170,6 +251,7 @@ const getCategoryInfo = (article) => {
         {articles.map((article) => {
           const displayImage = article.tile_image || article.main_image;
           const categoryInfo = getCategoryInfo(article);
+          const people = getArticleStaff(article);
           const displayDate = article.category === "event" && article.event_date 
             ? formatDateRange(article.event_date, article.event_end)
             : formatDate(article.publication_date);
@@ -242,6 +324,18 @@ const getCategoryInfo = (article) => {
                     </p>
                   )}
                   
+                  {/* People involved: photo, name, job title, team/department */}
+                  {people.length > 0 && (
+                    <div class="people-list mb-4">
+                      {people.slice(0, MAX_PEOPLE).map((p) => (
+                        <StaffPerson person={p} size="lg" link={false} />
+                      ))}
+                      {people.length > MAX_PEOPLE && (
+                        <p class="people-more">+{people.length - MAX_PEOPLE} more</p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Additional Details Section */}
                   <div class="mt-auto space-y-3">
                     {/* Event Location for Events */}
@@ -425,4 +519,84 @@ const getCategoryInfo = (article) => {
   .social-feed-container :global(.crt-load-more) {
     display: none;
   }
+
+  /* Events band — full width under the header */
+  .events-band {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-top: 6px solid #7c3aed;   /* purple = events */
+    border-radius: 0.75rem;
+    padding: 1.5rem 2rem 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .display-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin: 0 0 0.75rem;
+  }
+  .display-section-title i { color: #7c3aed; }
+
+  .events-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    column-gap: 3rem;
+  }
+  .events-list li::before, .events-list li::marker { content: none; }
+
+  .event-row {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    min-width: 0;
+  }
+
+  .event-date {
+    flex: 0 0 4.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-radius: 0.6rem;
+    background: #eff6ff;
+    color: #1e3a8a;
+    line-height: 1.05;
+  }
+  .event-mon { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .event-day { font-size: 1.9rem; font-weight: 800; }
+
+  .event-body { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+  .event-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    line-height: 1.25;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 1rem;
+    font-size: 1rem;
+    color: #4b5563;
+    margin: 0;
+  }
+  .event-type { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; }
+  .event-meta-icon { color: #7c3aed; margin-right: 0.3rem; }
+
+  /* People on news cards */
+  .people-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .people-more { font-size: 1rem; color: #6b7280; margin: 0; padding-left: 0.25rem; }
+
 </style>
