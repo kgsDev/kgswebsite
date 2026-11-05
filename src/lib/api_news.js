@@ -19,6 +19,8 @@ const STAFF_CARD_FIELDS = [
   'staff.staff_id.photo',
   'staff.staff_id.team_primary.name',
   'staff.staff_id.team_primary.slug',
+  'staff.staff_id.department_id.name',
+  'staff.staff_id.department_id.slug',
 ];
 
 // Helper function to handle errors consistently
@@ -103,6 +105,8 @@ export async function fetchNewsBySlug(slug) {
             'staff_id.photo',
             'staff_id.team_primary.name',
             'staff_id.team_primary.slug',
+            'staff_id.department_id.name',
+            'staff_id.department_id.slug',
           ],
         filter: JSON.stringify({
           articles_id: {

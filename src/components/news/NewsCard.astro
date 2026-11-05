@@ -1,6 +1,7 @@
 ---
 // src/components/news/NewsCard.astro
 import { getEventTypes } from '../../lib/eventTypes';
+import { staffGroup } from '../../lib/staff_helpers';
 import AddToCalendar from '../../components/news/AddToCalendar.astro';
 const { article, size = "medium" } = Astro.props;
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
@@ -146,7 +147,7 @@ const linkRel = isMedia ? "noopener noreferrer" : undefined;
 // Use tile_image if available, otherwise fall back to main_image
 const displayImage = article.tile_image || article.main_image;
 // ---- Staff + primary team ----
-const MAX_STAFF = 3;
+const MAX_STAFF = 4;
 const staffList = (article.staff || [])
   .map((r) => r?.staff_id)
   .filter((s) => s && typeof s === 'object' && (s.first_name || s.last_name));
@@ -275,6 +276,7 @@ const initials = (s) =>
       <ul class="staff-list" role="list" aria-label="KGS staff">
         {shownStaff.map((s) => {
           const Tag = s.slug ? 'a' : 'div';
+          const group = staffGroup(s)?.name;
           return (
             <li>
               <Tag href={s.slug ? `/staff/${s.slug}` : undefined} class="staff-chip">
@@ -292,9 +294,7 @@ const initials = (s) =>
                 )}
                 <span class="staff-text">
                   <span class="staff-name">{s.first_name} {s.last_name}</span>
-                  {s.team_primary?.name && (
-                    <span class="staff-team">{s.team_primary.name}</span>
-                  )}
+                  {group && <span class="staff-team">{group}</span>}
                 </span>
               </Tag>
             </li>
