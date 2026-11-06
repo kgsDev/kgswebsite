@@ -50,9 +50,11 @@ export async function fetchDatasets(category = null) {
       'title',
       'description',
       'file_format',
+      'file_size',
       'download_url',
       'metadata_url',
       'external_url',
+      'rest_url',
       'category',
       'last_refreshed',
       'date_created',
@@ -66,7 +68,7 @@ export async function fetchDatasets(category = null) {
     sort: '-featured,sort,title',
     limit: -1
   });
-
+  console.log(`Fetched ${datasets.length} datasets${category ? ` for category "${category}"` : ''}`);
   return datasets;
 }
 
