@@ -4,7 +4,9 @@
 export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { fetchAllEpisodes, fetchAllTopics, stripHtml } from '../../lib/api_podcast';
+import {
+  fetchAllEpisodes, fetchAllTopics, stripHtml, formatEpisodeDate as formatDate, formatDuration,
+} from '../../lib/api_podcast';
 import { PODCAST_DEFAULT_IMAGE } from '../../lib/podcast_config';
 
 const [episodes, topics] = await Promise.all([fetchAllEpisodes(), fetchAllTopics()]);
@@ -19,10 +21,6 @@ const activeTopic = topics.find(t => t.slug === activeSlug);
 const shown = activeTopic
   ? episodes.filter(ep => ep.topics.some(t => t.slug === activeSlug))
   : episodes;
-
-const formatDate = d => d
-  ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
-  : '';
 
 // Topic filter buttons. These links deliberately live outside <ul>/<p>: global.css styles
 // `ul a` / `p a` with unlayered rules, which beat Tailwind v4 utilities (they're in @layer).
@@ -43,7 +41,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
     <div class="mb-6">
       <h1><i class="fas fa-podcast" aria-hidden="true"></i> The Big Blue Rock Pod</h1>
       <p class="text-gray-700 mt-2">
-        Conversations about Kentucky geology from the Kentucky Geological Survey.
+        This podcast is a fun, conversational approach to discussing all things geology and earth processes. We primarily focus on Kentucky as we talk about emerging ideas in research, along with classic topics in earth science for all levels of interest.
         Browse episodes by topic or search the show notes.
       </p>
     </div>
@@ -93,7 +91,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
 
         <div class="space-y-6">
           {shown.map(ep => (
-            <article id={`episode-${ep.id}`} data-episode
+            <article id={`episode-${ep.episode_number}`} data-episode
                 data-search={`${ep.title} ${stripHtml(ep.description)} ${ep.topics.map(t => t.name).join(' ')}`.toLowerCase()}
                 class="border border-gray-200 rounded-lg p-5 flex flex-col sm:flex-row gap-5">
               {/* Fallback chain: episode art → show logo → branded tile.
@@ -108,11 +106,11 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
               </div>
               <div class="min-w-0 flex-1">
                 <h2 class="text-xl font-semibold text-[#1B365D] mt-0">
-                  {ep.title}
+                  <a href={`/podcast/${ep.slug}`} class="text-[#1B365D] no-underline hover:underline">{ep.title}</a>
                 </h2>
                 <p class="text-sm text-gray-700 mt-1">
                   <time datetime={ep.pub_date}>{formatDate(ep.pub_date)}</time>
-                  {ep.duration && <span>{` · ${ep.duration}`}</span>}
+                  {ep.duration && <span>{` · ${formatDuration(ep.duration)}`}</span>}
                 </p>
 
                 {ep.topics.length > 0 && (
@@ -141,13 +139,16 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=3600');
                   </details>
                 )}
 
-                {ep.episode_url && (
-                  <p class="mt-3 text-sm">
+                <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                  <a href={`/podcast/${ep.slug}`} class="text-[#0033A0] underline">
+                    <i class="fas fa-share-nodes" aria-hidden="true"></i> Episode page &amp; share link<span class="sr-only">: {ep.title}</span>
+                  </a>
+                  {ep.episode_url && (
                     <a href={ep.episode_url} class="text-[#0033A0] underline">
-                      <i class="fas fa-external-link-alt" aria-hidden="true"></i> Episode page on Podbean
+                      <i class="fas fa-external-link-alt" aria-hidden="true"></i> Listen on Podbean<span class="sr-only">: {ep.title}</span>
                     </a>
-                  </p>
-                )}
+                  )}
+                </div>
               </div>
             </article>
           ))}

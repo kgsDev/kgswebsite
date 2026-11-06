@@ -13,6 +13,7 @@ import {
 } from '../../../lib/api_labs';
 
 import { isDraftMode } from '../../../utils/preview';
+import { toPublicUrl } from '../../../lib/site_url.js';
 
 // Get the lab for this page
 const { slug } = Astro.params;
@@ -61,7 +62,7 @@ const isPreviewMode = isDraftMode(Astro.request);
       <p>
         <strong>Preview Mode:</strong> 
         Share this link to let others preview: 
-        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{Astro.url.href}</code>
+        <code class="bg-gray-200 px-2 py-1 rounded ml-1">{toPublicUrl(Astro.url.href, Astro)}</code>
       </p>
     </div>
   )}
