@@ -23,6 +23,7 @@ try {
 const WELL_SEARCH    = 'https://kgs.uky.edu/kgsweb/DataSearching/Water/WaterWellSearch.asp';
 const QUALITY_SEARCH = 'https://kgs.uky.edu/kgsweb/DataSearching/Water/WaterQualSearch.asp';
 const GW_MAP         = 'https://kgs.uky.edu/kygeode/geomap/?layoutid=101';
+const GW_MAP_SERVICE = 'https://kgs.uky.edu/kygeode/map/kgswater/';
 
 const tools = [
   {
@@ -38,16 +39,28 @@ const tools = [
     icon: 'fa-flask',
   },
   {
+    title: 'Water Wells & Springs Map Service',
+    desc: 'This is a focused water well and spring map for Kentucky which displays wells and springs data for the zoomed-in area. Click a well or spring for its details.',
+    url: GW_MAP_SERVICE,
+    icon: 'fa-map-location-dot fa-rotate-180',
+  },
+  {
     title: 'Water Wells & Springs on the KY Geologic Map Service',
     desc: 'View water wells and springs alongside geology, sinkholes, karst potential, and other KGS layers. Click a well or spring for its details.',
     url: GW_MAP,
-    icon: 'fa-map-location-dot',
+    icon: 'fa-globe',
   },
   {
     title: 'Coordinate Conversion Tool',
     desc: 'Convert between Kentucky State Plane, Carter coordinate, and lat/lon systems.',
     url: 'https://kgs.uky.edu/kgsweb/CoordConversionTool.asp',
     icon: 'fa-compass',
+  },
+  {
+    title: 'Report a Sinkhole',
+    desc: 'This survey provides an avenue to report sinkhole collapses throughout the commonwealth of Kentucky.',
+    url: 'https://survey123.arcgis.com/share/17ec9fbec762487fad8a54e2168dd7c2',
+    icon: 'fa-pen-to-square',
   },
 ];
 ---
