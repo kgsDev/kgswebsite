@@ -58,6 +58,19 @@ const secondaryBtn =
       </p>
     )}
 
+    {dataset.file_size && (
+      <p class="text-sm text-gray-500 mb-4">
+        <i class="fas fa-database mr-1" aria-hidden="true"></i> {dataset.file_size}
+      </p>
+    )}
+
+    {dataset.rest_url && (
+      <p class="text-sm text-gray-500 mb-4">
+        <i class="fas fa-code" aria-hidden="true"></i> This dataset is available as a REST API endpoint. For more info on how to use the REST API, see the <a href="../maps/desktop-gis-connection" class="text-[#0033A0] hover:underline">Connection Guide</a>.
+      </p>
+      )}
+
+
     <div class="flex flex-wrap gap-3 items-center">
       {dataset.download_url && (
         <a
@@ -93,6 +106,19 @@ const secondaryBtn =
         >
           <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
           More Info
+        </a>
+      )}
+
+      {dataset.rest_url && (
+        <a
+          href={dataset.rest_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={secondaryBtn}
+          aria-label={`REST endpoint for ${dataset.title}`}
+        >
+          <i class="fas fa-code" aria-hidden="true"></i>
+          REST API
         </a>
       )}
 
