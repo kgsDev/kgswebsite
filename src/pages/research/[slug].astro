@@ -10,6 +10,8 @@ import ResearchPresentations from "../../components/research/ResearchPresentatio
 import { fetchTeamPresentations } from "../../lib/api_research";
 import DatasetList from "../../components/research/DatasetList.astro";
 import DatasetDownloadModal from '../../components/DatasetDownloadModal.astro';
+import NewsCard from '../../components/news/NewsCard.astro';
+import { fetchTeamNews } from '../../lib/api_news';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
 
@@ -264,6 +266,8 @@ function createHierarchicalBreadcrumbs(page: any) {
 
 const customBreadcrumbs = page.parent_page ? createHierarchicalBreadcrumbs(page) : null;
 const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
+const recentNews = await fetchTeamNews(page.Research_Team?.id, { limit: 5 });
+const team = page.Research_Team;
 ---
 
 <Layout title={page.title} customBreadcrumbs={customBreadcrumbs}>
@@ -368,6 +372,30 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
         </aside>
       </div>
 
+      <!-- Latest News Section -->
+      {recentNews.length > 0 && (
+        <div class="content-block" style="margin:2rem 0">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center;"><i class="fas fa-newspaper" style="margin-right: 0.75rem;"></i> Latest {team.name} News</h3>
+              <a href={`/news?team=${team.slug}`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
+                View All News
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+            
+            <div class="space-y-6" style="margin:0 2rem 2rem 2rem;">
+              {recentNews.map(newsItem => (
+                <NewsCard article={newsItem} team={team} />
+              ))}
+            </div>
+        </div>
+        </div>
+      )}
+
+
       <!-- Datasets Section (using reusable component) -->
       <DatasetList teamId={page.Research_Team.id} />
 
@@ -376,6 +404,13 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
         teamId={page.Research_Team.id}
         title="Publications"
       />
+
+      <!-- View Related Publications Link -->
+      <div style="margin-top: 1rem; padding: 1.5rem; background: #f8f9fa; border-radius: 0.5rem; text-align: center;">
+        <a href={`https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=${encodeURIComponent(pubSearchKeyword)}`} class="sidebar-link" style="font-weight: 600; font-size: 1.125rem;">
+          View all related publications <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+        </a>
+      </div>
       
       <!-- Research Presentations Section (full width below publications) -->
       <ResearchPresentations 
@@ -383,13 +418,6 @@ const pubSearchKeyword = page.Research_Team?.pub_search_keyword || page.title;
         title="Presentations"
       />
       
-      <!-- View Related Publications Link -->
-      <div style="margin-top: 1rem; padding: 1.5rem; background: #f8f9fa; border-radius: 0.5rem; text-align: center;">
-        <a href={`https://kgs.uky.edu/kygeode/services/pubs/?critType=keyword&critText=${encodeURIComponent(pubSearchKeyword)}`} class="sidebar-link" style="font-weight: 600; font-size: 1.125rem;">
-          View all related publications <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
-        </a>
-      </div>
-
       <!-- Research Team Section -->
       <ResearchTeam 
         teamName={page.Research_Team.name}

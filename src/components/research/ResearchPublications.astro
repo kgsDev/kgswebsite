@@ -120,8 +120,7 @@ function getPubUrl(pub) {
 }
 ---
 
-{publications.length > 0 && (
-  <div class={showInSidebar ? "sidebar-publications" : "main-publications"}>
+   <div class={showInSidebar ? "sidebar-publications" : "main-publications"}>
     <style>
       .main-publications {
         margin: 2rem 0;
@@ -299,6 +298,7 @@ function getPubUrl(pub) {
       </h3>
     )}
 
+  {publications.length > 0 && (
     <div class={showInSidebar ? "pub-list-compact" : "pub-list"}>
       {publications.map((pub) => {
         const pubUrl = getPubUrl(pub);
