@@ -703,6 +703,55 @@ async function getArticleIdsByTeamSlug(teamSlug) {
   }
 }
 
+/**
+ * Fetch latest news related to a lab
+ */
+export async function fetchTeamNews(teamId, options = {}) {
+  const { limit = 3, page = 1 } = options;
+  
+  try {
+    // First, get news ID's linked to this lab
+    const newsRelations = await apiRequest('/items/articles_team', {
+      fields: ['articles_id'],
+      filter: JSON.stringify({
+        team_id: {
+          _eq: teamId
+        }
+      })
+    });
+    
+    if (!newsRelations || newsRelations.length === 0) {
+      return [];
+    }
+    
+    // Extract news IDs
+    const newsIds = newsRelations.map(relation => relation.articles_id);
+
+    // Fetch the actual news items
+    const news = await apiRequest('/items/articles', {
+      fields: [
+        '*', // Get all fields
+        'main_image.*'
+      ],
+      filter: JSON.stringify({
+        id: {
+          _in: newsIds
+        },
+        status: {
+          _eq: 'published'
+        }
+      }),
+      sort: '-publication_date',
+      limit: limit,
+      page: page
+    });
+   
+    return news;
+  } catch (error) {
+    console.error(`Error fetching news for team ${teamId}:`, error);
+    return [];
+  }
+}
 
 /**
  * Fetch news articles with optional lab or research team filtering.
