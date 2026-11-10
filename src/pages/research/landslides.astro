@@ -5,6 +5,7 @@ import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import ResearchTeam from '../../components/research/ResearchTeam.astro';
 import ResearchPublications from '../../components/research/ResearchPublications.astro';
 import NewsCard from '../../components/news/NewsCard.astro';
+import TeamPodcasts from "../../components/research/TeamPodcasts.astro";
 import { fetchTeamNews } from '../../lib/api_news';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
@@ -638,7 +639,7 @@ try {
             <p>
               <i class="fas fa-envelope"></i>
                {teamStaff.leaders[0] ? (
-                <a href={`mailto:/staff/${teamStaff.leaders[0].email}`} aria-label={`Email ${teamStaff.leaders[0].first_name} ${teamStaff.leaders[0].last_name}`}>
+                <a href={`mailto:${teamStaff.leaders[0].email}`} aria-label={`Email ${teamStaff.leaders[0].first_name} ${teamStaff.leaders[0].last_name}`}>
                   {teamStaff.leaders[0].email}
                 </a>
               ) : (
@@ -647,7 +648,11 @@ try {
             </p>
             <p>
               <i class="fas fa-phone"></i>
-              {teamStaff.leaders[0].phone}
+              {teamStaff.leaders[0] ? (
+                teamStaff.leaders[0].phone
+              ) : (
+                ''
+              )}
             </p>
           </div>
           
@@ -677,6 +682,9 @@ try {
           </a>
         </div>
       </div>
+
+      <!-- Podcast Episodes -->
+      <TeamPodcasts teamId={LANDSLIDE_TEAM_ID} />
 
       <!-- Quick Links -->
       <div class="sidebar-section">
