@@ -10,8 +10,7 @@ import ResearchPresentations from "../../components/research/ResearchPresentatio
 import { fetchTeamPresentations } from "../../lib/api_research";
 import DatasetList from "../../components/research/DatasetList.astro";
 import DatasetDownloadModal from '../../components/DatasetDownloadModal.astro';
-import NewsCard from '../../components/news/NewsCard.astro';
-import TeamPodcasts from "../../components/research/TeamPodcasts.astro";
+import RelatedContent from "../../components/research/RelatedContent.astro";
 import { fetchTeamNews } from '../../lib/api_news';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
@@ -358,9 +357,6 @@ const team = page.Research_Team;
             </div>
           )}
 
-          <!-- Podcast Episodes -->
-          <TeamPodcasts teamId={page.Research_Team.id} />
-
           <!-- Featured Presentations -->
           {hasFeaturedPresentations && (
             <div class="sidebar-section">
@@ -377,29 +373,8 @@ const team = page.Research_Team;
         </aside>
       </div>
 
-      <!-- Latest News Section -->
-      {recentNews.length > 0 && (
-        <div class="content-block" style="margin:2rem 0">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center;"><i class="fas fa-newspaper" style="margin-right: 0.75rem;"></i> Latest {team.name} News</h3>
-              <a href={`/news?team=${team.slug}`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
-                View All News
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-            </div>
-            
-            <div class="space-y-6" style="margin:0 2rem 2rem 2rem;">
-              {recentNews.map(newsItem => (
-                <NewsCard article={newsItem} team={team} />
-              ))}
-            </div>
-        </div>
-        </div>
-      )}
-
+      <!-- Related Content: podcasts, story maps, interactive maps, education, news -->
+      <RelatedContent team={page.Research_Team} />
 
       <!-- Datasets Section (using reusable component) -->
       <DatasetList teamId={page.Research_Team.id} />
