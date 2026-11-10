@@ -10,7 +10,7 @@ interface Props {
   heading?: string;
 }
 
-const { teamId, limit = 3, heading = 'The Big Blue Rock Pod' } = Astro.props;
+const { teamId, limit = 3, heading = 'The Big Blue Rock Pod - Related Episodes' } = Astro.props;
 
 const episodes = await fetchTeamEpisodes(teamId, { limit });
 ---
