@@ -1,0 +1,86 @@
+---
+// src/components/research/TeamPodcasts.astro
+// Compact sidebar list of Big Blue Rock Pod episodes tagged with a research team.
+// Renders nothing at all when the team has no tagged episodes.
+import { fetchTeamEpisodes, formatEpisodeDate, formatDuration } from '../../lib/api_podcast';
+
+interface Props {
+  teamId: number | string;
+  limit?: number;
+  heading?: string;
+}
+
+const { teamId, limit = 3, heading = 'The Big Blue Rock Pod' } = Astro.props;
+
+const episodes = await fetchTeamEpisodes(teamId, { limit });
+---
+
+{episodes.length > 0 && (
+  <div class="sidebar-section team-podcasts">
+    <h3>
+      <i class="fas fa-podcast" aria-hidden="true"></i>
+      {heading}
+    </h3>
+    <ul class="podcast-list">
+      {episodes.map((ep) => {
+        const meta = [
+          ep.episode_number != null ? `Ep. ${ep.episode_number}` : null,
+          formatEpisodeDate(ep.pub_date),
+          formatDuration(ep.duration),
+        ].filter(Boolean).join(' · ');
+        return (
+          <li>
+            <i class="fas fa-headphones" aria-hidden="true"></i>
+            <div>
+              <a href={`/podcast/${ep.slug}`}>{ep.title}</a>
+              {meta && <span class="podcast-meta">{meta}</span>}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+    <a href="/podcast" class="sidebar-link podcast-all">
+      All podcast episodes <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </div>
+)}
+
+<style>
+  .podcast-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .podcast-list li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .podcast-list li > i {
+    color: #0033A0;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+  }
+  .podcast-list a {
+    font-weight: 600;
+    color: #0033A0;
+  }
+  .podcast-list a:hover,
+  .podcast-list a:focus-visible {
+    text-decoration: underline;
+  }
+  .podcast-meta {
+    display: block;
+    font-size: 0.8rem;
+    color: #4b5563;
+    margin-top: 0.15rem;
+  }
+  .podcast-all {
+    margin-top: 0.75rem;
+    font-weight: 600;
+  }
+</style>

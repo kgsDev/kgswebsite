@@ -71,6 +71,28 @@ export async function fetchAllEpisodes() {
 }
 
 /**
+ * Published episodes tagged with a research team, newest first.
+ * Filters through the `team` M2M alias on podcast_episodes, so the junction collection's
+ * name doesn't matter — only its foreign-key field to `team` (assumed `team_id`).
+ * Pass limit: -1 for all.
+ */
+export async function fetchTeamEpisodes(teamId, { limit = -1 } = {}) {
+  if (!teamId) return [];
+  const episodes = await apiRequest('/items/podcast_episodes', {
+    fields: EPISODE_FIELDS,
+    filter: JSON.stringify({
+      _and: [
+        { status: { _eq: 'published' } },
+        { team: { team_id: { _eq: teamId } } },
+      ],
+    }),
+    sort: '-pub_date',
+    limit,
+  });
+  return episodes.map(normalize);
+}
+
+/**
  * One published episode for a /podcast/<slug> URL, or null. Accepts:
  *   "58"            → episode number 58 (newest, if a number were ever reused)
  *   "id-142"        → Directus id 142 (episodes without a number)

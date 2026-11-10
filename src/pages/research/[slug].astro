@@ -11,6 +11,7 @@ import { fetchTeamPresentations } from "../../lib/api_research";
 import DatasetList from "../../components/research/DatasetList.astro";
 import DatasetDownloadModal from '../../components/DatasetDownloadModal.astro';
 import NewsCard from '../../components/news/NewsCard.astro';
+import TeamPodcasts from "../../components/research/TeamPodcasts.astro";
 import { fetchTeamNews } from '../../lib/api_news';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
@@ -356,6 +357,9 @@ const team = page.Research_Team;
               />
             </div>
           )}
+
+          <!-- Podcast Episodes -->
+          <TeamPodcasts teamId={page.Research_Team.id} />
 
           <!-- Featured Presentations -->
           {hasFeaturedPresentations && (
