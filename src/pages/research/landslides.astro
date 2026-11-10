@@ -4,8 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import LightboxEnhancer from "../../components/pages/LightBoxEnhancer.astro";
 import ResearchTeam from '../../components/research/ResearchTeam.astro';
 import ResearchPublications from '../../components/research/ResearchPublications.astro';
-import NewsCard from '../../components/news/NewsCard.astro';
-import TeamPodcasts from "../../components/research/TeamPodcasts.astro";
+import RelatedContent from "../../components/research/RelatedContent.astro";
 import { fetchTeamNews } from '../../lib/api_news';
 import directus from "../../../lib/directus";
 import { readItems } from "@directus/sdk";
@@ -683,9 +682,6 @@ try {
         </div>
       </div>
 
-      <!-- Podcast Episodes -->
-      <TeamPodcasts teamId={LANDSLIDE_TEAM_ID} />
-
       <!-- Quick Links -->
       <div class="sidebar-section">
         <h3>
@@ -712,28 +708,12 @@ try {
 
   </div>
 
-    <!-- Latest News Section -->
-    {recentNews.length > 0 && (
-      <div class="content-block" style="margin:2rem 0">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h3 style="color: #0033A0; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center;"><i class="fas fa-newspaper" style="margin-right: 0.75rem;"></i> Latest Landslide Hazards & Engineering Geology News</h3>
-            <a href={`/news?team=${LANDSLIDE_TEAM_SLUG}`} class="text-sm font-medium lab-primary-text hover:underline flex items-center">
-              View All News
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
-          </div>
-          
-          <div class="space-y-6" style="margin:0 2rem 2rem 2rem;">
-            {recentNews.map(newsItem => (
-              <NewsCard article={newsItem} team={LANDSLIDE_TEAM_ID} />
-            ))}
-          </div>
-      </div>
-      </div>
-    )}
+  <!-- Related Content -->
+  <RelatedContent team={{
+    id: LANDSLIDE_TEAM_ID,
+    name: 'Landslide Hazards & Engineering Geology',
+    slug: LANDSLIDE_TEAM_SLUG
+  }} />
 
     <!-- Research Publications Section -->
   <ResearchPublications 
