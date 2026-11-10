@@ -30,7 +30,7 @@ interface Props {
 
 const {
   team,
-  podcastLimit = 20,
+  podcastLimit = 4,
   newsLimit = 5,
   storyMaps = [],
   interactiveMaps = [],
@@ -48,6 +48,42 @@ const linkGroups = [
   { key: 'interactive-maps', title: 'Interactive Maps', icon: 'fa-map-location-dot', items: interactiveMaps },
   { key: 'education', title: 'Learn More', icon: 'fa-graduation-cap', items: educationalPages },
 ];
+
+// News order: category "event" first, then "our_collection", then everything else.
+// Labels are what show as subheadings; edit freely.
+const NEWS_GROUP_ORDER = [
+  { key: 'event', label: 'Events' },
+  { key: 'our_collection', label: 'From Our Collection' },
+];
+const OTHER_NEWS_LABEL = 'News';
+
+// Reads the category whether it comes back as a string, an array (multi-select),
+// or a related object ({ value } / { slug } / { name }).
+function categoriesOf(item: any): string[] {
+  const raw = item?.category;
+  const list = Array.isArray(raw) ? raw : raw != null ? [raw] : [];
+  return list
+    .map((c) => (typeof c === 'object' && c ? c.value ?? c.slug ?? c.name : c))
+    .filter(Boolean)
+    .map((c) => String(c).toLowerCase());
+}
+
+// Each article lands in the first group it matches; the rest go to "other".
+// Original fetch order (newest first) is kept within each group.
+const newsBuckets = new Map(NEWS_GROUP_ORDER.map((g) => [g.key, [] as any[]]));
+const otherNews: any[] = [];
+for (const item of news) {
+  const cats = categoriesOf(item);
+  const match = NEWS_GROUP_ORDER.find((g) => cats.includes(g.key));
+  (match ? newsBuckets.get(match.key)! : otherNews).push(item);
+}
+const newsGroups = [
+  ...NEWS_GROUP_ORDER.map((g) => ({ ...g, items: newsBuckets.get(g.key)! })),
+  { key: 'other', label: OTHER_NEWS_LABEL, items: otherNews },
+].filter((g) => g.items.length > 0);
+
+// Only label the subgroups when there's more than one; a lone group needs no subheading.
+const showNewsSubheadings = newsGroups.length > 1;
 
 const hasAny =
   episodes.length > 0 ||
@@ -67,7 +103,7 @@ const headingId = `related-content-${team?.slug || team?.id}`;
     {episodes.length > 0 && (
       <div class="related-group">
         <div class="related-group-header">
-          <h3><i class="fas fa-podcast" aria-hidden="true"></i> The Big Blue Rock Pod - Related Episodes</h3>
+          <h3><i class="fas fa-podcast" aria-hidden="true"></i> The Big Blue Rock Pod</h3>
           <a href="/podcast" class="related-more">
             All episodes <i class="fas fa-arrow-right" aria-hidden="true"></i>
           </a>
@@ -97,9 +133,14 @@ const headingId = `related-content-${team?.slug || team?.id}`;
             View All News <i class="fas fa-arrow-right" aria-hidden="true"></i>
           </a>
         </div>
-        <div class="space-y-6 related-news">
-          {news.map((newsItem) => <NewsCard article={newsItem} team={team} />)}
-        </div>
+        {newsGroups.map((group) => (
+          <div class="related-news-group">
+            {showNewsSubheadings && <h4 class="related-news-subhead">{group.label}</h4>}
+            <div class="space-y-6 related-news">
+              {group.items.map((newsItem) => <NewsCard article={newsItem} team={team} />)}
+            </div>
+          </div>
+        ))}
       </div>
     )}
   </section>
@@ -162,6 +203,19 @@ const headingId = `related-content-${team?.slug || team?.id}`;
   }
   .related-news {
     margin: 0 1rem;
+  }
+  .related-news-group + .related-news-group {
+    margin-top: 1.5rem;
+  }
+  .related-news-subhead {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 1rem 0.75rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid #e5e7eb;
   }
   @media (max-width: 768px) {
     .related-news {
