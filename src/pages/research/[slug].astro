@@ -343,20 +343,6 @@ const team = page.Research_Team;
             </div>
           </div>
 
-          <!-- Featured Publications -->
-          {hasFeaturedPublications && (
-            <div class="sidebar-section">
-              <h3>
-                <i class="fas fa-books"></i>
-                Featured Publications
-              </h3>
-              <ResearchPublications 
-                teamId={page.Research_Team.id} 
-                showInSidebar={true}
-              />
-            </div>
-          )}
-
           <!-- Featured Presentations -->
           {hasFeaturedPresentations && (
             <div class="sidebar-section">

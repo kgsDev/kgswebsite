@@ -1,5 +1,7 @@
 ---
 // ResearchPublications.astro
+// Team publications from the external pubs DB. Featured publications for this team are
+// pulled out into their own highlighted group at the top; everything else follows once.
 interface Props {
   teamId: number;
   title?: string;
@@ -7,8 +9,8 @@ interface Props {
   limit?: number;
 }
 
-const { 
-  teamId, 
+const {
+  teamId,
   title = "Recent Publications",
   showInSidebar = false,
   limit = showInSidebar ? 3 : -1
@@ -16,328 +18,355 @@ const {
 
 const pubsDbUrl = "https://kgs.uky.edu/dpub";
 
-// Fetch publications for this research team from external database
-let publications = [];
+let featured: any[] = [];
+let others: any[] = [];
+
+// kygs_team_featured is a boolean on the publication (true / false / null).
+function isFeaturedFor(pub: any): boolean {
+  return pub.kygs_team_featured === true;
+}
 
 try {
-  // Fetch the team with nested publications and authors through the M2M relationships
   const teamResponse = await fetch(
     `${pubsDbUrl}/items/kygs_team?filter[kygs_id][_eq]=${teamId}&fields=id,use_kygs_sort,publications.publications_id.id,publications.publications_id.title,publications.publications_id.publication_year,publications.publications_id.url_download,publications.publications_id.url_webpage,publications.publications_id.cover,publications.publications_id.kygs_team_featured,publications.publications_id.kygs_sort,publications.publications_id.author_id.authors_id.first_name,publications.publications_id.author_id.authors_id.middle_name,publications.publications_id.author_id.authors_id.last_name,publications.publications_id.author_id.authors_id.prefix,publications.publications_id.author_id.authors_id.suffix`
   );
-  
+
   if (!teamResponse.ok) {
     throw new Error(`Failed to fetch team data: ${teamResponse.status}`);
   }
-  
+
   const teamData = await teamResponse.json();
-  
-  // The response is an array, get the first (and should be only) match
   const team = teamData.data?.[0];
-  
-  // Extract the actual publications from the junction table structure
+
   if (team?.publications && Array.isArray(team.publications)) {
-    publications = team.publications
-      .map(junction => junction.publications_id)
-      .filter(pub => pub && pub.id); // Filter out any null/undefined entries
-    
-    // Sort publications: featured first, then by kygs_sort (if present), then by year (descending), then by title
-    publications.sort((a, b) => {
-      // Check if either pub is featured for this team
-      const aFeatured = Array.isArray(a.kygs_team_featured) && a.kygs_team_featured.includes(teamId);
-      const bFeatured = Array.isArray(b.kygs_team_featured) && b.kygs_team_featured.includes(teamId);
-      
-      if (aFeatured && !bFeatured) return -1;
-      if (!aFeatured && bFeatured) return 1;
-      
-      // If both featured or both not featured, check for kygs_sort
-      if(team.use_kygs_sort) {
+    // Unwrap the junction rows and de-duplicate by id (a pub linked twice shows once).
+    const seen = new Set();
+    const publications = team.publications
+      .map((junction: any) => junction.publications_id)
+      .filter((pub: any) => pub && pub.id && !seen.has(pub.id) && seen.add(pub.id));
+
+    // Within each group: kygs_sort (if the team uses it), then year desc, then title.
+    const compare = (a: any, b: any) => {
+      if (team.use_kygs_sort) {
         const aSort = a.kygs_sort ?? null;
         const bSort = b.kygs_sort ?? null;
-        
-        // If both have kygs_sort values, sort by those (ascending - lower numbers first)
-        if (aSort !== null && bSort !== null) {
-          if (aSort !== bSort) return aSort - bSort;
-        }
-        // If only one has kygs_sort, prioritize it
+        if (aSort !== null && bSort !== null && aSort !== bSort) return aSort - bSort;
         if (aSort !== null && bSort === null) return -1;
         if (aSort === null && bSort !== null) return 1;
       }
-      
-      // If neither has kygs_sort or they're equal, sort by year descending
       if (b.publication_year !== a.publication_year) {
-        return b.publication_year - a.publication_year;
+        return (b.publication_year || 0) - (a.publication_year || 0);
       }
-      
-      // Finally sort by title
       return (a.title || '').localeCompare(b.title || '');
-    });
-    
-    // Apply limit if specified
-    if (limit > 0 && publications.length > limit) {
-      publications = publications.slice(0, limit);
+    };
+
+    featured = publications.filter(isFeaturedFor).sort(compare);
+    others = publications.filter((pub: any) => !isFeaturedFor(pub)).sort(compare);
+
+    // Limit counts featured first, then fills with the rest.
+    if (limit > 0) {
+      featured = featured.slice(0, limit);
+      others = others.slice(0, Math.max(0, limit - featured.length));
     }
   }
-
 } catch (error) {
   console.error("Error fetching publications:", error);
 }
 
-// Helper function to format authors from M2M junction table
-function formatAuthors(authorJunctions) {
+const total = featured.length + others.length;
+
+function formatAuthors(authorJunctions: any) {
   if (!Array.isArray(authorJunctions) || authorJunctions.length === 0) return '';
-  
-  // Extract author objects from junction table
-  const authors = authorJunctions
-    .map(junction => junction.authors_id)
-    .filter(author => author && (author.first_name || author.last_name));
-  
-  if (authors.length === 0) return '';
-  
-  // Format each author name with prefix, first, middle, last, suffix
-  const authorNames = authors.map(author => {
-    const parts = [];
-    if (author.prefix) parts.push(author.prefix);
-    if (author.first_name) parts.push(author.first_name);
-    if (author.middle_name) parts.push(author.middle_name);
-    if (author.last_name) parts.push(author.last_name);
-    if (author.suffix) parts.push(author.suffix);
-    return parts.join(' ').trim();
-  }).filter(name => name.length > 0);
-  
+
+  const authorNames = authorJunctions
+    .map((junction: any) => junction.authors_id)
+    .filter((author: any) => author && (author.first_name || author.last_name))
+    .map((author: any) =>
+      [author.prefix, author.first_name, author.middle_name, author.last_name, author.suffix]
+        .filter(Boolean).join(' ').trim()
+    )
+    .filter((name: string) => name.length > 0);
+
   if (authorNames.length === 0) return '';
   if (authorNames.length === 1) return authorNames[0];
   if (authorNames.length === 2) return `${authorNames[0]} and ${authorNames[1]}`;
-  
-  // For 3+ authors, list all with commas and "and" before the last
-  const lastAuthor = authorNames[authorNames.length - 1];
-  const otherAuthors = authorNames.slice(0, -1);
-  return `${otherAuthors.join(', ')}, and ${lastAuthor}`;
+  return `${authorNames.slice(0, -1).join(', ')}, and ${authorNames[authorNames.length - 1]}`;
 }
 
-// Helper function to get publication URL (prefer webpage, fallback to download)
-function getPubUrl(pub) {
+function getPubUrl(pub: any) {
   return pub.url_webpage || pub.url_download || null;
 }
+
+const groups = [
+  { key: 'featured', label: 'Featured', items: featured, isFeatured: true },
+  { key: 'others', label: featured.length ? 'More Publications' : '', items: others, isFeatured: false },
+].filter((g) => g.items.length > 0);
 ---
 
-   <div class={showInSidebar ? "sidebar-publications" : "main-publications"}>
-    <style>
-      .main-publications {
-        margin: 2rem 0;
-        background: #f8f9fa;
-      }
-
-      .main-publications h3 {
-        color: #0033A0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-      }
-
-      .main-publications h3 i {
-        margin-right: 0.75rem;
-      }
-
-      .sidebar-publications {
-        /* Styles already defined in parent page */
-      }
-
-      .pub-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .pub-item {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        padding: 1.25rem;
-        display: flex;
-        gap: 1rem;
-        transition: box-shadow 0.2s;
-      }
-
-      .pub-item:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      }
-
-      .pub-item.featured {
-        border-left: 4px solid #0033A0;
-      }
-
-      .pub-thumbnail {
-        flex-shrink: 0;
-        width: 100px;
-        height: 130px; /* Maintain 815:1057 aspect ratio */
-        border-radius: 0.375rem;
-        overflow: hidden;
-        background: #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .pub-thumbnail img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top; /* Show top of cover */
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-      }
-
-      .pub-thumbnail i {
-        font-size: 2rem;
-        color: #9ca3af;
-      }
-
-      .pub-content {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .pub-title h4 {
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 0.25rem;
-        line-height: 1.3;
-      }
-
-      .pub-list .pub-title {
-        font-size: 1.25rem;
-      }
-
-      .pub-title a {
-        color: #0033A0;
-        text-decoration: none;
-      }
-
-      .pub-title a:hover {
-        text-decoration: underline;
-      }
-
-      .pub-authors {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 0.25rem;
-        line-height: 1.5;
-      }
-
-      .pub-meta {
-        font-size: 0.875rem;
-        color: #6b7280;
-      }
-
-      .pub-year {
-        font-weight: 600;
-        color: #4b5563;
-      }
-
-      /* Sidebar-specific styles */
-      .sidebar-publications .pub-item {
-        flex-direction: column;
-        padding: 1rem;
-      }
-
-      .sidebar-publications .pub-thumbnail {
-        width: 100%;
-        height: 120px;
-      }
-
-      .sidebar-publications .pub-title {
-        font-size: 0.9375rem;
-      }
-
-      .sidebar-publications .pub-authors {
-        font-size: 0.8125rem;
-      }
-
-      .sidebar-publications .pub-meta {
-        font-size: 0.8125rem;
-      }
-
-      /* Compact sidebar version */
-      .pub-list-compact {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .pub-list-compact .pub-item {
-        padding: 1rem;
-        gap: 0.75rem;
-        flex-direction: row; /* Keep horizontal in compact mode */
-      }
-
-      .pub-list-compact .pub-thumbnail {
-        width: 60px;
-        height: 78px; /* Maintain 815:1057 ratio */
-      }
-
-      .pub-list-compact .pub-title {
-        font-size: 0.9375rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .pub-list-compact .pub-authors {
-        font-size: 0.8125rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-    </style>
-
+{total > 0 && (
+  <div class={showInSidebar ? "sidebar-publications" : "main-publications"}>
     {!showInSidebar && (
       <h3>
-        <i class="fas fa-books"></i>
+        <i class="fas fa-books" aria-hidden="true"></i>
         {title}
       </h3>
     )}
 
-  {publications.length > 0 && (
-    <div class={showInSidebar ? "pub-list-compact" : "pub-list"}>
-      {publications.map((pub) => {
-        const pubUrl = getPubUrl(pub);
-        const authors = formatAuthors(pub.author_id);
-        const isFeatured = Array.isArray(pub.kygs_team_featured) && pub.kygs_team_featured.includes(teamId);
-        
-        return (
-          <article class={`pub-item ${isFeatured ? 'featured' : ''}`}>
-            <div class="pub-thumbnail">
-              {pub.cover ? (
-                <img 
-                  src={`${pubsDbUrl}/assets/${pub.cover}?width=300&quality=80`}
-                  alt={`Cover for ${pub.title}`}
-                  loading="lazy"
-                />
-              ) : (
-                <i class="fas fa-file-alt"></i>
-              )}
-            </div>
-            <div class="pub-content">
-              <h4 class="pub-title">
-                {pubUrl ? (
-                  <a href={pubUrl} target="_blank" rel="noopener noreferrer">
-                    {pub.title}
-                  </a>
-                ) : (
-                  pub.title
-                )}
-              </h4>
-              {authors ? (
-                <p class="pub-authors"><strong>KGS-affiliated authors: </strong>{authors}</p>
-              ) : null}
-              <p class="pub-meta">
-                <span class="pub-year">{pub.publication_year}</span>
-              </p>
-            </div>
-          </article>
-        );
-      })}
-    </div>
+    {groups.map((group) => (
+      <div class={`pub-group pub-group--${group.key}`}>
+        {!showInSidebar && group.label && (
+          <h4 class="pub-group-label">
+            {group.isFeatured && <i class="fas fa-star" aria-hidden="true"></i>}
+            {group.label}
+          </h4>
+        )}
+        <div class={showInSidebar ? "pub-list-compact" : "pub-list"}>
+          {group.items.map((pub) => {
+            const pubUrl = getPubUrl(pub);
+            const authors = formatAuthors(pub.author_id);
+
+            return (
+              <article class={`pub-item ${group.isFeatured ? 'featured' : ''}`}>
+                <div class="pub-thumbnail">
+                  {pub.cover ? (
+                    <img
+                      src={`${pubsDbUrl}/assets/${pub.cover}?width=300&quality=80`}
+                      alt={`Cover for ${pub.title}`}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <i class="fas fa-file-alt" aria-hidden="true"></i>
+                  )}
+                </div>
+                <div class="pub-content">
+                  {group.isFeatured && (
+                    <span class="pub-badge">
+                      <i class="fas fa-star" aria-hidden="true"></i> Featured
+                    </span>
+                  )}
+                  <h5 class="pub-title">
+                    {pubUrl ? (
+                      <a href={pubUrl} target="_blank" rel="noopener noreferrer">
+                        {pub.title}
+                        <span class="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    ) : (
+                      pub.title
+                    )}
+                  </h5>
+                  {authors && (
+                    <p class="pub-authors"><strong>KGS-affiliated authors: </strong>{authors}</p>
+                  )}
+                  {pub.publication_year && (
+                    <p class="pub-meta">
+                      <span class="pub-year">{pub.publication_year}</span>
+                    </p>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    ))}
   </div>
 )}
+
+<style>
+  .main-publications {
+    margin: 2rem 0;
+    background: #f8f9fa;
+  }
+
+  .main-publications h3 {
+    color: #0033A0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .main-publications h3 i {
+    margin-right: 0.75rem;
+  }
+
+  /* Group labels ("Featured" / "More Publications") */
+  .pub-group + .pub-group {
+    margin-top: 2rem;
+  }
+
+  .pub-group-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pub-group--featured .pub-group-label {
+    color: #0033A0;
+    border-bottom: 2px solid #0033A0;
+  }
+
+  .pub-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pub-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .pub-item:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Featured: tinted background, heavy brand-blue left rule, larger cover */
+  .pub-item.featured {
+    background: #f0f4fb;
+    border-color: #c7d4ee;
+    border-left: 5px solid #0033A0;
+    box-shadow: 0 2px 6px rgba(0, 51, 160, 0.08);
+  }
+
+  .pub-list .pub-item.featured .pub-thumbnail {
+    width: 120px;
+    height: 156px;
+  }
+
+  .pub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: #0033A0;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .pub-thumbnail {
+    flex-shrink: 0;
+    width: 100px;
+    height: 130px; /* 815:1057 cover ratio */
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pub-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .pub-thumbnail i {
+    font-size: 2rem;
+    color: #9ca3af;
+  }
+
+  .pub-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pub-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.25rem;
+    line-height: 1.3;
+  }
+
+  .pub-list .pub-title {
+    font-size: 1.25rem;
+  }
+
+  .pub-title a {
+    color: #0033A0;
+    text-decoration: none;
+  }
+
+  .pub-title a:hover,
+  .pub-title a:focus-visible {
+    text-decoration: underline;
+  }
+
+  .pub-authors {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+  }
+
+  .pub-meta {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+
+  .pub-year {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  /* Compact sidebar version (kept for any page still using showInSidebar) */
+  .pub-list-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pub-list-compact .pub-item {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .pub-list-compact .pub-thumbnail {
+    width: 60px;
+    height: 78px;
+  }
+
+  .pub-list-compact .pub-title {
+    font-size: 0.9375rem;
+  }
+
+  .pub-list-compact .pub-authors {
+    font-size: 0.8125rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .pub-list .pub-item {
+      flex-direction: column;
+    }
+    .pub-list .pub-thumbnail,
+    .pub-list .pub-item.featured .pub-thumbnail {
+      width: 100px;
+      height: 130px;
+    }
+  }
+</style>
